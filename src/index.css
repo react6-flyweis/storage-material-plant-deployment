@@ -9,10 +9,18 @@
   font-family: "Poppins", sans-serif;
   --primary-color: #2F93F6;
   --text-color-primary: #282828;
+  --text-color-primary-blue: #1D51A4;
+  --text-color-green: #3AB449;
+  --text-color-gold: #EAB308;
+  --text-color-salmon: #FD8D5B
   --text-color-gray: #949CA9;
+  --text-color-gray-2: #4B5563;
+  --text-color-black: #111827;
+  --button-bg-primary-color: #2563EB;
 }
 
 body {
     margin: 0;
     line-height: inherit;
+    background-color: #E5ECFF;
 }
