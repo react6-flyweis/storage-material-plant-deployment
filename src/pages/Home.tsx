@@ -1,14 +1,14 @@
 import { useState, useEffect } from "react";
-import Sidebar from "../components/Sidebar";
+import Sidebar from "../components/common_component/Sidebar";
 import SidePanel from "../components/SidePanel";
-import Header from "../components/Header";
+import Header from "../components/common_component/Header";
 import StatCard from "../components/StatCard";
 import KPICard from "../components/KPICard";
 import { type Column } from "../components/Table";
 import DashboardWidgets from "../components/DashboardWidgets";
 import EquipmentView from "../components/EquipmentView";
 import InventoryTable from "../components/InventoryTable";
-import MaterialInventoryView from "../components/MaterialInventoryView";
+import MaterialInventoryView from "../components/material_inventory_management/MaterialInventoryView";
 import ProductionManagementView from "../components/ProductionManagementView";
 import { NAV_ITEMS } from "../constants/navigation";
 import MaintenanceAndSchedulingView from "../components/maintenance_and_scheduling/MaintenanceAndSchedulingView";
@@ -16,11 +16,17 @@ import EquipmentAllocationView from "../components/equipment_allocation/Equipmen
 import TransferRequestsView from "../components/equipment_allocation/TransferRequestsView";
 import UsageTrackingView from "../components/equipment_allocation/UsageTrackingView";
 import NotificationsView from "../components/notifications/NotificationsView";
+import CommunicationView from "../components/communication/CommunicationView";
+import ProfileView from "../components/profile/ProfileView";
+import SettingsView from "../components/settings/SettingsView";
+import { type ViewType } from "../config/routes";
+import { mockInventoryData, mockMachineUsageData } from "../data/mockData";
 
 const Home = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
   const [activeSubTab, setActiveSubTab] = useState(NAV_ITEMS[0].items[0] || "");
+  const [currentView, setCurrentView] = useState<ViewType>("main");
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -28,6 +34,7 @@ const Home = () => {
 
   const handleTabChange = (index: number) => {
     setActiveTab(index);
+    setCurrentView("main"); // Reset to main view when changing tabs
     const navItem = NAV_ITEMS[index];
     if (navItem.items.length > 0) {
       setActiveSubTab(navItem.items[0]);
@@ -41,7 +48,7 @@ const Home = () => {
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [activeTab, activeSubTab]);
+  }, [activeTab, activeSubTab, currentView]);
 
   const contentTitles = [
     "Dashboard",
@@ -52,46 +59,7 @@ const Home = () => {
     "Notifications",
   ];
 
-  const inventoryData = [
-    {
-      material: "Cement",
-      currentStock: 230,
-      unit: "Bags",
-      minLevel: 300,
-      status: "🔴 Low Stock",
-      action: "Reorder",
-      actionType: "secondary",
-    },
-    {
-      material: "Steel Rod TMT 12mm",
-      currentStock: 8.2,
-      unit: "Tons",
-      minLevel: 5,
-      status: "🟢 OK",
-      action: "View",
-      actionType: "primary",
-    },
-    {
-      material: "Aggregates 20mm",
-      currentStock: 40,
-      unit: "Tons",
-      minLevel: 50,
-      status: "🟡 At Risk",
-      action: "Reorder",
-      actionType: "secondary",
-    },
-    {
-      material: "Safety Helmets",
-      currentStock: 120,
-      unit: "Units",
-      minLevel: 100,
-      status: "🟢 OK",
-      action: "View",
-      actionType: "primary",
-    },
-  ];
-
-  const inventoryColumns: Column<(typeof inventoryData)[0]>[] = [
+  const inventoryColumns: Column<(typeof mockInventoryData)[0]>[] = [
     {
       header: "Material",
       accessor: (row) => <span className="text-gray-900">{row.material}</span>,
@@ -133,42 +101,7 @@ const Home = () => {
   ];
 
   // --- Data for Machine Usage Table ---
-  const machineData = [
-    {
-      equipment: "Excavator CAT 320D",
-      type: "Heavy",
-      lastService: "05-Apr",
-      nextDue: "20-Apr",
-      priority: "High",
-      priorityColor: "bg-red-500", // Dot color
-    },
-    {
-      equipment: "Concrete Mixer 350L",
-      type: "Small",
-      lastService: "15-Mar",
-      nextDue: "15-Apr",
-      priority: "Medium",
-      priorityColor: "bg-yellow-400",
-    },
-    {
-      equipment: "Generator 25 kVA",
-      type: "Medium",
-      lastService: "01-Apr",
-      nextDue: "13-Apr",
-      priority: "Scheduled",
-      priorityColor: "bg-blue-500",
-    },
-    {
-      equipment: "Excavator CAT 320D",
-      type: "Heavy",
-      lastService: "05-Apr",
-      nextDue: "20-Apr",
-      priority: "High",
-      priorityColor: "bg-red-500",
-    },
-  ];
-
-  const machineColumns: Column<(typeof machineData)[0]>[] = [
+  const machineColumns: Column<(typeof mockMachineUsageData)[0]>[] = [
     {
       header: "Equipment",
       accessor: (row) => <span className="text-gray-600">{row.equipment}</span>,
@@ -419,13 +352,11 @@ const Home = () => {
         />
       </div>
 
-      <DashboardWidgets />
-
       {/* Render Inventory Table */}
       <InventoryTable
         title="Material Inventory Snapshot"
         columns={inventoryColumns}
-        data={inventoryData}
+        data={mockInventoryData}
         footer={
           <div className="flex items-center gap-2 text-xs text-gray-600">
             <span className="font-medium">
@@ -434,12 +365,13 @@ const Home = () => {
           </div>
         }
       />
+      <DashboardWidgets />
 
       {/* Render Machine Usage Table */}
       <InventoryTable
         title="Machine usage & maintenance reminders"
         columns={machineColumns}
-        data={machineData}
+        data={mockMachineUsageData}
         onViewAll={() => console.log("View All Clicked")}
       />
     </>
@@ -454,6 +386,24 @@ const Home = () => {
 
   const renderContent = () => {
     // Logic for Content Routing
+    if (currentView === "profile") {
+      return (
+        <ProfileView
+          onBack={() => setCurrentView("main")}
+          onNavigate={(view) => setCurrentView(view)}
+        />
+      );
+    }
+
+    if (currentView === "settings") {
+      return (
+        <SettingsView
+          onBack={() => setCurrentView("main")}
+          onNavigate={(view) => setCurrentView(view)}
+        />
+      );
+    }
+
     if (activeTab === 0) {
       return renderDashboardContent();
     }
@@ -491,6 +441,9 @@ const Home = () => {
       return <EquipmentAllocationView />;
     }
 
+    if (activeTab === 4) {
+      return <CommunicationView />;
+    }
     if (activeTab === 5) {
       return <NotificationsView />;
     }
@@ -525,7 +478,11 @@ const Home = () => {
 
       {/* Main Content Area */}
       <div className="flex-1 w-full p-4 pt-0 md:p-4 md:pt-3 lg:pt-3 lg:p-3 transition-all duration-300 min-h-screen flex flex-col min-w-0">
-        <Header onMenuToggle={toggleSidebar} />
+        <Header
+          onMenuToggle={toggleSidebar}
+          onProfileClick={() => setCurrentView("profile")}
+          onSettingsClick={() => setCurrentView("settings")}
+        />
         {renderContent()}
       </div>
     </div>

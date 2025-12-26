@@ -17,8 +17,6 @@ const Modal: React.FC<ModalProps> = ({
   width = "max-w-2xl",
 }) => {
   const modalRef = useRef<HTMLDivElement>(null);
-
-  // Close on Escape key
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -28,7 +26,6 @@ const Modal: React.FC<ModalProps> = ({
 
     if (isOpen) {
       document.addEventListener("keydown", handleEscape);
-      // Prevent body scrolling
       document.body.style.overflow = "hidden";
     }
 
@@ -38,7 +35,6 @@ const Modal: React.FC<ModalProps> = ({
     };
   }, [isOpen, onClose]);
 
-  // Handle outside click
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
       onClose();
@@ -57,7 +53,7 @@ const Modal: React.FC<ModalProps> = ({
         className={`bg-white rounded-xl shadow-2xl w-full ${width} m-4 relative flex flex-col max-h-[90vh] animate-in fade-in zoom-in-95 duration-200`}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-100">
+        <div className="flex items-center justify-between p-6 border-b border-[#D5D5D5]">
           <h2 className="text-xl font-bold text-gray-800">{title}</h2>
           <button
             onClick={onClose}
@@ -80,7 +76,6 @@ const Modal: React.FC<ModalProps> = ({
           </button>
         </div>
 
-        {/* Content */}
         <div className="p-6 overflow-y-auto">{children}</div>
       </div>
     </div>,

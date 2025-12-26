@@ -1,11 +1,11 @@
 import React from "react";
-import iconBg from "../assets/sideBarIconBg.svg";
-import MenuIcon1 from "../assets/menuIcon1.svg";
-import MenuIcon2 from "../assets/MenuIcon2.svg";
-import MenuIcon3 from "../assets/menuIcon3.svg";
-import MenuIcon4 from "../assets/MenuIcon4.svg";
-import MenuIcon5 from "../assets/MenuIcon5.svg";
-import MenuIcon6 from "../assets/MenuIcon6.svg";
+import iconBg from "../../assets/sideBarIconBg.svg";
+import MenuIcon1 from "../../assets/menuIcon1.svg";
+import MenuIcon2 from "../../assets/MenuIcon2.svg";
+import MenuIcon3 from "../../assets/menuIcon3.svg";
+import MenuIcon4 from "../../assets/MenuIcon4.svg";
+import MenuIcon5 from "../../assets/MenuIcon5.svg";
+import MenuIcon6 from "../../assets/MenuIcon6.svg";
 
 interface SidebarProps {
   isOpen: boolean;

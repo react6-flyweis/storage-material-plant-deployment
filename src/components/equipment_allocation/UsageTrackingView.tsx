@@ -7,10 +7,6 @@ import { equipmentData } from "./mockData";
 const UsageTrackingView = () => {
   const [isModalOpen, setIsModalOpen] = React.useState(false);
 
-  const openModal = () => {
-    setIsModalOpen(true);
-  };
-
   const closeModal = () => {
     setIsModalOpen(false);
   };

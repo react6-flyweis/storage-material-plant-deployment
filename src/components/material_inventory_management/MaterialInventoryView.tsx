@@ -1,7 +1,7 @@
 import React from "react";
-import Table, { type Column } from "./Table";
-import StatCard from "./StatCard";
-import AddEquipmentModal from "./AddEquipmentModal";
+import Table, { type Column } from "../Table";
+import StatCard from "../StatCard";
+import AddMaterialModal from "./AddEquipmentModal";
 
 const MaterialInventoryView = () => {
   const [isModalOpen, setIsModalOpen] = React.useState(false);
@@ -196,9 +196,9 @@ const MaterialInventoryView = () => {
         <div>
           <button
             onClick={openModal}
-            className="bg-(--primary-color) text-white px-4 py-2 rounded-lg font-medium shadow-sm hover:opacity-80 transition-colors flex items-center gap-2 text-sm"
+            className="bg-(--button-bg-primary-color) text-white px-4 py-2 rounded-lg font-medium shadow-sm hover:opacity-80 transition-colors flex items-center gap-2 text-sm"
           >
-            <span>+</span> Add New Equipment
+            <span>+</span> Add Material Stock
           </button>
         </div>
       </div>
@@ -331,7 +331,7 @@ const MaterialInventoryView = () => {
               </svg>
               Export Excel
             </button>
-            <button className="flex items-center gap-1.5 px-3 py-1.5 bg-(--primary-color) text-white rounded-lg text-sm hover:opacity-80">
+            <button className="flex items-center gap-1.5 px-3 py-1.5 bg-(--button-bg-primary-color) text-white rounded-lg text-sm hover:opacity-80">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -351,7 +351,7 @@ const MaterialInventoryView = () => {
           </div>
         }
       />
-      <AddEquipmentModal isOpen={isModalOpen} onClose={closeModal} />
+      <AddMaterialModal isOpen={isModalOpen} onClose={closeModal} />
     </div>
   );
 };

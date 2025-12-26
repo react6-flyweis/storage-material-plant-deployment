@@ -3,14 +3,17 @@ import "../App.css";
 import Button from "../components/Button";
 import Input from "../components/Input";
 import bgImage from "../assets/AuthBackgroundImg.jpg";
+import { useNavigate } from "react-router-dom";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const navigate = useNavigate();
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log({ email, password });
+    navigate("/home");
   };
 
   return (
@@ -53,7 +56,7 @@ function Login() {
 
           <div className="flex justify-end pt-2">
             <a
-              href="#"
+              href="/forgot-password"
               className="text-sm font-normal text-(--primary-color) hover:opacity-80 transition-colors"
             >
               Forgot Password?

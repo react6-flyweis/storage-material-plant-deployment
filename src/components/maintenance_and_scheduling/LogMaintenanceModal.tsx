@@ -1,12 +1,12 @@
 import React from "react";
-import Modal from "./Modal";
+import Modal from "../Modal";
 
-interface AddEquipmentModalProps {
+interface LogMaintenanceModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const AddEquipmentModal: React.FC<AddEquipmentModalProps> = ({
+const LogMaintenanceModal: React.FC<LogMaintenanceModalProps> = ({
   isOpen,
   onClose,
 }) => {
@@ -14,8 +14,8 @@ const AddEquipmentModal: React.FC<AddEquipmentModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Add New Equipment"
-      width="max-w-3xl"
+      title="Log Details"
+      width="max-w-4xl"
     >
       <form className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -25,17 +25,16 @@ const AddEquipmentModal: React.FC<AddEquipmentModalProps> = ({
               Equipment Name*
             </label>
             <div className="relative">
-              <select className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-gray-700">
+              <select className="w-full px-4 py-3 bg-white border border-[#D5D5D5] rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-gray-700">
                 <option>Concrete Mixer 350L</option>
                 <option>Excavator CAT 320D</option>
-                <option>Generator 25 kVA</option>
               </select>
               <div className="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-gray-500">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
-                  strokeWidth={2}
+                  strokeWidth={1.5}
                   stroke="currentColor"
                   className="w-4 h-4"
                 >
@@ -55,17 +54,16 @@ const AddEquipmentModal: React.FC<AddEquipmentModalProps> = ({
               Category*
             </label>
             <div className="relative">
-              <select className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-gray-700">
+              <select className="w-full px-4 py-3 bg-white border border-[#D5D5D5] rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-gray-700">
                 <option>Heavy Equipment</option>
-                <option>Light Machinery</option>
-                <option>Vehicles</option>
+                <option>Small Equipment</option>
               </select>
               <div className="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-gray-500">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
-                  strokeWidth={2}
+                  strokeWidth={1.5}
                   stroke="currentColor"
                   className="w-4 h-4"
                 >
@@ -79,98 +77,95 @@ const AddEquipmentModal: React.FC<AddEquipmentModalProps> = ({
             </div>
           </div>
 
-          {/* Equipment ID */}
+          {/* Maintenance Type */}
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-medium text-gray-700">
-              Equipment ID / Asset Code*
+              Maintenance Type*
             </label>
             <input
               type="text"
-              placeholder="EX-302, DG-065"
-              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 placeholder-gray-400"
+              placeholder="Repair"
+              className="w-full px-4 py-3 border border-[#D5D5D5] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 placeholder-gray-400"
             />
           </div>
 
-          {/* Manufacturer */}
+          {/* Service Date */}
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-medium text-gray-700">
-              Manufacturer / Brand
+              Service Date*
             </label>
             <input
-              type="text"
-              placeholder="Honda"
-              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 placeholder-gray-400"
+              type="date"
+              className="w-full px-4 py-3 border border-[#D5D5D5] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 placeholder-gray-400 text-gray-700"
             />
           </div>
 
-          {/* Model Number */}
+          {/* Vendor / Mechanic */}
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-medium text-gray-700">
-              Model Number
+              Vendor / Mechanic*
             </label>
             <input
               type="text"
-              placeholder="CAT 320D"
-              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 placeholder-gray-400"
+              placeholder="Vendor / Mechanic Name"
+              className="w-full px-4 py-3 border border-[#D5D5D5] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 placeholder-gray-400"
             />
           </div>
 
-          {/* Serial Number */}
+          {/* Cost */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-gray-700">
-              Serial Number
-            </label>
+            <label className="text-sm font-medium text-gray-700">Cost</label>
             <input
               type="text"
-              placeholder="SN-45SD778812"
-              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 placeholder-gray-400"
+              placeholder="$400"
+              className="w-full px-4 py-3 border border-[#D5D5D5] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 placeholder-gray-400"
             />
           </div>
 
-          {/* Power / Capacity */}
+          {/* Next Maintenance Due */}
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-medium text-gray-700">
-              Power / Capacity
+              Next Maintenance Due*
             </label>
             <input
               type="text"
-              placeholder="65 kVA"
-              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 placeholder-gray-400"
+              placeholder=""
+              className="w-full px-4 py-3 border border-[#D5D5D5] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 placeholder-gray-400"
             />
           </div>
 
-          {/* Fuel Type */}
+          {/* Notes */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-gray-700">
-              Fuel Type
-            </label>
+            <label className="text-sm font-medium text-gray-700">Notes</label>
             <input
               type="text"
-              placeholder="Diesel"
-              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 placeholder-gray-400"
+              placeholder=""
+              className="w-full px-4 py-3 border border-[#D5D5D5] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 placeholder-gray-400"
             />
           </div>
         </div>
 
-        {/* Buttons */}
-        <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-100 mt-8">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-6 py-2.5 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            className="px-6 py-2.5 rounded-lg bg-(--button-bg-primary-color) text-white font-medium hover:opacity-90 transition-colors shadow-sm"
-          >
-            Add Equipment
-          </button>
+        {/* Footer Buttons */}
+        <div className="flex justify-end pt-4">
+          <div className="grid grid-cols-2 gap-4 w-full md:w-1/2 ml-auto">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-6 py-2.5 rounded-lg bg-gray-100 text-gray-700 font-medium hover:bg-gray-200 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-6 py-2.5 rounded-lg bg-[#2563EB] text-white font-medium hover:opacity-90 transition-colors shadow-sm"
+            >
+              Submit
+            </button>
+          </div>
         </div>
       </form>
     </Modal>
   );
 };
 
-export default AddEquipmentModal;
+export default LogMaintenanceModal;

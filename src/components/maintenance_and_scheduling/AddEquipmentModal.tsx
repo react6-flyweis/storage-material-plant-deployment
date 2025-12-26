@@ -1,5 +1,5 @@
 import React from "react";
-import Modal from "./Modal";
+import Modal from "../Modal";
 
 interface AddEquipmentModalProps {
   isOpen: boolean;
@@ -14,12 +14,11 @@ const AddEquipmentModal: React.FC<AddEquipmentModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Add New Equipment"
+      title="Equipment Details"
       width="max-w-3xl"
     >
       <form className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Equipment Name */}
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-medium text-gray-700">
               Equipment Name*
@@ -139,14 +138,13 @@ const AddEquipmentModal: React.FC<AddEquipmentModalProps> = ({
             />
           </div>
 
-          {/* Fuel Type */}
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-medium text-gray-700">
-              Fuel Type
+              Storage Location*
             </label>
             <input
               type="text"
-              placeholder="Diesel"
+              placeholder=""
               className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 placeholder-gray-400"
             />
           </div>
@@ -165,7 +163,7 @@ const AddEquipmentModal: React.FC<AddEquipmentModalProps> = ({
             type="submit"
             className="px-6 py-2.5 rounded-lg bg-(--button-bg-primary-color) text-white font-medium hover:opacity-90 transition-colors shadow-sm"
           >
-            Add Equipment
+            Add Material
           </button>
         </div>
       </form>

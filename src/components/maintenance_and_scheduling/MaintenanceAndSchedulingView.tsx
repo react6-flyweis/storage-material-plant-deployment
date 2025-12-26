@@ -2,17 +2,38 @@ import React from "react";
 import Table, { type Column } from "../Table";
 import StatCard from "../StatCard";
 import AddEquipmentModal from "../AddEquipmentModal";
+import ReportBreakdownModal from "./ReportBreakdownModal";
+import LogMaintenanceModal from "./LogMaintenanceModal";
 
 const MaintenanceAndSchedulingView = () => {
   const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const [isReportModalOpen, setIsReportModalOpen] = React.useState(false);
+  const [isLogModalOpen, setIsLogModalOpen] = React.useState(false);
 
   const openModal = () => {
     setIsModalOpen(true);
   };
 
+  const openReportModal = () => {
+    setIsReportModalOpen(true);
+  };
+
+  const openLogModal = () => {
+    setIsLogModalOpen(true);
+  };
+
+  const closeReportModal = () => {
+    setIsReportModalOpen(false);
+  };
+
   const closeModal = () => {
     setIsModalOpen(false);
   };
+
+  const closeLogModal = () => {
+    setIsLogModalOpen(false);
+  };
+
   const equipmentData = [
     {
       id: "EX-302",
@@ -199,22 +220,23 @@ const MaintenanceAndSchedulingView = () => {
             onClick={openModal}
             className="w-full sm:w-auto bg-(--button-bg-primary-color) text-white px-2 py-2 rounded-lg font-medium shadow-sm hover:opacity-80 transition-colors flex items-center justify-center gap-2 text-sm"
           >
-            <span className="text-lg leading-none">+</span> Add Service Provider
+            <span className="md:text-lg leading-none">+</span> Add Service
+            Provider
           </button>
 
           <button
-            onClick={openModal}
+            onClick={openReportModal}
             className="w-full sm:w-auto bg-(--button-bg-primary-color) text-white px-2 py-2 rounded-lg font-medium shadow-sm hover:opacity-80 transition-colors flex items-center justify-center gap-2 text-sm"
           >
-            <span className="text-lg leading-none">+</span>
+            <span className="md:text-lg leading-none">+</span>
             Report Breakdown
           </button>
 
           <button
-            onClick={openModal}
+            onClick={openLogModal}
             className="w-full sm:w-auto bg-(--button-bg-primary-color) text-white px-2 py-2 rounded-lg font-medium shadow-sm hover:opacity-80 transition-colors flex items-center justify-center gap-2 text-sm"
           >
-            <span className="text-lg leading-none">+</span>Log Maintenance
+            <span className="md:text-lg leading-none">+</span>Log Maintenance
           </button>
         </div>
       </div>
@@ -368,6 +390,11 @@ const MaintenanceAndSchedulingView = () => {
         }
       />
       <AddEquipmentModal isOpen={isModalOpen} onClose={closeModal} />
+      <ReportBreakdownModal
+        isOpen={isReportModalOpen}
+        onClose={closeReportModal}
+      />
+      <LogMaintenanceModal isOpen={isLogModalOpen} onClose={closeLogModal} />
     </div>
   );
 };

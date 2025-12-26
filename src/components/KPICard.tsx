@@ -14,7 +14,6 @@ interface KPICardProps {
 }
 
 const KPICard: React.FC<KPICardProps> = ({
-  title,
   value,
   subtext,
   trend,

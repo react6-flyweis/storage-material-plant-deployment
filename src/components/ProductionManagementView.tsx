@@ -1,7 +1,10 @@
+import { useState } from "react";
 import StatCard from "./StatCard";
 import ProductionTable from "./ProductionTable";
+import UploadDrawingsModal from "./UploadDrawingsModal";
 
 const ProductionManagementView = () => {
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const leadsData = [
     {
       id: "Q-2025-1047",
@@ -64,11 +67,19 @@ const ProductionManagementView = () => {
           <p className="text-gray-500 text-sm mt-1">Assign and view leads</p>
         </div>
         <div>
-          <button className="bg-(--primary-color) text-white px-4 py-2 rounded-lg font-medium shadow-smtransition-colors text-sm">
+          <button
+            onClick={() => setIsUploadModalOpen(true)}
+            className="bg-(--button-bg-primary-color) text-white px-4 py-2 rounded-lg font-medium shadow-sm transition-colors text-sm"
+          >
             Upload Drawings & Images
           </button>
         </div>
       </div>
+
+      <UploadDrawingsModal
+        isOpen={isUploadModalOpen}
+        onClose={() => setIsUploadModalOpen(false)}
+      />
 
       {/* Stats Row */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">

@@ -196,7 +196,7 @@ const EquipmentView = () => {
         <div>
           <button
             onClick={openModal}
-            className="bg-(--primary-color) text-white px-4 py-2 rounded-lg font-medium shadow-sm hover:opacity-80 transition-colors flex items-center gap-2 text-sm"
+            className="bg-(--button-bg-primary-color) text-white px-4 py-2 rounded-lg font-medium shadow-sm hover:opacity-80 transition-colors flex items-center gap-2 text-sm"
           >
             <span>+</span> Add New Equipment
           </button>
@@ -331,7 +331,7 @@ const EquipmentView = () => {
               </svg>
               Export Excel
             </button>
-            <button className="flex items-center gap-1.5 px-3 py-1.5 bg-(--primary-color) text-white rounded-lg text-sm hover:opacity-80">
+            <button className="flex items-center gap-1.5 px-3 py-1.5 bg-(--button-bg-primary-color) text-white rounded-lg text-sm hover:opacity-80">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
