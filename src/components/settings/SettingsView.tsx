@@ -36,7 +36,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({ onBack }) => {
   };
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3 mt-4">
       {/* Header */}
       <div className="flex md:items-center items-start justify-between">
         <div className="flex items-start gap-4 flex-wrap">

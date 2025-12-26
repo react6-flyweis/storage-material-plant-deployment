@@ -21,6 +21,9 @@ import ProfileView from "../components/profile/ProfileView";
 import SettingsView from "../components/settings/SettingsView";
 import { type ViewType } from "../config/routes";
 import { mockInventoryData, mockMachineUsageData } from "../data/mockData";
+import ServiceProvidersView from "../components/maintenance_and_scheduling/ServiceProvidersView";
+import BreakdownCasesView from "../components/maintenance_and_scheduling/BreakdownCasesView";
+import UpcomingScheduleView from "../components/maintenance_and_scheduling/UpcomingScheduleView";
 
 const Home = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -426,6 +429,15 @@ const Home = () => {
     }
 
     if (activeTab === 2) {
+      if (activeSubTab === "Service Providers") {
+        return <ServiceProvidersView />;
+      }
+      if (activeSubTab === "Breakdown Cases") {
+        return <BreakdownCasesView />;
+      }
+      if (activeSubTab === "Upcoming Schedule") {
+        return <UpcomingScheduleView />;
+      }
       return <MaintenanceAndSchedulingView />;
     }
     if (activeTab === 3) {

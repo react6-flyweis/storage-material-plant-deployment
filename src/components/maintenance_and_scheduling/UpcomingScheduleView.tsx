@@ -1,204 +1,66 @@
-import React from "react";
 import Table, { type Column } from "../Table";
+import { mockBreakdownCases } from "../../data/mockData";
 import StatCard from "../StatCard";
-import AddEquipmentModal from "../AddEquipmentModal";
-import ReportBreakdownModal from "./ReportBreakdownModal";
-import LogMaintenanceModal from "./LogMaintenanceModal";
 
-const MaintenanceAndSchedulingView = () => {
-  const [isModalOpen, setIsModalOpen] = React.useState(false);
-  const [isReportModalOpen, setIsReportModalOpen] = React.useState(false);
-  const [isLogModalOpen, setIsLogModalOpen] = React.useState(false);
+export type UpcomingSchedule = {
+  id: number;
+  equipment: string;
+  reportedOn: string;
+  issue: string;
+  severity: string;
+  severityColor: string;
+  status: string;
+  assignedTo: string;
+};
 
-  const openModal = () => {
-    setIsModalOpen(true);
-  };
-
-  const openReportModal = () => {
-    setIsReportModalOpen(true);
-  };
-
-  const openLogModal = () => {
-    setIsLogModalOpen(true);
-  };
-
-  const closeReportModal = () => {
-    setIsReportModalOpen(false);
-  };
-
-  const closeModal = () => {
-    setIsModalOpen(false);
-  };
-
-  const closeLogModal = () => {
-    setIsLogModalOpen(false);
-  };
-
-  const equipmentData = [
-    {
-      id: "EX-302",
-      name: "Excavator CAT 320D",
-      category: "Heavy",
-      status: "In Use",
-      statusColor: "text-green-600",
-      dotColor: "bg-green-500",
-      project: "ABC Warehouse",
-      location: "Pune Site",
-      hours: "128h",
-      nextDue: "20-Apr",
-    },
-    {
-      id: "CM-104",
-      name: "Concrete Mixer 350L",
-      category: "Medium",
-      status: "Under Maintenance",
-      statusColor: "text-orange-600",
-      dotColor: "bg-orange-500",
-      project: "-",
-      location: "Yard",
-      hours: "-",
-      nextDue: "15-Apr",
-    },
-    {
-      id: "DG-65",
-      name: "Diesel Generator 65kVA",
-      category: "Medium",
-      status: "Breakdown",
-      statusColor: "text-red-600",
-      dotColor: "bg-red-500",
-      project: "Metro Cast",
-      location: "Ahmedabad",
-      hours: "412h",
-      nextDue: "Overdue",
-    },
-    {
-      id: "EX-302",
-      name: "Excavator CAT 320D",
-      category: "Heavy",
-      status: "In Use",
-      statusColor: "text-green-600",
-      dotColor: "bg-green-500",
-      project: "ABC Warehouse",
-      location: "Pune Site",
-      hours: "128h",
-      nextDue: "20-Apr",
-    },
-    {
-      id: "CM-104",
-      name: "Concrete Mixer 350L",
-      category: "Medium",
-      status: "Under Maintenance",
-      statusColor: "text-orange-600",
-      dotColor: "bg-orange-500",
-      project: "-",
-      location: "Yard",
-      hours: "-",
-      nextDue: "15-Apr",
-    },
-    {
-      id: "DG-65",
-      name: "Diesel Generator 65kVA",
-      category: "Medium",
-      status: "Breakdown",
-      statusColor: "text-red-600",
-      dotColor: "bg-red-500",
-      project: "Metro Cast",
-      location: "Ahmedabad",
-      hours: "412h",
-      nextDue: "Overdue",
-    },
-    {
-      id: "CM-104",
-      name: "Concrete Mixer 350L",
-      category: "Medium",
-      status: "Under Maintenance",
-      statusColor: "text-orange-600",
-      dotColor: "bg-orange-500",
-      project: "-",
-      location: "Yard",
-      hours: "-",
-      nextDue: "15-Apr",
-    },
-  ];
-
-  const columns: Column<(typeof equipmentData)[0]>[] = [
-    {
-      header: "Equipment",
-      accessor: (row) => <span className="text-gray-500">{row.id}</span>,
-    },
-    {
-      header: "Type",
-      accessor: (row) => (
-        <span className="text-gray-800 font-medium block max-w-[150px]">
-          {row.name}
-        </span>
+export const upcomingScheduleColumns: Column<UpcomingSchedule>[] = [
+  {
+    header: "Equipment",
+    accessor: (item) => (
+      <div className="text-gray-600 text-sm">{item.equipment}</div>
+    ),
+  },
+  {
+    header: "Last Service",
+    accessor: (item) => <div className="text-sm">{item.reportedOn}</div>,
+  },
+  {
+    header: "Next Due",
+    accessor: (item) => <div className="text-sm">{item.issue}</div>,
+  },
+  {
+    header: "Priority",
+    accessor: (item) => (
+      <div className="flex items-center gap-2">
+        <div className={`w-2 h-2 rounded-full ${item.severityColor}`}></div>
+        <span className="text-sm">{item.severity}</span>
+      </div>
+    ),
+  },
+  {
+    header: "Status",
+    accessor: (item) => <div className="text-sm">{item.status}</div>,
+  },
+  {
+    header: "Vendor",
+    accessor: (item) => <div className="text-sm">{item.assignedTo}</div>,
+  },
+  {
+    header: "Action",
+    accessor: (item) =>
+      item.status === "Pending" ? (
+        <button className="px-4 py-1.5 bg-[#FEF3C7] text-[#92400E] rounded-full text-xs font-medium hover:bg-yellow-200 transition-colors">
+          Assign
+        </button>
+      ) : (
+        <button className="px-4 py-1.5 bg-[#D1FAE5] text-[#065F46] rounded-full text-xs font-medium hover:bg-green-200 transition-colors">
+          View
+        </button>
       ),
-    },
-    {
-      header: "Status",
-      accessor: (row) => (
-        <span className="text-gray-700 font-medium">{row.category}</span>
-      ),
-    },
-    {
-      header: "Vendor",
-      accessor: (row) => (
-        <div className="flex items-center gap-2">
-          <div className={`w-2.5 h-2.5 rounded-full ${row.dotColor}`}></div>
-          <span className={`font-medium ${row.statusColor} text-xs`}>
-            {row.status}
-          </span>
-        </div>
-      ),
-    },
-    {
-      header: "Cost",
-      accessor: (row) => <span className="text-gray-800">{row.project}</span>,
-    },
-    {
-      header: "Notes",
-      accessor: (row) => <span className="text-gray-800">{row.location}</span>,
-    },
-    {
-      header: "Next Due",
-      accessor: (row) => (
-        <span
-          className={`font-medium ${
-            row.nextDue === "Overdue" ? "text-red-600" : "text-gray-800"
-          }`}
-        >
-          {row.nextDue}
-        </span>
-      ),
-    },
-    {
-      header: "Action",
-      accessor: (row) => {
-        if (row.status === "In Use") {
-          return (
-            <button className="bg-[#E6FFFA] text-[#0D9488] px-3 py-1.5 rounded-full text-xs font-semibold hover:bg-teal-100 transition-colors">
-              View / Transfer
-            </button>
-          );
-        } else if (row.status === "Breakdown") {
-          return (
-            <button className="bg-[#FFFBEB] text-[#D97706] px-3 py-1.5 rounded-full text-xs font-semibold hover:bg-yellow-100 transition-colors">
-              Log Issue
-            </button>
-          );
-        } else {
-          return (
-            <button className="bg-[#DBEAFE] text-[#2563EB] px-3 py-1.5 rounded-full text-xs font-semibold hover:bg-blue-200 transition-colors">
-              Maintenance
-            </button>
-          );
-        }
-      },
-      className: "text-right",
-      cellClassName: "text-right",
-    },
-  ];
+  },
+];
 
+const UpcomingScheduleView = () => {
   return (
     <div className="py-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 mt-2">
@@ -212,26 +74,17 @@ const MaintenanceAndSchedulingView = () => {
           </p>
         </div>
         <div className="flex flex-col lg:flex-row gap-1 flex-wrap">
-          <button
-            onClick={openModal}
-            className="w-full sm:w-auto bg-(--button-bg-primary-color) text-white px-2 py-2 rounded-lg font-medium shadow-sm hover:opacity-80 transition-colors flex items-center justify-center gap-2 text-sm"
-          >
+          <button className="w-full sm:w-auto bg-(--button-bg-primary-color) text-white px-2 py-2 rounded-lg font-medium shadow-sm hover:opacity-80 transition-colors flex items-center justify-center gap-2 text-sm">
             <span className="md:text-lg leading-none">+</span> Add Service
             Provider
           </button>
 
-          <button
-            onClick={openReportModal}
-            className="w-full sm:w-auto bg-(--button-bg-primary-color) text-white px-2 py-2 rounded-lg font-medium shadow-sm hover:opacity-80 transition-colors flex items-center justify-center gap-2 text-sm"
-          >
+          <button className="w-full sm:w-auto bg-(--button-bg-primary-color) text-white px-2 py-2 rounded-lg font-medium shadow-sm hover:opacity-80 transition-colors flex items-center justify-center gap-2 text-sm">
             <span className="md:text-lg leading-none">+</span>
             Report Breakdown
           </button>
 
-          <button
-            onClick={openLogModal}
-            className="w-full sm:w-auto bg-(--button-bg-primary-color) text-white px-2 py-2 rounded-lg font-medium shadow-sm hover:opacity-80 transition-colors flex items-center justify-center gap-2 text-sm"
-          >
+          <button className="w-full sm:w-auto bg-(--button-bg-primary-color) text-white px-2 py-2 rounded-lg font-medium shadow-sm hover:opacity-80 transition-colors flex items-center justify-center gap-2 text-sm">
             <span className="md:text-lg leading-none">+</span>Log Maintenance
           </button>
         </div>
@@ -302,7 +155,7 @@ const MaintenanceAndSchedulingView = () => {
           }
         />
         <StatCard
-          title="Under Maintenance"
+          title="Overdue Maintenance:"
           count="12"
           bgColor="bg-[#ff8a65]"
           icon={
@@ -323,11 +176,10 @@ const MaintenanceAndSchedulingView = () => {
           }
         />
       </div>
-
       <Table
-        title="MAINTENANCE LIST"
-        columns={columns}
-        data={equipmentData}
+        title="Upcoming Maintenance Table"
+        columns={upcomingScheduleColumns}
+        data={mockBreakdownCases}
         pagination={true}
         actions={
           <div className="flex gap-2">
@@ -365,7 +217,7 @@ const MaintenanceAndSchedulingView = () => {
               </svg>
               Export Excel
             </button>
-            <button className="flex items-center gap-1.5 px-3 py-1.5 bg-(--button-bg-primary-color) text-white rounded-lg text-sm hover:opacity-80">
+            <button className="flex items-center gap-1.5 px-3 py-1.5 bg-[#2563EB] text-white rounded-lg text-sm hover:bg-blue-700 transition-colors">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -385,14 +237,8 @@ const MaintenanceAndSchedulingView = () => {
           </div>
         }
       />
-      <AddEquipmentModal isOpen={isModalOpen} onClose={closeModal} />
-      <ReportBreakdownModal
-        isOpen={isReportModalOpen}
-        onClose={closeReportModal}
-      />
-      <LogMaintenanceModal isOpen={isLogModalOpen} onClose={closeLogModal} />
     </div>
   );
 };
 
-export default MaintenanceAndSchedulingView;
+export default UpcomingScheduleView;

@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import logo from "../../assets/logo.svg";
 import bellIcon from "../../assets/bellIcon.svg";
-import userIcon from "../../assets/userIcon.svg";
 import { useNavigate } from "react-router-dom";
 import UserIcon from "../../assets/icon/UserIcon";
 
@@ -41,7 +40,7 @@ const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <header className="flex items-center justify-between p-4 bg-white shadow-sm mb-6 rounded-2xl relative z-20">
+    <header className="flex items-center justify-between p-4 bg-white shadow-sm rounded-2xl z-20 sticky top-0 w-auto right-0 left-0">
       <div className="flex items-center gap-4">
         <button
           className="lg:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
@@ -90,26 +89,40 @@ const Header: React.FC<HeaderProps> = ({
       <div className="flex items-center gap-4 lg:gap-6">
         <div className="relative">
           <button className="text-gray-500 hover:text-gray-700 relative p-1 rounded-full hover:bg-gray-50 transition-colors">
-            <span className="absolute top-0 right-0 h-4 w-4 bg-red-500 rounded-full text-[10px] font-bold text-white flex items-center justify-center border-2 border-white">
+            <span className="absolute top-0 right-0 h-5 w-5 bg-red-500 rounded-full text-[10px] font-bold text-white flex items-center justify-center border-2 border-white">
               3
             </span>
             <img
               src={bellIcon}
               alt="notifications"
-              className="w-6 h-6 object-contain"
+              className="w-8 h-6 object-contain"
             />
           </button>
         </div>
         <div className="relative" ref={profileRef}>
           <button
-            className="text-gray-500 hover:text-gray-700 relative focus:outline-none"
+            className="text-gray-500 hover:text-gray-700 relative focus:outline-none bg-(--button-bg-primary-color) rounded-full p-2"
             onClick={() => setIsProfileOpen(!isProfileOpen)}
           >
-            <img
-              src={userIcon}
-              alt="userProfile"
-              className="p-1 border rounded-full md:w-7 md:h-7 w-6 h-6 cursor-pointer object-contain"
-            />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2}
+              stroke="currentColor"
+              className="w-4 h-4 text-white"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z"
+              />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M4.5 20.25a7.5 7.5 0 0 1 15 0"
+              />
+            </svg>
           </button>
 
           {isProfileOpen && (

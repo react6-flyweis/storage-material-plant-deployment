@@ -12,10 +12,10 @@ export interface TableProps<T> {
   title: string;
   columns: Column<T>[];
   data: T[];
-  footer?: React.ReactNode; // Custom footer content
-  onViewAll?: () => void; // Optional view all handler
-  actions?: React.ReactNode; // Header actions (Filter, Export, etc.)
-  pagination?: boolean; // Enable standard pagination UI
+  footer?: React.ReactNode;
+  onViewAll?: () => void;
+  actions?: React.ReactNode;
+  pagination?: boolean;
 }
 
 const Table = <T extends any>({
@@ -31,9 +31,7 @@ const Table = <T extends any>({
     <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden mb-8">
       {/* Header Section */}
       <div className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <h3 className="text-lg font-medium text-gray-800 uppercase tracking-wide">
-          {title}
-        </h3>
+        <h3 className="md:text-lg font-medium">{title}</h3>
         {actions && (
           <div className="flex flex-wrap items-center gap-3">{actions}</div>
         )}
