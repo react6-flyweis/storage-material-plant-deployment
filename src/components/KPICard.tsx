@@ -25,10 +25,12 @@ const KPICard: React.FC<KPICardProps> = ({
     <div className="bg-white rounded-lg p-5 shadow-sm border border-gray-100 flex flex-col justify-between min-h-[140px]">
       <div className="flex justify-between items-start">
         <div>
-          <h3 className="text-xl font-medium text-gray-800">{value}</h3>
-          <p className="text-xs text-gray-500 mt-1">{subtext}</p>
+          <h3 className="sm:text-xl font-medium text-gray-800 max-w-[100px] overflow-x-auto overflow-y-hidden sm:max-w-none">
+            {value}
+          </h3>
+          <p className="sm:text-xs text-[10px] mt-1">{subtext}</p>
         </div>
-        <div className={`p-2 rounded-lg ${iconBgColor} ${iconColor}`}>
+        <div className={`sm:p-4 p-2 rounded-lg ${iconBgColor} ${iconColor}`}>
           {icon}
         </div>
       </div>
@@ -41,7 +43,7 @@ const KPICard: React.FC<KPICardProps> = ({
             {trend.value}{" "}
             <span className="text-black-400 font-normal">vs Last Month</span>
           </span>
-          <button className="text-black-400 underline hover:text-gray-600">
+          <button className="xs:text-xs text-[10px] text-black-400 underline hover:text-gray-600">
             View All
           </button>
         </div>

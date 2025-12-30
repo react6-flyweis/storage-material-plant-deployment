@@ -1,9 +1,9 @@
 import React from "react";
 import Table, { type Column } from "../Table";
-import AddEquipmentModal from "../AddEquipmentModal";
 import ReportBreakdownModal from "./ReportBreakdownModal";
 import LogMaintenanceModal from "./LogMaintenanceModal";
 import { mockServiceProviders } from "../../data/mockData";
+import { FilePlus, FileX } from "lucide-react";
 
 export type ServiceProvider = {
   id: number;
@@ -76,13 +76,8 @@ export const serviceProviderColumns: Column<ServiceProvider>[] = [
   },
 ];
 const ServiceProvidersView = () => {
-  const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [isReportModalOpen, setIsReportModalOpen] = React.useState(false);
   const [isLogModalOpen, setIsLogModalOpen] = React.useState(false);
-
-  const openModal = () => {
-    setIsModalOpen(true);
-  };
 
   const openReportModal = () => {
     setIsReportModalOpen(true);
@@ -96,38 +91,30 @@ const ServiceProvidersView = () => {
     setIsReportModalOpen(false);
   };
 
-  const closeModal = () => {
-    setIsModalOpen(false);
-  };
-
   const closeLogModal = () => {
     setIsLogModalOpen(false);
   };
 
   return (
-    <div className="py-6">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 mt-2">
-        <div>
-          <h1 className="text-2xl font-normal text-gray-800">
-            Maintenance And Scheduling
+    <div className="pr-5 pt-5 space-y-5">
+      <div className="flex items-center justify-between flex-wrap mt-1 mb-6">
+        <div className="">
+          <h1 className="md:text-2xl text-xl font-normal text-gray-800 mb-2">
+            Service Providers
           </h1>
-          <p className="text-gray-500 text-sm mt-1">
-            Manage preventive maintenance, repair logs, vendor services, and
-            equipment health across all sites.
+          <p className="text-(--text-color-gray-2) text-sm">
+            Here’s a summary of your ongoing steel building projects.
           </p>
         </div>
-        <div className="flex flex-col lg:flex-row gap-1 flex-wrap">
-          <button
-            onClick={openModal}
-            className="w-full sm:w-auto bg-(--button-bg-primary-color) text-white px-2 py-2 rounded-lg font-medium shadow-sm hover:opacity-80 transition-colors flex items-center justify-center gap-2 text-sm"
-          >
+        <div className="flex mt-2 gap-1 flex-wrap ml-auto">
+          <button className="sm:w-auto bg-(--button-bg-primary-color) text-white px-2 py-2 rounded-lg font-medium shadow-sm hover:opacity-80 transition-colors flex items-center justify-center gap-2 md:text-sm text-xs">
             <span className="md:text-lg leading-none">+</span> Add Service
             Provider
           </button>
 
           <button
             onClick={openReportModal}
-            className="w-full sm:w-auto bg-(--button-bg-primary-color) text-white px-2 py-2 rounded-lg font-medium shadow-sm hover:opacity-80 transition-colors flex items-center justify-center gap-2 text-sm"
+            className="sm:w-auto bg-(--button-bg-primary-color) text-white px-2 py-2 rounded-lg font-medium shadow-sm hover:opacity-80 transition-colors flex items-center justify-center gap-2 md:text-sm text-xs"
           >
             <span className="md:text-lg leading-none">+</span>
             Report Breakdown
@@ -135,7 +122,7 @@ const ServiceProvidersView = () => {
 
           <button
             onClick={openLogModal}
-            className="w-full sm:w-auto bg-(--button-bg-primary-color) text-white px-2 py-2 rounded-lg font-medium shadow-sm hover:opacity-80 transition-colors flex items-center justify-center gap-2 text-sm"
+            className="sm:w-auto bg-(--button-bg-primary-color) text-white px-2 py-2 rounded-lg font-medium shadow-sm hover:opacity-80 transition-colors flex items-center justify-center gap-2 md:text-sm text-xs"
           >
             <span className="md:text-lg leading-none">+</span>Log Maintenance
           </button>
@@ -148,7 +135,7 @@ const ServiceProvidersView = () => {
         data={mockServiceProviders}
         pagination={true}
         actions={
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap mt-2 md:mt-0 justify-end">
             <button className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-gray-600 text-sm hover:bg-gray-50">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -167,43 +154,16 @@ const ServiceProvidersView = () => {
               Filter Provider
             </button>
             <button className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-gray-600 text-sm hover:bg-gray-50">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="w-4 h-4"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"
-                />
-              </svg>
+              <FileX className="w-4 h-4" />
               Export Excel
             </button>
             <button className="flex items-center gap-1.5 px-3 py-1.5 bg-(--button-bg-primary-color) text-white rounded-lg text-sm hover:opacity-80">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="w-4 h-4"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"
-                />
-              </svg>
+              <FilePlus className="w-4 h-4" />
               Export PDF
             </button>
           </div>
         }
       />
-      <AddEquipmentModal isOpen={isModalOpen} onClose={closeModal} />
       <ReportBreakdownModal
         isOpen={isReportModalOpen}
         onClose={closeReportModal}

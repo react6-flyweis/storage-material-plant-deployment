@@ -1,24 +1,41 @@
 import React from "react";
+import { Card } from "./ui/card";
+import { cn } from "@/lib/utils";
 
-interface StatCardProps {
+type StatCardProps = {
   title: string;
-  count: string | number;
-  icon: React.ReactNode;
-  bgColor: string;
-}
-
-const StatCard: React.FC<StatCardProps> = ({ title, count, icon, bgColor }) => {
-  return (
-    <div
-      className={`${bgColor} rounded-lg md:p-5 p-2 text-white flex justify-between items-center shadow-md min-h-[120px]`}
-    >
-      <div className="flex flex-col justify-center h-full">
-        <span className="text-sm font-medium opacity-90">{title}</span>
-        <span className="md:text-2xl font-normal mt-2">{count}</span>
-      </div>
-      <div className="bg-white p-3 rounded-lg backdrop-blur-sm">{icon}</div>
-    </div>
-  );
+  value: React.ReactNode;
+  icon?: React.ReactNode;
+  // `color` may be a Tailwind background class like 'bg-blue-600' or a CSS color string like '#1e40af'
+  color?: string;
+  className?: string;
 };
 
-export default StatCard;
+export default function StatCard({
+  title,
+  value,
+  icon,
+  color,
+  className,
+}: StatCardProps) {
+  return (
+    <Card
+      className={cn(
+        "sm:p-5 p-2 rounded-md text-white border-none shrink-0",
+        className,
+        color
+      )}
+    >
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="sm:text-sm text-xs opacity-90">{title}</p>
+          <p className="sm:text-2xl text-lg mt-1 w-[50px] sm:w-auto overflow-x-auto">
+            {value}
+          </p>
+        </div>
+
+        <div className="bg-white sm:p-2 p-1 rounded-md">{icon}</div>
+      </div>
+    </Card>
+  );
+}

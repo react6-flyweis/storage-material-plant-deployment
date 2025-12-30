@@ -1,11 +1,60 @@
-import React from "react";
+import { useState } from "react";
 import Table, { type Column } from "../Table";
-import StatCard from "../StatCard";
-import AddEquipmentModal from "../AddEquipmentModal";
 import { equipmentData } from "./mockData";
+import StatCard from "@/components/ui/stat-card";
+import HammerIcon from "../../assets/hammerIcon.svg";
+import CheckedShieldIcon from "../../assets/checkedShieldIcon.svg";
+import YellowDollerIcon from "../../assets/yellowDollerIcon.svg";
+import { FilePlus, FileX, FunnelIcon } from "lucide-react";
+import AssignEquipmentModal from "./AssignEquipmentModal";
+import CreateTransferReqModal from "./CreateTransferReqModal";
+
+export const equipmentStats = [
+  {
+    title: "Pending Requests:",
+    value: "12",
+    icon: (
+      <img
+        src={HammerIcon}
+        alt="total-maintenance"
+        className="md:size-7 size-5"
+      />
+    ),
+    color: "bg-[#1D51A4]",
+  },
+  {
+    title: "Approved:",
+    value: "42",
+    icon: (
+      <img
+        src={CheckedShieldIcon}
+        alt="breakdown"
+        className="md:size-7 size-5"
+      />
+    ),
+    color: "bg-[#3AB449]",
+  },
+  {
+    title: "In Transit:",
+    value: "74",
+    icon: (
+      <img
+        src={YellowDollerIcon}
+        alt="due-maintenance"
+        className="md:size-7 size-5"
+      />
+    ),
+    color: "bg-[#F59E0B]",
+  },
+];
 
 const TransferRequestsView = () => {
-  const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
+
+  const closeTransferModal = () => {
+    setIsTransferModalOpen(false);
+  };
 
   const closeModal = () => {
     setIsModalOpen(false);
@@ -13,19 +62,43 @@ const TransferRequestsView = () => {
 
   const columns: Column<(typeof equipmentData)[0]>[] = [
     {
-      header: "Equipment ID",
+      header: "Req ID",
       accessor: (row) => <span className="text-gray-500">{row.id}</span>,
     },
     {
-      header: "Name",
+      header: "Equipment",
       accessor: (row) => (
-        <span className="text-gray-800 font-medium block max-w-[150px]">
+        <span className="text-gray-500 font-medium block max-w-[150px]">
           {row.name}
         </span>
       ),
     },
     {
       header: "Category",
+      accessor: (row) => (
+        <span className="text-gray-700 font-medium">{row.category}</span>
+      ),
+    },
+    {
+      header: "From",
+      accessor: (row) => (
+        <span className="text-gray-700 font-medium">{row.category}</span>
+      ),
+    },
+    {
+      header: "To",
+      accessor: (row) => (
+        <span className="text-gray-700 font-medium">{row.category}</span>
+      ),
+    },
+    {
+      header: "Requested By",
+      accessor: (row) => (
+        <span className="text-gray-700 font-medium">{row.category}</span>
+      ),
+    },
+    {
+      header: "Priority",
       accessor: (row) => (
         <span className="text-gray-700 font-medium">{row.category}</span>
       ),
@@ -42,48 +115,40 @@ const TransferRequestsView = () => {
       ),
     },
     {
-      header: "Project",
-      accessor: (row) => <span className="text-gray-800">{row.project}</span>,
-    },
-    {
-      header: "Location",
-      accessor: (row) => <span className="text-gray-800">{row.location}</span>,
-    },
-    {
-      header: "Hours",
-      accessor: (row) => <span className="text-gray-800">{row.hours}</span>,
-    },
-    {
-      header: "Next Due",
-      accessor: (row) => (
-        <span
-          className={`font-medium ${
-            row.nextDue === "Overdue" ? "text-red-600" : "text-gray-800"
-          }`}
-        >
-          {row.nextDue}
-        </span>
-      ),
-    },
-    {
       header: "Action",
       accessor: (row) => {
         if (row.status === "In Use") {
           return (
-            <button className="bg-[#E6FFFA] text-[#0D9488] px-3 py-1.5 rounded-full text-xs font-semibold hover:bg-teal-100 transition-colors">
-              View / Transfer
-            </button>
+            <div className="flex justify-around gap-2">
+              <button className="bg-green-500 text-white px-3 py-1.5 rounded-full text-xs font-regular  transition-colors">
+                Approved
+              </button>
+              <button className="bg-red-500 text-white px-3 py-1.5 rounded-full text-xs font-regular  transition-colors">
+                Rejected
+              </button>
+            </div>
           );
         } else if (row.status === "Breakdown") {
           return (
-            <button className="bg-[#FFFBEB] text-[#D97706] px-3 py-1.5 rounded-full text-xs font-semibold hover:bg-yellow-100 transition-colors">
-              Log Issue
+            <div className="flex justify-around gap-2">
+              <button className="bg-green-500 text-white px-3 py-1.5 rounded-full text-xs font-regular  transition-colors">
+                Approved
+              </button>
+              <button className="bg-red-500 text-white px-3 py-1.5 rounded-full text-xs font-regular  transition-colors">
+                Rejected
+              </button>
+            </div>
+          );
+        } else if (row.status === "Completed") {
+          return (
+            <button className="bg-[#EAB30826] text-[#EAB308] px-3 py-1.5 rounded-full text-xs font-regular transition-colors">
+              View
             </button>
           );
         } else {
           return (
-            <button className="bg-[#DBEAFE] text-[#2563EB] px-3 py-1.5 rounded-full text-xs font-semibold hover:bg-blue-200 transition-colors">
-              Maintenance
+            <button className="bg-[#DBEAFE] text-[#2563EB] px-3 py-1.5 rounded-full text-xs font-regular hover:bg-blue-200 transition-colors">
+              Track
             </button>
           );
         }
@@ -94,93 +159,45 @@ const TransferRequestsView = () => {
   ];
 
   return (
-    <div className="py-6">
+    <div className="pr-5 pt-5 space-y-5">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 mt-2">
         <div>
-          <h1 className="text-2xl font-normal text-gray-800">
-            Equipment Allocation
+          <h1 className="md:text-2xl text-xl font-normal text-gray-800 mb-2">
+            Transfer Requests
           </h1>
           <p className="text-gray-500 text-sm mt-1">
             Track, assign, transfer, and monitor equipment across all
             construction sites and the central yard.
           </p>
         </div>
-        <div className="flex flex-col lg:flex-row gap-1 flex-wrap">
-          <button className="w-full sm:w-auto bg-(--button-bg-primary-color) text-white px-2 py-2 rounded-lg font-medium shadow-sm hover:opacity-80 transition-colors flex items-center justify-center gap-2 text-sm">
+        <div className="flex gap-3 flex-wrap ml-auto">
+          <button
+            className="sm:w-auto bg-(--button-bg-primary-color) text-white px-2 py-2 rounded-lg font-medium shadow-sm hover:opacity-80 transition-colors flex items-center justify-center gap-2 md:text-sm text-xs"
+            onClick={() => setIsTransferModalOpen(true)}
+          >
             <span className="text-lg leading-none">+</span> Create Transfer
             Request
           </button>
 
-          <button className="w-full sm:w-auto bg-(--button-bg-primary-color) text-white px-2 py-2 rounded-lg font-medium shadow-sm hover:opacity-80 transition-colors flex items-center justify-center gap-2 text-sm">
+          <button
+            className="sm:w-auto bg-(--button-bg-primary-color) text-white px-2 py-2 rounded-lg font-medium shadow-sm hover:opacity-80 transition-colors flex items-center justify-center gap-2 md:text-sm text-xs"
+            onClick={() => setIsModalOpen(true)}
+          >
             <span className="text-lg leading-none">+</span>Assign Equipment
           </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
-        <StatCard
-          title="Pending Requests:"
-          count="4"
-          bgColor="bg-[#0f4c9c]"
-          icon={
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-              stroke="currentColor"
-              className="w-6 h-6 text-(--primary-color)"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 0 0 4.486-6.336l-3.276 3.277a3.004 3.004 0 0 1-2.25-2.25l3.276-3.276a4.5 4.5 0 0 0-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437 1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008Z"
-              />
-            </svg>
-          }
-        />
-        <StatCard
-          title="Approved"
-          count="12"
-          bgColor="bg-[#4caf50]"
-          icon={
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-              stroke="currentColor"
-              className="w-6 h-6 text-(--text-color-green)"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M9 12.75 11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 0 1-1.043 3.296 3.745 3.745 0 0 1-3.296 1.043A3.745 3.745 0 0 1 12 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 0 1-3.296-1.043 3.745 3.745 0 0 1-1.043-3.296A3.745 3.745 0 0 1 3 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 0 1 1.043-3.296 3.746 3.746 0 0 1 3.296-1.043A3.746 3.746 0 0 1 12 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 0 1 3.296 1.043 3.746 3.746 0 0 1 1.043 3.296A3.745 3.745 0 0 1 21 12Z"
-              />
-            </svg>
-          }
-        />
-        <StatCard
-          title="In Transit"
-          count="3"
-          bgColor="bg-[#ffbb00]"
-          icon={
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-              stroke="currentColor"
-              className="w-6 h-6 text-(--text-color-gold)"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-              />
-            </svg>
-          }
-        />
+      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
+        {equipmentStats.map((stat, index) => (
+          <StatCard
+            key={index}
+            title={stat.title}
+            value={stat.value}
+            icon={stat.icon}
+            color={stat.color}
+          />
+        ))}
       </div>
 
       <Table
@@ -190,61 +207,26 @@ const TransferRequestsView = () => {
         pagination={true}
         actions={
           <div className="flex gap-2">
-            <button className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-gray-600 text-sm hover:bg-gray-50">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="w-4 h-4"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z"
-                />
-              </svg>
+            <button className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-gray-600 md:text-sm text-xs hover:bg-gray-50">
+              <FunnelIcon className="w-4 h-4" />
               Filter Equipment
             </button>
-            <button className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-gray-600 text-sm hover:bg-gray-50">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="w-4 h-4"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"
-                />
-              </svg>
+            <button className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-gray-600 md:text-sm text-xs hover:bg-gray-50">
+              <FileX className="w-4 h-4" />
               Export Excel
             </button>
-            <button className="flex items-center gap-1.5 px-3 py-1.5 bg-(--button-bg-primary-color) text-white rounded-lg text-sm hover:opacity-80">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="w-4 h-4"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"
-                />
-              </svg>
+            <button className="flex items-center gap-1.5 px-3 py-1.5 bg-(--button-bg-primary-color) text-white rounded-lg md:text-sm text-xs hover:opacity-80">
+              <FilePlus className="w-4 h-4" />
               Export PDF
             </button>
           </div>
         }
       />
-      <AddEquipmentModal isOpen={isModalOpen} onClose={closeModal} />
+      <CreateTransferReqModal
+        isOpen={isTransferModalOpen}
+        onClose={closeTransferModal}
+      />
+      <AssignEquipmentModal isOpen={isModalOpen} onClose={closeModal} />
     </div>
   );
 };

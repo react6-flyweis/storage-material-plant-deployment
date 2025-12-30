@@ -17,7 +17,7 @@ function ForgotPassword() {
   };
 
   const handleBackToLogin = () => {
-    navigate("/");
+    navigate("/login");
   };
 
   return (

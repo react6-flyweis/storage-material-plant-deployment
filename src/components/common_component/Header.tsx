@@ -10,11 +10,7 @@ interface HeaderProps {
   onSettingsClick?: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({
-  onMenuToggle,
-  onProfileClick,
-  onSettingsClick,
-}) => {
+const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
@@ -36,14 +32,14 @@ const Header: React.FC<HeaderProps> = ({
   }, []);
 
   const handleSignOut = () => {
-    navigate("/");
+    navigate("/login");
   };
 
   return (
-    <header className="flex items-center justify-between p-4 bg-white shadow-sm rounded-2xl z-20 sticky top-0 w-auto right-0 left-0">
-      <div className="flex items-center gap-4">
+    <header className="flex items-center justify-between p-3 md:p-4 bg-white shadow-sm rounded-2xl z-20 sticky top-0 w-full gap-2 md:gap-4">
+      <div className="flex items-center gap-2 md:gap-4 flex-1 min-w-0">
         <button
-          className="lg:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+          className="md:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
           onClick={onMenuToggle}
         >
           <svg
@@ -63,7 +59,7 @@ const Header: React.FC<HeaderProps> = ({
         </button>
 
         {/* Search Bar */}
-        <div className="hidden md:flex items-center bg-[#F8F9FA] rounded-xl px-4 py-2.5 w-96 border border-transparent focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100 transition-all">
+        <div className="hidden md:flex items-center bg-[#F8F9FA] rounded-xl px-4 py-2.5 flex-1 max-w-md border border-transparent focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100 transition-all">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -88,7 +84,10 @@ const Header: React.FC<HeaderProps> = ({
 
       <div className="flex items-center gap-4 lg:gap-6">
         <div className="relative">
-          <button className="text-gray-500 hover:text-gray-700 relative p-1 rounded-full hover:bg-gray-50 transition-colors">
+          <button
+            onClick={() => navigate("/notification")}
+            className="text-gray-500 hover:text-gray-700 relative p-1 rounded-full hover:bg-gray-50 transition-colors"
+          >
             <span className="absolute top-0 right-0 h-5 w-5 bg-red-500 rounded-full text-[10px] font-bold text-white flex items-center justify-center border-2 border-white">
               3
             </span>
@@ -131,7 +130,7 @@ const Header: React.FC<HeaderProps> = ({
                 <button
                   className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors text-left"
                   onClick={() => {
-                    onProfileClick && onProfileClick();
+                    navigate("/profile");
                     setIsProfileOpen(false);
                   }}
                 >
@@ -145,7 +144,7 @@ const Header: React.FC<HeaderProps> = ({
                   className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors text-left"
                   onClick={() => {
                     setIsProfileOpen(false);
-                    if (onSettingsClick) onSettingsClick();
+                    navigate("/settings");
                   }}
                 >
                   <svg
@@ -196,11 +195,11 @@ const Header: React.FC<HeaderProps> = ({
           )}
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center shrink-0">
           <img
             src={logo}
             alt="Logo"
-            className="w-21 h-full md:w-31 md:h-12 rounded-full object-contain"
+            className="w-22 sm:w-20 h-8 object-contain"
           />
         </div>
       </div>

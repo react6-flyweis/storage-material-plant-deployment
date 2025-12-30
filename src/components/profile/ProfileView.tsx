@@ -1,13 +1,14 @@
 import React, { useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface ProfileViewProps {
-  onBack: () => void;
   onNavigate?: (view: "settings") => void;
 }
 
-const ProfileView: React.FC<ProfileViewProps> = ({ onBack }) => {
+const ProfileView: React.FC<ProfileViewProps> = () => {
+  const navigate = useNavigate();
   const [profilePicture, setProfilePicture] = useState(
-    "https://imgs.search.brave.com/C6AU3hqShumrOuZaswKHOeZBwOo-XeuuJnf7XZ-5QW4/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5pc3RvY2twaG90/by5jb20vaWQvMTAx/Njc0NDAzNC92ZWN0/b3IvcHJvZmlsZS1w/bGFjZWhvbGRlci1p/bWFnZS1ncmF5LXNp/bGhvdWV0dGUtbm8t/cGhvdG8uanBnP3M9/NjEyeDYxMiZ3PTAm/az0yMCZjPVJxdGky/NlZRal_mcy1_aEwx/NW1KajZiODRGRVpO/YTAwRkpnWlJhRzVQ/RDQ9"
+    "https://imgs.search.brave.com/C6AU3hqShumrOuZaswKHOeZBwOo-XeuuJnf7XZ-5QW4/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5pc3RvY2twaG90/by5jb20vaWQvMTAx/Njc0NDAzNC92ZWN0/b3IvcHJvZmlsZS1w/bGFjZWhvbGRlci1p/bWFnZS1ncmF5LXNp/bGhvdWV0dGUtbm8t/cGhvdG8uanBnP3M9/NjEyeDYxMiZ3PTAm/az0yMCZjPVJxdGky/NlZRal9mcy1faEwx/NW1KajZiODRGRVpO/YTAwRkpnWlJhRzVQ/RDQ9"
   );
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -59,7 +60,7 @@ const ProfileView: React.FC<ProfileViewProps> = ({ onBack }) => {
       <div className="flex md:items-center items-start justify-between">
         <div className="flex items-start gap-4 flex-wrap">
           <button
-            onClick={onBack}
+            onClick={() => navigate(-1)}
             className="flex items-center gap-2 px-4 py-2 bg-(--button-bg-primary-color) text-white rounded-lg hover:opacity-90 transition-opacity text-sm font-medium"
           >
             <svg
@@ -87,7 +88,7 @@ const ProfileView: React.FC<ProfileViewProps> = ({ onBack }) => {
             </p>
           </div>
         </div>
-        <button className="md:px-6 py-2.5 bg-(--button-bg-primary-color) text-white rounded-lg hover:opacity-90 transition-opacity md:text-sm text-xs font-medium">
+        <button className="md:px-4 py-2.5 bg-(--button-bg-primary-color) text-white rounded-lg hover:opacity-90 transition-opacity md:text-sm text-xs font-medium">
           Save All Changes
         </button>
       </div>

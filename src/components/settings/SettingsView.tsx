@@ -1,11 +1,12 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface SettingsViewProps {
-  onBack: () => void;
   onNavigate?: (view: "profile") => void;
 }
 
-const SettingsView: React.FC<SettingsViewProps> = ({ onBack }) => {
+const SettingsView: React.FC<SettingsViewProps> = () => {
+  const navigate = useNavigate();
   const [accountSettings, setAccountSettings] = useState({
     twoFactorAuth: true,
     emailNotifications: true,
@@ -41,7 +42,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({ onBack }) => {
       <div className="flex md:items-center items-start justify-between">
         <div className="flex items-start gap-4 flex-wrap">
           <button
-            onClick={onBack}
+            onClick={() => navigate(-1)}
             className="flex items-center gap-2 px-4 py-2 bg-(--button-bg-primary-color) text-white rounded-lg hover:opacity-90 transition-opacity text-sm font-medium"
           >
             <svg

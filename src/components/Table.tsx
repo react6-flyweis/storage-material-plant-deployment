@@ -44,7 +44,7 @@ const Table = <T extends any>({
               {columns.map((col, index) => (
                 <th
                   key={index}
-                  className={`px-6 py-4 font-medium md:text-sm text-black tracking-wider ${
+                  className={`md:px-5 px-4 py-4 font-medium md:text-sm text-xs text-black tracking-wider ${
                     col.className || ""
                   }`}
                 >

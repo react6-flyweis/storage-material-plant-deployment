@@ -48,11 +48,11 @@ const Sidebar: React.FC<SidebarProps> = ({
   return (
     <div
       className={`
-        w-16 md:w-20 lg:w-24 
+        w-14 md:w-16 lg:w-20 
         flex flex-col items-center 
         h-full min-h-screen 
         fixed left-0 top-0 
-        z-50 bg-[#1D51A4]
+        z-40 bg-[#1D51A4]
         transition-transform duration-300 ease-in-out
         ${isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
       `}

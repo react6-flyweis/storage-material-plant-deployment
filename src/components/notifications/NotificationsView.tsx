@@ -1,5 +1,9 @@
 import { useState } from "react";
-import StatCard from "../StatCard";
+import BlueBellIcon from "@/assets/BlueBellIcon.svg";
+import YellowBellIcon from "@/assets/yellowBellIcon.svg";
+import GreenBellIcon from "@/assets/greenBellIcon.svg";
+import SalmonBellIcon from "@/assets/salmonBellIcon.svg";
+import StatCard from "../ui/stat-card";
 
 interface Notification {
   id: string;
@@ -10,6 +14,52 @@ interface Notification {
   category: "Equipment" | "Finance" | "Meetings" | "General";
   isUnread: boolean;
 }
+export const equipmentStats = [
+  {
+    title: "Total",
+    value: "12",
+    icon: (
+      <img
+        src={BlueBellIcon}
+        alt="total-maintenance"
+        className="md:size-5 size-4"
+      />
+    ),
+    color: "bg-[#1D51A4]",
+  },
+  {
+    title: "Unread",
+    value: "42",
+    icon: (
+      <img src={GreenBellIcon} alt="breakdown" className="md:size-5 size-4" />
+    ),
+    color: "bg-[#3AB449]",
+  },
+  {
+    title: "High Priority",
+    value: "74",
+    icon: (
+      <img
+        src={YellowBellIcon}
+        alt="due-maintenance"
+        className="md:size-5 size-4"
+      />
+    ),
+    color: "bg-[#F59E0B]",
+  },
+  {
+    title: "Today",
+    value: "12",
+    icon: (
+      <img
+        src={SalmonBellIcon}
+        alt="under-maintenance"
+        className="md:size-5 size-4"
+      />
+    ),
+    color: "bg-[#FD8D5B]",
+  },
+];
 
 const mockNotifications: Notification[] = [
   {
@@ -174,104 +224,27 @@ const NotificationsView = () => {
   };
 
   return (
-    <div className="py-6">
+    <div className="">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 mt-2">
         <div>
           <h1 className="text-2xl font-normal text-gray-800">Notifications</h1>
-          <p className="text-gray-500 md:text-sm mt-1">
+          <p className="text-gray-500 md:text-sm text-xs mt-1">
             Stay updated with project changes, approvals, drawings, dispatches,
             billings, and communication.
           </p>
         </div>
       </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
-        <StatCard
-          title="Total"
-          count="4"
-          bgColor="bg-[#0f4c9c]"
-          icon={
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-              stroke="#0f4c9c"
-              className="w-6 h-6"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9a6 6 0 0 0-12 0v.75A8.967 8.967 0 0 1 3.689 15.77a23.848 23.848 0 0 0 5.454 1.31M9 17.082a3 3 0 0 0 6 0"
-              />
-            </svg>
-          }
-        />
-        <StatCard
-          title="Unread"
-          count="12"
-          bgColor="bg-[#4caf50]"
-          icon={
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-              stroke="#4caf50"
-              className="w-6 h-6"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9a6 6 0 0 0-12 0v.75A8.967 8.967 0 0 1 3.689 15.77a23.848 23.848 0 0 0 5.454 1.31M9 17.082a3 3 0 0 0 6 0"
-              />
-            </svg>
-          }
-        />
-        <StatCard
-          title="High Priority"
-          count="3"
-          bgColor="bg-[#ffbb00]"
-          icon={
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-              stroke="#ffbb00"
-              className="w-6 h-6"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9a6 6 0 0 0-12 0v.75A8.967 8.967 0 0 1 3.689 15.77a23.848 23.848 0 0 0 5.454 1.31M9 17.082a3 3 0 0 0 6 0"
-              />
-            </svg>
-          }
-        />
-        <StatCard
-          title="Today"
-          count="6"
-          bgColor="bg-[#ff8a65]"
-          icon={
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-              stroke="#ff8a65"
-              className="w-6 h-6"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9a6 6 0 0 0-12 0v.75A8.967 8.967 0 0 1 3.689 15.77a23.848 23.848 0 0 0 5.454 1.31M9 17.082a3 3 0 0 0 6 0"
-              />
-            </svg>
-          }
-        />
+      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
+        {equipmentStats.map((stat, index) => (
+          <StatCard
+            key={index}
+            title={stat.title}
+            value={stat.value}
+            icon={stat.icon}
+            color={stat.color}
+          />
+        ))}
       </div>
-
       {/* Filters Header */}
       <div className="bg-white rounded-xl shadow-sm p-4 mb-6 flex flex-col md:flex-row items-start md:items-center gap-4">
         <span className="text-gray-700 font-medium text-lg mr-2">

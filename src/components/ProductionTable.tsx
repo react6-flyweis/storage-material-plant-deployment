@@ -17,9 +17,13 @@ interface Lead {
 
 interface ProductionTableProps {
   data: Lead[];
+  onViewDetails: (lead: Lead) => void;
 }
 
-const ProductionTable: React.FC<ProductionTableProps> = ({ data }) => {
+const ProductionTable: React.FC<ProductionTableProps> = ({
+  data,
+  onViewDetails,
+}) => {
   return (
     <div className="overflow-x-auto bg-white rounded-xl shadow-sm border border-gray-100">
       <table className="w-full text-left border-collapse">
@@ -28,28 +32,28 @@ const ProductionTable: React.FC<ProductionTableProps> = ({ data }) => {
             <th className="p-4 w-12 text-center">
               <input
                 type="checkbox"
-                className="w-4 h-4 rounded border-gray-300 text-var(--color-primary)"
+                className="md:w-4 md:h-4 w-3 h-3 rounded border-gray-300 text-var(--color-primary)"
               />
             </th>
-            <th className="p-4 text-black font-medium capitalize md:text-md">
+            <th className="p-4 text-[#6B7280] font-medium capitalize md:text-sm">
               Lead Info
             </th>
-            <th className="p-4 text-black font-medium capitalize md:text-md">
+            <th className="p-4 text-[#6B7280] font-medium capitalize md:text-sm">
               Assigned To
             </th>
-            <th className="p-4 text-black font-medium capitalize md:text-md">
+            <th className="p-4 text-[#6B7280] font-medium capitalize md:text-sm">
               Progress
             </th>
-            <th className="p-4 text-black font-medium capitalize md:text-md">
+            <th className="p-4 text-[#6B7280] font-medium capitalize md:text-sm">
               Status
             </th>
-            <th className="p-4 text-black font-medium capitalize md:text-md">
+            <th className="p-4 text-[#6B7280] font-medium capitalize md:text-sm">
               Quote Value
             </th>
-            <th className="p-4 text-black font-medium capitalize md:text-md">
+            <th className="p-4 text-[#6B7280] font-medium capitalize md:text-sm">
               Chat
             </th>
-            <th className="p-4 text-black font-medium capitalize md:text-md text-center">
+            <th className="p-4 text-[#6B7280] font-medium capitalize md:text-sm text-center">
               Actions
             </th>
           </tr>
@@ -63,19 +67,23 @@ const ProductionTable: React.FC<ProductionTableProps> = ({ data }) => {
               <td className="p-4 text-center">
                 <input
                   type="checkbox"
-                  className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  className="md:w-4 md:h-4 w-3 h-3 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                 />
               </td>
-              <td className="p-4">
+              <td className="p-4 min-w-[120px]">
                 <div className="flex flex-col">
-                  <span className="font-semibold text-gray-900 text-sm">
+                  <span className="font-semibold text-gray-900 md:text-sm text-xs">
                     {row.name}
                   </span>
-                  <span className="text-xs text-gray-500 mt-0.5">{row.id}</span>
-                  <span className="text-xs text-gray-500">{row.project}</span>
+                  <span className="md:text-xs text-[10px] text-gray-500 mt-0.5">
+                    {row.id}
+                  </span>
+                  <span className="md:text-xs text-[10px] text-gray-500">
+                    {row.project}
+                  </span>
                 </div>
               </td>
-              <td className="p-4">
+              <td className="p-4 min-w-[120px] md:text-sm text-xs">
                 <div className="flex items-center gap-3">
                   {row.assignedTo ? (
                     <>
@@ -95,10 +103,10 @@ const ProductionTable: React.FC<ProductionTableProps> = ({ data }) => {
                         </svg>
                       </div>
                       <div className="flex flex-col">
-                        <span className="text-xs font-semibold text-gray-900">
+                        <span className="md:text-xs text-[10px] font-semibold text-gray-900">
                           {row.assignedTo.name}
                         </span>
-                        <span className="text-[10px] text-gray-400">
+                        <span className="md:text-[10px] text-[8px] text-gray-400">
                           1 person assigned
                         </span>
                       </div>
@@ -160,7 +168,7 @@ const ProductionTable: React.FC<ProductionTableProps> = ({ data }) => {
                   {row.status}
                 </span>
               </td>
-              <td className="p-4">
+              <td className="p-4 md:text-sm text-[10px] min-w-[120px]">
                 <span className="text-sm font-bold text-gray-900">
                   {row.quoteValue}
                 </span>
@@ -193,7 +201,10 @@ const ProductionTable: React.FC<ProductionTableProps> = ({ data }) => {
                 </button>
               </td>
               <td className="p-4 text-center">
-                <button className="p-1.5 hover:bg-gray-100 rounded-lg text-blue-600 transition-colors">
+                <button
+                  onClick={() => onViewDetails(row)}
+                  className="p-1.5 hover:bg-gray-100 rounded-lg text-blue-600 transition-colors"
+                >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"

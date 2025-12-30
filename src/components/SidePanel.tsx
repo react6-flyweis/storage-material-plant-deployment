@@ -23,14 +23,14 @@ const SidePanel: React.FC<SidePanelProps> = ({
   return (
     <div
       className={`
-        w-54 min-h-screen 
-        fixed left-16 md:left-20 lg:left-24 top-0 
-        z-100
+        w-56 min-h-screen 
+        fixed left-14 md:left-16 lg:left-20 top-0 
+        z-40
         flex flex-col 
         transition-all duration-300 ease-in-out
         overflow-y-auto
         
-        ${isOpen ? "translate-x-0" : "-translate-x-[200%] lg:translate-x-0"}
+        ${isOpen ? "translate-x-0" : "-translate-x-[200%] md:translate-x-0"}
         ${"bg-[#E5ECFF] p-3 pt-6"}
       `}
     >

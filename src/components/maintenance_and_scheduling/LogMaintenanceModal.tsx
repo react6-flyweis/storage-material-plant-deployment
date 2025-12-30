@@ -14,8 +14,9 @@ const LogMaintenanceModal: React.FC<LogMaintenanceModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Log Details"
-      width="max-w-4xl"
+      title="Equipment Details"
+      width="max-w-xl"
+      height="h-[60vh]"
     >
       <form className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -128,9 +129,8 @@ const LogMaintenanceModal: React.FC<LogMaintenanceModalProps> = ({
               Next Maintenance Due*
             </label>
             <input
-              type="text"
-              placeholder=""
-              className="w-full px-4 py-3 border border-[#D5D5D5] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 placeholder-gray-400"
+              type="date"
+              className="w-full px-4 py-3 border border-[#D5D5D5] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 placeholder-gray-400 text-gray-700"
             />
           </div>
 
@@ -146,7 +146,7 @@ const LogMaintenanceModal: React.FC<LogMaintenanceModalProps> = ({
         </div>
 
         {/* Footer Buttons */}
-        <div className="flex justify-end pt-4">
+        <div className="flex justify-end pt-4 border-t border-gray-300 mt-4">
           <div className="grid grid-cols-2 gap-4 w-full md:w-1/2 ml-auto">
             <button
               type="button"

@@ -39,7 +39,7 @@ export const equipmentData = [
     id: "EX-302",
     name: "Excavator CAT 320D",
     category: "Heavy",
-    status: "In Use",
+    status: "Completed",
     statusColor: "text-green-600",
     dotColor: "bg-green-500",
     project: "ABC Warehouse",
