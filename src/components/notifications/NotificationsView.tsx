@@ -4,6 +4,7 @@ import YellowBellIcon from "@/assets/yellowBellIcon.svg";
 import GreenBellIcon from "@/assets/greenBellIcon.svg";
 import SalmonBellIcon from "@/assets/salmonBellIcon.svg";
 import StatCard from "../ui/stat-card";
+import TitleSubtitle from "../common_component/TitleSubtitle";
 
 interface Notification {
   id: string;
@@ -224,15 +225,12 @@ const NotificationsView = () => {
   };
 
   return (
-    <div className="">
+    <div className="xl:px-5 px-2 md:pt-5 pb-10 space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 mt-2">
-        <div>
-          <h1 className="text-2xl font-normal text-gray-800">Notifications</h1>
-          <p className="text-gray-500 md:text-sm text-xs mt-1">
-            Stay updated with project changes, approvals, drawings, dispatches,
-            billings, and communication.
-          </p>
-        </div>
+        <TitleSubtitle
+          title="Notifications"
+          subtitle="Stay updated with project changes, approvals, drawings, dispatches, billings, and communication."
+        />
       </div>
       <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
         {equipmentStats.map((stat, index) => (
@@ -247,7 +245,7 @@ const NotificationsView = () => {
       </div>
       {/* Filters Header */}
       <div className="bg-white rounded-xl shadow-sm p-4 mb-6 flex flex-col md:flex-row items-start md:items-center gap-4">
-        <span className="text-gray-700 font-medium text-lg mr-2">
+        <span className="text-gray-700 font-medium xl:text-lg mr-2">
           Filter by:
         </span>
         <div className="flex flex-wrap gap-2">
@@ -255,7 +253,7 @@ const NotificationsView = () => {
             <button
               key={filter.value}
               onClick={() => setActiveFilter(filter.value)}
-              className={`px-6 py-2 rounded-lg text-sm font-medium transition-colors
+              className={`px-6 py-2 rounded-lg xl:text-sm text-xs font-medium transition-colors
                 ${
                   activeFilter === filter.value
                     ? "bg-(--button-bg-primary-color) text-white shadow-md"

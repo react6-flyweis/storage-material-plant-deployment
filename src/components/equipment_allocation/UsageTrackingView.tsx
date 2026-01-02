@@ -9,6 +9,7 @@ import SalmonGraphIcon from "../../assets/salmonGraphIcon.svg";
 import StatCard from "@/components/ui/stat-card";
 import AssignEquipmentModal from "./AssignEquipmentModal";
 import { FileX, Funnel } from "lucide-react";
+import TitleSubtitle from "../common_component/TitleSubtitle";
 
 export const equipmentStats = [
   {
@@ -145,20 +146,15 @@ const UsageTrackingView = () => {
   ];
 
   return (
-    <div className="md:pr-5 pt-5 space-y-5">
+    <div className="xl:px-5 px-2 md:pt-5 pb-10 space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 mt-2">
-        <div>
-          <h1 className="md:text-2xl text-xl font-normal text-gray-800">
-            Usage Tracking
-          </h1>
-          <p className="text-gray-500 text-sm mt-1">
-            Track, assign, transfer, and monitor equipment across all
-            construction sites and the central yard.
-          </p>
-        </div>
+        <TitleSubtitle
+          title="Usage Tracking"
+          subtitle="Track, assign, transfer, and monitor equipment across all construction sites and the central yard."
+        />
         <div className="flex gap-3 flex-wrap ml-auto">
           <button
-            className=" sm:w-auto bg-(--button-bg-primary-color) text-white px-2 py-2 rounded-lg font-medium shadow-sm hover:opacity-80 transition-colors flex items-center justify-center gap-2 md:text-sm text-xs"
+            className=" sm:w-auto bg-(--button-bg-primary-color) text-white px-2 py-2 rounded-lg font-normal shadow-sm hover:opacity-80 transition-colors flex items-center justify-center gap-2 md:text-sm text-xs"
             onClick={() => setIsTransferModalOpen(true)}
           >
             <span className="text-lg leading-none">+</span> Create Transfer
@@ -166,7 +162,7 @@ const UsageTrackingView = () => {
           </button>
 
           <button
-            className=" sm:w-auto bg-(--button-bg-primary-color) text-white px-2 py-2 rounded-lg font-medium shadow-sm hover:opacity-80 transition-colors flex items-center justify-center gap-2 md:text-sm text-xs"
+            className=" sm:w-auto bg-(--button-bg-primary-color) text-white px-2 py-2 rounded-lg font-normal shadow-sm hover:opacity-80 transition-colors flex items-center justify-center gap-2 md:text-sm text-xs"
             onClick={() => setIsModalOpen(true)}
           >
             <span className="text-lg leading-none">+</span>Assign Equipment
@@ -192,7 +188,7 @@ const UsageTrackingView = () => {
         data={equipmentData}
         pagination={true}
         actions={
-          <div className="flex gap-2 flex-wrap mt-3 justify-end">
+          <div className="flex gap-2 flex-wrap mt-3 justify-end ml-auto">
             <button className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-gray-600 md:text-sm text-xs  hover:bg-gray-50">
               <Funnel className="w-3 h-3" />
               Filter Equipment

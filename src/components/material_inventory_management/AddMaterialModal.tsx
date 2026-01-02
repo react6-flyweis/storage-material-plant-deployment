@@ -1,13 +1,13 @@
 import React from "react";
-import Modal from "./Modal";
+import Modal from "../Modal";
 import { ChevronDownIcon } from "lucide-react";
 
-interface AddEquipmentModalProps {
+interface AddMaterialModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const AddEquipmentModal: React.FC<AddEquipmentModalProps> = ({
+const AddMaterialModal: React.FC<AddMaterialModalProps> = ({
   isOpen,
   onClose,
 }) => {
@@ -15,22 +15,22 @@ const AddEquipmentModal: React.FC<AddEquipmentModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Add New Equipment"
-      width="max-w-3xl"
+      title="Add Material Stock"
+      width="max-w-xl"
     >
-      <form className="flex flex-col max-h-full">
-        <div className="overflow-y-auto pr-2 max-h-[400px] scrollbar-thin scrollbar-thumb-gray-200">
+      <form className="flex flex-col h-full max-h-[400px]">
+        <div className="overflow-y-auto pr-2 max-h-[600px] scrollbar-thin scrollbar-thumb-gray-200">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-2">
-            {/* Equipment Name */}
+            {/* Material Name */}
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-medium text-gray-700">
-                Equipment Name*
+                Material Name*
               </label>
               <div className="relative">
                 <select className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-gray-700">
-                  <option>Concrete Mixer 350L</option>
-                  <option>Excavator CAT 320D</option>
-                  <option>Generator 25 kVA</option>
+                  <option>Cement OPC 53</option>
+                  <option>Steel TMT Bars</option>
+                  <option>River Sand</option>
                 </select>
                 <div className="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-gray-500">
                   <ChevronDownIcon className="text-muted-foreground size-4 pointer-events-none" />
@@ -45,9 +45,9 @@ const AddEquipmentModal: React.FC<AddEquipmentModalProps> = ({
               </label>
               <div className="relative">
                 <select className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-gray-700">
-                  <option>Heavy Equipment</option>
-                  <option>Light Machinery</option>
-                  <option>Vehicles</option>
+                  <option>Cement</option>
+                  <option>Steel</option>
+                  <option>Aggregates</option>
                 </select>
                 <div className="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-gray-500">
                   <ChevronDownIcon className="text-muted-foreground size-4 pointer-events-none" />
@@ -55,100 +55,91 @@ const AddEquipmentModal: React.FC<AddEquipmentModalProps> = ({
               </div>
             </div>
 
-            {/* Equipment ID */}
-            <div className="flex flex-col gap-1.5">
+            {/* Description - Full Width */}
+            <div className="flex flex-col gap-1.5 md:col-span-2">
               <label className="text-sm font-medium text-gray-700">
-                Equipment ID / Asset Code*
+                Description
               </label>
-              <input
-                type="text"
-                placeholder="EX-302, DG-065"
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 placeholder-gray-400 text-gray-700"
+              <textarea
+                rows={3}
+                placeholder="Used for slab casting and RCC work."
+                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 placeholder-gray-400 text-gray-700 resize-none"
               />
             </div>
 
-            {/* Manufacturer */}
+            {/* Unit of Measurement */}
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-medium text-gray-700">
-                Manufacturer / Brand
-              </label>
-              <input
-                type="text"
-                placeholder="Honda"
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 placeholder-gray-400 text-gray-700"
-              />
-            </div>
-
-            {/* Model Number */}
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-gray-700">
-                Model Number
-              </label>
-              <input
-                type="text"
-                placeholder="CAT 320D"
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 placeholder-gray-400 text-gray-700"
-              />
-            </div>
-
-            {/* Serial Number */}
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-gray-700">
-                Serial Number
-              </label>
-              <input
-                type="text"
-                placeholder="SN-45SD778812"
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 placeholder-gray-400 text-gray-700"
-              />
-            </div>
-
-            {/* Power / Capacity */}
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-gray-700">
-                Power / Capacity
-              </label>
-              <input
-                type="text"
-                placeholder="65 kVA"
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 placeholder-gray-400 text-gray-700"
-              />
-            </div>
-
-            {/* Fuel Type */}
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-gray-700">
-                Fuel Type
-              </label>
-              <input
-                type="text"
-                placeholder="Diesel"
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 placeholder-gray-400 text-gray-700"
-              />
-            </div>
-
-            {/* Equipment Status */}
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-gray-700">
-                Equipment Status*
+                Unit of Measurement*
               </label>
               <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Available"
-                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 placeholder-gray-400 text-gray-700"
-                />
+                <select className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-gray-700">
+                  <option>Bags</option>
+                  <option>Metric Tons</option>
+                  <option>Cubic Feet</option>
+                </select>
+                <div className="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-gray-500">
+                  <ChevronDownIcon className="text-muted-foreground size-4 pointer-events-none" />
+                </div>
               </div>
             </div>
 
-            {/* Assigned Operator */}
+            {/* Quantity */}
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-medium text-gray-700">
-                Assigned Operator
+                Quantity
               </label>
               <input
                 type="text"
-                placeholder="Driver Name"
+                placeholder="50 Bags"
+                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 placeholder-gray-400 text-gray-700"
+              />
+            </div>
+
+            {/* Storage Location */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-medium text-gray-700">
+                Storage Location*
+              </label>
+              <input
+                type="text"
+                placeholder="Central Yard"
+                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 placeholder-gray-400 text-gray-700"
+              />
+            </div>
+
+            {/* Linked Project */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-medium text-gray-700">
+                Linked Project
+              </label>
+              <input
+                type="text"
+                placeholder="ABC Warehouse Project"
+                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 placeholder-gray-400 text-gray-700"
+              />
+            </div>
+
+            {/* Minimum Stock Threshold */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-medium text-gray-700">
+                Minimum Stock Threshold
+              </label>
+              <input
+                type="text"
+                placeholder="300 bags"
+                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 placeholder-gray-400 text-gray-700"
+              />
+            </div>
+
+            {/* Date of Stock Entry */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-medium text-gray-700">
+                Date of Stock Entry*
+              </label>
+              <input
+                type="date"
+                placeholder="dd - mm - yyyy"
                 className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 placeholder-gray-400 text-gray-700"
               />
             </div>
@@ -176,4 +167,4 @@ const AddEquipmentModal: React.FC<AddEquipmentModalProps> = ({
   );
 };
 
-export default AddEquipmentModal;
+export default AddMaterialModal;

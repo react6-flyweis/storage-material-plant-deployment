@@ -8,6 +8,7 @@ import YellowDollerIcon from "../../assets/yellowDollerIcon.svg";
 import SalmonGraphIcon from "../../assets/salmonGraphIcon.svg";
 import StatCard from "@/components/ui/stat-card";
 import { FilePlus, FileX, FunnelIcon } from "lucide-react";
+import TitleSubtitle from "../common_component/TitleSubtitle";
 
 const MaintenanceAndSchedulingView = () => {
   const [isReportModalOpen, setIsReportModalOpen] = React.useState(false);
@@ -245,26 +246,21 @@ const MaintenanceAndSchedulingView = () => {
   ];
 
   return (
-    <div className="md:pr-5 pt-5 space-y-5">
+    <div className="xl:px-5 px-2 md:pt-5 pb-10 space-y-6">
       <div className="flex items-center justify-between flex-wrap mt-1 mb-6">
-        <div className="">
-          <h1 className="md:text-2xl text-xl font-normal text-gray-800 mb-2">
-            Maintenance And Scheduling
-          </h1>
-          <p className="text-(--text-color-gray-2) text-sm">
-            Manage preventive maintenance, repair logs, vendor services, and
-            equipment health across all sites.
-          </p>
-        </div>
-        <div className="ml-auto flex mt-2 gap-1 flex-wrap justify-end">
-          <button className=" sm:w-auto bg-(--button-bg-primary-color) text-white px-2 py-2 rounded-lg font-medium shadow-sm hover:opacity-80 transition-colors flex items-center justify-center gap-2 text-sm">
+        <TitleSubtitle
+          title="Maintenance And Scheduling"
+          subtitle="Manage preventive maintenance, repair logs, vendor services, and equipment health across all sites."
+        />
+        <div className="ml-auto flex xl:mt-2 mt-5 gap-1 flex-wrap justify-end">
+          <button className=" sm:w-auto bg-(--button-bg-primary-color) text-white px-2 py-2 rounded-lg font-normal shadow-sm hover:opacity-80 transition-colors flex items-center justify-center gap-2 md:text-sm text-xs">
             <span className="md:text-lg leading-none">+</span> Add Service
             Provider
           </button>
 
           <button
             onClick={openReportModal}
-            className=" sm:w-auto bg-(--button-bg-primary-color) text-white px-2 py-2 rounded-lg font-medium shadow-sm hover:opacity-80 transition-colors flex items-center justify-center gap-2 text-sm"
+            className=" sm:w-auto bg-(--button-bg-primary-color) text-white px-2 py-2 rounded-lg font-normal shadow-sm hover:opacity-80 transition-colors flex items-center justify-center gap-2 md:text-sm text-xs"
           >
             <span className="md:text-lg leading-none">+</span>
             Report Breakdown
@@ -272,7 +268,7 @@ const MaintenanceAndSchedulingView = () => {
 
           <button
             onClick={openLogModal}
-            className=" sm:w-auto bg-(--button-bg-primary-color) text-white px-2 py-2 rounded-lg font-medium shadow-sm hover:opacity-80 transition-colors flex items-center justify-center gap-2 text-sm"
+            className=" sm:w-auto bg-(--button-bg-primary-color) text-white px-2 py-2 rounded-lg font-normal shadow-sm hover:opacity-80 transition-colors flex items-center justify-center gap-2 md:text-sm text-xs"
           >
             <span className="md:text-lg leading-none">+</span>Log Maintenance
           </button>

@@ -217,7 +217,7 @@ const EquipmentView = () => {
   ];
 
   return (
-    <div className="md:pr-5 pt-5 space-y-5">
+    <div className="xl:px-5 px-2 md:pt-5 pb-10 space-y-6">
       <div className="flex items-center justify-between flex-wrap mt-1 mb-6">
         <TitleSubtitle
           title={equipmenViewText.header.title}
@@ -249,7 +249,7 @@ const EquipmentView = () => {
         data={equipmentData}
         pagination={true}
         actions={
-          <div className="flex gap-2 flex-wrap justify-end">
+          <div className="flex gap-2 flex-wrap justify-end ml-auto">
             <button className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-gray-600 md:text-sm text-xs hover:bg-gray-50">
               <FunnelIcon className="w-4 h-4" />
               Filter Equipment

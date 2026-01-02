@@ -36,7 +36,7 @@ const KPICard: React.FC<KPICardProps> = ({
       </div>
 
       {trend && (
-        <div className="flex justify-between items-center mt-4 text-xs font-medium">
+        <div className="flex justify-between items-center mt-4 text-xs font-medium border-t border-[#E6EAED] pt-2">
           <span
             className={trend.isPositive ? "text-green-500" : "text-red-500"}
           >

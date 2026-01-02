@@ -10,6 +10,7 @@ import StatCard from "@/components/ui/stat-card";
 import ReportBreakdownModal from "./ReportBreakdownModal";
 import LogMaintenanceModal from "./LogMaintenanceModal";
 import { FilePlus, Funnel } from "lucide-react";
+import TitleSubtitle from "../common_component/TitleSubtitle";
 
 export type UpcomingSchedule = {
   id: number;
@@ -140,25 +141,21 @@ const UpcomingScheduleView = () => {
   };
 
   return (
-    <div className="md:pr-5 pt-5 space-y-5">
+    <div className="xl:px-5 px-2 md:pt-5 pb-10 space-y-6">
       <div className="flex items-center justify-between flex-wrap mt-1 mb-6">
-        <div className="">
-          <h1 className="md:text-2xl text-xl font-normal text-gray-800 mb-2">
-            Upcoming Schedule
-          </h1>
-          <p className="text-(--text-color-gray-2) text-sm">
-            Here’s a summary of your ongoing steel building projects.
-          </p>
-        </div>
-        <div className="flex  mt-2 flex-wrap gap-1 justify-end ">
-          <button className="sm:w-auto bg-(--button-bg-primary-color) text-white px-2 py-2 rounded-lg font-medium shadow-sm hover:opacity-80 transition-colors flex items-center justify-center gap-2 text-sm">
+        <TitleSubtitle
+          title="Upcoming Schedule"
+          subtitle="Here’s a summary of your ongoing steel building projects."
+        />
+        <div className="flex  xl:mt-2 mt-5 flex-wrap gap-1 justify-end ml-auto">
+          <button className="sm:w-auto bg-(--button-bg-primary-color) text-white px-2 py-2 rounded-lg font-normal shadow-sm hover:opacity-80 transition-colors flex items-center justify-center gap-2 md:text-sm text-xs">
             <span className="md:text-lg leading-none">+</span> Add Service
             Provider
           </button>
 
           <button
             onClick={openReportModal}
-            className="sm:w-auto bg-(--button-bg-primary-color) text-white px-2 py-2 rounded-lg font-medium shadow-sm hover:opacity-80 transition-colors flex items-center justify-center gap-2 text-sm"
+            className="sm:w-auto bg-(--button-bg-primary-color) text-white px-2 py-2 rounded-lg font-normal shadow-sm hover:opacity-80 transition-colors flex items-center justify-center gap-2 md:text-sm text-xs"
           >
             <span className="md:text-lg leading-none">+</span>
             Report Breakdown
@@ -166,7 +163,7 @@ const UpcomingScheduleView = () => {
 
           <button
             onClick={openLogModal}
-            className="sm:w-auto bg-(--button-bg-primary-color) text-white px-2 py-2 rounded-lg font-medium shadow-sm hover:opacity-80 transition-colors flex items-center justify-center gap-2 text-sm"
+            className="sm:w-auto bg-(--button-bg-primary-color) text-white px-2 py-2 rounded-lg font-no rmal shadow-sm hover:opacity-80 transition-colors flex items-center justify-center gap-2 md:text-sm text-xs"
           >
             <span className="md:text-lg leading-none">+</span>Log Maintenance
           </button>

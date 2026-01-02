@@ -9,6 +9,7 @@ import StatCard from "@/components/ui/stat-card";
 import CreateTransferReqModal from "./CreateTransferReqModal";
 import { FilePlus, FileX, FunnelIcon } from "lucide-react";
 import AssignEquipmentModal from "./AssignEquipmentModal";
+import TitleSubtitle from "../common_component/TitleSubtitle";
 
 export const equipmentStats = [
   {
@@ -156,19 +157,15 @@ const EquipmentAllocationView = () => {
   ];
 
   return (
-    <div className="sm:pr-5 sm:pt-5 pt-2 space-y-5">
+    <div className="xl:px-5 px-2 md:pt-5 pb-10 space-y-6">
       <div className="flex items-center justify-between flex-wrap mt-1 mb-6">
-        <div className="mb-3">
-          <h1 className="md:text-2xl text-xl font-normal text-gray-800 mb-2">
-            Equipment Allocation
-          </h1>
-          <p className="text-(--text-color-gray-2) text-sm">
-            Here’s a summary of your ongoing steel building projects.
-          </p>
-        </div>
-        <div className="flex gap-3 flex-wrap ml-auto">
+        <TitleSubtitle
+          title="Equipment Allocation"
+          subtitle="Here’s a summary of your ongoing steel building projects."
+        />
+        <div className="flex gap-3 flex-wrap ml-auto xk:mt-0 mt-5">
           <button
-            className="sm:w-auto bg-(--button-bg-primary-color) text-white px-2 py-2 rounded-lg font-medium shadow-sm hover:opacity-80 transition-colors flex items-center justify-center gap-2 md:text-sm text-xs"
+            className="sm:w-auto bg-(--button-bg-primary-color) text-white px-2 py-2 rounded-lg font-normal shadow-sm hover:opacity-80 transition-colors flex items-center justify-center gap-2 md:text-sm text-xs"
             onClick={() => setIsTransferModalOpen(true)}
           >
             <span className="text-lg leading-none">+</span> Create Transfer
@@ -176,7 +173,7 @@ const EquipmentAllocationView = () => {
           </button>
 
           <button
-            className="sm:w-auto bg-(--button-bg-primary-color) text-white px-2 py-2 rounded-lg font-medium shadow-sm hover:opacity-80 transition-colors flex items-center justify-center gap-2 md:text-sm text-xs"
+            className="sm:w-auto bg-(--button-bg-primary-color) text-white px-2 py-2 rounded-lg font-normal shadow-sm hover:opacity-80 transition-colors flex items-center justify-center gap-2 md:text-sm text-xs"
             onClick={() => setIsModalOpen(true)}
           >
             <span className="text-lg leading-none">+</span>Assign Equipment
@@ -205,11 +202,11 @@ const EquipmentAllocationView = () => {
               <FunnelIcon className="w-4 h-4" />
               Filter Equipment
             </button>
-            <button className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-gray-600 text-sm hover:bg-gray-50">
+            <button className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-gray-600 md:text-sm text-xs hover:bg-gray-50">
               <FileX className="w-4 h-4" />
               Export Excel
             </button>
-            <button className="flex items-center gap-1.5 px-3 py-1.5 bg-(--button-bg-primary-color) text-white rounded-lg text-sm hover:opacity-80">
+            <button className="flex items-center gap-1.5 px-3 py-1.5 bg-(--button-bg-primary-color) text-white rounded-lg md:text-sm text-xs hover:opacity-80">
               <FilePlus className="w-4 h-4" />
               Export PDF
             </button>

@@ -1,5 +1,7 @@
+import { MoveLeft } from "lucide-react";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import TitleSubtitle from "../common_component/TitleSubtitle";
 
 interface SettingsViewProps {
   onNavigate?: (view: "profile") => void;
@@ -37,38 +39,23 @@ const SettingsView: React.FC<SettingsViewProps> = () => {
   };
 
   return (
-    <div className="flex flex-col gap-3 mt-4">
+    <div className="xl:px-5 px-2 md:pt-5 pb-10 space-y-6">
       {/* Header */}
-      <div className="flex md:items-center items-start justify-between">
+      <div className="flex flex-wrap md:items-center items-start justify-between">
         <div className="flex items-start gap-4 flex-wrap">
           <button
             onClick={() => navigate(-1)}
             className="flex items-center gap-2 px-4 py-2 bg-(--button-bg-primary-color) text-white rounded-lg hover:opacity-90 transition-opacity text-sm font-medium"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-              stroke="currentColor"
-              className="w-4 h-4"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"
-              />
-            </svg>
+            <MoveLeft className="w-4 h-4" />
             <p className="font-normal md:text-sm text-xs">Back</p>
           </button>
-          <div>
-            <h1 className="md:text-2xl font-normal text-gray-900">Settings</h1>
-            <p className="text-gray-500 md:text-sm text-xs">
-              Manage your account preferences and system configuration
-            </p>
-          </div>
+          <TitleSubtitle
+            title="Settings"
+            subtitle="Manage your account preferences and system configuration"
+          />
         </div>
-        <button className="md:px-6 py-2.5 bg-(--button-bg-primary-color) text-white rounded-lg hover:opacity-90 transition-opacity md:text-sm text-xs font-medium">
+        <button className="md:px-4 ml-auto md:mt-0 mt-4 py-2.5 bg-(--button-bg-primary-color) text-white rounded-lg hover:opacity-90 transition-opacity md:text-sm text-xs font-normal min-w-[128px] w-fit">
           Save All Settings
         </button>
       </div>

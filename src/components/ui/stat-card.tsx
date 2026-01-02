@@ -6,7 +6,6 @@ type StatCardProps = {
   title: string;
   value: React.ReactNode;
   icon?: React.ReactNode;
-  // `color` may be a Tailwind background class like 'bg-blue-600' or a CSS color string like '#1e40af'
   color?: string;
   className?: string;
 };
@@ -27,9 +26,9 @@ export default function StatCard({
       )}
     >
       <div className="flex items-center justify-between">
-        <div>
+        <div className="flex flex-col">
           <p className="md:text-base text-xs opacity-90">{title}</p>
-          <p className="md:text-2xl text-base mt-1 w-[70px] sm:w-auto overflow-y-hidden overflow-x-auto">
+          <p className="xl:text-2xl sm:text-base text-sm mt-1 w-[70px] sm:w-auto overflow-y-hidden overflow-x-auto">
             {value}
           </p>
         </div>

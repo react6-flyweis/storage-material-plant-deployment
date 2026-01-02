@@ -25,7 +25,7 @@ const ViewDrawingModal: React.FC<ViewDrawingModalProps> = ({
         {/* Header */}
         <div className="px-4 py-4 md:px-8 md:py-6 flex flex-col md:flex-row md:items-start md:justify-between border-b border-gray-100 bg-white sticky top-0 z-10 gap-4 md:gap-6">
           <div>
-            <h2 className="text-xl md:text-2xl font-bold text-gray-900 leading-tight">
+            <h2 className="xl:text-xl md:text-2xl font-bold text-gray-900 leading-tight">
               {drawing.name}
             </h2>
             <p className="text-gray-500 font-medium text-xs md:text-sm mt-1">

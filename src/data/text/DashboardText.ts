@@ -1,6 +1,6 @@
 export const dashboardText = {
   header: {
-    title: "Plant Overview",
+    title: "Dashboard",
     subtitle: "Here’s a summary of your ongoing steel building projects.",
   },
 };

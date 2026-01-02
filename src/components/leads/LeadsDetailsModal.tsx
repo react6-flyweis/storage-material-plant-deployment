@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { mockLeadsData } from "../../data/mockData";
 import TrackLeadsLifecycleModal from "./TrackLeadsLifecycleModal";
 import ProjectMediaModal from "./ProjectMediaModal";
+import { Check, CheckCheck, File, MessageSquare, User, X } from "lucide-react";
 
 interface LeadsDetailsModalProps {
   isOpen: boolean;
@@ -32,9 +33,9 @@ const LeadsDetailsModal: React.FC<LeadsDetailsModalProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4 overflow-y-auto">
       <div className="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-xl relative">
         {/* Header */}
-        <div className="sticky top-0 bg-white z-20 px-4 py-3 md:px-6 md:py-4 border-b border-gray-100 flex items-start justify-between">
+        <div className="sticky top-0 bg-white z-20 px-4 py-3 md:px-6 md:py-4 border-b border-gray-300 flex items-start justify-between">
           <div>
-            <h2 className="text-lg md:text-xl font-semibold text-gray-900 leading-tight">
+            <h2 className="xl:text-xl  text-lg font-semibold text-black leading-tight mb-2">
               Leads Details - {contactInfo.fullName}
             </h2>
             <p className="text-xs md:text-sm text-gray-500">{id}</p>
@@ -43,20 +44,7 @@ const LeadsDetailsModal: React.FC<LeadsDetailsModalProps> = ({
             onClick={onClose}
             className="p-1.5 md:p-2 hover:bg-gray-100 rounded-full transition-colors"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="w-5 h-5 md:w-6 md:h-6 text-gray-400"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M6 18 18 6M6 6l12 12"
-              />
-            </svg>
+            <X strokeWidth={1} className="w-5 h-5 md:w-6 md:h-6 text-black" />
           </button>
         </div>
 
@@ -68,35 +56,23 @@ const LeadsDetailsModal: React.FC<LeadsDetailsModalProps> = ({
                 onClose();
                 navigate("/communication");
               }}
-              className="px-5 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50 flex items-center gap-2 shadow-sm transition-all"
+              className="px-5 py-2.5 bg-white border border-gray-400 rounded-xl text-sm font-normal text-gray-700 hover:bg-gray-50 flex items-center gap-2 shadow-sm transition-all"
             >
-              <div className="w-5 h-5 rounded-md bg-blue-50 flex items-center justify-center">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={2}
-                  stroke="currentColor"
-                  className="w-3 h-3 text-blue-600"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 0 1 .865-.501 48.172 48.172 0 0 0 3.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z"
-                  />
-                </svg>
-              </div>
+              <MessageSquare
+                strokeWidth={1}
+                className="w-4 h-4 text-gray-700"
+              />
               Open Chat
             </button>
             <button
               onClick={() => setIsTrackLifecycleOpen(true)}
-              className="px-5 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50 shadow-sm transition-all"
+              className="px-5 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-normal text-gray-700 hover:bg-gray-50 shadow-sm transition-all"
             >
               Track Order Lifecycle
             </button>
             <button
               onClick={() => setIsMediaModalOpen(true)}
-              className="px-5 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50 shadow-sm transition-all"
+              className="px-5 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-normal text-gray-700 hover:bg-gray-50 shadow-sm transition-all"
             >
               Drawings & Images
             </button>
@@ -193,19 +169,8 @@ const LeadsDetailsModal: React.FC<LeadsDetailsModalProps> = ({
                 Assignment
               </h4>
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-[#E6FFFA] flex items-center justify-center text-[#0D9488]">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                    className="w-6 h-6"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
+                <div className="w-12 h-12 rounded-full bg-[#DCFCE7] flex items-center justify-center text-[#16A34A]">
+                  <User className="w-6 h-6" />
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-gray-900">
@@ -224,20 +189,8 @@ const LeadsDetailsModal: React.FC<LeadsDetailsModalProps> = ({
                 Signed Contract/Agreement
               </h4>
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-[#E6FFFA] flex items-center justify-center text-[#0D9488]">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                    className="w-6 h-6"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M5.625 1.5c-1.036 0-1.875.84-1.875 1.875v17.25c0 1.035.84 1.875 1.875 1.875h12.75c1.035 0 1.875-.84 1.875-1.875V12.75A3.75 3.75 0 0 0 16.5 9h-1.875a1.875 1.875 0 0 1-1.875-1.875V5.25A3.75 3.75 0 0 0 9 1.5H5.625ZM7.5 15a.75.75 0 0 1 .75-.75h7.5a.75.75 0 0 1 0 1.5h-7.5A.75.75 0 0 1 7.5 15Zm.75 2.25a.75.75 0 0 0 0 1.5h7.5a.75.75 0 0 0 0-1.5h-7.5Z"
-                      clipRule="evenodd"
-                    />
-                    <path d="M12.971 1.816A5.23 5.23 0 0 1 14.25 5.25v1.875c0 .207.168.375.375.375H16.5a5.23 5.23 0 0 1 3.434 1.279 9.768 9.768 0 0 0-6.963-6.963Z" />
-                  </svg>
+                <div className="w-12 h-12 rounded-full bg-[#DCFCE7] flex items-center justify-center text-[#16A34A]">
+                  <File className="w-6 h-6" />
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-gray-900">
@@ -267,25 +220,14 @@ const LeadsDetailsModal: React.FC<LeadsDetailsModalProps> = ({
                       className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 z-10 text-white
                       ${
                         step.status === "completed"
-                          ? "bg-[#3AB449]"
+                          ? "bg-[#36A44A]"
                           : step.status === "current"
                           ? "bg-[#2563EB]"
                           : "bg-gray-200 text-gray-500"
                       }`}
                     >
                       {step.status === "completed" ? (
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 24 24"
-                          fill="currentColor"
-                          className="w-4 h-4"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M19.916 4.626a.75.75 0 0 1 .208 1.04l-9 13.5a.75.75 0 0 1-1.154.114l-6-6a.75.75 0 0 1 1.06-1.06l5.353 5.353 8.493-12.739a.75.75 0 0 1 1.04-.208Z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
+                        <Check strokeWidth={4} className="w-4 h-4" />
                       ) : (
                         <span className="text-xs font-semibold">{step.id}</span>
                       )}
@@ -312,34 +254,7 @@ const LeadsDetailsModal: React.FC<LeadsDetailsModalProps> = ({
                         </div>
                         {step.status === "completed" && (
                           <div className="flex gap-0.5">
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              strokeWidth={3}
-                              stroke="currentColor"
-                              className="w-4 h-4 text-[#3AB449]"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="m4.5 12.75 6 6 9.135-9.135"
-                              />
-                            </svg>
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              strokeWidth={3}
-                              stroke="currentColor"
-                              className="w-4 h-4 text-[#3AB449]"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="m4.5 12.75 6 6 9.135-9.135"
-                              />
-                            </svg>
+                            <CheckCheck className="w-6 h-6 text-[#006C14]" />
                           </div>
                         )}
                       </div>
@@ -349,7 +264,7 @@ const LeadsDetailsModal: React.FC<LeadsDetailsModalProps> = ({
               </div>
 
               {/* Progress Bar Footer */}
-              <div className="mt-8 pt-6 border-t border-gray-100">
+              <div className="mt-8 pt-6 border-t border-gray-300">
                 <p className="text-xs text-gray-500 mb-2">
                   Progress: Step {progress.currentStep} of {progress.totalSteps}
                 </p>
@@ -418,7 +333,7 @@ const LeadsDetailsModal: React.FC<LeadsDetailsModalProps> = ({
         <div className="sticky bottom-0 bg-white p-4 md:p-6 border-t border-gray-100 flex justify-end z-90">
           <button
             onClick={onClose}
-            className="w-full sm:w-auto px-10 py-3 bg-[#2563EB] text-white rounded-xl hover:bg-blue-700 transition-colors text-sm font-semibold shadow-sm"
+            className="w-fit px-10 py-3 bg-[#2563EB] text-white rounded-xl hover:bg-blue-700 transition-colors text-sm font-semibold shadow-sm"
           >
             Close
           </button>

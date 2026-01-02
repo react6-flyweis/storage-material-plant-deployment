@@ -1,11 +1,6 @@
 import React from "react";
 import iconBg from "../../assets/sideBarIconBg.svg";
-import MenuIcon1 from "../../assets/menuIcon1.svg";
-import MenuIcon2 from "../../assets/MenuIcon2.svg";
-import MenuIcon3 from "../../assets/menuIcon3.svg";
-import MenuIcon4 from "../../assets/MenuIcon4.svg";
-import MenuIcon5 from "../../assets/MenuIcon5.svg";
-import MenuIcon6 from "../../assets/MenuIcon6.svg";
+import { NAV_ITEMS } from "@/config/navigation.config";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -18,51 +13,24 @@ const Sidebar: React.FC<SidebarProps> = ({
   activeTab,
   setActiveTab,
 }) => {
-  const menuItems = [
-    {
-      icon: MenuIcon1,
-      bgColor: "bg-[#FF885B]", // Orange
-    },
-    {
-      icon: MenuIcon2,
-      bgColor: "bg-[#A66EFA]", // Purple
-    },
-    {
-      icon: MenuIcon3,
-      bgColor: "bg-[#28C76F]", // Green
-    },
-    {
-      icon: MenuIcon4,
-      bgColor: "bg-[#EA5455]", // Red
-    },
-    {
-      icon: MenuIcon5,
-      bgColor: "bg-[#FFC107]", // Yellow
-    },
-    {
-      icon: MenuIcon6,
-      bgColor: "bg-black", // Black
-    },
-  ];
-
   return (
     <div
       className={`
-        w-14 md:w-16 lg:w-20 
-        flex flex-col items-center 
-        h-full min-h-screen 
-        fixed left-0 top-0 
-        z-40 bg-[#1D51A4]
-        transition-transform duration-300 ease-in-out
-        ${isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
-      `}
+            w-14 md:w-16 lg:w-20
+            flex flex-col items-center
+            min-h-screen h-full
+            fixed md:static left-0 top-0
+            z-40 bg-[#1D51A4]
+            transition-transform duration-300 ease-in-out
+            ${isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
+          `}
     >
       <div className="mb-2 h-32 w-full "></div>
 
       <div className="flex flex-col w-full">
-        {menuItems.map((item, index) => (
+        {NAV_ITEMS.map((item, index) => (
           <div
-            className="relative w-full h-24 flex items-center justify-end pr-3"
+            className="relative w-full h-19 flex items-center justify-end pr-3"
             key={index}
           >
             {activeTab === index && (
@@ -79,15 +47,13 @@ const Sidebar: React.FC<SidebarProps> = ({
               onClick={() => setActiveTab(index)}
               className="relative z-20 p-0 flex justify-center items-center group focus:outline-none"
             >
-              {/* Icon Container with Background Color */}
               <div
-                className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center transition-transform hover:scale-105 ${item.bgColor} shadow-lg`}
+                className={`w-10 h-10 p-1.5 rounded-full flex items-center justify-center transition-transform hover:scale-105 ${item.color} shadow-lg`}
               >
-                {/* Icon Image */}
                 <img
                   src={item.icon}
-                  alt={`Menu ${index + 1}`}
-                  className="w-5 h-5 md:w-6 md:h-6 object-contain"
+                  alt={item.title}
+                  className="w-5.5 h-5.5 object-contain"
                 />
               </div>
             </button>

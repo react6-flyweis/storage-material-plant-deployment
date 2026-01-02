@@ -3,7 +3,8 @@ import Table, { type Column } from "../Table";
 import ReportBreakdownModal from "./ReportBreakdownModal";
 import LogMaintenanceModal from "./LogMaintenanceModal";
 import { mockServiceProviders } from "../../data/mockData";
-import { FilePlus, FileX } from "lucide-react";
+import { FilePlus, FileX, Funnel } from "lucide-react";
+import TitleSubtitle from "../common_component/TitleSubtitle";
 
 export type ServiceProvider = {
   id: number;
@@ -39,7 +40,7 @@ export const serviceProviderColumns: Column<ServiceProvider>[] = [
   {
     header: "Provider Name",
     accessor: (item) => item.providerName,
-    cellClassName: "text-gray-600",
+    cellClassName: "text-gray-600 min-w-[120px]",
   },
   {
     header: "Services",
@@ -59,7 +60,9 @@ export const serviceProviderColumns: Column<ServiceProvider>[] = [
   },
   {
     header: "Last Service",
-    accessor: (item) => item.lastService,
+    accessor: (item) => (
+      <div className="min-w-[80px] font-normal text-xs">{item.lastService}</div>
+    ),
   },
   {
     header: "Action",
@@ -96,25 +99,21 @@ const ServiceProvidersView = () => {
   };
 
   return (
-    <div className="pr-5 pt-5 space-y-5">
+    <div className="xl:px-5 px-2 md:pt-5 pb-10 space-y-6">
       <div className="flex items-center justify-between flex-wrap mt-1 mb-6">
-        <div className="">
-          <h1 className="md:text-2xl text-xl font-normal text-gray-800 mb-2">
-            Service Providers
-          </h1>
-          <p className="text-(--text-color-gray-2) text-sm">
-            Here’s a summary of your ongoing steel building projects.
-          </p>
-        </div>
-        <div className="flex mt-2 gap-1 flex-wrap ml-auto">
-          <button className="sm:w-auto bg-(--button-bg-primary-color) text-white px-2 py-2 rounded-lg font-medium shadow-sm hover:opacity-80 transition-colors flex items-center justify-center gap-2 md:text-sm text-xs">
+        <TitleSubtitle
+          title="Service Providers"
+          subtitle="Here’s a summary of your ongoing steel building projects."
+        />
+        <div className="flex xl:mt-2 mt-5 gap-1 flex-wrap ml-auto">
+          <button className="sm:w-auto bg-(--button-bg-primary-color) text-white px-2 py-2 rounded-lg font-normal shadow-sm hover:opacity-80 transition-colors flex items-center justify-center gap-2 md:text-sm text-xs">
             <span className="md:text-lg leading-none">+</span> Add Service
             Provider
           </button>
 
           <button
             onClick={openReportModal}
-            className="sm:w-auto bg-(--button-bg-primary-color) text-white px-2 py-2 rounded-lg font-medium shadow-sm hover:opacity-80 transition-colors flex items-center justify-center gap-2 md:text-sm text-xs"
+            className="sm:w-auto bg-(--button-bg-primary-color) text-white px-2 py-2 rounded-lg font-normal shadow-sm hover:opacity-80 transition-colors flex items-center justify-center gap-2 md:text-sm text-xs"
           >
             <span className="md:text-lg leading-none">+</span>
             Report Breakdown
@@ -122,7 +121,7 @@ const ServiceProvidersView = () => {
 
           <button
             onClick={openLogModal}
-            className="sm:w-auto bg-(--button-bg-primary-color) text-white px-2 py-2 rounded-lg font-medium shadow-sm hover:opacity-80 transition-colors flex items-center justify-center gap-2 md:text-sm text-xs"
+            className="sm:w-auto bg-(--button-bg-primary-color) text-white px-2 py-2 rounded-lg font-normal shadow-sm hover:opacity-80 transition-colors flex items-center justify-center gap-2 md:text-sm text-xs"
           >
             <span className="md:text-lg leading-none">+</span>Log Maintenance
           </button>
@@ -135,29 +134,16 @@ const ServiceProvidersView = () => {
         data={mockServiceProviders}
         pagination={true}
         actions={
-          <div className="flex gap-2 flex-wrap mt-2 md:mt-0 justify-end">
-            <button className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-gray-600 text-sm hover:bg-gray-50">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="w-4 h-4"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z"
-                />
-              </svg>
+          <div className="flex gap-2 flex-wrap mt-2 md:mt-0 justify-end ml-auto">
+            <button className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-gray-600 font-normal xl:text-sm text-xs hover:bg-gray-50">
+              <Funnel className="w-4 h-4" />
               Filter Provider
             </button>
-            <button className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-gray-600 text-sm hover:bg-gray-50">
+            <button className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-gray-600 font-normal xl:text-sm text-xs hover:bg-gray-50">
               <FileX className="w-4 h-4" />
               Export Excel
             </button>
-            <button className="flex items-center gap-1.5 px-3 py-1.5 bg-(--button-bg-primary-color) text-white rounded-lg text-sm hover:opacity-80">
+            <button className="flex items-center gap-1.5 px-3 py-1.5 bg-(--button-bg-primary-color) text-white rounded-lg xl:text-sm text-xs hover:opacity-80">
               <FilePlus className="w-4 h-4" />
               Export PDF
             </button>

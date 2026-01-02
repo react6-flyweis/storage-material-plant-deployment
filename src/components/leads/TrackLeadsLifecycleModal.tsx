@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Modal from "../Modal";
 import SentCompletionNotesModal from "./SentCompletionNotesModal";
+import { Check, CheckCheck } from "lucide-react";
 
 interface TrackLeadsLifecycleModalProps {
   isOpen: boolean;
@@ -78,18 +79,7 @@ const TrackLeadsLifecycleModal: React.FC<TrackLeadsLifecycleModalProps> = ({
                     }`}
                   >
                     {step.id < currentStep ? (
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        fill="currentColor"
-                        className="w-4 h-4"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M19.916 4.626a.75.75 0 0 1 .208 1.04l-9 13.5a.75.75 0 0 1-1.154.114l-6-6a.75.75 0 0 1 1.06-1.06l5.353 5.353 8.493-12.739a.75.75 0 0 1 1.04-.208Z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
+                      <Check className="w-4 h-4" />
                     ) : (
                       <span className="text-xs font-semibold">{step.id}</span>
                     )}
@@ -117,36 +107,7 @@ const TrackLeadsLifecycleModal: React.FC<TrackLeadsLifecycleModalProps> = ({
 
                     <div className="flex items-center gap-6">
                       {step.id < currentStep && (
-                        <div className="flex gap-0.5">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            strokeWidth={3}
-                            stroke="currentColor"
-                            className="w-4 h-4 text-[#3AB449]"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              d="m4.5 12.75 6 6 9.135-9.135"
-                            />
-                          </svg>
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            strokeWidth={3}
-                            stroke="currentColor"
-                            className="w-4 h-4 text-[#3AB449]"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              d="m4.5 12.75 6 6 9.135-9.135"
-                            />
-                          </svg>
-                        </div>
+                        <CheckCheck className="w-6 h-6 text-[#006C14]" />
                       )}
                       {step.id === currentStep && (
                         <button

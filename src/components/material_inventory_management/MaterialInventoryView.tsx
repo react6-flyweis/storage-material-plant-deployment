@@ -5,8 +5,9 @@ import HammerIcon from "../../assets/hammerIcon.svg";
 import CheckedShieldIcon from "../../assets/checkedShieldIcon.svg";
 import YellowDollerIcon from "../../assets/yellowDollerIcon.svg";
 import SalmonGraphIcon from "../../assets/salmonGraphIcon.svg";
-import AddMaterialModal from "./AddEquipmentModal";
+import AddMaterialModal from "./AddMaterialModal";
 import { FilePlus, FileX, FunnelIcon } from "lucide-react";
+import TitleSubtitle from "../common_component/TitleSubtitle";
 
 const MaterialInventoryView = () => {
   const [isModalOpen, setIsModalOpen] = React.useState(false);
@@ -231,16 +232,12 @@ const MaterialInventoryView = () => {
   ];
 
   return (
-    <div className="md:pr-5 pt-5 space-y-5">
+    <div className="xl:px-5 px-2 md:pt-5 pb-10 space-y-6">
       <div className="flex items-center justify-between flex-wrap mt-1 mb-6">
-        <div className="">
-          <h1 className="md:text-2xl text-xl font-normal text-gray-800 mb-2">
-            Material Inventory
-          </h1>
-          <p className="text-(--text-color-gray-2) text-sm">
-            Here’s a summary of your ongoing steel building projects.
-          </p>
-        </div>
+        <TitleSubtitle
+          title="Material Inventory"
+          subtitle="Here’s a summary of your ongoing steel building projects."
+        />
         <button
           onClick={openModal}
           className="xl:mt-0 mt-2 bg-(--button-bg-primary-color) text-white px-4 py-2 rounded-lg font-medium shadow-sm hover:opacity-80 transition-colors flex items-center gap-2 text-sm"

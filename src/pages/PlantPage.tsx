@@ -111,18 +111,18 @@ const PlantPage = () => {
   ];
 
   return (
-    <div className="sm:pr-5 pt-5 space-y-5">
+    <div className="xl:px-5 px-2 md:pt-5 pb-10 space-y-6">
       <TitleSubtitle
         title={dashboardText.header.title}
         subtitle={dashboardText.header.subtitle}
       />
 
-      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
+      <div className="grid grid-cols-2 xs:grid-cols-2 md:grid-cols-2 xl:grid-cols-4 xl:gap-4 gap-3">
         <StatCard
           title="Total Equipment"
           value={"247 units"}
           icon={
-            <img src={HammerIcon} alt="leads" className="sm:size-7 size-5" />
+            <img src={HammerIcon} alt="leads" className="md:size-7 size-5" />
           }
           color="bg-[#1D51A4]"
         />
@@ -134,7 +134,7 @@ const PlantPage = () => {
             <img
               src={CheckedShieldIcon}
               alt="confirmed"
-              className="sm:size-7 size-5"
+              className="md:size-7 size-5"
             />
           }
           color="bg-[#3AB449]"
@@ -147,7 +147,7 @@ const PlantPage = () => {
             <img
               src={YellowDollerIcon}
               alt="value"
-              className="sm:size-7 size-5"
+              className="md:size-7 size-5"
             />
           }
           color="bg-[#F59E0B]"
@@ -160,19 +160,19 @@ const PlantPage = () => {
             <img
               src={SalmonGraphIcon}
               alt="revenue"
-              className="sm:size-7 size-5"
+              className="md:size-7 size-5"
             />
           }
           color="bg-[#FD8D5B]"
         />
       </div>
 
-      <h2 className="md:text-2xl text-lg font-bold text-gray-800 mb-4">
+      <h2 className="xl:text-2xl text-lg font-bold text-black xl:mt-10 ">
         Inventory KPIs
       </h2>
 
       {/* KPI Cards Row */}
-      <div className="grid grid-cols-2 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-2 xl:grid-cols-4 xl:gap-4 gap-3">
         <KPICard
           title=""
           value="$8,458,798"

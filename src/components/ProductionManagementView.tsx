@@ -9,6 +9,13 @@ import SalmonGraphIcon from "../assets/salmonGraphIcon.svg";
 import StatCard from "./ui/stat-card";
 import TitleSubtitle from "./common_component/TitleSubtitle";
 import { productionManagementText } from "@/data/text/productionManagementText";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const ProductionManagementView = () => {
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
@@ -114,7 +121,7 @@ const ProductionManagementView = () => {
     },
   ];
   return (
-    <div className="md:pr-5 pt-5 space-y-5">
+    <div className="xl:px-5 px-2 md:pt-5 pb-10 space-y-6">
       <div className="flex items-center justify-between flex-wrap mt-1 mb-6">
         <TitleSubtitle
           title={productionManagementText.header.title}
@@ -149,18 +156,54 @@ const ProductionManagementView = () => {
 
       {/* Filters Row */}
       <div className="flex flex-wrap gap-3 mb-6 justify-end w-full">
-        <select className="md:mx-2 px-1 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 ">
-          <option>Building types</option>
-        </select>
-        <select className="md:mx-2 px-1 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
-          <option>Project value</option>
-        </select>
-        <select className="md:mx-2 px-1 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
-          <option>All Assignments</option>
-        </select>
-        <select className="md:mx-2 px-1 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
-          <option>All Status</option>
-        </select>
+        {/* Building Types */}
+        <Select>
+          <SelectTrigger className="w-fit sm:min-w-[150px] bg-white border border-gray-200 rounded-lg h-10 text-sm text-black focus:ring-2 focus:ring-blue-500/20">
+            <SelectValue placeholder="Building types" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Types</SelectItem>
+            <SelectItem value="industrial">Industrial</SelectItem>
+            <SelectItem value="commercial">Commercial</SelectItem>
+            <SelectItem value="residential">Residential</SelectItem>
+          </SelectContent>
+        </Select>
+
+        {/* Project Value */}
+        <Select>
+          <SelectTrigger className="w-fit sm:min-w-[150px] bg-white border border-gray-200 rounded-lg h-10 text-sm text-black focus:ring-2 focus:ring-blue-500/20">
+            <SelectValue placeholder="Project value" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="low">Low</SelectItem>
+            <SelectItem value="medium">Medium</SelectItem>
+            <SelectItem value="high">High</SelectItem>
+          </SelectContent>
+        </Select>
+
+        {/* Assignments */}
+        <Select>
+          <SelectTrigger className="w-fit sm:min-w-[150px] bg-white border border-gray-200 rounded-lg h-10 text-sm text-black focus:ring-2 focus:ring-blue-500/20">
+            <SelectValue placeholder="All Assignments" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Assignments</SelectItem>
+            <SelectItem value="assigned">Assigned</SelectItem>
+            <SelectItem value="unassigned">Unassigned</SelectItem>
+          </SelectContent>
+        </Select>
+
+        {/* Status */}
+        <Select defaultValue="">
+          <SelectTrigger className="w-fit sm:min-w-[150px] bg-white border border-gray-200 rounded-lg h-10 text-sm text-black focus:ring-2 focus:ring-blue-500/20">
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Status</SelectItem>
+            <SelectItem value="confirmed">Confirmed</SelectItem>
+            <SelectItem value="pending">Pending</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Custom Production Table */}

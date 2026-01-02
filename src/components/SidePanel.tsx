@@ -1,22 +1,26 @@
 import React from "react";
-import { NAV_ITEMS } from "../constants/navigation";
+import { NAV_ITEMS } from "@/config/navigation.config";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface SidePanelProps {
   isOpen: boolean;
   activeTab: number;
   activeSubTab: string;
-  setActiveSubTab: (subTab: string) => void;
+  onSubTabClick: (label: string, path: string) => void;
 }
 
 const SidePanel: React.FC<SidePanelProps> = ({
   isOpen,
   activeTab,
   activeSubTab,
-  setActiveSubTab,
+  onSubTabClick,
 }) => {
-  const baseTop = 152;
-  const itemHeight = 96;
-  const topPosition = baseTop + activeTab * itemHeight;
+  const sidePanelPaddingTop = 24;
+  const headerBlockHeight = 122;
+  const itemHeight = 76;
+
+  const topPosition =
+    sidePanelPaddingTop + headerBlockHeight + activeTab * itemHeight;
 
   const currentNav = NAV_ITEMS[activeTab];
 
@@ -24,14 +28,14 @@ const SidePanel: React.FC<SidePanelProps> = ({
     <div
       className={`
         w-56 min-h-screen 
-        fixed left-14 md:left-16 lg:left-20 top-0 
+        fixed md:static left-14 top-0 
         z-40
         flex flex-col 
         transition-all duration-300 ease-in-out
         overflow-y-auto
-        
+        shrink-0
         ${isOpen ? "translate-x-0" : "-translate-x-[200%] md:translate-x-0"}
-        ${"bg-[#E5ECFF] p-3 pt-6"}
+        bg-[#E5ECFF] p-3 pt-6
       `}
     >
       <div className="flex flex-col h-full fade-in duration-300">
@@ -45,81 +49,62 @@ const SidePanel: React.FC<SidePanelProps> = ({
         </div>
 
         <div className="flex items-center justify-between rounded-md p-1 mb-6">
-          <span className="md:text-md text-black font-normal  bg-[#D8DEEA] px-10 py-1">
-            {"TODAY"}
+          <span className="md:text-sm text-black font-normal bg-[#D8DEEA] px-10 py-1">
+            TODAY
           </span>
           <div className="flex">
             <button className="p-1 hover:bg-gray-300 rounded text-gray-500">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={3}
-                stroke="#6A6B6C"
-                className="w-4 h-4"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M15.75 19.5 8.25 12l7.5-7.5"
-                />
-              </svg>
+              <ChevronLeft />
             </button>
             <button className="p-1 hover:bg-gray-300 rounded text-gray-500">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={3}
-                stroke="#6A6B6C"
-                className="w-4  h-4"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="m8.25 4.5 7.5 7.5-7.5 7.5"
-                />
-              </svg>
+              <ChevronRight />
             </button>
           </div>
         </div>
       </div>
-
-      {/* Button Group */}
       <div
         className="absolute left-4 right-4 transition-all duration-300 ease-out pointer-events-auto"
         style={{ top: `${topPosition}px` }}
       >
-        {/* Render Items */}
-        {currentNav.items.length === 0 ? (
-          <button
-            className={`w-full text-white rounded-lg md:py-3 py-2 font-medium shadow-sm mb-3 ${currentNav.color}`}
-          >
-            {currentNav.title}
-          </button>
-        ) : (
-          // Render sub-items
+        {/* Title */}
+        <button
+          className={`w-full text-sm text-white rounded-lg md:py-3 py-2 font-medium shadow-sm mb-3 ${currentNav.color}`}
+        >
+          {currentNav.title}
+        </button>
+
+        {/* Sub-items */}
+        {currentNav.items?.length ? (
           <div className="flex flex-col gap-2 fade-in pl-0">
-            {currentNav.items.map((item, idx) => {
-              const isActive = activeSubTab === item;
+            {currentNav.items.map((item) => {
+              const isActive = activeSubTab === item.label;
+
               return (
                 <button
-                  key={idx}
-                  onClick={() => setActiveSubTab(item)}
+                  key={item.label}
+                  onClick={() => onSubTabClick(item.label, item.path)}
+                  style={
+                    isActive
+                      ? {
+                          borderColor: currentNav.color
+                            .replace("bg-[", "")
+                            .replace("]", ""),
+                        }
+                      : undefined
+                  }
                   className={`w-full py-3 px-4 rounded-lg shadow-sm text-left text-sm transition-colors font-semibold
-                       ${
-                         isActive
-                           ? `${currentNav.color} text-white`
-                           : "bg-white text-gray-600 hover:bg-gray-50"
-                       }
-                     `}
+    ${
+      isActive
+        ? "border-2 bg-white text-gray-800"
+        : "bg-white text-gray-600 hover:bg-gray-50 border-2 border-transparent"
+    }`}
                 >
-                  {item}
+                  {item.label}
                 </button>
               );
             })}
           </div>
-        )}
+        ) : null}
       </div>
     </div>
   );

@@ -3,6 +3,7 @@ import logo from "../../assets/logo.svg";
 import bellIcon from "../../assets/bellIcon.svg";
 import { useNavigate } from "react-router-dom";
 import UserIcon from "../../assets/icon/UserIcon";
+import { Search } from "lucide-react";
 
 interface HeaderProps {
   onMenuToggle: () => void;
@@ -36,7 +37,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
   };
 
   return (
-    <header className="flex items-center justify-between p-3 md:p-4 bg-white shadow-sm rounded-2xl z-20 sticky top-0 w-full gap-2 md:gap-4">
+    <header className="flex items-center justify-between p-3 md:p-4 bg-white shadow-sm rounded-none z-20 sticky top-0 w-full gap-2 md:gap-4">
       <div className="flex items-center gap-2 md:gap-4 flex-1 min-w-0">
         <button
           className="md:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
@@ -59,24 +60,11 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
         </button>
 
         {/* Search Bar */}
-        <div className="hidden md:flex items-center bg-[#F8F9FA] rounded-xl px-4 py-2.5 flex-1 max-w-md border border-transparent focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100 transition-all">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="w-5 h-5 text-gray-400 mr-2"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
-            />
-          </svg>
+        <div className="hidden md:flex items-center bg-[#F8F9FA] rounded-md px-4 xl:py-2 py-1.5 flex-1 max-w-sm border border-[#9CA3AF] focus-within:border-[#9CA3AF] focus-within:ring-2 focus-within:ring-blue-100 transition-all">
+          <Search className="w-5 h-5 text-[#9CA3AF] mr-2" />
           <input
             type="text"
-            placeholder="Search by equipment name, ID, category, project, or material..."
+            placeholder="Search by equipment name..."
             className="bg-transparent border-none outline-none text-sm w-full text-gray-700 placeholder-gray-400"
           />
         </div>
@@ -199,7 +187,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
           <img
             src={logo}
             alt="Logo"
-            className="w-22 sm:w-20 h-8 object-contain"
+            className="xl:w-25 xl:h-12 sm:w-20 h-8 object-contain"
           />
         </div>
       </div>
