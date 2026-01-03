@@ -14,7 +14,7 @@ const TitleSubtitle: React.FC<TitleSubtitleProps> = ({
   return (
     <div className="flex items-start gap-1 flex-col">
       <h1
-        className={`md:text-3xl text-xl font-normal text-[#111827] md:mb-2 mb-1 ${titleClassName}`}
+        className={`xl:text-3xl text-xl font-normal text-[#111827] md:mb-2 mb-1 ${titleClassName}`}
       >
         {title}
       </h1>

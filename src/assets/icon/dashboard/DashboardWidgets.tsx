@@ -1,11 +1,12 @@
-import BlueStackIcon from "@/assets/icon/dashboard/BlueStackIcon.svg";
-import InvoiceDueIcon from "@/assets/icon/dashboard/InvoiceDueIcon.svg";
-import TotalExpensesIcon from "@/assets/icon/dashboard/TotalExpensesIcon.svg";
-import PurpleHashIcon from "@/assets/icon/dashboard/PurpleHashIcon.svg";
+import BlueStackIcon from "@/assets/icon/BlueStackIcon.svg";
+import InvoiceDueIcon from "@/assets/icon/InvoiceDueIcon.svg";
+import TotalExpensesIcon from "@/assets/icon/TotalExpensesIcon.svg";
+import PurpleHashIcon from "@/assets/icon/PurpleHashIcon.svg";
 
-import BlueCallIcon from "@/assets/icon/dashboard/BlueCallIcon.svg";
-import GreenMailIcon from "@/assets/icon/dashboard/GreenMailIcon.svg";
-import PurpleCalendarIcon from "@/assets/icon/dashboard/PurpleCalendarIcon.svg";
+import BlueCallIcon from "@/assets/icon/BlueCallIcon.svg";
+import GreenMailIcon from "@/assets/icon/GreenMailIcon.svg";
+import PurpleCalendarIcon from "@/assets/icon/PurpleCalendarIcon.svg";
+
 const DashboardWidgets = () => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 xl:gap-8 gap-4">
@@ -155,88 +156,86 @@ const DashboardWidgets = () => {
       {/* Column 3: PLANT DEPARTMENT ALERTS */}
       <div className="bg-white rounded-md xl:p-6 p-4 flex flex-col h-full">
         <div className="p-0 pb-0 grow">
-          <h2 className="md:text-md font-normal text-black-400 mb-6">
-            PLANT DEPARTMENT ALERTS
+          <h2 className="text-sm font-bold text-[#3E4857] pb-4 mb-2 border-b border-[#00000021]">
+            Notifications
           </h2>
-          <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-5">
             {/* Alert 1 */}
-            <div className="flex gap-2 items-start">
-              <div className="w-2 h-2 mt-1.5 rounded-full bg-blue-500 flex-shrink-0"></div>
+            <div className="flex gap-3 items-start">
+              <div className="w-2 h-2 mt-1.5 rounded-full bg-[#3B82F6]" />
               <div>
                 <p className="text-sm text-gray-800 leading-relaxed font-medium">
-                  <span className="text-gray-500 mr-1">⚠️</span>
-                  Excavator CAT 320D — Breakdown reported. Immediate service
-                  required.
+                  Need to Maintain
                 </p>
-                <p className="text-xs text-gray-400 mt-1">2 minutes ago</p>
+                <p className="text-xs text-[#888888] mt-1">
+                  Equipment ID ME 98237
+                </p>
               </div>
             </div>
 
             {/* Alert 2 */}
-            <div className="flex gap-2 items-start">
-              <div className="w-2 h-2 mt-1.5 rounded-full bg-yellow-400 flex-shrink-0"></div>
+            <div className="flex gap-3 items-start">
+              <div className="w-2 h-2 mt-1.5 rounded-full bg-[#EAB308]" />
               <div>
                 <p className="text-sm text-gray-800 leading-relaxed font-medium">
-                  <span className="text-gray-500 mr-1">⚠️</span>
-                  Cement stock below minimum level.
+                  New Maintenance request accepted by admin
                 </p>
-                <p className="text-xs text-gray-400 mt-1">2 minutes ago</p>
+                <p className="text-xs text-[#888888] mt-1">
+                  Equipment ID ME 98237
+                </p>
               </div>
             </div>
 
             {/* Alert 3 */}
-            <div className="flex gap-2 items-start">
-              <div className="w-2 h-2 mt-1.5 rounded-full bg-green-500 flex-shrink-0"></div>
+            <div className="flex gap-3 items-start">
+              <div className="w-2 h-2 mt-1.5 rounded-full bg-[#22C55E]" />
               <div>
                 <p className="text-sm text-gray-800 leading-relaxed font-medium">
-                  <span className="text-orange-500 mr-1">🟠</span>
-                  Maintenance overdue for Generator 25kVA.
+                  New message from team steel company
                 </p>
-                <p className="text-xs text-gray-400 mt-1">2 minutes ago</p>
+                <p className="text-xs text-[#888888] mt-1">
+                  Equipment ID ME 98237
+                </p>
               </div>
             </div>
 
             {/* Alert 4 */}
-            <div className="flex gap-2 items-start">
-              <div className="w-2 h-2 mt-1.5 rounded-full bg-blue-500 flex-shrink-0"></div>
+            <div className="flex gap-3 items-start">
+              <div className="w-2 h-2 mt-1.5 rounded-full bg-[#3B82F6]" />
               <div>
                 <p className="text-sm text-gray-800 leading-relaxed font-medium">
-                  <span className="text-gray-500 mr-1">⚠️</span>
-                  Excavator CAT 320D — Breakdown reported. Immediate service
-                  required.
+                  Project status Updated #OR987654
                 </p>
-                <p className="text-xs text-gray-400 mt-1">2 minutes ago</p>
+                <p className="text-xs text-[#888888] mt-1">2 minutes ago</p>
               </div>
             </div>
 
             {/* Alert 5 */}
-            <div className="flex gap-2 items-start">
-              <div className="w-2 h-2 mt-1.5 rounded-full bg-yellow-400 flex-shrink-0"></div>
+            <div className="flex gap-3 items-start">
+              <div className="w-2 h-2 mt-1.5 rounded-full bg-[#EAB308]" />
               <div>
                 <p className="text-sm text-gray-800 leading-relaxed font-medium">
-                  <span className="text-gray-500 mr-1">⚠️</span>
-                  Cement stock below minimum level.
+                  New drawing Added #ST87368
                 </p>
-                <p className="text-xs text-gray-400 mt-1">2 minutes ago</p>
+                <p className="text-xs text-[#888888] mt-1">2 minutes ago</p>
               </div>
             </div>
 
             {/* Alert 6 */}
-            <div className="flex gap-2 items-start">
-              <div className="w-2 h-2 mt-1.5 rounded-full bg-green-500 flex-shrink-0"></div>
+            <div className="flex gap-3 items-start">
+              <div className="w-2 h-2 mt-1.5 rounded-full bg-[#22C55E]" />
               <div>
                 <p className="text-sm text-gray-800 leading-relaxed font-medium">
-                  <span className="text-orange-500 mr-1">🟠</span>
-                  Maintenance overdue for Generator 25kVA.
+                  New message from team steel company
                 </p>
-                <p className="text-xs text-gray-400 mt-1">2 minutes ago</p>
+                <p className="text-xs text-[#888888] mt-1">2 minutes ago</p>
               </div>
             </div>
           </div>
         </div>
         <div className="p-4 border-t border-[#00000021] mt-4">
           <button className="w-full text-center text-(--text-color-primary-blue) font-medium text-sm hover:underline">
-            Resolve Now
+            View All Notifications
           </button>
         </div>
       </div>
