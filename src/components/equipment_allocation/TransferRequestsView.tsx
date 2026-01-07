@@ -69,7 +69,7 @@ const TransferRequestsView = () => {
     {
       header: "Equipment",
       accessor: (row) => (
-        <span className="text-gray-500 font-medium block max-w-[150px]">
+        <span className="text-gray-500 font-normal block max-w-[150px]">
           {row.name}
         </span>
       ),
@@ -77,41 +77,38 @@ const TransferRequestsView = () => {
     {
       header: "Category",
       accessor: (row) => (
-        <span className="text-gray-700 font-medium">{row.category}</span>
+        <span className="text-gray-700 font-normal">{row.category}</span>
       ),
     },
     {
       header: "From",
       accessor: (row) => (
-        <span className="text-gray-700 font-medium">{row.category}</span>
+        <span className="text-gray-700 font-normal">{row.category}</span>
       ),
     },
     {
       header: "To",
       accessor: (row) => (
-        <span className="text-gray-700 font-medium">{row.category}</span>
+        <span className="text-gray-700 font-normal">{row.category}</span>
       ),
     },
     {
       header: "Requested By",
       accessor: (row) => (
-        <span className="text-gray-700 font-medium">{row.category}</span>
+        <span className="text-gray-700 font-normal">{row.category}</span>
       ),
     },
     {
       header: "Priority",
-      accessor: (row) => (
-        <span className="text-gray-700 font-medium">{row.category}</span>
+      accessor: () => (
+        <span className="text-gray-700 font-normal">{"🟡 Medium"}</span>
       ),
     },
     {
       header: "Status",
-      accessor: (row) => (
+      accessor: () => (
         <div className="flex items-center gap-2">
-          <div className={`w-2.5 h-2.5 rounded-full ${row.dotColor}`}></div>
-          <span className={`font-medium ${row.statusColor} text-xs`}>
-            {row.status}
-          </span>
+          <span className={`font-normal text-sm`}>{"Pending"}</span>
         </div>
       ),
     },
@@ -160,7 +157,7 @@ const TransferRequestsView = () => {
   ];
 
   return (
-    <div className="xl:px-5 px-2 md:pt-5 pb-10 space-y-6">
+    <div className="xl:pr-5 px-2 md:pt-5 pb-10 space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 mt-2">
         <TitleSubtitle
           title="Transfer Requests"
@@ -184,7 +181,7 @@ const TransferRequestsView = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-5">
         {equipmentStats.map((stat, index) => (
           <StatCard
             key={index}

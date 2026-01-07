@@ -4,8 +4,8 @@ import Pagination from "./Pagination";
 export interface Column<T> {
   header: string;
   accessor: (item: T) => React.ReactNode;
-  className?: string; // Additional classes for the header th
-  cellClassName?: string; // Additional classes for the cell td
+  className?: string;
+  cellClassName?: string;
 }
 
 export interface TableProps<T> {
@@ -44,7 +44,7 @@ const Table = <T extends any>({
               {columns.map((col, index) => (
                 <th
                   key={index}
-                  className={`md:px-5 px-4 py-4 font-medium md:text-sm text-xs text-black tracking-wider ${
+                  className={`md:px-5 px-4 py-4 font-medium md:text-sm text-xs text-(--text-color-gray-2) tracking-wider ${
                     col.className || ""
                   }`}
                 >

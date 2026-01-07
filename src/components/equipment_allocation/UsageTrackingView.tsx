@@ -1,6 +1,6 @@
 import React from "react";
 import Table, { type Column } from "../Table";
-import { equipmentData } from "./mockData";
+import { usage_tracking_data } from "./mockData";
 import CreateTransferReqModal from "./CreateTransferReqModal";
 import HammerIcon from "../../assets/hammerIcon.svg";
 import CheckedShieldIcon from "../../assets/checkedShieldIcon.svg";
@@ -74,79 +74,66 @@ const UsageTrackingView = () => {
     setIsTransferModalOpen(false);
   };
 
-  const columns: Column<(typeof equipmentData)[0]>[] = [
+  const columns: Column<(typeof usage_tracking_data)[0]>[] = [
     {
       header: "Date",
-      accessor: (row) => <span className="text-gray-500">{row.id}</span>,
+      accessor: (row) => <span className="text-gray-500">{row.date}</span>,
     },
     {
       header: "Equipment",
       accessor: (row) => (
         <span className="text-gray-500 font-medium block max-w-[150px]">
-          {row.name}
+          {row.equipment}
         </span>
       ),
     },
     {
       header: "Operator",
       accessor: (row) => (
-        <span className="text-gray-700 font-medium">{row.category}</span>
+        <span className="text-black font-normal">{row.operator}</span>
       ),
     },
     {
       header: "Site",
       accessor: (row) => (
-        <span className="text-gray-700 font-medium">{row.category}</span>
+        <span className="text-black font-normal">{row.site}</span>
       ),
     },
     {
       header: "Hours",
       accessor: (row) => (
-        <span className="text-gray-700 font-medium">{row.category}</span>
+        <span className="text-black font-normal">{row.hours}</span>
       ),
     },
     {
-      header: "fuel",
+      header: "Fuel",
       accessor: (row) => (
-        <span className="text-gray-700 font-medium">{row.category}</span>
+        <span className="text-black font-normal">{row.fuel}</span>
       ),
     },
     {
       header: "Notes",
       accessor: (row) => (
-        <span className="text-gray-700 font-medium">{row.category}</span>
+        <span className="text-black font-normal">{row.notes}</span>
       ),
+      cellClassName: "max-w-[80px]",
     },
     {
       header: "Action",
-      accessor: (row) => {
-        if (row.status === "In Use") {
-          return (
-            <button className="bg-[#FFFBEB] text-[#D97706] px-3 py-1.5 rounded-full text-xs font-semibold hover:bg-teal-100 transition-colors">
-              View
-            </button>
-          );
-        } else if (row.status === "Breakdown") {
-          return (
-            <button className="bg-[#FFFBEB] text-[#D97706] px-3 py-1.5 rounded-full text-xs font-semibold hover:bg-yellow-100 transition-colors">
-              Log Issue
-            </button>
-          );
-        } else {
-          return (
-            <button className="bg-[#DBEAFE] text-[#2563EB] px-3 py-1.5 rounded-full text-xs font-semibold hover:bg-blue-200 transition-colors">
-              Maintenance
-            </button>
-          );
-        }
+      accessor: () => {
+        return (
+          <button className="bg-[#EAB30826] text-[#EAB308] px-3 py-1.5 rounded-full text-xs font-normal ">
+            View
+          </button>
+        );
       },
-      className: "text-right",
-      cellClassName: "text-right",
+      className: "text-center",
+      cellClassName: "text-center",
     },
   ];
 
   return (
-    <div className="xl:px-5 px-2 md:pt-5 pb-10 space-y-6">
+    <div className="xl:pr-5 px-2 md:pt-5 pb-10 space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 mt-2">
         <TitleSubtitle
           title="Usage Tracking"
@@ -170,7 +157,7 @@ const UsageTrackingView = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-5">
         {equipmentStats.map((stat, index) => (
           <StatCard
             key={index}
@@ -185,7 +172,7 @@ const UsageTrackingView = () => {
       <Table
         title="USAGE LOG"
         columns={columns}
-        data={equipmentData}
+        data={usage_tracking_data}
         pagination={true}
         actions={
           <div className="flex gap-2 flex-wrap mt-3 justify-end ml-auto">

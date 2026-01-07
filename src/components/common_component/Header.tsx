@@ -60,11 +60,11 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
         </button>
 
         {/* Search Bar */}
-        <div className="hidden md:flex items-center bg-[#F8F9FA] rounded-md px-4 xl:py-2 py-1.5 flex-1 max-w-sm border border-[#9CA3AF] focus-within:border-[#9CA3AF] focus-within:ring-2 focus-within:ring-blue-100 transition-all">
-          <Search className="w-5 h-5 text-[#9CA3AF] mr-2" />
+        <div className="hidden md:flex items-center bg-[#FFFFFF80] rounded-md px-4 xl:py-2 py-1.5 flex-1 max-w-lg border border-[#D1D5DB] focus-within:border-[#D1D5DB] focus-within:ring-2 focus-within:ring-blue-100 transition-all">
+          <Search className="w-5 h-5 text-[#9CA3AF] mr-2 mb-1.5" />
           <input
             type="text"
-            placeholder="Search by equipment name..."
+            placeholder="Search by equipment name, ID, category, project, or material…"
             className="bg-transparent border-none outline-none text-sm w-full text-gray-700 placeholder-gray-400"
           />
         </div>

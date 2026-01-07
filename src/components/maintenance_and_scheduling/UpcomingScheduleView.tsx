@@ -9,8 +9,9 @@ import SalmonGraphIcon from "../../assets/salmonGraphIcon.svg";
 import StatCard from "@/components/ui/stat-card";
 import ReportBreakdownModal from "./ReportBreakdownModal";
 import LogMaintenanceModal from "./LogMaintenanceModal";
-import { FilePlus, Funnel } from "lucide-react";
+import { FilePlus, FileX, Funnel } from "lucide-react";
 import TitleSubtitle from "../common_component/TitleSubtitle";
+import AddServiceProviderModal from "./AddServiceProviderModal";
 
 export type UpcomingSchedule = {
   id: number;
@@ -123,6 +124,8 @@ export const equipmentStats = [
 const UpcomingScheduleView = () => {
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [isLogModalOpen, setIsLogModalOpen] = useState(false);
+  const [isServiceProviderModalOpen, setIsServiceProviderModalOpen] =
+    useState(false);
 
   const openReportModal = () => {
     setIsReportModalOpen(true);
@@ -130,6 +133,14 @@ const UpcomingScheduleView = () => {
 
   const openLogModal = () => {
     setIsLogModalOpen(true);
+  };
+
+  const openServiceProviderModal = () => {
+    setIsServiceProviderModalOpen(true);
+  };
+
+  const closeServiceProviderModal = () => {
+    setIsServiceProviderModalOpen(false);
   };
 
   const closeReportModal = () => {
@@ -141,14 +152,17 @@ const UpcomingScheduleView = () => {
   };
 
   return (
-    <div className="xl:px-5 px-2 md:pt-5 pb-10 space-y-6">
+    <div className="xl:pr-5 px-2 md:pt-5 pb-10 space-y-6">
       <div className="flex items-center justify-between flex-wrap mt-1 mb-6">
         <TitleSubtitle
           title="Upcoming Schedule"
           subtitle="Here’s a summary of your ongoing steel building projects."
         />
-        <div className="flex  xl:mt-2 mt-5 flex-wrap gap-1 justify-end ml-auto">
-          <button className="sm:w-auto bg-(--button-bg-primary-color) text-white px-2 py-2 rounded-lg font-normal shadow-sm hover:opacity-80 transition-colors flex items-center justify-center gap-2 md:text-sm text-xs">
+        <div className="flex  xl:mt-2 mt-5 flex-wrap lg:gap-2 gap-1 justify-end ml-auto">
+          <button
+            onClick={openServiceProviderModal}
+            className="sm:w-auto bg-(--button-bg-primary-color) text-white px-2 py-2 rounded-lg font-normal shadow-sm hover:opacity-80 transition-colors flex items-center justify-center gap-2 md:text-sm text-xs"
+          >
             <span className="md:text-lg leading-none">+</span> Add Service
             Provider
           </button>
@@ -169,7 +183,7 @@ const UpcomingScheduleView = () => {
           </button>
         </div>
       </div>
-      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-5">
         {equipmentStats.map((stat, index) => (
           <StatCard
             key={index}
@@ -192,20 +206,7 @@ const UpcomingScheduleView = () => {
               Filter Equipment
             </button>
             <button className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-gray-600 md:text-sm text-xs hover:bg-gray-50">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="w-4 h-4"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"
-                />
-              </svg>
+              <FileX className="w-4 h-4" />
               Export Excel
             </button>
             <button className="flex items-center gap-1.5 px-3 py-1.5 bg-[#2563EB] text-white rounded-lg md:text-sm text-xs hover:bg-blue-700 transition-colors">
@@ -214,6 +215,10 @@ const UpcomingScheduleView = () => {
             </button>
           </div>
         }
+      />
+      <AddServiceProviderModal
+        isOpen={isServiceProviderModalOpen}
+        onClose={closeServiceProviderModal}
       />
       <ReportBreakdownModal
         isOpen={isReportModalOpen}

@@ -23,11 +23,11 @@ export const NAV_ITEMS: NavItem[] = [
     title: "Dashboard",
     color: "bg-[#FD8D5B]",
     icon: MenuIcon1,
-    path: "/",
+    path: "/dashboard",
   },
 
   {
-    title: "Equipment Management",
+    title: "",
     color: "bg-[#A855F7]",
     icon: MenuIcon2,
     items: [
@@ -47,7 +47,7 @@ export const NAV_ITEMS: NavItem[] = [
   },
 
   {
-    title: "Maintenance Logs",
+    title: "",
     color: "bg-[#3AB449]",
     icon: MenuIcon3,
     items: [
@@ -71,7 +71,7 @@ export const NAV_ITEMS: NavItem[] = [
   },
 
   {
-    title: "Equipment Allocation",
+    title: "",
     color: "bg-[#E04F16]",
     icon: MenuIcon4,
     items: [

@@ -57,7 +57,7 @@ export function MainLayout() {
   }, [location.pathname]);
 
   return (
-    <div className="flex min-h-screen bg-[#E5ECFF] relative">
+    <div className="flex h-screen bg-[#E5ECFF] relative overflow-hidden">
       {isSidebarOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-30 md:hidden"
@@ -78,9 +78,9 @@ export function MainLayout() {
         onSubTabClick={handleSubTabChange}
       />
 
-      <div className="flex-1 min-w-0 flex flex-col xl:pb-3 xl:pr-0 xl:pt-0">
+      <div className="flex-1 min-w-0 flex flex-col h-screen md:ml-[304px] lg:ml-[336px]">
         <Header onMenuToggle={toggleSidebar} />
-        <main className="flex-1 mt-2">
+        <main className="flex-1 overflow-y-auto mt-2 xl:pb-3 xl:pr-3">
           <Outlet />
         </main>
       </div>

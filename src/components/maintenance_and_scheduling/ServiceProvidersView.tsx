@@ -1,10 +1,11 @@
-import React from "react";
+import { useState } from "react";
 import Table, { type Column } from "../Table";
 import ReportBreakdownModal from "./ReportBreakdownModal";
 import LogMaintenanceModal from "./LogMaintenanceModal";
 import { mockServiceProviders } from "../../data/mockData";
 import { FilePlus, FileX, Funnel } from "lucide-react";
 import TitleSubtitle from "../common_component/TitleSubtitle";
+import AddServiceProviderModal from "./AddServiceProviderModal";
 
 export type ServiceProvider = {
   id: number;
@@ -68,19 +69,21 @@ export const serviceProviderColumns: Column<ServiceProvider>[] = [
     header: "Action",
     accessor: (item) =>
       item.id === 1 || item.id === 4 || item.id === 7 ? (
-        <button className="px-4 py-1.5 bg-[#FEF3C7] text-[#92400E] rounded-full text-xs font-medium hover:bg-yellow-200 transition-colors">
+        <button className="px-4 py-1.5 bg-[#EAB30826] text-[#EAB308] rounded-full text-xs font-normal hover:bg-yellow-200 transition-colors">
           Assign
         </button>
       ) : (
-        <button className="px-4 py-1.5 bg-[#D1FAE5] text-[#065F46] rounded-full text-xs font-medium hover:bg-green-200 transition-colors">
+        <button className="px-4 py-1.5 bg-[#3AB44926] text-[#3AB449] rounded-full text-xs font-normal hover:bg-green-200 transition-colors">
           View
         </button>
       ),
   },
 ];
 const ServiceProvidersView = () => {
-  const [isReportModalOpen, setIsReportModalOpen] = React.useState(false);
-  const [isLogModalOpen, setIsLogModalOpen] = React.useState(false);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [isLogModalOpen, setIsLogModalOpen] = useState(false);
+  const [isServiceProviderModalOpen, setIsServiceProviderModalOpen] =
+    useState(false);
 
   const openReportModal = () => {
     setIsReportModalOpen(true);
@@ -88,6 +91,10 @@ const ServiceProvidersView = () => {
 
   const openLogModal = () => {
     setIsLogModalOpen(true);
+  };
+
+  const openServiceProviderModal = () => {
+    setIsServiceProviderModalOpen(true);
   };
 
   const closeReportModal = () => {
@@ -98,15 +105,22 @@ const ServiceProvidersView = () => {
     setIsLogModalOpen(false);
   };
 
+  const closeServiceProviderModal = () => {
+    setIsServiceProviderModalOpen(false);
+  };
+
   return (
-    <div className="xl:px-5 px-2 md:pt-5 pb-10 space-y-6">
+    <div className="xl:pr-5 px-2 md:pt-5 pb-10 space-y-6">
       <div className="flex items-center justify-between flex-wrap mt-1 mb-6">
         <TitleSubtitle
           title="Service Providers"
           subtitle="Here’s a summary of your ongoing steel building projects."
         />
-        <div className="flex xl:mt-2 mt-5 gap-1 flex-wrap ml-auto">
-          <button className="sm:w-auto bg-(--button-bg-primary-color) text-white px-2 py-2 rounded-lg font-normal shadow-sm hover:opacity-80 transition-colors flex items-center justify-center gap-2 md:text-sm text-xs">
+        <div className="flex xl:mt-2 mt-5 lg:gap-2 gap-1 flex-wrap ml-auto">
+          <button
+            onClick={openServiceProviderModal}
+            className="sm:w-auto bg-(--button-bg-primary-color) text-white px-2 py-2 rounded-lg font-normal shadow-sm hover:opacity-80 transition-colors flex items-center justify-center gap-2 md:text-sm text-xs"
+          >
             <span className="md:text-lg leading-none">+</span> Add Service
             Provider
           </button>
@@ -149,6 +163,10 @@ const ServiceProvidersView = () => {
             </button>
           </div>
         }
+      />
+      <AddServiceProviderModal
+        isOpen={isServiceProviderModalOpen}
+        onClose={closeServiceProviderModal}
       />
       <ReportBreakdownModal
         isOpen={isReportModalOpen}

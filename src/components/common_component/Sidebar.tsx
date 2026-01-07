@@ -18,8 +18,8 @@ const Sidebar: React.FC<SidebarProps> = ({
       className={`
             w-14 md:w-16 lg:w-20
             flex flex-col items-center
-            min-h-screen h-full
-            fixed md:static left-0 top-0
+            h-screen
+            fixed left-0 top-0
             z-40 bg-[#1D51A4]
             transition-transform duration-300 ease-in-out
             ${isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}

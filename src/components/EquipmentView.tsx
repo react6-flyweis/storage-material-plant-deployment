@@ -24,25 +24,41 @@ const EquipmentView = () => {
     {
       title: "Total Equipment",
       value: "128 units",
-      icon: <img src={HammerIcon} alt="equipment" className="size-7" />,
+      icon: (
+        <img src={HammerIcon} alt="equipment" className="md:size-7 size-5" />
+      ),
       color: "bg-[#1D51A4]",
     },
     {
       title: "Available",
       value: "42",
-      icon: <img src={CheckedShieldIcon} alt="available" className="size-7" />,
+      icon: (
+        <img
+          src={CheckedShieldIcon}
+          alt="available"
+          className="md:size-7 size-5"
+        />
+      ),
       color: "bg-[#3AB449]",
     },
     {
       title: "In Use",
       value: "74",
-      icon: <img src={YellowDollerIcon} alt="in-use" className="size-7" />,
+      icon: (
+        <img src={YellowDollerIcon} alt="in-use" className="md:size-7 size-5" />
+      ),
       color: "bg-[#F59E0B]",
     },
     {
       title: "Under Maintenance",
       value: "12",
-      icon: <img src={SalmonGraphIcon} alt="maintenance" className="size-7" />,
+      icon: (
+        <img
+          src={SalmonGraphIcon}
+          alt="maintenance"
+          className="md:size-7 size-5"
+        />
+      ),
       color: "bg-[#FD8D5B]",
     },
   ];
@@ -193,19 +209,19 @@ const EquipmentView = () => {
       accessor: (row) => {
         if (row.status === "In Use") {
           return (
-            <button className="bg-[#E6FFFA] text-[#0D9488] px-3 py-1.5 rounded-full text-xs font-semibold hover:bg-teal-100 transition-colors">
+            <button className="bg-[#E6FFFA] text-[#0D9488] px-3 py-1.5 rounded-full text-xs font-normal hover:bg-teal-100 transition-colors">
               View / Transfer
             </button>
           );
         } else if (row.status === "Breakdown") {
           return (
-            <button className="bg-[#FFFBEB] text-[#D97706] px-3 py-1.5 rounded-full text-xs font-semibold hover:bg-yellow-100 transition-colors">
+            <button className="bg-[#FFFBEB] text-[#D97706] px-3 py-1.5 rounded-full text-xs font-normal hover:bg-yellow-100 transition-colors">
               Log Issue
             </button>
           );
         } else {
           return (
-            <button className="bg-[#DBEAFE] text-[#2563EB] px-3 py-1.5 rounded-full text-xs font-semibold hover:bg-blue-200 transition-colors">
+            <button className="bg-[#DBEAFE] text-[#2563EB] px-3 py-1.5 rounded-full text-xs font-normal hover:bg-blue-200 transition-colors">
               Maintenance
             </button>
           );
@@ -217,7 +233,7 @@ const EquipmentView = () => {
   ];
 
   return (
-    <div className="xl:px-5 px-2 md:pt-5 pb-10 space-y-6">
+    <div className="xl:pr-5 px-2 md:pt-5 pb-10 space-y-6">
       <div className="flex items-center justify-between flex-wrap mt-1 mb-6">
         <TitleSubtitle
           title={equipmenViewText.header.title}
@@ -231,7 +247,7 @@ const EquipmentView = () => {
         </button>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-5">
         {equipmentStats.map((stat, index) => (
           <StatCard
             key={index}

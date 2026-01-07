@@ -57,7 +57,7 @@ const ProfileView: React.FC<ProfileViewProps> = () => {
   };
 
   return (
-    <div className="xl:px-5 px-2 md:pt-5 pb-10 space-y-6">
+    <div className="xl:pr-5 px-2 md:pt-5 pb-10 space-y-6">
       {/* Header */}
       <div className="flex flex-wrap md:items-center items-start justify-between mt-2 xl:mt-0">
         <div className="flex items-start gap-4 flex-wrap">

@@ -225,14 +225,14 @@ const NotificationsView = () => {
   };
 
   return (
-    <div className="xl:px-5 px-2 md:pt-5 pb-10 space-y-6">
+    <div className="xl:pr-5 px-2 md:pt-5 pb-10 space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 mt-2">
         <TitleSubtitle
           title="Notifications"
           subtitle="Stay updated with project changes, approvals, drawings, dispatches, billings, and communication."
         />
       </div>
-      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-5">
         {equipmentStats.map((stat, index) => (
           <StatCard
             key={index}

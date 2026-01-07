@@ -1,4 +1,4 @@
-import React from "react";
+import { useState } from "react";
 import Table, { type Column } from "../Table";
 import ReportBreakdownModal from "./ReportBreakdownModal";
 import LogMaintenanceModal from "./LogMaintenanceModal";
@@ -9,10 +9,13 @@ import SalmonGraphIcon from "../../assets/salmonGraphIcon.svg";
 import StatCard from "@/components/ui/stat-card";
 import { FilePlus, FileX, FunnelIcon } from "lucide-react";
 import TitleSubtitle from "../common_component/TitleSubtitle";
+import AddServiceProviderModal from "./AddServiceProviderModal";
 
 const MaintenanceAndSchedulingView = () => {
-  const [isReportModalOpen, setIsReportModalOpen] = React.useState(false);
-  const [isLogModalOpen, setIsLogModalOpen] = React.useState(false);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [isLogModalOpen, setIsLogModalOpen] = useState(false);
+  const [isServiceProviderModalOpen, setIsServiceProviderModalOpen] =
+    useState(false);
 
   const openReportModal = () => {
     setIsReportModalOpen(true);
@@ -28,6 +31,14 @@ const MaintenanceAndSchedulingView = () => {
 
   const closeLogModal = () => {
     setIsLogModalOpen(false);
+  };
+
+  const openServiceProviderModal = () => {
+    setIsServiceProviderModalOpen(true);
+  };
+
+  const closeServiceProviderModal = () => {
+    setIsServiceProviderModalOpen(false);
   };
 
   const equipmentData = [
@@ -65,7 +76,7 @@ const MaintenanceAndSchedulingView = () => {
       project: "Metro Cast",
       location: "Ahmedabad",
       hours: "412h",
-      nextDue: "Overdue",
+      nextDue: "20-Apr",
     },
     {
       id: "EX-302",
@@ -101,7 +112,7 @@ const MaintenanceAndSchedulingView = () => {
       project: "Metro Cast",
       location: "Ahmedabad",
       hours: "412h",
-      nextDue: "Overdue",
+      nextDue: "20-Apr",
     },
     {
       id: "CM-104",
@@ -125,7 +136,7 @@ const MaintenanceAndSchedulingView = () => {
     {
       header: "Type",
       accessor: (row) => (
-        <span className="text-gray-800 font-medium block max-w-[150px]">
+        <span className="text-gray-800 font-normal block max-w-[150px]">
           {row.name}
         </span>
       ),
@@ -138,33 +149,22 @@ const MaintenanceAndSchedulingView = () => {
     },
     {
       header: "Vendor",
-      accessor: (row) => (
-        <div className="flex items-center gap-2">
-          <div className={`w-2.5 h-2.5 rounded-full ${row.dotColor}`}></div>
-          <span className={`font-medium ${row.statusColor} text-xs`}>
-            {row.status}
-          </span>
-        </div>
+      accessor: () => (
+        <span className="text-black font-normal font-sm">ABC Machinery</span>
       ),
     },
     {
       header: "Cost",
-      accessor: (row) => <span className="text-gray-800">{row.project}</span>,
+      accessor: (row) => <span className="text-black">{row.project}</span>,
     },
     {
       header: "Notes",
-      accessor: (row) => <span className="text-gray-800">{row.location}</span>,
+      accessor: (row) => <span className="text-black">{row.location}</span>,
     },
     {
       header: "Next Due",
       accessor: (row) => (
-        <span
-          className={`font-medium ${
-            row.nextDue === "Overdue" ? "text-red-600" : "text-gray-800"
-          }`}
-        >
-          {row.nextDue}
-        </span>
+        <span className={`font-medium ${"text-gray-800"}`}>{row.nextDue}</span>
       ),
     },
     {
@@ -172,23 +172,16 @@ const MaintenanceAndSchedulingView = () => {
       accessor: (row) => {
         if (row.status === "In Use") {
           return (
-            <button className="bg-[#E6FFFA] text-[#0D9488] px-3 py-1.5 rounded-full text-xs font-semibold hover:bg-teal-100 transition-colors">
-              View / Transfer
+            <button className="bg-[#EAB30826] text-[#EAB308] px-3 py-1.5 rounded-full text-xs font-normal  transition-colors">
+              Update
             </button>
           );
-        } else if (row.status === "Breakdown") {
+        } else
           return (
-            <button className="bg-[#FFFBEB] text-[#D97706] px-3 py-1.5 rounded-full text-xs font-semibold hover:bg-yellow-100 transition-colors">
-              Log Issue
+            <button className="bg-[#3AB44926] text-[#3AB449] px-3 py-1.5 rounded-full text-xs font-normal transition-colors">
+              Remove
             </button>
           );
-        } else {
-          return (
-            <button className="bg-[#DBEAFE] text-[#2563EB] px-3 py-1.5 rounded-full text-xs font-semibold hover:bg-blue-200 transition-colors">
-              Maintenance
-            </button>
-          );
-        }
       },
       className: "text-right",
       cellClassName: "text-right",
@@ -246,14 +239,17 @@ const MaintenanceAndSchedulingView = () => {
   ];
 
   return (
-    <div className="xl:px-5 px-2 md:pt-5 pb-10 space-y-6">
+    <div className="xl:pr-5 px-2 md:pt-5 pb-10 space-y-6">
       <div className="flex items-center justify-between flex-wrap mt-1 mb-6">
         <TitleSubtitle
           title="Maintenance And Scheduling"
           subtitle="Manage preventive maintenance, repair logs, vendor services, and equipment health across all sites."
         />
-        <div className="ml-auto flex xl:mt-2 mt-5 gap-1 flex-wrap justify-end">
-          <button className=" sm:w-auto bg-(--button-bg-primary-color) text-white px-2 py-2 rounded-lg font-normal shadow-sm hover:opacity-80 transition-colors flex items-center justify-center gap-2 md:text-sm text-xs">
+        <div className="ml-auto flex xl:mt-2 mt-5 lg:gap-2 gap-1 flex-wrap justify-end ">
+          <button
+            onClick={openServiceProviderModal}
+            className=" sm:w-auto bg-(--button-bg-primary-color) text-white px-2 py-2 rounded-lg font-normal shadow-sm hover:opacity-80 transition-colors flex items-center justify-center gap-2 md:text-sm text-xs"
+          >
             <span className="md:text-lg leading-none">+</span> Add Service
             Provider
           </button>
@@ -274,7 +270,7 @@ const MaintenanceAndSchedulingView = () => {
           </button>
         </div>
       </div>
-      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-5">
         {equipmentStats.map((stat, index) => (
           <StatCard
             key={index}
@@ -306,6 +302,10 @@ const MaintenanceAndSchedulingView = () => {
             </button>
           </div>
         }
+      />
+      <AddServiceProviderModal
+        isOpen={isServiceProviderModalOpen}
+        onClose={closeServiceProviderModal}
       />
       <ReportBreakdownModal
         isOpen={isReportModalOpen}

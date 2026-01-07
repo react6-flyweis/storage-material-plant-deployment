@@ -25,15 +25,19 @@ export default function StatCard({
         color
       )}
     >
-      <div className="flex items-center justify-between">
-        <div className="flex flex-col">
-          <p className="md:text-base text-xs opacity-90">{title}</p>
-          <p className="xl:text-2xl sm:text-base text-sm mt-1 w-[70px] sm:w-auto overflow-y-hidden overflow-x-auto">
+      <div className="flex items-start flex-wrap justify-between">
+        <div className="flex flex-col md:w-2/3 w-1/2">
+          <p className="xl:text-base md:text-sm sm:text-xs text-xs opacity-90">
+            {title}
+          </p>
+          <p className="xl:text-2xl md:text-lg sm:text-base text-sm mt-1 w-[70px] sm:w-auto overflow-y-hidden overflow-x-auto">
             {value}
           </p>
         </div>
 
-        <div className="bg-white sm:p-2 p-1 rounded-md">{icon}</div>
+        <div className="bg-white sm:p-2 p-1 lg:h-auto lg:w-auto md:h-8 md:w-8 flex items-center justify-center rounded-md ml-auto h-auto w-auto">
+          {icon}
+        </div>
       </div>
     </Card>
   );

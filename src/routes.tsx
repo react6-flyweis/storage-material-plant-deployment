@@ -23,9 +23,8 @@ export const adminRoutes: RouteObject[] = [
     path: "/",
     element: <MainLayout />,
     children: [
-      { index: true, element: <Dashboard /> },
       {
-        path: "",
+        path: "/dashboard",
         element: <Dashboard />,
       },
       {

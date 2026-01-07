@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Table, { type Column } from "../Table";
-import { equipmentData } from "./mockData";
+import { equipment_status_data } from "./mockData";
 import HammerIcon from "../../assets/hammerIcon.svg";
 import CheckedShieldIcon from "../../assets/checkedShieldIcon.svg";
 import YellowDollerIcon from "../../assets/yellowDollerIcon.svg";
@@ -74,82 +74,58 @@ const EquipmentAllocationView = () => {
     setIsModalOpen(false);
   };
 
-  const columns: Column<(typeof equipmentData)[0]>[] = [
+  const columns: Column<(typeof equipment_status_data)[0]>[] = [
     {
-      header: "Equipment ID",
-      accessor: (row) => <span className="text-gray-500">{row.id}</span>,
-    },
-    {
-      header: "Name",
-      accessor: (row) => (
-        <span className="text-gray-800 font-medium block max-w-[150px]">
-          {row.name}
-        </span>
-      ),
+      header: "Equipment",
+      accessor: (row) => <span className="text-gray-500">{row.equipment}</span>,
     },
     {
       header: "Category",
       accessor: (row) => (
-        <span className="text-gray-700 font-medium">{row.category}</span>
+        <span className="text-gray-800 font-medium block max-w-[150px]">
+          {row.category}
+        </span>
       ),
     },
     {
-      header: "Status",
+      header: "Assigned To",
       accessor: (row) => (
-        <div className="flex items-center gap-2">
-          <div className={`w-2.5 h-2.5 rounded-full ${row.dotColor}`}></div>
-          <span className={`font-medium ${row.statusColor} text-xs`}>
-            {row.status}
-          </span>
-        </div>
+        <span className="text-gray-700 font-medium">{row.assigned_to}</span>
       ),
     },
     {
-      header: "Project",
-      accessor: (row) => <span className="text-gray-800">{row.project}</span>,
+      header: "Usage",
+
+      accessor: (row) => <span className="text-gray-800">{row.usage}</span>,
     },
     {
       header: "Location",
       accessor: (row) => <span className="text-gray-800">{row.location}</span>,
     },
     {
-      header: "Hours",
-      accessor: (row) => <span className="text-gray-800">{row.hours}</span>,
-    },
-    {
-      header: "Next Due",
+      header: "Status",
       accessor: (row) => (
-        <span
-          className={`font-medium ${
-            row.nextDue === "Overdue" ? "text-red-600" : "text-gray-800"
-          }`}
-        >
-          {row.nextDue}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className={`font-medium text-xs`}>{row.status}</span>
+        </div>
       ),
     },
     {
+      header: "GPS",
+      accessor: (row) => <span className="text-gray-800">{row.gps}</span>,
+    },
+    {
+      header: "Next Due",
+      accessor: (row) => <span className="text-gray-800">{row.nextDue}</span>,
+    },
+    {
       header: "Action",
-      accessor: (row) => {
-        if (row.status === "In Use") {
-          return (
-            <button className="bg-[#E6FFFA] text-[#0D9488] px-3 py-1.5 rounded-full text-xs font-semibold hover:bg-teal-100 transition-colors">
-              View / Transfer
-            </button>
-          );
-        } else if (row.status === "Breakdown") {
-          return (
-            <button className="bg-[#FFFBEB] text-[#D97706] px-3 py-1.5 rounded-full text-xs font-semibold hover:bg-yellow-100 transition-colors">
-              Log Issue
-            </button>
-          );
-        } else {
-          return (
-            <button className="bg-[#DBEAFE] text-[#2563EB] px-3 py-1.5 rounded-full text-xs font-semibold hover:bg-blue-200 transition-colors">
-              Maintenance
-            </button>
-          );
-        }
+      accessor: () => {
+        return (
+          <button className="bg-[#3AB44926] text-[#3AB449] px-3 py-1.5 rounded-full text-xs font-normaltransition-colors">
+            Maintain
+          </button>
+        );
       },
       className: "text-right",
       cellClassName: "text-right",
@@ -157,7 +133,7 @@ const EquipmentAllocationView = () => {
   ];
 
   return (
-    <div className="xl:px-5 px-2 md:pt-5 pb-10 space-y-6">
+    <div className="xl:pr-5 px-2 md:pt-5 pb-10 space-y-6">
       <div className="flex items-center justify-between flex-wrap mt-1 mb-6">
         <TitleSubtitle
           title="Equipment Allocation"
@@ -180,7 +156,7 @@ const EquipmentAllocationView = () => {
           </button>
         </div>
       </div>
-      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-5">
         {equipmentStats.map((stat, index) => (
           <StatCard
             key={index}
@@ -194,7 +170,7 @@ const EquipmentAllocationView = () => {
       <Table
         title="EQUIPMENT LIST"
         columns={columns}
-        data={equipmentData}
+        data={equipment_status_data}
         pagination={true}
         actions={
           <div className="flex flex-wrap ml-auto gap-2">

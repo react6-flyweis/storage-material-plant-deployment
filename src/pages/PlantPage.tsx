@@ -111,7 +111,7 @@ const PlantPage = () => {
   ];
 
   return (
-    <div className="xl:px-5 px-2 md:pt-5 pb-10 space-y-6">
+    <div className="xl:pr-5 px-2 md:pt-5 pb-10 space-y-6">
       <TitleSubtitle
         title={dashboardText.header.title}
         subtitle={dashboardText.header.subtitle}

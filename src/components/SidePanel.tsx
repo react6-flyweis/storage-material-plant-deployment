@@ -27,8 +27,8 @@ const SidePanel: React.FC<SidePanelProps> = ({
   return (
     <div
       className={`
-        w-56 min-h-screen 
-        fixed md:static left-14 top-0 
+        w-56 h-screen 
+        fixed left-14 md:left-16 lg:left-20 top-0 
         z-40
         flex flex-col 
         transition-all duration-300 ease-in-out
@@ -67,11 +67,13 @@ const SidePanel: React.FC<SidePanelProps> = ({
         style={{ top: `${topPosition}px` }}
       >
         {/* Title */}
-        <button
-          className={`w-full text-sm text-white rounded-lg md:py-3 py-2 font-medium shadow-sm mb-3 ${currentNav.color}`}
-        >
-          {currentNav.title}
-        </button>
+        {currentNav.title && (
+          <button
+            className={`w-full text-sm text-white rounded-lg md:py-3 py-2 font-medium shadow-sm mb-3 ${currentNav.color}`}
+          >
+            {currentNav.title}
+          </button>
+        )}
 
         {/* Sub-items */}
         {currentNav.items?.length ? (
@@ -83,21 +85,10 @@ const SidePanel: React.FC<SidePanelProps> = ({
                 <button
                   key={item.label}
                   onClick={() => onSubTabClick(item.label, item.path)}
-                  style={
-                    isActive
-                      ? {
-                          borderColor: currentNav.color
-                            .replace("bg-[", "")
-                            .replace("]", ""),
-                        }
-                      : undefined
-                  }
-                  className={`w-full py-3 px-4 rounded-lg shadow-sm text-left text-sm transition-colors font-semibold
-    ${
-      isActive
-        ? "border-2 bg-white text-gray-800"
-        : "bg-white text-gray-600 hover:bg-gray-50 border-2 border-transparent"
-    }`}
+                  className={`${
+                    isActive && currentNav.color
+                  } w-full py-3 px-4 rounded-lg shadow-sm text-left text-sm transition-colors font-semibold
+    ${isActive ? "text-white" : "bg-white text-gray-600 hover:bg-gray-50"}`}
                 >
                   {item.label}
                 </button>

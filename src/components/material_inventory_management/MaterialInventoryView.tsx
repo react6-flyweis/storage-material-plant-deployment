@@ -23,122 +23,154 @@ const MaterialInventoryView = () => {
     {
       id: "EX-302",
       name: "Excavator CAT 320D",
-      category: "Heavy",
-      status: "In Use",
+      category: "Cement",
+      status: "🔴 Low",
       statusColor: "text-green-600",
       dotColor: "bg-green-500",
       project: "ABC Warehouse",
       location: "Pune Site",
       hours: "128h",
-      nextDue: "20-Apr",
+      minLevel: "10",
+      stock: "230",
+      unit: "Bags",
+      updated: "08-Apr",
+      action: "Reorder",
+      material: "Cement OPC 53",
     },
     {
       id: "CM-104",
       name: "Concrete Mixer 350L",
       category: "Medium",
-      status: "Under Maintenance",
+      status: "🟢 Ok",
       statusColor: "text-orange-600",
       dotColor: "bg-orange-500",
       project: "-",
       location: "Yard",
       hours: "-",
-      nextDue: "15-Apr",
+      minLevel: "10",
+      stock: "230",
+      unit: "Bags",
+      updated: "08-Apr",
+      action: "Update",
+      material: "Concrete OPC 53",
     },
     {
       id: "DG-65",
       name: "Diesel Generator 65kVA",
-      category: "Medium",
-      status: "Breakdown",
+      category: "Diesel",
+      status: "🟡 Near Low",
       statusColor: "text-red-600",
       dotColor: "bg-red-500",
       project: "Metro Cast",
       location: "Ahmedabad",
       hours: "412h",
-      nextDue: "Overdue",
+      minLevel: "10",
+      stock: "230",
+      unit: "Bags",
+      updated: "08-Apr",
+      action: "Purchase",
+      material: "Diesel Generator 65kVA",
     },
     {
       id: "EX-302",
       name: "Excavator CAT 320D",
-      category: "Heavy",
-      status: "In Use",
+      category: "Cement",
+      status: "🟢 Ok",
       statusColor: "text-green-600",
       dotColor: "bg-green-500",
       project: "ABC Warehouse",
       location: "Pune Site",
       hours: "128h",
-      nextDue: "20-Apr",
+      minLevel: "10",
+      stock: "230",
+      unit: "Bags",
+      updated: "08-Apr",
+      action: "Purchase",
+      material: "Concrete OPC 53",
     },
     {
       id: "CM-104",
       name: "Concrete Mixer 350L",
       category: "Medium",
-      status: "Under Maintenance",
+      status: "🟢 Ok",
       statusColor: "text-orange-600",
       dotColor: "bg-orange-500",
       project: "-",
       location: "Yard",
       hours: "-",
-      nextDue: "15-Apr",
+      minLevel: "10",
+      stock: "230",
+      unit: "Bags",
+      updated: "08-Apr",
+      action: "Update",
+      material: "Concrete OPC 53",
     },
     {
       id: "DG-65",
       name: "Diesel Generator 65kVA",
-      category: "Medium",
-      status: "Breakdown",
+      category: "Cement",
+      status: "🟡 Near Low",
       statusColor: "text-red-600",
       dotColor: "bg-red-500",
       project: "Metro Cast",
       location: "Ahmedabad",
       hours: "412h",
-      nextDue: "Overdue",
+      minLevel: "100",
+      stock: "230",
+      unit: "Bags",
+      updated: "08-Apr",
+      action: "Purchase",
+      material: "Diesel Generator 65kVA",
     },
     {
       id: "CM-104",
       name: "Concrete Mixer 350L",
-      category: "Medium",
-      status: "Under Maintenance",
+      category: "Cement",
+      status: "🟢 Ok",
       statusColor: "text-orange-600",
       dotColor: "bg-orange-500",
       project: "-",
       location: "Yard",
       hours: "-",
-      nextDue: "15-Apr",
+      minLevel: "10",
+      stock: "230",
+      unit: "Bags",
+      updated: "08-Apr",
+      action: "Update",
+      material: "Concrete OPC 53",
     },
   ];
 
   const columns: Column<(typeof equipmentData)[0]>[] = [
     {
       header: "Material",
-      accessor: (row) => <span className="text-gray-500">{row.id}</span>,
+      accessor: (row) => <span className="text-gray-500">{row.material}</span>,
     },
     {
       header: "Category",
       accessor: (row) => (
         <span className="text-gray-500 font-medium block max-w-[150px]">
-          {row.name}
+          {row.category}
         </span>
       ),
     },
     {
       header: "Stock",
       accessor: (row) => (
-        <span className="text-gray-700 font-medium">{row.category}</span>
+        <span className="text-gray-700 font-medium">{row.stock}</span>
       ),
     },
     {
       header: "Status",
       accessor: (row) => (
         <div className="flex items-center gap-2">
-          <div className={`w-2.5 h-2.5 rounded-full ${row.dotColor}`}></div>
-          <span className={`font-medium ${row.statusColor} text-xs`}>
-            {row.status}
-          </span>
+          <span className={`font-normal text-black text-sm`}>{row.status}</span>
         </div>
       ),
     },
     {
       header: "Unit",
-      accessor: (row) => <span className="text-gray-800">{row.project}</span>,
+      accessor: (row) => <span className="text-gray-800">{row.unit}</span>,
     },
     {
       header: "Location",
@@ -146,39 +178,36 @@ const MaterialInventoryView = () => {
     },
     {
       header: "Updated",
-      accessor: (row) => <span className="text-gray-800">{row.hours}</span>,
+      accessor: (row) => <span className="text-gray-800">{row.updated}</span>,
     },
     {
       header: "Min Level",
       accessor: (row) => (
-        <span
-          className={`font-medium ${
-            row.nextDue === "Overdue" ? "text-red-600" : "text-gray-800"
-          }`}
-        >
-          {row.nextDue}
-        </span>
+        <span className={`font-medium ${"text-gray-800"}`}>{row.minLevel}</span>
       ),
     },
     {
       header: "Action",
       accessor: (row) => {
-        if (row.status === "In Use") {
+        if (row.action === "Update") {
           return (
-            <button className="bg-[#E6FFFA] text-[#0D9488] px-3 py-1.5 rounded-full text-xs font-semibold hover:bg-teal-100 transition-colors">
-              View / Transfer
+            <button className="w-[100px] bg-[#2563EB26] text-[#2563EB] py-1.5 rounded-full text-xs font-normal transition-colors">
+              Update
             </button>
           );
-        } else if (row.status === "Breakdown") {
+        } else if (row.action === "Reorder") {
           return (
-            <button className="bg-[#FFFBEB] text-[#D97706] px-3 py-1.5 rounded-full text-xs font-semibold hover:bg-yellow-100 transition-colors">
-              Log Issue
+            <button
+              onClick={openModal}
+              className=" w-[100px] bg-[#EAB30826] text-[#EAB308] py-1.5 rounded-full text-xs font-normal transition-colors"
+            >
+              Reorder
             </button>
           );
         } else {
           return (
-            <button className="bg-[#DBEAFE] text-[#2563EB] px-3 py-1.5 rounded-full text-xs font-semibold hover:bg-blue-200 transition-colors">
-              Maintenance
+            <button className="w-[100px] bg-[#EF444426] text-[#EF4444] py-1.5 rounded-full text-xs font-normal transition-colors">
+              Purchase
             </button>
           );
         }
@@ -232,7 +261,7 @@ const MaterialInventoryView = () => {
   ];
 
   return (
-    <div className="xl:px-5 px-2 md:pt-5 pb-10 space-y-6">
+    <div className="xl:pr-5 px-2 md:pt-5 pb-10 space-y-6">
       <div className="flex items-center justify-between flex-wrap mt-1 mb-6">
         <TitleSubtitle
           title="Material Inventory"
@@ -245,7 +274,7 @@ const MaterialInventoryView = () => {
           <span>+</span> Add Material Stock
         </button>
       </div>
-      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-5">
         {equipmentStats.map((stat, index) => (
           <StatCard
             key={index}

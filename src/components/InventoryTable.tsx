@@ -45,7 +45,7 @@ const InventoryTable = <T extends any>({
               {columns.map((col, index) => (
                 <th
                   key={index}
-                  className={`px-6 py-4 font-medium text-sm tracking-wider ${
+                  className={`px-6 py-4 font-medium text-(--text-color-gray-2) text-sm tracking-wider ${
                     col.className || ""
                   }`}
                 >
