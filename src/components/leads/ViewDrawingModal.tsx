@@ -1,5 +1,7 @@
 import React from "react";
 import Modal from "../Modal";
+import DrawingImg from "../../assets/drawingImg.svg";
+import { ArrowDown, Paperclip, X } from "lucide-react";
 
 interface ViewDrawingModalProps {
   isOpen: boolean;
@@ -11,6 +13,7 @@ interface ViewDrawingModalProps {
     uploadedBy: string;
     receivedDate: string;
     imageUrl: string;
+    status: string;
   };
 }
 
@@ -57,14 +60,20 @@ const ViewDrawingModal: React.FC<ViewDrawingModalProps> = ({
                 {drawing.receivedDate}
               </p>
             </div>
+            <button
+              onClick={onClose}
+              className="rounded-full hover:bg-gray-100 p-2 absolute sm:-top-3 sm:right-0 top-0 right-0"
+            >
+              <X className="w-5 h-5" />
+            </button>
           </div>
         </div>
 
         {/* Content - Image Preview */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-8 bg-gray-50 flex items-center justify-center min-h-[300px] md:min-h-[400px]">
+        <div className="flex-1 overflow-y-auto py-4 md:py-8 bg-gray-50 flex items-center justify-center min-h-[300px] md:min-h-[400px]">
           <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 w-full flex items-center justify-center">
             <img
-              src={drawing.imageUrl}
+              src={DrawingImg}
               alt={drawing.name}
               className="max-w-full h-auto rounded-lg shadow-sm"
             />
@@ -72,33 +81,58 @@ const ViewDrawingModal: React.FC<ViewDrawingModalProps> = ({
         </div>
 
         {/* Action Buttons */}
-        <div className="px-4 py-6 md:px-8 md:py-10 flex flex-col sm:flex-row items-stretch sm:items-center justify-between border-t border-gray-100 bg-white sticky bottom-0 z-10 gap-4">
-          <button className="flex items-center justify-center gap-2 px-6 py-2.5 bg-[#94A3B8] text-white rounded-full text-sm font-bold shadow-sm hover:opacity-90 transition-all">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2.5}
-              stroke="currentColor"
-              className="w-4 h-4"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"
-              />
-            </svg>
-            Download
-          </button>
+        <div className="sm:py-6 py-2 mt-2 bg-white">
+          <div className="flex flex-wrap items-center justify-between gap-4 mb-4 px-2 sm:px-6">
+            <button className="flex items-center gap-2 md:px-4 px-2 py-1 bg-[#9CA3AF] hover:bg-[#E2E8F0] text-white rounded-full md:text-base text-sm font-medium transition-all">
+              <ArrowDown className="md:w-5 md:h-5 w-4 h-4" />
+              Download
+            </button>
 
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-            <button className="px-8 py-2.5 bg-[#F59E0B] text-white rounded-full text-sm font-bold shadow-sm hover:opacity-90 transition-all">
-              Revision Required
-            </button>
-            <button className="px-10 py-2.5 bg-[#3AB449] text-white rounded-full text-sm font-bold shadow-sm hover:opacity-90 transition-all">
-              Approve
-            </button>
+            <div className="flex items-center gap-3 ml-auto flex-wrap">
+              {drawing.status === "Approved" ? (
+                <div className="flex items-center gap-2">
+                  <p className="text-black text-sm font-normal">
+                    31-April-2025
+                  </p>
+                  <span className="px-5 py-1.5 bg-[#DCFCE7] text-[#16A34A] rounded-full text-sm font-normal border border-[#BBF7D0]">
+                    Approved
+                  </span>
+                </div>
+              ) : drawing.status === "Revision Required" ? (
+                <span className="px-5 py-1.5 bg-[#FFF7ED] text-[#FF9409] rounded-full text-sm font-normal border border-[#FFEDD5]">
+                  Sent for Revision
+                </span>
+              ) : (
+                <>
+                  <button className="px-5 py-1.5 bg-[#FF9409] text-white rounded-full text-sm font-normal shadow-sm shadow-orange-100">
+                    Revision Required
+                  </button>
+                  <button className="px-5 py-1.5 bg-[#3AB449]  text-white rounded-full text-sm font-normal shadow-sm shadow-green-100">
+                    Approve
+                  </button>
+                </>
+              )}
+            </div>
           </div>
+
+          {/* Comment box only for Pending Review */}
+          {drawing.status === "Pending Review" && (
+            <div className="flex gap-1 flex-wrap pt-6 w-full border-t border-gray-300 px-2 sm:px-6">
+              <div className="flex sm:w-4/5 w-full flex-wrap items-center gap-2 border border-gray-200 rounded-xl sm:p-2 p-1 focus-within:ring-2 focus-within:ring-blue-100 transition-all">
+                <input
+                  type="text"
+                  placeholder="Type your Comment..."
+                  className="flex-1 px-3 py-2 text-sm text-gray-600 outline-none w-full"
+                />
+                <button className="p-2 text-[#00000080] hover:text-gray-600">
+                  <Paperclip className="w-5 h-5 -rotate-5" />
+                </button>
+              </div>
+              <button className="text-[9px] ml-auto sm:text-sm font-normal bg-[linear-gradient(90deg,#2563EB_0%,#4F46E5_100%)] hover:bg-blue-700 text-white rounded-lg flex items-center md:gap-2 gap-1 md:px-6 px-3 py-3 h-auto sm:min-w-[100px]">
+                Send Comment
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </Modal>
