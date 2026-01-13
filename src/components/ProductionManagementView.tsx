@@ -59,8 +59,66 @@ const equipmentStatsByFilter: Record<
       color: "bg-[#FD8D5B]",
     },
   ],
-  week: [],
-  month: [],
+  week: [
+    {
+      title: "Total Leads",
+      value: "7",
+      icon: <img src={HammerIcon} alt="equipment" className="md:size-6 size-4" />,
+      color: "bg-[#1D51A4]",
+    },
+    {
+      title: "Active",
+      value: "6",
+      icon: <img src={CheckIcon} alt="active" className="md:size-4 size-3" />,
+      color: "bg-[#3AB449]",
+    },
+    {
+      title: "Unassigned",
+      value: "4",
+      icon: (
+        <img src={YellowDollerIcon} alt="unassigned" className="md:size-6 size-4" />
+      ),
+      color: "bg-[#F59E0B]",
+    },
+    {
+      title: "Unread Messages",
+      value: "2",
+      icon: (
+        <img src={SalmonGraphIcon} alt="messages" className="md:size-6 size-4" />
+      ),
+      color: "bg-[#FD8D5B]",
+    },
+  ],
+  month: [
+    {
+      title: "Total Leads",
+      value: "2",
+      icon: <img src={HammerIcon} alt="equipment" className="md:size-6 size-4" />,
+      color: "bg-[#1D51A4]",
+    },
+    {
+      title: "Active",
+      value: "23",
+      icon: <img src={CheckIcon} alt="active" className="md:size-4 size-3" />,
+      color: "bg-[#3AB449]",
+    },
+    {
+      title: "Unassigned",
+      value: "14",
+      icon: (
+        <img src={YellowDollerIcon} alt="unassigned" className="md:size-6 size-4" />
+      ),
+      color: "bg-[#F59E0B]",
+    },
+    {
+      title: "Unread Messages",
+      value: "1",
+      icon: (
+        <img src={SalmonGraphIcon} alt="messages" className="md:size-6 size-4" />
+      ),
+      color: "bg-[#FD8D5B]",
+    },
+  ],
 };
 
 /* ---------------- COMPONENT ---------------- */
