@@ -1,6 +1,7 @@
 import React from "react";
 import Pagination from "./Pagination";
 import { Eye, MessageSquare, User, UserPlus } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface Lead {
   id: string;
@@ -25,6 +26,7 @@ const ProductionTable: React.FC<ProductionTableProps> = ({
   data,
   onViewDetails,
 }) => {
+  const navigate = useNavigate();
   return (
     <div className="overflow-x-auto bg-white rounded-md">
       <table className="w-full text-left border-collapse">
@@ -118,7 +120,7 @@ const ProductionTable: React.FC<ProductionTableProps> = ({
                     {[1, 2, 3, 4, 5].map((step) => (
                       <div
                         key={step}
-                        className={`w-3 h-3 rounded-full ${
+                        className={`w-[10px] h-[10px] rounded-full ${
                           step <= row.progress
                             ? "bg-emerald-400"
                             : "bg-gray-200"
@@ -133,11 +135,11 @@ const ProductionTable: React.FC<ProductionTableProps> = ({
               </td>
               <td className="p-4">
                 <span
-                  className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold
+                  className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-normal
                   ${
                     row.status === "Quotation Sent"
-                      ? "bg-orange-50 text-orange-600"
-                      : "bg-purple-50 text-purple-600"
+                      ? "bg-[#FFF6E8] text-[#BA6D36]"
+                      : "bg-[#F3E8FF] text-[#7336BA]"
                   }
                 `}
                 >
@@ -151,6 +153,7 @@ const ProductionTable: React.FC<ProductionTableProps> = ({
               </td>
               <td className="p-4">
                 <button
+                onClick={()=>navigate(`/communication`)}
                   className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-[#3C40AF] rounded-lg 
                   hover:bg-blue-100 transition-colors text-xs font-medium relative group"
                 >

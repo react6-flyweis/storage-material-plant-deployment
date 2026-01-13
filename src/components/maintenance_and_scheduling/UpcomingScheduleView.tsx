@@ -12,6 +12,9 @@ import LogMaintenanceModal from "./LogMaintenanceModal";
 import TitleSubtitle from "../common_component/TitleSubtitle";
 import AddServiceProviderModal from "./AddServiceProviderModal";
 import TableActionButtons from "../common_component/TableActionButtons";
+import FilterTabs from "../common_component/FilterTabs";
+import type { TabType } from "@/pages/PlantPage";
+
 
 export type UpcomingSchedule = {
   id: number;
@@ -71,88 +74,128 @@ export const upcomingScheduleColumns: Column<UpcomingSchedule>[] = [
   },
 ];
 
-export const equipmentStats = [
+const upcomingScheduleByFilter: Record<TabType, UpcomingSchedule[]> = {
+  today: mockBreakdownCases.slice(0, 3),
+  week: mockBreakdownCases.slice(0, 5),
+  month: mockBreakdownCases,
+};
+
+const equipmentStatsByFilter: Record<
+  TabType,
   {
-    title: "Total Equipment Under Maintenance:",
-    value: "12",
-    icon: (
-      <img
-        src={HammerIcon}
-        alt="total-maintenance"
-        className="md:size-7 size-5"
-      />
-    ),
-    color: "bg-[#1D51A4]",
-  },
-  {
-    title: "Breakdown Cases:",
-    value: "42",
-    icon: (
-      <img
-        src={CheckedShieldIcon}
-        alt="breakdown"
-        className="md:size-7 size-5"
-      />
-    ),
-    color: "bg-[#3AB449]",
-  },
-  {
-    title: "Maintenance Due This Week:",
-    value: "74",
-    icon: (
-      <img
-        src={YellowDollerIcon}
-        alt="due-maintenance"
-        className="md:size-7 size-5"
-      />
-    ),
-    color: "bg-[#F59E0B]",
-  },
-  {
-    title: "Overdue Maintenance:",
-    value: "12",
-    icon: (
-      <img
-        src={SalmonGraphIcon}
-        alt="under-maintenance"
-        className="md:size-7 size-5"
-      />
-    ),
-    color: "bg-[#FD8D5B]",
-  },
-];
+    title: string;
+    value: string;
+    icon: any;
+    color: string;
+  }[]
+> = {
+  today: [
+    {
+      title: "Total Equipment Under Maintenance:",
+      value: "3",
+      icon: <img src={HammerIcon} className="md:size-6 size-4" />,
+      color: "bg-[#1D51A4]",
+    },
+    {
+      title: "Breakdown Cases:",
+      value: "2",
+      icon: <img src={CheckedShieldIcon} className="md:size-6 size-4" />,
+      color: "bg-[#3AB449]",
+    },
+    {
+      title: "Maintenance Due This Week:",
+      value: "1",
+      icon: <img src={YellowDollerIcon} className="md:size-6 size-4" />,
+      color: "bg-[#F59E0B]",
+    },
+    {
+      title: "Overdue Maintenance:",
+      value: "0",
+      icon: <img src={SalmonGraphIcon} className="md:size-6 size-4" />,
+      color: "bg-[#FD8D5B]",
+    },
+  ],
+
+  week: [
+    {
+      title: "Total Equipment Under Maintenance:",
+      value: "6",
+      icon: <img src={HammerIcon} className="md:size-6 size-4" />,
+      color: "bg-[#1D51A4]",
+    },
+    {
+      title: "Breakdown Cases:",
+      value: "4",
+      icon: <img src={CheckedShieldIcon} className="md:size-6 size-4" />,
+      color: "bg-[#3AB449]",
+    },
+    {
+      title: "Maintenance Due This Week:",
+      value: "3",
+      icon: <img src={YellowDollerIcon} className="md:size-6 size-4" />,
+      color: "bg-[#F59E0B]",
+    },
+    {
+      title: "Overdue Maintenance:",
+      value: "1",
+      icon: <img src={SalmonGraphIcon} className="md:size-6 size-4" />,
+      color: "bg-[#FD8D5B]",
+    },
+  ],
+
+  month: [
+    {
+      title: "Total Equipment Under Maintenance:",
+      value: "12",
+      icon: <img src={HammerIcon} className="md:size-6 size-4" />,
+      color: "bg-[#1D51A4]",
+    },
+    {
+      title: "Breakdown Cases:",
+      value: "42",
+      icon: <img src={CheckedShieldIcon} className="md:size-6 size-4" />,
+      color: "bg-[#3AB449]",
+    },
+    {
+      title: "Maintenance Due This Week:",
+      value: "74",
+      icon: <img src={YellowDollerIcon} className="md:size-6 size-4" />,
+      color: "bg-[#F59E0B]",
+    },
+    {
+      title: "Overdue Maintenance:",
+      value: "12",
+      icon: <img src={SalmonGraphIcon} className="md:size-6 size-4" />,
+      color: "bg-[#FD8D5B]",
+    },
+  ],
+};
+
+/* ---------------- COMPONENT ---------------- */
+
 const UpcomingScheduleView = () => {
+  const [activeTab, setActiveTab] = useState<TabType>("month");
+
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [isLogModalOpen, setIsLogModalOpen] = useState(false);
   const [isServiceProviderModalOpen, setIsServiceProviderModalOpen] =
     useState(false);
 
-  const openReportModal = () => {
-    setIsReportModalOpen(true);
-  };
+  const data = upcomingScheduleByFilter[activeTab];
+  const stats = equipmentStatsByFilter[activeTab];
 
-  const openLogModal = () => {
-    setIsLogModalOpen(true);
-  };
-
-  const openServiceProviderModal = () => {
-    setIsServiceProviderModalOpen(true);
-  };
-
-  const closeServiceProviderModal = () => {
+  const openReportModal = () => setIsReportModalOpen(true);
+  const openLogModal = () => setIsLogModalOpen(true);
+  const openServiceProviderModal = () => setIsServiceProviderModalOpen(true);
+  const closeServiceProviderModal = () =>
     setIsServiceProviderModalOpen(false);
-  };
-
-  const closeReportModal = () => {
-    setIsReportModalOpen(false);
-  };
-
-  const closeLogModal = () => {
-    setIsLogModalOpen(false);
-  };
+  const closeReportModal = () => setIsReportModalOpen(false);
+  const closeLogModal = () => setIsLogModalOpen(false);
 
   return (
-    <div className="xl:pr-5 px-2 md:pt-5 pb-10 space-y-6">
+    <div className="xl:pr-5 px-2 pb-10 space-y-6">
+      <FilterTabs activeTab={activeTab} onChange={setActiveTab} />
+
       <div className="flex items-center justify-between flex-wrap mt-1 mb-6">
         <TitleSubtitle
           title="Upcoming Schedule"
@@ -183,8 +226,10 @@ const UpcomingScheduleView = () => {
           </button>
         </div>
       </div>
+
+      {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-5">
-        {equipmentStats.map((stat, index) => (
+        {stats.map((stat, index) => (
           <StatCard
             key={index}
             title={stat.title}
@@ -194,13 +239,16 @@ const UpcomingScheduleView = () => {
           />
         ))}
       </div>
+
+      {/* Table */}
       <Table
         title="Upcoming Maintenance Table"
         columns={upcomingScheduleColumns}
-        data={mockBreakdownCases}
+        data={data}
         pagination={true}
         actions={<TableActionButtons />}
       />
+
       <AddServiceProviderModal
         isOpen={isServiceProviderModalOpen}
         onClose={closeServiceProviderModal}

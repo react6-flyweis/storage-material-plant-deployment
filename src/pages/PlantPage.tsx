@@ -42,16 +42,16 @@ export const DashboardStatsByFilter: Record<
   ],
 
   month: [
-    { title: "Total Equipment", value: "420 units" },
+    { title: "Total Equipment", value: "320 units" },
     { title: "Available", value: "168" },
-    { title: "In Use", value: "198" },
+    { title: "In Use", value: "98" },
     { title: "Under Maintenance", value: "54" },
   ],
 } as const;
 
 export const icons = [
   {
-    icon: <img src={HammerIcon} alt="leads" className="md:size-7 size-5" />,
+    icon: <img src={HammerIcon} alt="leads" className="md:size-6 size-4" />,
     color: "bg-[#1D51A4]",
   },
   {
@@ -59,20 +59,20 @@ export const icons = [
       <img
         src={CheckedShieldIcon}
         alt="confirmed"
-        className="md:size-7 size-5"
+        className="md:size-6 size-4"
       />
     ),
     color: "bg-[#3AB449]",
   },
   {
     icon: (
-      <img src={YellowDollerIcon} alt="value" className="md:size-7 size-5" />
+      <img src={YellowDollerIcon} alt="value" className="md:size-6 size-4" />
     ),
     color: "bg-[#F59E0B]",
   },
   {
     icon: (
-      <img src={SalmonGraphIcon} alt="revenue" className="md:size-7 size-5" />
+      <img src={SalmonGraphIcon} alt="revenue" className="md:size-6 size-4" />
     ),
     color: "bg-[#FD8D5B]",
   },

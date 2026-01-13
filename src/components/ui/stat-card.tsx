@@ -35,7 +35,7 @@ export default function StatCard({
           </p>
         </div>
 
-        <div className="bg-white sm:p-2 p-1 lg:h-auto lg:w-auto md:h-8 md:w-8 flex items-center justify-center rounded-md ml-auto h-auto w-auto">
+        <div className="bg-white md:p-1.5 md:h-10 md:w-10 p-0 h-7 w-7 flex items-center justify-center rounded-md ml-auto">
           {icon}
         </div>
       </div>

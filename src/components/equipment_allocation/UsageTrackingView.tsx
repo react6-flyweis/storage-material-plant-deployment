@@ -1,4 +1,4 @@
-import React from "react";
+import  { useMemo, useState } from "react";
 import Table, { type Column } from "../Table";
 import { usage_tracking_data } from "./mockData";
 import CreateTransferReqModal from "./CreateTransferReqModal";
@@ -10,6 +10,15 @@ import StatCard from "@/components/ui/stat-card";
 import AssignEquipmentModal from "./AssignEquipmentModal";
 import TitleSubtitle from "../common_component/TitleSubtitle";
 import TableActionButtons from "../common_component/TableActionButtons";
+import FilterTabs from "../common_component/FilterTabs";
+import type { TabType } from "@/pages/PlantPage";
+
+
+const usageByFilter: Record<TabType, typeof usage_tracking_data> = {
+  today: usage_tracking_data.slice(0, 3),
+  week: usage_tracking_data.slice(0, 6),
+  month: usage_tracking_data,
+};
 
 export const equipmentStats = [
   {
@@ -63,16 +72,14 @@ export const equipmentStats = [
 ];
 
 const UsageTrackingView = () => {
-  const [isModalOpen, setIsModalOpen] = React.useState(false);
-  const [isTransferModalOpen, setIsTransferModalOpen] = React.useState(false);
+  const [activeTab, setActiveTab] = useState<TabType>("month");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
+  const [showOnlyPune, setShowOnlyPune] = useState(false);
 
-  const closeModal = () => {
-    setIsModalOpen(false);
-  };
 
-  const closeTransferModal = () => {
-    setIsTransferModalOpen(false);
-  };
+  const closeModal = () => setIsModalOpen(false);
+  const closeTransferModal = () => setIsTransferModalOpen(false);
 
   const columns: Column<(typeof usage_tracking_data)[0]>[] = [
     {
@@ -132,8 +139,17 @@ const UsageTrackingView = () => {
     },
   ];
 
+  const baseData = usageByFilter[activeTab];
+
+const filteredData = useMemo(() => {
+  if (!showOnlyPune) return baseData;
+  return baseData.filter((row) => row.site === "Pune");
+}, [showOnlyPune, activeTab]);
+
   return (
-    <div className="xl:pr-5 px-2 md:pt-5 pb-10 space-y-6">
+    <div className="xl:pr-5 px-2 pb-10 space-y-6">
+      <FilterTabs activeTab={activeTab} onChange={setActiveTab} />
+
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 mt-2">
         <TitleSubtitle
           title="Usage Tracking"
@@ -172,10 +188,13 @@ const UsageTrackingView = () => {
       <Table
         title="USAGE LOG"
         columns={columns}
-        data={usage_tracking_data}
+        data={filteredData}
         pagination={true}
-        actions={<TableActionButtons />}
+        actions={
+          <TableActionButtons    onCickOfFilterButton={() => setShowOnlyPune((prev) => !prev)} />
+        }
       />
+
       <CreateTransferReqModal
         isOpen={isTransferModalOpen}
         onClose={closeTransferModal}

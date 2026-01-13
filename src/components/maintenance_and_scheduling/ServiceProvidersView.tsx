@@ -6,6 +6,8 @@ import { mockServiceProviders } from "../../data/mockData";
 import { FilePlus, FileX, Funnel } from "lucide-react";
 import TitleSubtitle from "../common_component/TitleSubtitle";
 import AddServiceProviderModal from "./AddServiceProviderModal";
+import FilterTabs from "../common_component/FilterTabs";
+import type { TabType } from "@/pages/PlantPage";
 
 export type ServiceProvider = {
   id: number;
@@ -16,6 +18,7 @@ export type ServiceProvider = {
   avgCost: string;
   lastService: string;
 };
+
 const renderStars = (rating: number) => (
   <div className="flex items-center gap-0.5">
     {[...Array(5)].map((_, index) => (
@@ -37,6 +40,8 @@ const renderStars = (rating: number) => (
     ))}
   </div>
 );
+
+
 export const serviceProviderColumns: Column<ServiceProvider>[] = [
   {
     header: "Provider Name",
@@ -79,38 +84,37 @@ export const serviceProviderColumns: Column<ServiceProvider>[] = [
       ),
   },
 ];
+
+const serviceProvidersByFilter: Record<TabType, ServiceProvider[]> = {
+  today: mockServiceProviders.slice(0, 3),
+  week: mockServiceProviders.slice(0, 6),
+  month: mockServiceProviders,
+};
+
+
 const ServiceProvidersView = () => {
+  const [activeTab, setActiveTab] = useState<TabType>("month");
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [isLogModalOpen, setIsLogModalOpen] = useState(false);
   const [isServiceProviderModalOpen, setIsServiceProviderModalOpen] =
     useState(false);
 
-  const openReportModal = () => {
-    setIsReportModalOpen(true);
-  };
-
-  const openLogModal = () => {
-    setIsLogModalOpen(true);
-  };
-
-  const openServiceProviderModal = () => {
+  const openReportModal = () => setIsReportModalOpen(true);
+  const openLogModal = () => setIsLogModalOpen(true);
+  const openServiceProviderModal = () =>
     setIsServiceProviderModalOpen(true);
-  };
 
-  const closeReportModal = () => {
-    setIsReportModalOpen(false);
-  };
-
-  const closeLogModal = () => {
-    setIsLogModalOpen(false);
-  };
-
-  const closeServiceProviderModal = () => {
+  const closeReportModal = () => setIsReportModalOpen(false);
+  const closeLogModal = () => setIsLogModalOpen(false);
+  const closeServiceProviderModal = () =>
     setIsServiceProviderModalOpen(false);
-  };
+
+  const tableData = serviceProvidersByFilter[activeTab];
 
   return (
-    <div className="xl:pr-5 px-2 md:pt-5 pb-10 space-y-6">
+    <div className="xl:pr-5 px-2 pb-10 space-y-6">
+      <FilterTabs activeTab={activeTab} onChange={setActiveTab} />
+
       <div className="flex items-center justify-between flex-wrap mt-1 mb-6">
         <TitleSubtitle
           title="Service Providers"
@@ -145,7 +149,7 @@ const ServiceProvidersView = () => {
       <Table
         title="Service Provider Table"
         columns={serviceProviderColumns}
-        data={mockServiceProviders}
+        data={tableData}
         pagination={true}
         actions={
           <div className="flex gap-2 flex-wrap mt-2 md:mt-0 justify-end ml-auto">
@@ -164,6 +168,7 @@ const ServiceProvidersView = () => {
           </div>
         }
       />
+
       <AddServiceProviderModal
         isOpen={isServiceProviderModalOpen}
         onClose={closeServiceProviderModal}
