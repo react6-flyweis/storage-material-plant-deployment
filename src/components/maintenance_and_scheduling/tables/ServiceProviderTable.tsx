@@ -27,10 +27,8 @@ const ServiceProviderTable = <T,>({
   actions,
   pagination = false,
 }: ServiceProviderTableProps<T>) => {
-  const [currentPage, setCurrentPage] = React.useState(1);
-  const [rowsPerPage, setRowsPerPage] = React.useState(10);
-
-  const totalItems = data.length;
+  const [currentPage,] = React.useState(1);
+  const [rowsPerPage,] = React.useState(10);
 
   const startIndex = (currentPage - 1) * rowsPerPage;
   const endIndex = startIndex + rowsPerPage;

@@ -5,7 +5,6 @@ import StatCard from "@/components/ui/stat-card";
 import HammerIcon from "../../assets/hammerIcon.svg";
 import CheckedShieldIcon from "../../assets/checkedShieldIcon.svg";
 import YellowDollerIcon from "../../assets/yellowDollerIcon.svg";
-import { FilePlus, FileX, FunnelIcon } from "lucide-react";
 import AssignEquipmentModal from "./AssignEquipmentModal";
 import CreateTransferReqModal from "./CreateTransferReqModal";
 import TitleSubtitle from "../common_component/TitleSubtitle";

@@ -8,7 +8,6 @@ import YellowDollerIcon from "../../assets/yellowDollerIcon.svg";
 import SalmonGraphIcon from "../../assets/salmonGraphIcon.svg";
 import StatCard from "@/components/ui/stat-card";
 import AssignEquipmentModal from "./AssignEquipmentModal";
-import { FileX, Funnel } from "lucide-react";
 import TitleSubtitle from "../common_component/TitleSubtitle";
 import TableActionButtons from "../common_component/TableActionButtons";
 
