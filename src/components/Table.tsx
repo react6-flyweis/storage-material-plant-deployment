@@ -28,7 +28,7 @@ const Table = <T extends any>({
   pagination,
 }: TableProps<T>) => {
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden mb-8">
+    <div className="bg-white rounded-md overflow-hidden mb-8">
       {/* Header Section */}
       <div className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <h3 className="md:text-lg font-medium">{title}</h3>
@@ -93,11 +93,10 @@ const Table = <T extends any>({
       )}
 
       <Pagination
-        totalItems={data.length}
+        totalItems={5}
+        itemsPerPage={5}
         currentPage={1}
-        rowsPerPage={1}
         onPageChange={() => {}}
-        onRowsPerPageChange={() => {}}
       />
     </div>
   );

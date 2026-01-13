@@ -9,6 +9,7 @@ import { FilePlus, FileX, FunnelIcon } from "lucide-react";
 import AssignEquipmentModal from "./AssignEquipmentModal";
 import CreateTransferReqModal from "./CreateTransferReqModal";
 import TitleSubtitle from "../common_component/TitleSubtitle";
+import TableActionButtons from "../common_component/TableActionButtons";
 
 export const equipmentStats = [
   {
@@ -198,22 +199,7 @@ const TransferRequestsView = () => {
         columns={columns}
         data={equipmentData}
         pagination={true}
-        actions={
-          <div className="flex gap-2 flex-wrap ml-auto">
-            <button className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-gray-600 md:text-sm text-xs hover:bg-gray-50">
-              <FunnelIcon className="w-4 h-4" />
-              Filter Equipment
-            </button>
-            <button className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-gray-600 md:text-sm text-xs hover:bg-gray-50">
-              <FileX className="w-4 h-4" />
-              Export Excel
-            </button>
-            <button className="flex items-center gap-1.5 px-3 py-1.5 bg-(--button-bg-primary-color) text-white rounded-lg md:text-sm text-xs hover:opacity-80">
-              <FilePlus className="w-4 h-4" />
-              Export PDF
-            </button>
-          </div>
-        }
+        actions={<TableActionButtons />}
       />
       <CreateTransferReqModal
         isOpen={isTransferModalOpen}

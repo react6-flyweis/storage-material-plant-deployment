@@ -26,7 +26,7 @@ const ProductionTable: React.FC<ProductionTableProps> = ({
   onViewDetails,
 }) => {
   return (
-    <div className="overflow-x-auto bg-white rounded-xl shadow-sm border border-gray-100">
+    <div className="overflow-x-auto bg-white rounded-md">
       <table className="w-full text-left border-collapse">
         <thead>
           <tr className="border-b border-gray-100 text-xs font-semibold text-gray-400 uppercase tracking-wider">
@@ -180,11 +180,10 @@ const ProductionTable: React.FC<ProductionTableProps> = ({
       </table>
 
       <Pagination
-        totalItems={data.length}
+        totalItems={5}
+        itemsPerPage={5}
         currentPage={1}
-        rowsPerPage={1}
-        onPageChange={() => {}}
-        onRowsPerPageChange={() => {}}
+        onPageChange={()=>{}}
       />
     </div>
   );

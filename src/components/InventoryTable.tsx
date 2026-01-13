@@ -27,7 +27,7 @@ const InventoryTable = <T extends any>({
   pagination,
 }: InventoryTableProps<T>) => {
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden mb-8">
+    <div className="bg-white rounded-md overflow-hidden mb-8">
       {/* Header Section */}
       <div className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <h3 className="xl:text-lg text-base font-bold text-gray-800 uppercase tracking-wide">

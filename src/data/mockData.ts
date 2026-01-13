@@ -1,5 +1,7 @@
 // Mock data for the application
 
+import type { TabType } from "@/pages/PlantPage";
+
 export const mockInventoryData = [
   {
     material: "Cement",
@@ -38,6 +40,137 @@ export const mockInventoryData = [
     actionType: "secondary",
   },
 ];
+
+export const flteredMockInventoryData: Record<
+  TabType,
+  {
+    material: string;
+    currentStock: number;
+    unit: string;
+    minLevel: number;
+    status: string;
+    action: string;
+    actionType: string;
+  }[]
+> = {
+  today: [
+    {
+      material: "Cement",
+      currentStock: 230,
+      unit: "Bags",
+      minLevel: 300,
+      status: "🔴 Low Stock",
+      action: "Reorder",
+      actionType: "secondary",
+    },
+    {
+      material: "Steel Rod TMT 12mm",
+      currentStock: 8.2,
+      unit: "Tons",
+      minLevel: 5,
+      status: "🟢 OK",
+      action: "View",
+      actionType: "primary",
+    },
+    {
+      material: "Aggregates 20mm",
+      currentStock: 40,
+      unit: "Tons",
+      minLevel: 30,
+      status: "🟢 OK",
+      action: "View",
+      actionType: "primary",
+    },
+    {
+      material: "Bricks (Red Clay)",
+      currentStock: 15000,
+      unit: "Pieces",
+      minLevel: 20000,
+      status: "🔴 Low Stock",
+      action: "Reorder",
+      actionType: "secondary",
+    },
+  ],
+
+  week: [
+    {
+      material: "Cement",
+      currentStock: 180,
+      unit: "Bags",
+      minLevel: 300,
+      status: "🔴 Low Stock",
+      action: "Reorder",
+      actionType: "secondary",
+    },
+    {
+      material: "Steel Rod TMT 12mm",
+      currentStock: 6.5,
+      unit: "Tons",
+      minLevel: 5,
+      status: "🟡 Near Limit",
+      action: "View",
+      actionType: "primary",
+    },
+    {
+      material: "Aggregates 20mm",
+      currentStock: 28,
+      unit: "Tons",
+      minLevel: 30,
+      status: "🔴 Low Stock",
+      action: "Reorder",
+      actionType: "secondary",
+    },
+    {
+      material: "Bricks (Red Clay)",
+      currentStock: 12000,
+      unit: "Pieces",
+      minLevel: 20000,
+      status: "🔴 Low Stock",
+      action: "Reorder",
+      actionType: "secondary",
+    },
+  ],
+
+  month: [
+    {
+      material: "Cement",
+      currentStock: 520,
+      unit: "Bags",
+      minLevel: 300,
+      status: "🟢 OK",
+      action: "View",
+      actionType: "primary",
+    },
+    {
+      material: "Steel Rod TMT 12mm",
+      currentStock: 14.8,
+      unit: "Tons",
+      minLevel: 5,
+      status: "🟢 OK",
+      action: "View",
+      actionType: "primary",
+    },
+    {
+      material: "Aggregates 20mm",
+      currentStock: 92,
+      unit: "Tons",
+      minLevel: 30,
+      status: "🟢 OK",
+      action: "View",
+      actionType: "primary",
+    },
+    {
+      material: "Bricks (Red Clay)",
+      currentStock: 42000,
+      unit: "Pieces",
+      minLevel: 20000,
+      status: "🟢 OK",
+      action: "View",
+      actionType: "primary",
+    },
+  ],
+} as const;
+
 
 export const mockMachineUsageData = [
   {
@@ -97,6 +230,174 @@ export const mockMachineUsageData = [
     actionType: "primary",
   },
 ];
+
+export const filterMockMachineUsageData: Record<
+  TabType,
+  {
+    equipment: string;
+    type: string;
+    project: string;
+    operator: string;
+    hoursUsed: number;
+    lastService: string;
+    nextDue: string;
+    priority: string;
+    priorityColor: string;
+    status: string;
+    action: string;
+    actionType: string;
+  }[]
+> = {
+  today: [
+    {
+      equipment: "Mini Excavator ZX55",
+      type: "Light",
+      project: "Residential Villa Project",
+      operator: "Alex Turner",
+      hoursUsed: 18,
+      lastService: "11-Jan",
+      nextDue: "25-Jan",
+      priority: "Low",
+      priorityColor: "bg-green-500",
+      status: "🟢 Active",
+      action: "Details",
+      actionType: "primary",
+    },
+    {
+      equipment: "Concrete Mixer 350L",
+      type: "Medium",
+      project: "Downtown Office Complex",
+      operator: "John Smith",
+      hoursUsed: 42,
+      lastService: "12-Jan",
+      nextDue: "26-Jan",
+      priority: "Scheduled",
+      priorityColor: "bg-yellow-500",
+      status: "🟢 Active",
+      action: "Details",
+      actionType: "primary",
+    },
+  ],
+
+  week: [
+    {
+      equipment: "Excavator CAT 320D",
+      type: "Heavy",
+      project: "Highway Bridge Project",
+      operator: "Mike Johnson",
+      hoursUsed: 156,
+      lastService: "05-Jan",
+      nextDue: "20-Jan",
+      priority: "High",
+      priorityColor: "bg-red-500",
+      status: "🟢 Active",
+      action: "Details",
+      actionType: "primary",
+    },
+    {
+      equipment: "Tower Crane TC5613",
+      type: "Heavy",
+      project: "City Mall Renovation",
+      operator: "Sarah Williams",
+      hoursUsed: 89,
+      lastService: "08-Jan",
+      nextDue: "22-Jan",
+      priority: "Low",
+      priorityColor: "bg-green-500",
+      status: "🟡 Maintenance",
+      action: "Details",
+      actionType: "primary",
+    },
+    {
+      equipment: "Bulldozer D8T",
+      type: "Heavy",
+      project: "Industrial Park",
+      operator: "Robert Brown",
+      hoursUsed: 120,
+      lastService: "10-Jan",
+      nextDue: "28-Jan",
+      priority: "Scheduled",
+      priorityColor: "bg-yellow-500",
+      status: "🟢 Active",
+      action: "Details",
+      actionType: "primary",
+    },
+  ],
+
+  month: [
+    {
+      equipment: "Excavator CAT 320D",
+      type: "Heavy",
+      project: "Highway Bridge Project",
+      operator: "Mike Johnson",
+      hoursUsed: 312,
+      lastService: "02-Jan",
+      nextDue: "02-Feb",
+      priority: "High",
+      priorityColor: "bg-red-500",
+      status: "🟢 Active",
+      action: "Details",
+      actionType: "primary",
+    },
+    {
+      equipment: "Concrete Mixer 350L",
+      type: "Medium",
+      project: "Downtown Office Complex",
+      operator: "John Smith",
+      hoursUsed: 210,
+      lastService: "04-Jan",
+      nextDue: "30-Jan",
+      priority: "Scheduled",
+      priorityColor: "bg-yellow-500",
+      status: "🟢 Active",
+      action: "Details",
+      actionType: "primary",
+    },
+    {
+      equipment: "Tower Crane TC5613",
+      type: "Heavy",
+      project: "City Mall Renovation",
+      operator: "Sarah Williams",
+      hoursUsed: 268,
+      lastService: "06-Jan",
+      nextDue: "05-Feb",
+      priority: "Low",
+      priorityColor: "bg-green-500",
+      status: "🟡 Maintenance",
+      action: "Details",
+      actionType: "primary",
+    },
+    {
+      equipment: "Bulldozer D8T",
+      type: "Heavy",
+      project: "Industrial Park",
+      operator: "Robert Brown",
+      hoursUsed: 295,
+      lastService: "09-Jan",
+      nextDue: "07-Feb",
+      priority: "Scheduled",
+      priorityColor: "bg-yellow-500",
+      status: "🟢 Active",
+      action: "Details",
+      actionType: "primary",
+    },
+    {
+      equipment: "Forklift FL20",
+      type: "Light",
+      project: "Warehouse Expansion",
+      operator: "Daniel Carter",
+      hoursUsed: 144,
+      lastService: "12-Jan",
+      nextDue: "12-Feb",
+      priority: "Low",
+      priorityColor: "bg-green-500",
+      status: "🟢 Active",
+      action: "Details",
+      actionType: "primary",
+    },
+  ],
+} as const;
+
 
 export const mockEquipmentData = [
   {
@@ -406,3 +707,173 @@ export const mockBreakdownCases = [
     assignedTo: "PowerTech",
   },
 ];
+
+
+export const equipmentByFilter: Record<
+  TabType,
+  {
+    id: string;
+    name: string;
+    category: string;
+    status: string;
+    statusColor: string;
+    dotColor: string;
+    project: string;
+    location: string;
+    hours: string;
+    nextDue: string;
+  }[]
+> = {
+  today: [
+    {
+      id: "EX-302",
+      name: "Excavator CAT 320D",
+      category: "Heavy",
+      status: "In Use",
+      statusColor: "text-green-600",
+      dotColor: "bg-green-500",
+      project: "ABC Warehouse",
+      location: "Pune Site",
+      hours: "128h",
+      nextDue: "Today",
+    },
+    {
+      id: "CM-104",
+      name: "Concrete Mixer 350L",
+      category: "Medium",
+      status: "Under Maintenance",
+      statusColor: "text-orange-600",
+      dotColor: "bg-orange-500",
+      project: "-",
+      location: "Yard",
+      hours: "-",
+      nextDue: "Tomorrow",
+    },
+    {
+      id: "DG-65",
+      name: "Diesel Generator 65kVA",
+      category: "Medium",
+      status: "Breakdown",
+      statusColor: "text-red-600",
+      dotColor: "bg-red-500",
+      project: "Metro Cast",
+      location: "Ahmedabad",
+      hours: "412h",
+      nextDue: "Overdue",
+    },
+  ],
+
+  week: [
+    {
+      id: "EX-401",
+      name: "Excavator Volvo EC210",
+      category: "Heavy",
+      status: "In Use",
+      statusColor: "text-green-600",
+      dotColor: "bg-green-500",
+      project: "IT Park Phase 2",
+      location: "Bangalore",
+      hours: "214h",
+      nextDue: "18-Apr",
+    },
+    {
+      id: "CR-211",
+      name: "Tower Crane TC5613",
+      category: "Heavy",
+      status: "Scheduled Service",
+      statusColor: "text-orange-600",
+      dotColor: "bg-orange-500",
+      project: "City Mall",
+      location: "Mumbai",
+      hours: "96h",
+      nextDue: "22-Apr",
+    },
+    {
+      id: "DG-88",
+      name: "Diesel Generator 88kVA",
+      category: "Medium",
+      status: "In Use",
+      statusColor: "text-green-600",
+      dotColor: "bg-green-500",
+      project: "Metro Rail",
+      location: "Delhi",
+      hours: "355h",
+      nextDue: "25-Apr",
+    },
+    {
+      id: "FL-120",
+      name: "Forklift Toyota 3T",
+      category: "Light",
+      status: "Idle",
+      statusColor: "text-gray-600",
+      dotColor: "bg-gray-400",
+      project: "-",
+      location: "Central Yard",
+      hours: "44h",
+      nextDue: "28-Apr",
+    },
+  ],
+
+  month: [
+    {
+      id: "EX-990",
+      name: "Excavator Komatsu PC200",
+      category: "Heavy",
+      status: "In Use",
+      statusColor: "text-green-600",
+      dotColor: "bg-green-500",
+      project: "Highway Expansion",
+      location: "Nagpur",
+      hours: "512h",
+      nextDue: "05-May",
+    },
+    {
+      id: "CM-550",
+      name: "Concrete Mixer 550L",
+      category: "Medium",
+      status: "Under Maintenance",
+      statusColor: "text-orange-600",
+      dotColor: "bg-orange-500",
+      project: "-",
+      location: "Service Yard",
+      hours: "-",
+      nextDue: "03-May",
+    },
+    {
+      id: "DG-120",
+      name: "Diesel Generator 120kVA",
+      category: "Heavy",
+      status: "Breakdown",
+      statusColor: "text-red-600",
+      dotColor: "bg-red-500",
+      project: "Airport Terminal",
+      location: "Hyderabad",
+      hours: "742h",
+      nextDue: "Overdue",
+    },
+    {
+      id: "CR-882",
+      name: "Crawler Crane XCMG",
+      category: "Heavy",
+      status: "In Use",
+      statusColor: "text-green-600",
+      dotColor: "bg-green-500",
+      project: "Steel Plant",
+      location: "Jamshedpur",
+      hours: "630h",
+      nextDue: "12-May",
+    },
+    {
+      id: "FL-300",
+      name: "Forklift Hyundai 5T",
+      category: "Medium",
+      status: "Idle",
+      statusColor: "text-gray-600",
+      dotColor: "bg-gray-400",
+      project: "-",
+      location: "Warehouse Hub",
+      hours: "90h",
+      nextDue: "18-May",
+    },
+  ],
+} as const;

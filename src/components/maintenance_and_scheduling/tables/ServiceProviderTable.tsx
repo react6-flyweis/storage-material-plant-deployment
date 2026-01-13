@@ -38,7 +38,7 @@ const ServiceProviderTable = <T,>({
   const tableData = pagination ? data.slice(startIndex, endIndex) : data;
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden mb-8">
+    <div className="bg-white rounded-md overflow-hidden mb-8">
       {/* Header Section */}
       <div className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <h3 className="text-lg font-medium text-gray-800 uppercase tracking-wide">
@@ -120,16 +120,12 @@ const ServiceProviderTable = <T,>({
 
       {/* Pagination */}
       {pagination && (
-        <Pagination
-          totalItems={totalItems}
-          currentPage={currentPage}
-          rowsPerPage={rowsPerPage}
-          onPageChange={setCurrentPage}
-          onRowsPerPageChange={(rows) => {
-            setRowsPerPage(rows);
-            setCurrentPage(1);
-          }}
-        />
+         <Pagination
+        totalItems={5}
+        itemsPerPage={5}
+        currentPage={1}
+        onPageChange={()=>{}}
+      />
       )}
     </div>
   );

@@ -10,6 +10,7 @@ import StatCard from "@/components/ui/stat-card";
 import { FilePlus, FileX, FunnelIcon } from "lucide-react";
 import TitleSubtitle from "../common_component/TitleSubtitle";
 import AddServiceProviderModal from "./AddServiceProviderModal";
+import TableActionButtons from "../common_component/TableActionButtons";
 
 const MaintenanceAndSchedulingView = () => {
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
@@ -286,22 +287,7 @@ const MaintenanceAndSchedulingView = () => {
         columns={columns}
         data={equipmentData}
         pagination={true}
-        actions={
-          <div className="flex flex-wrap gap-2">
-            <button className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-gray-600 text-xs md:text-sm hover:bg-gray-50">
-              <FunnelIcon className="w-4 h-4" />
-              Filter Equipment
-            </button>
-            <button className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-gray-600 text-xs md:text-sm hover:bg-gray-50">
-              <FileX className="w-4 h-4" />
-              Export Excel
-            </button>
-            <button className="flex items-center gap-1.5 px-3 py-1.5 bg-(--button-bg-primary-color) text-white rounded-lg text-xs md:text-sm hover:opacity-80">
-              <FilePlus className="w-4 h-4" />
-              Export PDF
-            </button>
-          </div>
-        }
+        actions={<TableActionButtons />}
       />
       <AddServiceProviderModal
         isOpen={isServiceProviderModalOpen}

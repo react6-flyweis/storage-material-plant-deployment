@@ -12,6 +12,7 @@ import LogMaintenanceModal from "./LogMaintenanceModal";
 import { FilePlus, FileX, Funnel } from "lucide-react";
 import TitleSubtitle from "../common_component/TitleSubtitle";
 import AddServiceProviderModal from "./AddServiceProviderModal";
+import TableActionButtons from "../common_component/TableActionButtons";
 
 export type UpcomingSchedule = {
   id: number;
@@ -199,22 +200,7 @@ const UpcomingScheduleView = () => {
         columns={upcomingScheduleColumns}
         data={mockBreakdownCases}
         pagination={true}
-        actions={
-          <div className="flex  flex-wrap  md:mt-0 mt-2 gap-2 ml-auto">
-            <button className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-gray-600 md:text-sm text-xs hover:bg-gray-50">
-              <Funnel className="w-3 h-3" />
-              Filter Equipment
-            </button>
-            <button className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-gray-600 md:text-sm text-xs hover:bg-gray-50">
-              <FileX className="w-4 h-4" />
-              Export Excel
-            </button>
-            <button className="flex items-center gap-1.5 px-3 py-1.5 bg-[#2563EB] text-white rounded-lg md:text-sm text-xs hover:bg-blue-700 transition-colors">
-              <FilePlus className="w-4 h-4" />
-              Export PDF
-            </button>
-          </div>
-        }
+        actions={<TableActionButtons />}
       />
       <AddServiceProviderModal
         isOpen={isServiceProviderModalOpen}

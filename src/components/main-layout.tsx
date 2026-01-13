@@ -80,7 +80,7 @@ export function MainLayout() {
 
       <div className="flex-1 min-w-0 flex flex-col h-screen md:ml-[304px] lg:ml-[336px]">
         <Header onMenuToggle={toggleSidebar} />
-        <main className="flex-1 overflow-y-auto mt-2 xl:pb-3 xl:pr-3">
+        <main className="flex-1 overflow-y-auto mt-1 xl:pb-3 xl:pr-3">
           <Outlet />
         </main>
       </div>
