@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import logo from "../../assets/logo.svg";
+import logo from "../../assets/logo.png";
 import bellIcon from "../../assets/bellIcon.svg";
 import { useNavigate } from "react-router-dom";
 import UserIcon from "../../assets/icon/UserIcon";
@@ -187,7 +187,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
           <img
             src={logo}
             alt="Logo"
-            className="xl:w-25 xl:h-12 sm:w-20 h-8 object-contain"
+            className="xl:w-35 xl:h-12 sm:w-25 sm:h-12 w-30 h-8 object-contain"
           />
         </div>
       </div>
