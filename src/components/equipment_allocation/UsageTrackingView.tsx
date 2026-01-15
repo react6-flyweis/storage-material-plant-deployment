@@ -12,6 +12,7 @@ import TitleSubtitle from "../common_component/TitleSubtitle";
 import TableActionButtons from "../common_component/TableActionButtons";
 import FilterTabs from "../common_component/FilterTabs";
 import type { TabType } from "@/pages/PlantPage";
+import SuccessModal from "../common_component/SuccessModal";
 
 
 const usageByFilter: Record<TabType, typeof usage_tracking_data> = {
@@ -77,9 +78,20 @@ const UsageTrackingView = () => {
   const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
   const [showOnlyPune, setShowOnlyPune] = useState(false);
 
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [modalTitle, setModalTitle] = useState("");
 
-  const closeModal = () => setIsModalOpen(false);
-  const closeTransferModal = () => setIsTransferModalOpen(false);
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setIsSuccessModalOpen(true);
+    setModalTitle("Equipment Assigned Successfully");
+  };
+  const closeTransferModal = () => {
+    setIsTransferModalOpen(false);
+    setIsSuccessModalOpen(true);
+    setModalTitle("Transfer Request Created Successfully");
+  };
 
   const columns: Column<(typeof usage_tracking_data)[0]>[] = [
     {
@@ -198,8 +210,10 @@ const filteredData = useMemo(() => {
       <CreateTransferReqModal
         isOpen={isTransferModalOpen}
         onClose={closeTransferModal}
+        onSubmit={closeTransferModal}
       />
-      <AssignEquipmentModal isOpen={isModalOpen} onClose={closeModal} />
+      <AssignEquipmentModal isOpen={isModalOpen} onClose={closeModal} onSubmit={closeModal} />
+      <SuccessModal isOpen={isSuccessModalOpen} onClose={() => setIsSuccessModalOpen(false)} title={modalTitle}/>
     </div>
   );
 };

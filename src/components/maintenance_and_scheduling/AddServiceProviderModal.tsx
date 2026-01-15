@@ -4,11 +4,13 @@ import Modal from "../Modal";
 interface AddServiceProviderModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onSubmit: () => void;
 }
 
 const AddServiceProviderModal: React.FC<AddServiceProviderModalProps> = ({
   isOpen,
   onClose,
+  onSubmit,
 }) => {
   return (
     <Modal
@@ -159,7 +161,7 @@ const AddServiceProviderModal: React.FC<AddServiceProviderModalProps> = ({
                   Cancel
                 </button>
                 <button
-                  type="submit"
+                  onClick={onSubmit}
                   className="px-8 py-2.5 rounded-lg bg-[#2563EB] text-white font-medium hover:opacity-90 transition-colors shadow-sm"
                 >
                   Submit

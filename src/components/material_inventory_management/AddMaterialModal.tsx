@@ -5,11 +5,13 @@ import { ChevronDownIcon } from "lucide-react";
 interface AddMaterialModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onSubmit: () => void;
 }
 
 const AddMaterialModal: React.FC<AddMaterialModalProps> = ({
   isOpen,
   onClose,
+  onSubmit, 
 }) => {
   return (
     <Modal
@@ -155,7 +157,7 @@ const AddMaterialModal: React.FC<AddMaterialModalProps> = ({
               Cancel
             </button>
             <button
-              type="submit"
+              onClick={onSubmit}
               className="px-10 py-3 rounded-xl bg-[#2563EB] text-white font-normal hover:bg-blue-700 transition-colors shadow-sm"
             >
               Create

@@ -4,11 +4,13 @@ import Modal from "../Modal";
 interface ReportBreakdownModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onSubmit: () => void;
 }
 
 const ReportBreakdownModal: React.FC<ReportBreakdownModalProps> = ({
   isOpen,
   onClose,
+  onSubmit,
 }) => {
   return (
     <Modal
@@ -175,7 +177,7 @@ const ReportBreakdownModal: React.FC<ReportBreakdownModalProps> = ({
                   Cancel
                 </button>
                 <button
-                  type="submit"
+                  onClick={onSubmit}
                   className="px-8 py-2.5 rounded-lg bg-[#2563EB] text-white font-medium hover:opacity-90 transition-colors shadow-sm"
                 >
                   Save & Report

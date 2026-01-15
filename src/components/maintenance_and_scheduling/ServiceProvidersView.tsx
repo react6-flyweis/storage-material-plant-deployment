@@ -8,6 +8,7 @@ import TitleSubtitle from "../common_component/TitleSubtitle";
 import AddServiceProviderModal from "./AddServiceProviderModal";
 import FilterTabs from "../common_component/FilterTabs";
 import type { TabType } from "@/pages/PlantPage";
+import SuccessModal from "../common_component/SuccessModal";
 
 export type ServiceProvider = {
   id: number;
@@ -98,16 +99,29 @@ const ServiceProvidersView = () => {
   const [isLogModalOpen, setIsLogModalOpen] = useState(false);
   const [isServiceProviderModalOpen, setIsServiceProviderModalOpen] =
     useState(false);
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [modalTitle, setModalTitle] = useState("");
 
   const openReportModal = () => setIsReportModalOpen(true);
   const openLogModal = () => setIsLogModalOpen(true);
   const openServiceProviderModal = () =>
     setIsServiceProviderModalOpen(true);
 
-  const closeReportModal = () => setIsReportModalOpen(false);
-  const closeLogModal = () => setIsLogModalOpen(false);
-  const closeServiceProviderModal = () =>
+  const closeReportModal = () => {
+    setIsReportModalOpen(false);
+    setIsSuccessModalOpen(true);
+    setModalTitle("Report Breakdown Added Successfully");
+  };
+  const closeLogModal = () => {
+    setIsLogModalOpen(false);
+    setIsSuccessModalOpen(true);
+    setModalTitle("Log Maintenance Added Successfully");
+  };
+  const closeServiceProviderModal = () => {
     setIsServiceProviderModalOpen(false);
+    setIsSuccessModalOpen(true);
+    setModalTitle("Service Provider Added Successfully");
+  };
 
   const tableData = serviceProvidersByFilter[activeTab];
 
@@ -172,12 +186,21 @@ const ServiceProvidersView = () => {
       <AddServiceProviderModal
         isOpen={isServiceProviderModalOpen}
         onClose={closeServiceProviderModal}
+        onSubmit={closeServiceProviderModal}
       />
       <ReportBreakdownModal
         isOpen={isReportModalOpen}
         onClose={closeReportModal}
+        onSubmit={closeReportModal}
       />
-      <LogMaintenanceModal isOpen={isLogModalOpen} onClose={closeLogModal} />
+      <LogMaintenanceModal isOpen={isLogModalOpen} onClose={closeLogModal}
+        onSubmit={closeLogModal}
+       />
+       <SuccessModal
+        isOpen={isSuccessModalOpen}
+        onClose={() => setIsSuccessModalOpen(false)}
+        title={modalTitle}
+      />
     </div>
   );
 };

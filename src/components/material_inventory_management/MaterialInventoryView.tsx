@@ -10,6 +10,7 @@ import TitleSubtitle from "../common_component/TitleSubtitle";
 import TableActionButtons from "../common_component/TableActionButtons";
 import type { TabType } from "@/pages/PlantPage";
 import FilterTabs from "../common_component/FilterTabs";
+import SuccessModal from "../common_component/SuccessModal";
 
 
 export const MaterialStatsByFilter: Record<
@@ -76,6 +77,7 @@ const MaterialInventoryView = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState<CategoryFilter>("All");
   const [activeTab, setActiveTab] = useState<TabType>("month");
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
 
   const openModal = () => {
     setIsModalOpen(true);
@@ -414,7 +416,11 @@ const MaterialInventoryView = () => {
           <TableActionButtons onCickOfFilterButton={handleToggleFilter} />
         }
       />
-      <AddMaterialModal isOpen={isModalOpen} onClose={closeModal} />
+      <AddMaterialModal isOpen={isModalOpen} onClose={closeModal} onSubmit={()=>{
+        closeModal();
+        setIsSuccessModalOpen(true);
+      }} />
+      <SuccessModal isOpen={isSuccessModalOpen} onClose={()=>setIsSuccessModalOpen(false)} title="Material Stock Added Successfully" />
     </div>
   );
 };

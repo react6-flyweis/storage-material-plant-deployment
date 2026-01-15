@@ -12,6 +12,7 @@ import TitleSubtitle from "../common_component/TitleSubtitle";
 import TableActionButtons from "../common_component/TableActionButtons";
 import FilterTabs from "../common_component/FilterTabs";
 import type { TabType } from "@/pages/PlantPage";
+import SuccessModal from "../common_component/SuccessModal";
 
 
 const equipmentByFilter: Record<TabType, typeof equipment_status_data> = {
@@ -189,9 +190,19 @@ const EquipmentAllocationView = () => {
   const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
 
   const [isCategoryFilterOn, setIsCategoryFilterOn] = useState(false);
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [modalTitle, setModalTitle] = useState("");
 
-  const closeTransferModal = () => setIsTransferModalOpen(false);
-  const closeModal = () => setIsModalOpen(false);
+  const closeTransferModal = () => {
+    setIsTransferModalOpen(false);
+    setIsSuccessModalOpen(true);
+    setModalTitle("Transfer Request Created Successfully");
+  };
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setIsSuccessModalOpen(true);
+    setModalTitle("Equipment Assigned Successfully");
+  };
 
   const toggleCategoryFilter = () => {
     setIsCategoryFilterOn((prev) => !prev);
@@ -257,7 +268,6 @@ const EquipmentAllocationView = () => {
   const stats = equipmentStatsByFilter[activeTab];
   const baseData = equipmentByFilter[activeTab];
 
-  // ✅ APPLY CATEGORY FILTER
   const filteredData = useMemo(() => {
     if (!isCategoryFilterOn) return baseData;
 
@@ -315,8 +325,10 @@ const EquipmentAllocationView = () => {
       <CreateTransferReqModal
         isOpen={isTransferModalOpen}
         onClose={closeTransferModal}
+        onSubmit={closeTransferModal}
       />
-      <AssignEquipmentModal isOpen={isModalOpen} onClose={closeModal} />
+      <AssignEquipmentModal isOpen={isModalOpen} onClose={closeModal} onSubmit={closeModal} />
+      <SuccessModal isOpen={isSuccessModalOpen} onClose={() => setIsSuccessModalOpen(false)} title={modalTitle}/>
     </div>
   );
 };

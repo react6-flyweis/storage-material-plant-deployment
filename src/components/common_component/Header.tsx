@@ -187,7 +187,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
           <img
             src={logo}
             alt="Logo"
-            className="xl:w-35 xl:h-12 sm:w-25 sm:h-12 w-30 h-8 object-contain"
+           className="xl:w-50 xl:h-12 sm:w-35 sm:h-12 w-30 h-8 object-contain"
           />
         </div>
       </div>

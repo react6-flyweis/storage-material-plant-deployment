@@ -5,11 +5,13 @@ import uploadCloudIcon from "../assets/uploadCloudIcon.svg";
 interface UploadDrawingsModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onSubmit: () => void;
 }
 
 const UploadDrawingsModal: React.FC<UploadDrawingsModalProps> = ({
   isOpen,
   onClose,
+  onSubmit,
 }) => {
   const [dragActive, setDragActive] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -135,7 +137,7 @@ const UploadDrawingsModal: React.FC<UploadDrawingsModalProps> = ({
             Cancel
           </button>
           <button
-            onClick={onClose}
+            onClick={onSubmit}
             className="w-full px-4 py-2.5 bg-(--button-bg-primary-color) text-white font-light rounded-lg hover:opacity-90 transition-opacity"
           >
             Submit

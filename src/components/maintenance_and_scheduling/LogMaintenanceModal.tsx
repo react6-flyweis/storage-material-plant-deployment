@@ -3,12 +3,14 @@ import Modal from "../Modal";
 
 interface LogMaintenanceModalProps {
   isOpen: boolean;
-  onClose: () => void;
+  onClose: () => void;  
+  onSubmit: () => void;
 }
 
 const LogMaintenanceModal: React.FC<LogMaintenanceModalProps> = ({
   isOpen,
   onClose,
+  onSubmit,
 }) => {
   return (
     <Modal
@@ -156,7 +158,7 @@ const LogMaintenanceModal: React.FC<LogMaintenanceModalProps> = ({
               Cancel
             </button>
             <button
-              type="submit"
+              onClick={onSubmit}
               className="px-6 py-2.5 rounded-lg bg-[#2563EB] text-white font-medium hover:opacity-90 transition-colors shadow-sm"
             >
               Submit

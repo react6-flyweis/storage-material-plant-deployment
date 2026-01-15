@@ -8,6 +8,7 @@ import TableActionButtons from "./common_component/TableActionButtons";
 import { equipmentByFilter } from "@/data/mockData";
 import { DashboardStatsByFilter, icons, type TabType } from "@/pages/PlantPage";
 import FilterTabs from "./common_component/FilterTabs";
+import SuccessModal from "./common_component/SuccessModal";
 
 const CATEGORY_SEQUENCE = ["Heavy", "Medium", "All"] as const;
 type CategoryFilter = (typeof CATEGORY_SEQUENCE)[number];
@@ -15,6 +16,8 @@ const EquipmentView = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState<CategoryFilter>("All");
   const [activeTab, setActiveTab] = useState<TabType>("month");
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [modalTitle, setModalTitle] = useState("");
 
   const openModal = () => {
     setIsModalOpen(true);
@@ -156,7 +159,16 @@ const EquipmentView = () => {
           <TableActionButtons onCickOfFilterButton={handleToggleFilter} />
         }
       />
-      <AddEquipmentModal isOpen={isModalOpen} onClose={closeModal} />
+      <AddEquipmentModal isOpen={isModalOpen} onClose={closeModal} onSubmit={()=>{
+        closeModal();
+        setIsSuccessModalOpen(true);
+        setModalTitle("Equipment Added Successfully");
+      }}/>
+      <SuccessModal
+        isOpen={isSuccessModalOpen}
+        onClose={() => setIsSuccessModalOpen(false)}
+        title={modalTitle}
+      />
     </div>
   );
 };

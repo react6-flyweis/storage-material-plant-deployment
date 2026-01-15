@@ -5,11 +5,13 @@ import { ChevronDownIcon, Upload } from "lucide-react";
 interface CreateTransferReqModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onSubmit: () => void;
 }
 
 const CreateTransferReqModal: React.FC<CreateTransferReqModalProps> = ({
   isOpen,
   onClose,
+  onSubmit,
 }) => {
   return (
     <Modal
@@ -179,7 +181,7 @@ const CreateTransferReqModal: React.FC<CreateTransferReqModalProps> = ({
             Cancel
           </button>
           <button
-            type="submit"
+            onClick={onSubmit}
             className="px-6 py-2.5 rounded-lg bg-(--button-bg-primary-color) text-white font-medium hover:opacity-90 transition-colors shadow-sm"
           >
             Submit Request

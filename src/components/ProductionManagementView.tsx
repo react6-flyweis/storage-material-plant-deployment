@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/select";
 import FilterTabs from "./common_component/FilterTabs";
 import type { TabType } from "@/pages/PlantPage";
+import SuccessModal from "./common_component/SuccessModal";
 
 
 const equipmentStatsByFilter: Record<
@@ -127,6 +128,7 @@ const ProductionManagementView = () => {
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [_selectedLead, _setSelectedLead] = useState<any>(null);
+    const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>("month");
 
   /* ✅ FILTER STATES */
@@ -243,6 +245,10 @@ const ProductionManagementView = () => {
       <UploadDrawingsModal
         isOpen={isUploadModalOpen}
         onClose={() => setIsUploadModalOpen(false)}
+        onSubmit={()=>{
+          setIsUploadModalOpen(false);
+          setIsSuccessModalOpen(true);
+        }}
       />
 
       {/* Stats Row */}
@@ -320,6 +326,12 @@ const ProductionManagementView = () => {
       <LeadsDetailsModal
         isOpen={isDetailsModalOpen}
         onClose={() => setIsDetailsModalOpen(false)}
+      />
+      <SuccessModal
+        isOpen={isSuccessModalOpen}
+        onClose={() => setIsSuccessModalOpen(false)}
+        title="Drawings Uploaded Successfully"
+        
       />
     </div>
   );

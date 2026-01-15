@@ -8,6 +8,7 @@ interface ModalProps {
   children: React.ReactNode;
   width?: string;
   height?: string;
+  hideHeader?: boolean;
 }
 
 const Modal: React.FC<ModalProps> = ({
@@ -17,6 +18,7 @@ const Modal: React.FC<ModalProps> = ({
   children,
   width = "max-w-2xl",
   height = "max-h-[90vh]",
+  hideHeader = false,
 }) => {
   const modalRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -56,7 +58,7 @@ const Modal: React.FC<ModalProps> = ({
         className={`bg-white rounded-xl shadow-2xl w-full ${width} ${height} xl:m-4 m-2 relative flex flex-col max-h-[90vh] animate-in fade-in zoom-in-95 duration-200`}
       >
         {/* Header */}
-        {title && (
+        {!hideHeader && title && (
           <div className="flex items-center justify-between p-6 border-b border-[#D5D5D5]">
             <h2 className="md:text-base text-sm font-bold text-gray-800">
               {title}
