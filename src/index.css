@@ -1,28 +1,35 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --font-sans: "Poppins", sans-serif;
+  --font-sans: "Archivo", sans-serif;
+  --font-inter: "Inter", sans-serif;
+  --font-archivo: "Archivo", sans-serif;
 }
 
 :root {
-  font-family: "Poppins", sans-serif;
+  font-family: "Archivo", sans-serif;
   --primary-color: #2F93F6;
   --text-color-primary: #282828;
   --text-color-primary-blue: #1D51A4;
   --text-color-green: #3AB449;
+  --text-color-green-2: #058A3D;
+
   --text-color-gold: #EAB308;
   --text-color-salmon: #FD8D5B
   --text-color-gray: #949CA9;
   --text-color-gray-two: #3E4857;
   --text-color-gray-2: #4B5563;
   --text-color-black: #111827;
+  --text-color-gray-3: #6B7280;
   --button-bg-primary-color: #2563EB;
+  --border-color-secondary: #E5E7EB;
   --radius: 0.625rem;
   --background: oklch(1 0 0);
+  --background-green: #DCF6E6;
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);

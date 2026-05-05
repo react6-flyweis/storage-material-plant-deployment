@@ -16,6 +16,7 @@ import SettingsView from "./components/settings/SettingsView";
 import UsageTrackingView from "./components/equipment_allocation/UsageTrackingView";
 import NotificationsView from "./components/notifications/NotificationsView";
 import ProfileView from "./components/profile/ProfileView";
+import CustomerInfoView from "./components/CustomerInfoView";
 const Dashboard = lazy(() => import("@/pages/plantDashboard/PlantDashboard"));
 
 export const adminRoutes: RouteObject[] = [
@@ -38,6 +39,14 @@ export const adminRoutes: RouteObject[] = [
       {
         path: "/production_management",
         element: <ProductionManagementView />,
+      },
+      {
+        path: "/projects",
+        element: <ProductionManagementView />,
+      },
+      {
+        path: "/projects/customerinfo/:id",
+        element: <CustomerInfoView />,
       },
       {
         path: "/communication",

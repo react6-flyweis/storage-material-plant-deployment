@@ -32,7 +32,7 @@ export const upcomingScheduleColumns: Column<UpcomingSchedule>[] = [
   {
     header: "Equipment",
     accessor: (item) => (
-      <div className="text-[#6B7280] text-sm">{item.equipment}</div>
+      <div className="text-(--text-color-gray-3) text-sm">{item.equipment}</div>
     ),
   },
   {

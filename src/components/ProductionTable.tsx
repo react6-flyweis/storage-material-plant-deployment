@@ -1,18 +1,18 @@
 import React from "react";
-import Pagination from "./Pagination";
-import { Eye, MessageSquare, User, UserPlus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { Eye, MessageSquare, FileEdit, FileText } from "lucide-react";
+import Pagination from "./Pagination";
 
 interface Lead {
-  id: string;
-  name: string;
-  project: string;
-  assignedTo: {
+  id: string; // Used for address in this context
+  customerId: string; // Used for navigation
+  name: string; // Project Name
+  customer: {
     name: string;
     image?: string;
-  } | null;
-  progress: number;
-  status: "Proposal sent" | "Quotation Sent"; // Add other statuses as needed
+  };
+  buildings: number;
+  status: string;
   quoteValue: string;
   unreadMessages: number;
 }
@@ -27,36 +27,51 @@ const ProductionTable: React.FC<ProductionTableProps> = ({
   onViewDetails,
 }) => {
   const navigate = useNavigate();
+
+  const getStatusStyles = (status: string) => {
+    switch (status.toLowerCase()) {
+      case "approved":
+        return "bg-[#E7F8EE] text-(--text-color-green)";
+      case "bom ready":
+        return "bg-[#FFF7ED] text-[#B76E00]";
+      case "shipper file received":
+        return "bg-[#F2EFFF] text-[#8B5CF6]";
+      default:
+        return "bg-gray-100 text-gray-600";
+    }
+  };
+
   return (
-    <div className="overflow-x-auto bg-white rounded-md">
-      <table className="w-full text-left border-collapse">
+    <div className="bg-white rounded-md shadow-sm border border-gray-100">
+      <div className="overflow-x-auto">
+      <table className="w-full text-left border-collapse min-w-[900px]">
         <thead>
-          <tr className="border-b border-gray-100 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+          <tr className="border-b border-gray-100 bg-[#F9FAFB]">
             <th className="p-4 w-12 text-center">
               <input
                 type="checkbox"
-                className="md:w-4 md:h-4 w-3 h-3 rounded border-gray-300 text-var(--color-primary)"
+                className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
             </th>
-            <th className="p-4 text-[#6B7280] font-medium capitalize md:text-sm">
-              Lead Info
+            <th className="md:p-4 p-2 text-(--text-color-gray-3) font-inter font-semibold uppercase text-xs tracking-wider">
+              Project Name
             </th>
-            <th className="p-4 text-[#6B7280] font-medium capitalize md:text-sm">
-              Assigned To
+            <th className="md:p-4 p-2 text-(--text-color-gray-3) font-inter font-semibold uppercase text-xs tracking-wider">
+              Customer
             </th>
-            <th className="p-4 text-[#6B7280] font-medium capitalize md:text-sm">
-              Progress
+            <th className="md:p-4 p-2 text-(--text-color-gray-3) font-inter font-semibold uppercase text-xs tracking-wider text-center">
+              Buildings
             </th>
-            <th className="p-4 text-[#6B7280] font-medium capitalize md:text-sm">
+            <th className="md:p-4 p-2 text-(--text-color-gray-3) font-inter font-semibold uppercase text-xs tracking-wider">
               Status
             </th>
-            <th className="p-4 text-[#6B7280] font-medium capitalize md:text-sm">
-              Quote Value
+            <th className="md:p-4 p-2 text-(--text-color-gray-3) font-inter font-semibold uppercase text-xs tracking-wider text-nowrap">
+              Project Value
             </th>
-            <th className="p-4 text-[#6B7280] font-medium capitalize md:text-sm">
+            <th className="md:p-4 p-2 text-(--text-color-gray-3) font-inter font-semibold uppercase text-xs tracking-wider">
               Chat
             </th>
-            <th className="p-4 text-[#6B7280] font-medium capitalize md:text-sm text-center">
+            <th className="md:p-4 p-2 text-(--text-color-gray-3) font-inter font-semibold uppercase text-xs tracking-wider text-center">
               Actions
             </th>
           </tr>
@@ -70,118 +85,81 @@ const ProductionTable: React.FC<ProductionTableProps> = ({
               <td className="p-4 text-center">
                 <input
                   type="checkbox"
-                  className="md:w-4 md:h-4 w-3 h-3 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                 />
               </td>
-              <td className="p-4 min-w-[120px]">
+              <td className="p-4">
                 <div className="flex flex-col">
-                  <span className="font-normal text-black md:text-sm text-xs">
+                  <span className="font-inter font-semibold text-black text-sm">
                     {row.name}
                   </span>
-                  <span className="md:text-xs text-[10px] text-gray-500 mt-0.5">
+                  <span className="font-inter text-xs text-[#637381] mt-0.5">
                     {row.id}
                   </span>
-                  <span className="md:text-xs text-[10px] text-gray-500">
-                    {row.project}
-                  </span>
                 </div>
               </td>
-              <td className="p-4 min-w-[120px] md:text-sm text-xs">
-                <div className="flex items-center gap-3">
-                  {row.assignedTo ? (
-                    <>
-                      <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-600 shrink-0">
-                        <User className="w-4 h-4 text-[#36A44A]" />
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="md:text-xs text-[10px] font-semibold text-gray-900">
-                          {row.assignedTo.name}
-                        </span>
-                        <span className="md:text-[10px] text-[8px] text-gray-400">
-                          1 person assigned
-                        </span>
-                      </div>
-                    </>
+              <td 
+                className="p-4 cursor-pointer hover:bg-gray-50 transition-colors"
+                onClick={() => navigate(`/projects/customerinfo/${row.customerId}`)}
+              >
+                <div className="flex items-center gap-2">
+                  {row.customer.image ? (
+                    <img src={row.customer.image} alt={row.customer.name} className="w-8 h-8 rounded-full object-cover" />
                   ) : (
-                    <button className="flex items-center gap-2 group">
-                      <div className="w-8 h-8 rounded-lg bg-[#DCFCE7] border border-emerald-100 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-100 transition-colors">
-                        <UserPlus className="w-4 h-4 text-[#36A44A]" />
-                      </div>
-                      <span className="text-sm font-medium text-blue-600">
-                        Assign
-                      </span>
-                    </button>
+                    <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                      {row.customer.name.charAt(0)}
+                    </div>
                   )}
-                </div>
-              </td>
-              <td className="p-4">
-                <div className="flex flex-col gap-1.5">
-                  <div className="flex items-center gap-1">
-                    {[1, 2, 3, 4, 5].map((step) => (
-                      <div
-                        key={step}
-                        className={`w-[10px] h-[10px] rounded-full ${
-                          step <= row.progress
-                            ? "bg-emerald-400"
-                            : "bg-gray-200"
-                        }`}
-                      ></div>
-                    ))}
-                  </div>
-                  <span className="text-xs font-medium text-blue-600">
-                    Step {row.progress}/7
+                  <span className="font-inter text-sm text-[#637381]">
+                    {row.customer.name}
                   </span>
                 </div>
+              </td>
+              <td className="p-4 text-center font-inter font-semibold text-sm text-black">
+                {row.buildings}
               </td>
               <td className="p-4">
                 <span
-                  className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-normal
-                  ${
-                    row.status === "Quotation Sent"
-                      ? "bg-[#FFF6E8] text-[#BA6D36]"
-                      : "bg-[#F3E8FF] text-[#7336BA]"
-                  }
-                `}
+                  className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-inter font-normal ${getStatusStyles(row.status)}`}
                 >
                   {row.status}
                 </span>
               </td>
-              <td className="p-4 md:text-sm text-[10px] min-w-[120px]">
-                <span className="text-sm font-bold text-gray-900">
-                  {row.quoteValue}
-                </span>
+              <td className="p-4 text-sm font-inter font-semibold text-black">
+                {row.quoteValue}
               </td>
               <td className="p-4">
                 <button
-                onClick={()=>navigate(`/communication`)}
-                  className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-[#3C40AF] rounded-lg 
-                  hover:bg-blue-100 transition-colors text-xs font-medium relative group"
+                  onClick={() => navigate(`/communication`)}
+                  className="flex items-center gap-2 px-4 py-1.5 bg-[#F2F6FF] text-[#446DF6] rounded-md hover:bg-blue-100 transition-colors text-xs font-semibold relative group border border-[#DBEAFE]"
                 >
-                  <MessageSquare
-                    strokeWidth={1}
-                    className="w-4 h-4 text-[#3C40AF]"
-                  />
+                  <MessageSquare size={14} className="text-[#446DF6]" />
                   Chat
                   {row.unreadMessages > 0 && (
-                    <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-full shadow-sm border border-white">
+                    <span className="absolute -top-2 -right-2 bg-[#EF4444] text-white  w-6 h-6 flex items-center justify-center rounded-full font-normal text-sm border border-white">
                       {row.unreadMessages}
                     </span>
                   )}
                 </button>
               </td>
               <td className="p-4 text-center">
-                <button
-                  onClick={() => onViewDetails(row)}
-                  className="p-1.5 hover:bg-gray-100 rounded-lg text-blue-600 transition-colors"
-                >
-                  <Eye strokeWidth={2} className="w-5 h-5 text-[#3C40AF]" />
-                </button>
+                <div className="flex items-center justify-center gap-8">
+                  <button
+                    // onClick={() => onViewDetails(row as any)}
+                    className="text-[#3C40AF] hover:opacity-80 transition-opacity"
+                  >
+                    <Eye size={20} />
+                  </button>
+                  <button className="text-[#B37878] hover:opacity-80 transition-opacity">
+                    <FileText size={18} />
+                  </button>
+                </div>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
-
+      </div>
       <Pagination
         totalItems={5}
         itemsPerPage={5}

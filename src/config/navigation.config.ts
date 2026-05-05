@@ -4,6 +4,7 @@ import MenuIcon3 from "@/assets/MenuIcon3.svg";
 import MenuIcon4 from "@/assets/menuIcon4.svg";
 import MenuIcon5 from "@/assets/menuIcon5.svg";
 import MenuIcon6 from "@/assets/menuIcon6.svg";
+import ProjectManagementIcon from "@/assets/icon/sidebar/projectsIcon.svg";
 
 export type SubNavItem = {
   label: string;
@@ -24,6 +25,12 @@ export const NAV_ITEMS: NavItem[] = [
     color: "bg-[#FD8D5B]",
     icon: MenuIcon1,
     path: "/dashboard",
+  },
+  {
+    title: "Projects",
+    color: "bg-[#EAB308]",
+    icon: ProjectManagementIcon,
+    path: "/projects",
   },
 
   {

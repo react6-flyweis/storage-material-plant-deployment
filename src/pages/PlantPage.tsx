@@ -1,9 +1,7 @@
-import StatCard from "@/components/ui/stat-card";
-import DashboardWidgets from "@/components/DashboardWidgets";
-import InventoryTable from "@/components/InventoryTable";
-import KPICard from "@/components/KPICard";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import type { Column } from "@/components/Table";
-import { flteredMockInventoryData, mockInventoryData, mockMachineUsageData } from "@/data/mockData";
+import { flteredMockInventoryData, mockInventoryData, mockMachineUsageData, filterMockMachineUsageData } from "@/data/mockData";
 import HammerIcon from "@/assets/hammerIcon.svg";
 import CheckedShieldIcon from "@/assets/checkedShieldIcon.svg";
 import YellowDollerIcon from "@/assets/yellowDollerIcon.svg";
@@ -14,9 +12,20 @@ import InvoiceDueIcon from "@/assets/InvoiceDueIcon.svg";
 import ExpensesIcon from "@/assets/ExpensesIcon.svg";
 import TitleSubtitle from "@/components/common_component/TitleSubtitle";
 import { dashboardText } from "@/data/text/DashboardText";
-import FilterTabs from "@/components/common_component/FilterTabs";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import ProductionOverview from "@/components/ProductionOverview";
+import PlantDataGrids from "@/components/PlantDataGrids";
+import RecentShipperFilesTable from "@/components/RecentShipperFilesTable";
+import DrawingApprovalStatusTable from "@/components/DrawingApprovalStatusTable";
+import SubHeading from "@/components/common_component/SubHeading";
+import {
+  productionMetricsByFilter,
+  shipperFilesByFilter,
+  plantAlertsByFilter,
+  freightCarriersByFilter,
+  recentShipperFilesByFilter,
+  drawingApprovalStatusByFilter,
+} from "@/data/productionMockData";
+
 
 export type TabType = "today" | "week" | "month";
 
@@ -28,31 +37,34 @@ export const DashboardStatsByFilter: Record<
   }[]
 > = {
   today: [
-    { title: "Total Equipment", value: "247 units" },
-    { title: "Available", value: "89" },
-    { title: "In Use", value: "124" },
-    { title: "Under Maintenance", value: "34" },
+    { title: "Total Projects", value: "04" },
+    { title: "In Production", value: "89" },
+    { title: "Ready to Dispatch", value: "124" },
+    { title: "Dispatched Today", value: "34" },
+    { title: "Pending Approval", value: "18" },
   ],
 
   week: [
-    { title: "Total Equipment", value: "312 units" },
-    { title: "Available", value: "102" },
-    { title: "In Use", value: "156" },
-    { title: "Under Maintenance", value: "54" },
+    { title: "Total Projects", value: "04" },
+    { title: "In Production", value: "102" },
+    { title: "Ready to Dispatch", value: "156" },
+    { title: "Dispatched Today", value: "54" },
+    { title: "Pending Approval", value: "18" },
   ],
 
   month: [
-    { title: "Total Equipment", value: "320 units" },
-    { title: "Available", value: "168" },
-    { title: "In Use", value: "98" },
-    { title: "Under Maintenance", value: "54" },
+    { title: "Total Projects", value: "04" },
+    { title: "In Production", value: "168" },
+    { title: "Ready to Dispatch", value: "98" },
+    { title: "Dispatched Today", value: "54" },
+    { title: "Pending Approval", value: "18" },
   ],
 } as const;
 
 export const icons = [
   {
     icon: <img src={HammerIcon} alt="leads" className="md:size-6 size-4" />,
-    color: "bg-[#1D51A4]",
+    color: "bg-[#3B82F6]",
   },
   {
     icon: (
@@ -69,6 +81,12 @@ export const icons = [
       <img src={YellowDollerIcon} alt="value" className="md:size-6 size-4" />
     ),
     color: "bg-[#F59E0B]",
+  },
+  {
+    icon: (
+      <img src={SalmonGraphIcon} alt="revenue" className="md:size-6 size-4" />
+    ),
+    color: "bg-[#6840D4]",
   },
   {
     icon: (
@@ -179,173 +197,55 @@ const kpiVisuals = [
   },
 ];
 
+const filterLabels: Record<TabType, string> = {
+  today: "Today",
+  week: "This Week",
+  month: "This Month",
+};
+
 const PlantPage = () => {
-  const [activeTab, setActiveTab] = useState<TabType>("month");
-  const navigate = useNavigate()
+  const [activeTab, setActiveTab] = useState<TabType>("today");
+  const navigate = useNavigate();
 
-  const inventoryColumns: Column<(typeof mockInventoryData)[0]>[] = [
-    {
-      header: "Material",
-      accessor: (row) => <span className="text-gray-900">{row.material}</span>,
-    },
-    {
-      header: "Current Stock",
-      accessor: (row) => (
-        <span className="font-semibold">{row.currentStock}</span>
-      ),
-    },
-    {
-      header: "Unit",
-      accessor: (row) => row.unit,
-    },
-    {
-      header: "Min Level",
-      accessor: (row) => row.minLevel,
-    },
-    {
-      header: "Status",
-      accessor: (row) => row.status,
-    },
-    {
-      header: "Action",
-      accessor: (row) => (
-        <button
-        onClick={()=>navigate('/equipment_management')}
-          className={`px-4 py-1.5 rounded-full text-xs font-medium w-24 text-center transition-colors ${
-            row.action === "Reorder"
-              ? "bg-green-100 text-green-700 hover:bg-green-200"
-              : "bg-blue-100 text-blue-700 hover:bg-blue-200"
-          }`}
-        >
-          {row.action}
-        </button>
-      ),
-      className: "text-center",
-      cellClassName: "text-right",
-    },
-  ];
+  const productionMetrics = productionMetricsByFilter[activeTab];
+  const shipperFiles = shipperFilesByFilter[activeTab];
+  const alerts = plantAlertsByFilter[activeTab];
+  const carriers = freightCarriersByFilter[activeTab];
 
-  const machineColumns: Column<(typeof mockMachineUsageData)[0]>[] = [
-    {
-      header: "Equipment",
-      accessor: (row) => <span className="text-gray-600">{row.equipment}</span>,
-    },
-    {
-      header: "Type",
-      accessor: (row) => <span className="text-gray-500">{row.type}</span>,
-    },
-    {
-      header: "Last Service",
-      accessor: (row) => (
-        <span className="text-gray-900 font-medium">{row.lastService}</span>
-      ),
-    },
-    {
-      header: "Next Due",
-      accessor: (row) => (
-        <span className="text-gray-900 font-medium">{row.nextDue}</span>
-      ),
-    },
-    {
-      header: "Priority",
-      accessor: (row) => (
-        <div className="flex items-center gap-2">
-          <span
-            className={`w-3 h-3 rounded-full ${row.priorityColor} shadow-sm`}
-          ></span>
-          <span className="text-gray-700">{row.priority}</span>
-        </div>
-      ),
-    },
-    {
-      header: "Action",
-      accessor: (row) => (
-        <button
-        onClick={()=>navigate('/equipment_management')}
-          className={`px-4 py-1.5 rounded-full text-xs font-medium w-24 text-center transition-colors ${
-            row.priority === "High" || row.priority === "Scheduled"
-              ? "bg-[#D1FAE5] text-[#065F46] hover:bg-green-200" // Light green button for "Reorder" look
-              : "bg-[#DBEAFE] text-[#1E40AF] hover:bg-blue-200" // Light blue for "View"
-          }`}
-        >
-          {row.priority === "High" || row.priority === "Scheduled"
-            ? "Reorder"
-            : "View"}
-        </button>
-      ),
-      className: "text-center",
-      cellClassName: "text-right",
-    },
-  ];
-  const stats = DashboardStatsByFilter[activeTab];
-  const kpis = materialKpisByFilter[activeTab];
   return (
-    // <div className="xl:pr-5 px-2 md:pt-5 pb-10 space-y-6">
-    <div className="xl:px-0 px-2 pb-10 space-y-6">
-      <FilterTabs activeTab={activeTab} onChange={setActiveTab} />
-      <TitleSubtitle
-        title={dashboardText.header.title}
-        subtitle={dashboardText.header.subtitle}
+    <div className="xl:px-0 px-2 pb-10 space-y-6 pt-4">
+      {/* Header: Title + FilterTabs */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <TitleSubtitle
+          title={dashboardText.header.title}
+          subtitle={dashboardText.header.subtitle}
+        />
+      </div>
+      {/* Production Overview (new) */}
+      <ProductionOverview
+        metrics={productionMetrics}
+        filterLabel={filterLabels[activeTab]}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+      />
+      {/* Dashboard Grids */}
+      <PlantDataGrids
+        shipperFiles={shipperFiles}
+        alerts={alerts}
+        carriers={carriers}
       />
 
-      <div className="grid grid-cols-2 xs:grid-cols-2 md:grid-cols-2 xl:grid-cols-4 xl:gap-4 gap-3">
-        {stats.map((stat, index) => (
-          <StatCard
-            key={stat.title}
-            title={stat.title}
-            value={stat.value}
-            icon={icons[index].icon}
-            color={icons[index].color}
-          />
-        ))}
+      {/* Recent Shipper Files Table */}
+      <div className="space-y-4">
+        <SubHeading text="Recent Shipper Files" />
+        <RecentShipperFilesTable data={recentShipperFilesByFilter[activeTab]} />
       </div>
 
-      <h2 className="xl:text-2xl text-lg font-semibold text-black xl:mt-10 ">
-        Inventory KPIs
-      </h2>
-
-      {/* KPI Cards Row */}
-      <div className="grid grid-cols-2 md:grid-cols-2 xl:grid-cols-4 xl:gap-4 gap-3">
-        {kpis.map((kpi, index) => {
-          const visual = kpiVisuals[index];
-
-          return (
-            <KPICard
-              key={kpi.subtext}
-              title=""
-              value={kpi.value}
-              subtext={kpi.subtext}
-              trend={kpi.trend}
-              icon={visual.icon}
-              iconBgColor={visual.iconBgColor}
-              iconColor={visual.iconColor}
-            />
-          );
-        })}
+      {/* Drawing Approval Status Table */}
+      <div className="space-y-4">
+        <SubHeading text="Drawing Approval Status" />
+        <DrawingApprovalStatusTable data={drawingApprovalStatusByFilter[activeTab]} />
       </div>
-
-      {/* Render Inventory Table */}
-      <InventoryTable
-        title="Material Inventory Snapshot"
-        columns={inventoryColumns}
-        data={flteredMockInventoryData[activeTab]}
-        footer={
-          <div className="flex items-center gap-2 text-xs text-gray-600">
-            <span className="font-medium">
-              🔔 2 items below minimum stock • 1 pending purchase request
-            </span>
-          </div>
-        }
-      />
-      <DashboardWidgets />
-
-      {/* Render Machine Usage Table */}
-      <InventoryTable
-        title="Machine usage & maintenance reminders"
-        columns={machineColumns}
-        data={mockMachineUsageData}
-        onViewAll={() => navigate("/equipment_management")}
-      />
     </div>
   );
 };

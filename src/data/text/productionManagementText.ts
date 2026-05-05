@@ -1,6 +1,6 @@
 export const productionManagementText = {
   header: {
-    title: "Production Management",
-    subtitle: "Assign and view leads",
+    title: "Projects",
+    subtitle: "Manage your assigned leads and track their progress.",
   },
 };

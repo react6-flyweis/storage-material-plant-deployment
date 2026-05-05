@@ -21,6 +21,8 @@ import type { TabType } from "@/pages/PlantPage";
 import SuccessModal from "./common_component/SuccessModal";
 
 
+import { UserPlus, Check, CircleDollarSign, BarChart3, Upload, Download, ChartSpline, ArrowUpToLine, ArrowDownToLine } from "lucide-react";
+
 const equipmentStatsByFilter: Record<
   TabType,
   {
@@ -32,91 +34,79 @@ const equipmentStatsByFilter: Record<
 > = {
   today: [
     {
-      title: "Total Leads",
-      value: "8",
-      icon: <img src={HammerIcon} alt="equipment" className="md:size-6 size-4" />,
-      color: "bg-[#1D51A4]",
+      title: "Total Projects",
+      value: "4",
+      icon: <UserPlus className="md:size-6 size-4" />,
+      color: "bg-[#1E51A4]",
     },
     {
-      title: "Active",
-      value: "3",
-      icon: <img src={CheckIcon} alt="active" className="md:size-4 size-3" />,
+      title: "Active Projects",
+      value: "1",
+      icon: <Check className="md:size-6 size-4" />,
       color: "bg-[#3AB449]",
     },
     {
-      title: "Unassigned",
-      value: "4",
-      icon: (
-        <img src={YellowDollerIcon} alt="unassigned" className="md:size-6 size-4" />
-      ),
-      color: "bg-[#F59E0B]",
+      title: "Pending Customer Approval",
+      value: "1",
+      icon: <CircleDollarSign className="md:size-6 size-4" />,
+      color: "bg-[#EAB308]",
     },
     {
-      title: "Unread Messages",
-      value: "1",
-      icon: (
-        <img src={SalmonGraphIcon} alt="messages" className="md:size-6 size-4" />
-      ),
+      title: "Canceled Projects",
+      value: "0",
+      icon: <ChartSpline className="md:size-6 size-4" />,
       color: "bg-[#FD8D5B]",
     },
   ],
   week: [
     {
-      title: "Total Leads",
-      value: "7",
-      icon: <img src={HammerIcon} alt="equipment" className="md:size-6 size-4" />,
-      color: "bg-[#1D51A4]",
+      title: "Total Projects",
+      value: "12",
+      icon: <UserPlus className="md:size-6 size-4" />,
+      color: "bg-[#1E51A4]",
     },
     {
-      title: "Active",
-      value: "6",
-      icon: <img src={CheckIcon} alt="active" className="md:size-4 size-3" />,
+      title: "Active Projects",
+      value: "8",
+      icon: <Check className="md:size-6 size-4" />,
       color: "bg-[#3AB449]",
     },
     {
-      title: "Unassigned",
-      value: "4",
-      icon: (
-        <img src={YellowDollerIcon} alt="unassigned" className="md:size-6 size-4" />
-      ),
-      color: "bg-[#F59E0B]",
+      title: "Pending Customer Approval",
+      value: "3",
+      icon: <CircleDollarSign className="md:size-6 size-4" />,
+      color: "bg-[#EAB308]",
     },
     {
-      title: "Unread Messages",
-      value: "2",
-      icon: (
-        <img src={SalmonGraphIcon} alt="messages" className="md:size-6 size-4" />
-      ),
+      title: "Canceled Projects",
+      value: "1",
+      icon: <ChartSpline className="md:size-6 size-4" />,
       color: "bg-[#FD8D5B]",
     },
   ],
   month: [
     {
-      title: "Total Leads",
-      value: "2",
-      icon: <img src={HammerIcon} alt="equipment" className="md:size-6 size-4" />,
-      color: "bg-[#1D51A4]",
+      title: "Total Projects",
+      value: "45",
+      icon: <UserPlus className="md:size-6 size-4" />,
+      color: "bg-[#1E51A4]",
     },
     {
-      title: "Active",
-      value: "23",
-      icon: <img src={CheckIcon} alt="active" className="md:size-4 size-3" />,
+      title: "Active Projects",
+      value: "32",
+      icon: <Check className="md:size-6 size-4" />,
       color: "bg-[#3AB449]",
     },
     {
-      title: "Unassigned",
-      value: "14",
-      icon: (
-        <img src={YellowDollerIcon} alt="unassigned" className="md:size-6 size-4" />
-      ),
-      color: "bg-[#F59E0B]",
+      title: "Pending Customer Approval",
+      value: "10",
+      icon: <CircleDollarSign className="md:size-6 size-4" />,
+      color: "bg-[#EAB308]",
     },
     {
-      title: "Unread Messages",
-      value: "1",
-      icon: (
-        <img src={SalmonGraphIcon} alt="messages" className="md:size-6 size-4" />
-      ),
+      title: "Canceled Projects",
+      value: "3",
+      icon: <ChartSpline className="md:size-6 size-4" />,
       color: "bg-[#FD8D5B]",
     },
   ],
@@ -144,44 +134,44 @@ const ProductionManagementView = () => {
 
   const leadsData = [
     {
-      id: "Q-2025-1047",
-      name: "John Doe",
-      project: "Industrial Workshop . Texas",
-      assignedTo: null,
-      progress: 4,
-      status: "Pending",
+      id: "Workshop . Texas",
+      customerId: "ID-2025-1047",
+      name: "ABC Constructions",
+      customer: { name: "John Doe", image: "https://i.pravatar.cc/150?u=1" },
+      buildings: 1,
+      status: "Approved",
       quoteValue: "$12,500",
       unreadMessages: 2,
     },
     {
-      id: "Q-2025-1048",
-      name: "Sarah Lee",
-      project: "Commercial Plaza . Nevada",
-      assignedTo: { name: "Alex" },
-      progress: 4,
-      status: "Confirmed",
-      quoteValue: "$45,000",
-      unreadMessages: 1,
+      id: "Warehouse . Texas",
+      customerId: "ID-2025-1048",
+      name: "PQR Warehouse",
+      customer: { name: "Roahan Sharma", image: "https://i.pravatar.cc/150?u=2" },
+      buildings: 4,
+      status: "BOM Ready",
+      quoteValue: "$12,500",
+      unreadMessages: 2,
     },
     {
-      id: "Q-2025-1049",
-      name: "Michael",
-      project: "Residential Villa . Florida",
-      assignedTo: { name: "Sam" },
-      progress: 4,
-      status: "Pending",
-      quoteValue: "$95,000",
-      unreadMessages: 0,
+      id: "Workshop . Texas",
+      customerId: "ID-2025-1049",
+      name: "XYZ Mall Building",
+      customer: { name: "Riyaz Verma", image: "https://i.pravatar.cc/150?u=3" },
+      buildings: 2,
+      status: "Shipper File Received",
+      quoteValue: "$12,500",
+      unreadMessages: 2,
     },
     {
-      id: "Q-2025-1050",
-      name: "David",
-      project: "Industrial Plant . Ohio",
-      assignedTo: null,
-      progress: 4,
-      status: "Confirmed",
-      quoteValue: "$220,000",
-      unreadMessages: 4,
+      id: "Workshop . Texas",
+      customerId: "ID-2025-1050",
+      name: "MNP Warehouse",
+      customer: { name: "Riya Wellness", image: "https://i.pravatar.cc/150?u=4" },
+      buildings: 1,
+      status: "Shipper File Received",
+      quoteValue: "$12,500",
+      unreadMessages: 2,
     },
   ];
 
@@ -190,69 +180,57 @@ const ProductionManagementView = () => {
     return leadsData.filter((lead) => {
       const matchBuilding =
         buildingType === "all" ||
-        lead.project.toLowerCase().includes(buildingType);
-
-      const numericValue = Number(
-        lead.quoteValue.replace(/[^0-9]/g, "")
-      );
-
-      const matchValue =
-        projectValue === "all" ||
-        (projectValue === "low" && numericValue < 50000) ||
-        (projectValue === "medium" &&
-          numericValue >= 50000 &&
-          numericValue <= 150000) ||
-        (projectValue === "high" && numericValue > 150000);
-
-      const matchAssignment =
-        assignment === "all" ||
-        (assignment === "assigned" && !!lead.assignedTo) ||
-        (assignment === "unassigned" && !lead.assignedTo);
+        lead.id.toLowerCase().includes(buildingType);
 
       const matchStatus =
         status === "all" ||
-        lead.status.toLowerCase() === status;
+        lead.status.toLowerCase().includes(status.toLowerCase());
 
       return (
         matchBuilding &&
-        matchValue &&
-        matchAssignment &&
         matchStatus
       );
     });
-  }, [buildingType, projectValue, assignment, status]);
+  }, [buildingType, status]);
 
-  const stats = equipmentStatsByFilter[activeTab] ?? [];
+  const stats = [
+    {
+      title: "Total Projects",
+      value: "4",
+      icon: <UserPlus className="md:size-6 size-4 text-[#1E51A4]" />,
+      color: "bg-[#1E51A4]",
+    },
+    {
+      title: "Active Projects",
+      value: "1",
+      icon: <Check className="md:size-6 size-4 text-[#3AB449]" />,
+      color: "bg-[#3AB449]",
+    },
+    {
+      title: "Pending Customer Approval",
+      value: "1",
+      icon: <CircleDollarSign className="md:size-6 size-4 text-[#EAB308]" />,
+      color: "bg-[#EAB308]",
+    },
+    {
+      title: "Canceled Projects",
+      value: "0",
+      icon: <ChartSpline className="md:size-6 size-4 text-[#FD8D5B]" />,
+      color: "bg-[#FD8D5B]",
+    },
+  ];
 
   return (
     <div className="xl:pr-5 px-2 pb-10 space-y-6">
-      <FilterTabs activeTab={activeTab} onChange={setActiveTab} />
-
       <div className="flex items-center justify-between flex-wrap mt-1 mb-6">
         <TitleSubtitle
           title={productionManagementText.header.title}
           subtitle={productionManagementText.header.subtitle}
         />
-
-        <button
-          onClick={() => setIsUploadModalOpen(true)}
-          className="ml-auto mt-2 bg-(--button-bg-primary-color) text-white px-4 py-2 rounded-lg font-medium shadow-sm hover:opacity-80 transition-colors flex items-center gap-2 text-sm"
-        >
-          <span>+</span> Upload Drawings & Images
-        </button>
       </div>
 
-      <UploadDrawingsModal
-        isOpen={isUploadModalOpen}
-        onClose={() => setIsUploadModalOpen(false)}
-        onSubmit={()=>{
-          setIsUploadModalOpen(false);
-          setIsSuccessModalOpen(true);
-        }}
-      />
-
       {/* Stats Row */}
-      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-5">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {stats.map((stat, index) => (
           <StatCard
             key={index}
@@ -264,57 +242,61 @@ const ProductionManagementView = () => {
         ))}
       </div>
 
-      {/* Filters Row */}
-      <div className="flex flex-wrap gap-3 mb-6 justify-end w-full">
-        {/* Building Types */}
-        <Select onValueChange={setBuildingType}>
-          <SelectTrigger className="w-fit sm:min-w-[150px] bg-white border border-gray-200 rounded-lg h-10 text-sm text-black">
-            <SelectValue placeholder="Building types" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Types</SelectItem>
-            <SelectItem value="industrial">Industrial</SelectItem>
-            <SelectItem value="commercial">Commercial</SelectItem>
-            <SelectItem value="residential">Residential</SelectItem>
-          </SelectContent>
-        </Select>
+      {/* Action Buttons & Filters */}
+      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 mb-6">
+        <div className="flex items-center gap-3">
+          <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors shadow-sm">
+            <ArrowUpToLine size={16} /> Import CSV
+          </button>
+          <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors shadow-sm">
+            <ArrowDownToLine size={16} /> Export Data
+          </button>
+        </div>
 
-        {/* Project Value */}
-        <Select onValueChange={setProjectValue}>
-          <SelectTrigger className="w-fit sm:min-w-[150px] bg-white border border-gray-200 rounded-lg h-10 text-sm text-black">
-            <SelectValue placeholder="Project value" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All</SelectItem>
-            <SelectItem value="low">Low</SelectItem>
-            <SelectItem value="medium">Medium</SelectItem>
-            <SelectItem value="high">High</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="flex flex-wrap gap-3 items-center">
+          <Select onValueChange={setProjectValue}>
+            <SelectTrigger className="w-[140px] bg-white border border-gray-200 rounded-lg h-10 text-sm text-black">
+              <SelectValue placeholder="Project" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Projects</SelectItem>
+            </SelectContent>
+          </Select>
 
-        {/* Assignments */}
-        <Select onValueChange={setAssignment}>
-          <SelectTrigger className="w-fit sm:min-w-[150px] bg-white border border-gray-200 rounded-lg h-10 text-sm text-black">
-            <SelectValue placeholder="All Assignments" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Assignments</SelectItem>
-            <SelectItem value="assigned">Assigned</SelectItem>
-            <SelectItem value="unassigned">Unassigned</SelectItem>
-          </SelectContent>
-        </Select>
+          <Select onValueChange={setAssignment}>
+            <SelectTrigger className="w-[180px] bg-white border border-gray-200 rounded-lg h-10 text-sm text-black">
+              <SelectValue placeholder="Select Customer" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Select Customer</SelectItem>
+              <SelectItem value="john">John Doe</SelectItem>
+              <SelectItem value="rohan">Rohan Palkan</SelectItem>
+              <SelectItem value="vijay">Vijay Chadda</SelectItem>
+            </SelectContent>
+          </Select>
 
-        {/* Status */}
-        <Select onValueChange={setStatus}>
-          <SelectTrigger className="w-fit sm:min-w-[150px] bg-white border border-gray-200 rounded-lg h-10 text-sm text-black">
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="confirmed">Confirmed</SelectItem>
-            <SelectItem value="pending">Pending</SelectItem>
-          </SelectContent>
-        </Select>
+          <Select onValueChange={setBuildingType}>
+            <SelectTrigger className="w-[160px] bg-white border border-gray-200 rounded-lg h-10 text-sm text-black">
+              <SelectValue placeholder="Building types" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Building types</SelectItem>
+              <SelectItem value="workshop">Workshop</SelectItem>
+              <SelectItem value="warehouse">Warehouse</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select onValueChange={setStatus}>
+            <SelectTrigger className="w-[140px] bg-white border border-gray-200 rounded-lg h-10 text-sm text-black">
+              <SelectValue placeholder="All Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="approved">Approved</SelectItem>
+              <SelectItem value="bom">BOM Ready</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {/* Table */}
@@ -327,11 +309,20 @@ const ProductionManagementView = () => {
         isOpen={isDetailsModalOpen}
         onClose={() => setIsDetailsModalOpen(false)}
       />
+      
+      <UploadDrawingsModal
+        isOpen={isUploadModalOpen}
+        onClose={() => setIsUploadModalOpen(false)}
+        onSubmit={()=>{
+          setIsUploadModalOpen(false);
+          setIsSuccessModalOpen(true);
+        }}
+      />
+      
       <SuccessModal
         isOpen={isSuccessModalOpen}
         onClose={() => setIsSuccessModalOpen(false)}
         title="Drawings Uploaded Successfully"
-        
       />
     </div>
   );
