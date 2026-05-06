@@ -1,7 +1,7 @@
 import React from "react";
 import Modal from "../Modal";
 import DrawingImg from "../../assets/drawingImg.svg";
-import { ArrowDown, Paperclip, X } from "lucide-react";
+import { ArrowDown, X } from "lucide-react";
 
 interface ViewDrawingModalProps {
   isOpen: boolean;
@@ -116,7 +116,7 @@ const ViewDrawingModal: React.FC<ViewDrawingModalProps> = ({
           </div>
 
           {/* Comment box only for Pending Review */}
-          {drawing.status === "Pending Review" && (
+          {/* {drawing.status === "Pending Review" && (
             <div className="flex gap-1 flex-wrap pt-6 w-full border-t border-gray-300 px-2 sm:px-6">
               <div className="flex sm:w-4/5 w-full flex-wrap items-center gap-2 border border-gray-200 rounded-xl sm:p-2 p-1 focus-within:ring-2 focus-within:ring-blue-100 transition-all">
                 <input
@@ -132,7 +132,7 @@ const ViewDrawingModal: React.FC<ViewDrawingModalProps> = ({
                 Send Comment
               </button>
             </div>
-          )}
+          )} */}
         </div>
       </div>
     </Modal>

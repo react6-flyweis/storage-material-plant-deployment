@@ -20,13 +20,13 @@ const SuccessModal: React.FC<SuccessModalProps> = ({
     <Modal isOpen={isOpen} onClose={onClose} width="max-w-lg" hideHeader={true}>
       <div className="flex flex-col items-center text-center justify-center">
         <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold text-black mb-1 mx-10">{title}</h2>
-       {subTitle && <h2 className="text-2xl font-semibold text-black mb-6">{subTitle}</h2>}
+       {subTitle && <h2 className="text-lg md:text-2xl font-semibold text-black mb-6">{subTitle}</h2>}
 
         <div className="md:-mt-6 md:-mb-6">
           <img
             src={SuccessModalCheckIcon}
             alt="Success"
-            className="md:w-65 md:h-65 w-40 h-40"
+            className="md:w-60 md:h-60 w-40 h-40"
           />
         </div>
 

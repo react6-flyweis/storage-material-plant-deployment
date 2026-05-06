@@ -2,10 +2,6 @@ import { useMemo, useState } from "react";
 import ProductionTable from "./ProductionTable";
 import UploadDrawingsModal from "./UploadDrawingsModal";
 import LeadsDetailsModal from "./leads/LeadsDetailsModal";
-import HammerIcon from "../assets/hammerIcon.svg";
-import YellowDollerIcon from "../assets/yellowDollerIcon.svg";
-import SalmonGraphIcon from "../assets/salmonGraphIcon.svg";
-import CheckIcon from "../assets/icon/GreenCheckIcon.svg";
 import StatCard from "./ui/stat-card";
 import TitleSubtitle from "./common_component/TitleSubtitle";
 import { productionManagementText } from "@/data/text/productionManagementText";
@@ -16,101 +12,99 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import FilterTabs from "./common_component/FilterTabs";
-import type { TabType } from "@/pages/PlantPage";
 import SuccessModal from "./common_component/SuccessModal";
 
 
-import { UserPlus, Check, CircleDollarSign, BarChart3, Upload, Download, ChartSpline, ArrowUpToLine, ArrowDownToLine } from "lucide-react";
+import { UserPlus, Check, CircleDollarSign, ChartSpline, ArrowUpToLine, ArrowDownToLine } from "lucide-react";
 
-const equipmentStatsByFilter: Record<
-  TabType,
-  {
-    title: string;
-    value: string;
-    icon: any;
-    color: string;
-  }[]
-> = {
-  today: [
-    {
-      title: "Total Projects",
-      value: "4",
-      icon: <UserPlus className="md:size-6 size-4" />,
-      color: "bg-[#1E51A4]",
-    },
-    {
-      title: "Active Projects",
-      value: "1",
-      icon: <Check className="md:size-6 size-4" />,
-      color: "bg-[#3AB449]",
-    },
-    {
-      title: "Pending Customer Approval",
-      value: "1",
-      icon: <CircleDollarSign className="md:size-6 size-4" />,
-      color: "bg-[#EAB308]",
-    },
-    {
-      title: "Canceled Projects",
-      value: "0",
-      icon: <ChartSpline className="md:size-6 size-4" />,
-      color: "bg-[#FD8D5B]",
-    },
-  ],
-  week: [
-    {
-      title: "Total Projects",
-      value: "12",
-      icon: <UserPlus className="md:size-6 size-4" />,
-      color: "bg-[#1E51A4]",
-    },
-    {
-      title: "Active Projects",
-      value: "8",
-      icon: <Check className="md:size-6 size-4" />,
-      color: "bg-[#3AB449]",
-    },
-    {
-      title: "Pending Customer Approval",
-      value: "3",
-      icon: <CircleDollarSign className="md:size-6 size-4" />,
-      color: "bg-[#EAB308]",
-    },
-    {
-      title: "Canceled Projects",
-      value: "1",
-      icon: <ChartSpline className="md:size-6 size-4" />,
-      color: "bg-[#FD8D5B]",
-    },
-  ],
-  month: [
-    {
-      title: "Total Projects",
-      value: "45",
-      icon: <UserPlus className="md:size-6 size-4" />,
-      color: "bg-[#1E51A4]",
-    },
-    {
-      title: "Active Projects",
-      value: "32",
-      icon: <Check className="md:size-6 size-4" />,
-      color: "bg-[#3AB449]",
-    },
-    {
-      title: "Pending Customer Approval",
-      value: "10",
-      icon: <CircleDollarSign className="md:size-6 size-4" />,
-      color: "bg-[#EAB308]",
-    },
-    {
-      title: "Canceled Projects",
-      value: "3",
-      icon: <ChartSpline className="md:size-6 size-4" />,
-      color: "bg-[#FD8D5B]",
-    },
-  ],
-};
+// const equipmentStatsByFilter: Record<
+//   TabType,
+//   {
+//     title: string;
+//     value: string;
+//     icon: any;
+//     color: string;
+//   }[]
+// > = {
+//   today: [
+//     {
+//       title: "Total Projects",
+//       value: "4",
+//       icon: <UserPlus className="md:size-6 size-4" />,
+//       color: "bg-[#1E51A4]",
+//     },
+//     {
+//       title: "Active Projects",
+//       value: "1",
+//       icon: <Check className="md:size-6 size-4" />,
+//       color: "bg-[#3AB449]",
+//     },
+//     {
+//       title: "Pending Customer Approval",
+//       value: "1",
+//       icon: <CircleDollarSign className="md:size-6 size-4" />,
+//       color: "bg-[#EAB308]",
+//     },
+//     {
+//       title: "Canceled Projects",
+//       value: "0",
+//       icon: <ChartSpline className="md:size-6 size-4" />,
+//       color: "bg-[#FD8D5B]",
+//     },
+//   ],
+//   week: [
+//     {
+//       title: "Total Projects",
+//       value: "12",
+//       icon: <UserPlus className="md:size-6 size-4" />,
+//       color: "bg-[#1E51A4]",
+//     },
+//     {
+//       title: "Active Projects",
+//       value: "8",
+//       icon: <Check className="md:size-6 size-4" />,
+//       color: "bg-[#3AB449]",
+//     },
+//     {
+//       title: "Pending Customer Approval",
+//       value: "3",
+//       icon: <CircleDollarSign className="md:size-6 size-4" />,
+//       color: "bg-[#EAB308]",
+//     },
+//     {
+//       title: "Canceled Projects",
+//       value: "1",
+//       icon: <ChartSpline className="md:size-6 size-4" />,
+//       color: "bg-[#FD8D5B]",
+//     },
+//   ],
+//   month: [
+//     {
+//       title: "Total Projects",
+//       value: "45",
+//       icon: <UserPlus className="md:size-6 size-4" />,
+//       color: "bg-[#1E51A4]",
+//     },
+//     {
+//       title: "Active Projects",
+//       value: "32",
+//       icon: <Check className="md:size-6 size-4" />,
+//       color: "bg-[#3AB449]",
+//     },
+//     {
+//       title: "Pending Customer Approval",
+//       value: "10",
+//       icon: <CircleDollarSign className="md:size-6 size-4" />,
+//       color: "bg-[#EAB308]",
+//     },
+//     {
+//       title: "Canceled Projects",
+//       value: "3",
+//       icon: <ChartSpline className="md:size-6 size-4" />,
+//       color: "bg-[#FD8D5B]",
+//     },
+//   ],
+// };
 
 /* ---------------- COMPONENT ---------------- */
 
@@ -119,13 +113,14 @@ const ProductionManagementView = () => {
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [_selectedLead, _setSelectedLead] = useState<any>(null);
     const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<TabType>("month");
+  // const [activeTab, setActiveTab] = useState<TabType>("month");
 
   /* ✅ FILTER STATES */
   const [buildingType, setBuildingType] = useState<string>("all");
   const [projectValue, setProjectValue] = useState<string>("all");
   const [assignment, setAssignment] = useState<string>("all");
   const [status, setStatus] = useState<string>("all");
+console.log("status",projectValue,assignment);
 
   const handleViewDetails = (lead: any) => {
     _setSelectedLead(lead);

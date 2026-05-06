@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { Eye, MessageSquare, FileEdit, FileText } from "lucide-react";
+import { Eye, MessageSquare, FileText } from "lucide-react";
 import Pagination from "./Pagination";
 
 interface Lead {
@@ -24,7 +24,7 @@ interface ProductionTableProps {
 
 const ProductionTable: React.FC<ProductionTableProps> = ({
   data,
-  onViewDetails,
+  // onViewDetails,
 }) => {
   const navigate = useNavigate();
 

@@ -17,7 +17,15 @@ import UsageTrackingView from "./components/equipment_allocation/UsageTrackingVi
 import NotificationsView from "./components/notifications/NotificationsView";
 import ProfileView from "./components/profile/ProfileView";
 import CustomerInfoView from "./components/CustomerInfoView";
+import AllProjectsView from "./components/projects/AllProjectsView";
+import ProjectDetailsView from "./components/projects/ProjectDetailsView";
+import BOMView from "./components/projects/BOMView";
+import GenerateShipperOrder from "./components/projects/GenerateShipperOrder";
+import ProjectDrawingsView from "./components/projects/ProjectDrawingsView";
 const Dashboard = lazy(() => import("@/pages/plantDashboard/PlantDashboard"));
+
+
+
 
 export const adminRoutes: RouteObject[] = [
   {
@@ -49,7 +57,29 @@ export const adminRoutes: RouteObject[] = [
         element: <CustomerInfoView />,
       },
       {
+        path: "/projects/all-projects/:id",
+        element: <AllProjectsView />,
+      },
+      {
+        path: "/projects/project-details/:customerId/:projectId",
+        element: <ProjectDetailsView />,
+      },
+      {
+        path: "/projects/view-bom/:customerId/:projectId",
+        element: <BOMView />,
+      },
+      {
+        path: "/projects/generate-shipper-order/:customerId/:projectId",
+        element: <GenerateShipperOrder />,
+      },
+      {
+        path: "/projects/view-drawings/:customerId/:projectId",
+        element: <ProjectDrawingsView />,
+      },
+      {
         path: "/communication",
+
+
         element: <CommunicationView />,
       },
       {

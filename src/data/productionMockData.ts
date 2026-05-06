@@ -207,6 +207,7 @@ export const drawingApprovalStatusByFilter: Record<TabType, DrawingApprovalStatu
 
 // ─── Customer Data (Dynamic View) ───────────────────────────────────────────
 export interface CustomerInfo {
+  location: string;
   id: string;
   name: string;
   joinedDate: string;
@@ -215,13 +216,32 @@ export interface CustomerInfo {
   email: string;
   address: string;
   image: string;
-  projects: { id: string; name: string; amount: string; status: string; startDate: string; endDate: string; }[];
+  projects: { 
+    id: string; 
+    name: string; 
+    building: string;
+    amount: string; 
+    status: string; 
+    stage: string;
+    progress: number;
+    startDate: string; 
+    endDate: string; 
+    buildingType?: string;
+    quoteValue: string;
+    createdOn: string;
+    location?: string;
+    salesPerson?: string;
+    contractDate?: string;
+  }[];
   invoices: { number: string; dueDate: string; amount: string; paid: string; dueAmount: string; status: string; }[];
+  recentActivity?: { building: string; action: string; date: string; }[];
+  notes: string[];
 }
 
 export const customersData: Record<string, CustomerInfo> = {
   "ID-2025-1047": {
     id: "ID-2025-1047",
+    location: "Manchester, NJ",
     name: "John Doe",
     joinedDate: "January 15, 2023",
     status: "Active",
@@ -230,19 +250,67 @@ export const customersData: Record<string, CustomerInfo> = {
     address: "1861 Bayonne Ave, Manchester, NJ, 08759",
     image: "https://i.pravatar.cc/150?u=1",
     projects: [
-      { id: "Project 1", name: "ABC Building", amount: "$50,000", status: "Completed", startDate: "Apr 02, 2024", endDate: "May 02, 2024" },
-      { id: "Project 2", name: "XYZ Building", amount: "$15,000", status: "Completed", startDate: "Apr 02, 2024", endDate: "May 02, 2024" },
-      { id: "Project 3", name: "PQR Building", amount: "$25,000", status: "In progress", startDate: "Apr 02, 2024", endDate: "May 02, 2024" },
+      { 
+        id: "ABC Warehouse", 
+        name: "ABC Warehouse", 
+        building: "2", 
+        amount: "$50,000", 
+        status: "Work in Progress", 
+        stage: "Shipment", 
+        progress: 75, 
+        startDate: "22 Feb 2025", 
+        endDate: "May 02, 2024",
+        buildingType: "Workshop",
+        quoteValue: "$12,500",
+        createdOn: "2024-10-10",
+        location: "1861 Bayone Ave, Manchester, NNJ, 098765",
+        salesPerson: "Sarah Lee",
+        contractDate: "12 April 2025"
+      },
+      { 
+        id: "Tech Park Dev", 
+        name: "Tech Park Dev", 
+        building: "1", 
+        amount: "$15,000", 
+        status: "🟢 Active", 
+        stage: "Engineering", 
+        progress: 30, 
+        startDate: "07 Feb 2025", 
+        endDate: "May 02, 2024",
+        buildingType: "Commercial",
+        quoteValue: "$15,000",
+        createdOn: "2024-11-15",
+        location: "Tech Park, Chicago, IL",
+        salesPerson: "Michael Brown",
+        contractDate: "20 April 2025"
+      },
+      { id: "Downtown Plaza", name: "Downtown Plaza", building: "3", amount: "$25,000", status: "⚫ Completed", stage: "Completed", progress: 100, startDate: "30 Jan 2025", endDate: "May 02, 2024", buildingType: "", quoteValue: "", createdOn: "", location: "", salesPerson: "", contractDate: "" },
+      { id: "Riverside Complex", name: "Riverside Complex", building: "1", amount: "$120,000", status: "Canceled", stage: "Canceled", progress: 0, startDate: "17 Jan 2025", endDate: "May 02, 2024", buildingType: "", quoteValue: "", createdOn: "", location: "", salesPerson: "", contractDate: "" },
     ],
     invoices: [
       { number: "INV001", dueDate: "24 Dec 2024", amount: "$500", paid: "$500", dueAmount: "$0", status: "Paid" },
       { number: "INV002", dueDate: "10 Dec 2024", amount: "$1500", paid: "$1500", dueAmount: "$0", status: "Paid" },
       { number: "INV003", dueDate: "27 Nov 2024", amount: "$600", paid: "$600", dueAmount: "$0", status: "Paid" },
       { number: "INV004", dueDate: "18 Nov 2024", amount: "$1000", paid: "$0", dueAmount: "$1000", status: "Unpaid" },
+    ],
+    recentActivity: [
+      { building: "Building A", action: "Step updated: material request completed", date: "19 Jan 2025" },
+      { building: "Building B", action: "Additional material request #AMR-001 Created", date: "18 Jan 2025" },
+      { building: "Building C", action: "Material Check Completed", date: "18 Jan 2025" },
+      { building: "Building B", action: "BOM Review completed", date: "17 Jan 2025" },
+      { building: "", action: "2 unread messages", date: "17 Jan 2025" },
+    ],
+    notes: [
+      "Reliable for long-distance steel transport. Preferred carrier for Texas routes. Fast response time during bidding.",
+      "Reliable for long-distance steel transport. Preferred carrier for Texas routes. Fast response time during bidding.",
+      "Reliable for long-distance steel transport. Preferred carrier for Texas routes. Fast response time during bidding.",
+      "Reliable for long-distance steel transport. Preferred carrier for Texas routes. Fast response time during bidding.",
+      "Reliable for long-distance steel transport. Preferred carrier for Texas routes. Fast response time during bidding.",
     ]
   },
   "ID-2025-1048": {
     id: "ID-2025-1048",
+    location: "Springfield, IL",
     name: "Roahan Sharma",
     joinedDate: "February 10, 2023",
     status: "Active",
@@ -251,16 +319,42 @@ export const customersData: Record<string, CustomerInfo> = {
     address: "742 Evergreen Terrace, Springfield, IL, 62704",
     image: "https://i.pravatar.cc/150?u=2",
     projects: [
-      { id: "Project 1", name: "Tech Park 1", amount: "$120,000", status: "Completed", startDate: "Mar 15, 2024", endDate: "Jun 15, 2024" },
-      { id: "Project 2", name: "Tech Park 2", amount: "$85,000", status: "In progress", startDate: "Jun 20, 2024", endDate: "Sep 20, 2024" },
+      {
+        id: "Project 1", name: "Tech Park 1", amount: "$120,000", status: "Completed", startDate: "Mar 15, 2024", endDate: "Jun 15, 2024",
+        building: "",
+        stage: "",
+        progress: 0,
+        buildingType: "",
+        quoteValue: "",
+        createdOn: "",
+        location: "",
+        salesPerson: "",
+        contractDate: ""
+      },
+      {
+        id: "Project 2", name: "Tech Park 2", amount: "$85,000", status: "In progress", startDate: "Jun 20, 2024", endDate: "Sep 20, 2024",
+        building: "",
+        stage: "",
+        progress: 0,
+        buildingType: "",
+        quoteValue: "",
+        createdOn: "",
+        location: "",
+        salesPerson: "",
+        contractDate: ""
+      },
     ],
     invoices: [
       { number: "INV101", dueDate: "15 Mar 2024", amount: "$5000", paid: "$5000", dueAmount: "$0", status: "Paid" },
       { number: "INV102", dueDate: "01 Apr 2024", amount: "$2000", paid: "$0", dueAmount: "$2000", status: "Unpaid" },
+    ],
+    notes: [
+      "Reliable for long-distance steel transport. Preferred carrier for Texas routes. Fast response time during bidding.",
     ]
   },
   "ID-2025-1049": {
     id: "ID-2025-1049",
+    location: "London, UK",
     name: "Riyaz Verma",
     joinedDate: "March 05, 2023",
     status: "Active",
@@ -269,14 +363,29 @@ export const customersData: Record<string, CustomerInfo> = {
     address: "221B Baker St, London, NW1 6XE",
     image: "https://i.pravatar.cc/150?u=3",
     projects: [
-      { id: "Project 1", name: "Mall Complex", amount: "$250,000", status: "Completed", startDate: "Jan 10, 2024", endDate: "Dec 10, 2024" },
+      {
+        id: "Project 1", name: "Mall Complex", amount: "$250,000", status: "Completed", startDate: "Jan 10, 2024", endDate: "Dec 10, 2024",
+        building: "",
+        stage: "",
+        progress: 0,
+        buildingType: "",
+        quoteValue: "",
+        createdOn: "",
+        location: "",
+        salesPerson: "",
+        contractDate: ""
+      },
     ],
     invoices: [
       { number: "INV201", dueDate: "10 Jan 2024", amount: "$25000", paid: "$25000", dueAmount: "$0", status: "Paid" },
+    ],
+    notes: [
+      "Reliable for long-distance steel transport. Preferred carrier for Texas routes. Fast response time during bidding.",
     ]
   },
   "ID-2025-1050": {
     id: "ID-2025-1050",
+    location: "London, UK",
     name: "Riya Wellness",
     joinedDate: "April 12, 2023",
     status: "Active",
@@ -285,10 +394,24 @@ export const customersData: Record<string, CustomerInfo> = {
     address: "10 Downing St, London, SW1A 2AA",
     image: "https://i.pravatar.cc/150?u=4",
     projects: [
-      { id: "Project 1", name: "Gymnasium", amount: "$45,000", status: "In progress", startDate: "May 01, 2024", endDate: "Aug 01, 2024" },
+      {
+        id: "Project 1", name: "Gymnasium", amount: "$45,000", status: "In progress", startDate: "May 01, 2024", endDate: "Aug 01, 2024",
+        building: "",
+        stage: "",
+        progress: 0,
+        buildingType: "",
+        quoteValue: "",
+        createdOn: "",
+        location: "",
+        salesPerson: "",
+        contractDate: ""
+      },
     ],
     invoices: [
       { number: "INV301", dueDate: "01 May 2024", amount: "$4500", paid: "$4500", dueAmount: "$0", status: "Paid" },
+    ],
+    notes: [
+      "Reliable for long-distance steel transport. Preferred carrier for Texas routes. Fast response time during bidding.",
     ]
   }
 };

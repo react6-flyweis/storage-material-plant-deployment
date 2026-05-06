@@ -17,7 +17,8 @@
   --text-color-primary-blue: #1D51A4;
   --text-color-green: #3AB449;
   --text-color-green-2: #058A3D;
-
+  --text-color-brown: #A45736;
+  --text-color-orange: #AE7827;
   --text-color-gold: #EAB308;
   --text-color-salmon: #FD8D5B
   --text-color-gray: #949CA9;
@@ -25,6 +26,9 @@
   --text-color-gray-2: #4B5563;
   --text-color-black: #111827;
   --text-color-gray-3: #6B7280;
+  --text-color-gray-4: #5D6772;
+  --text-color-purple: #6155F5;
+  --text-color-purple-2: #7539FF;
   --button-bg-primary-color: #2563EB;
   --border-color-secondary: #E5E7EB;
   --radius: 0.625rem;

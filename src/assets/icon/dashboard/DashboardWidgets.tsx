@@ -204,7 +204,7 @@ const DashboardWidgets = () => {
               <div className="w-2 h-2 mt-1.5 rounded-full bg-[#3B82F6]" />
               <div>
                 <p className="text-sm text-gray-800 leading-relaxed font-medium">
-                  Project status Updated #OR987654
+                  Project status Updated
                 </p>
                 <p className="text-xs text-[#888888] mt-1">2 minutes ago</p>
               </div>

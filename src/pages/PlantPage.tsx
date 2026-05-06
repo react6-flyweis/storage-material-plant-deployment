@@ -1,15 +1,8 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import type { Column } from "@/components/Table";
-import { flteredMockInventoryData, mockInventoryData, mockMachineUsageData, filterMockMachineUsageData } from "@/data/mockData";
 import HammerIcon from "@/assets/hammerIcon.svg";
 import CheckedShieldIcon from "@/assets/checkedShieldIcon.svg";
 import YellowDollerIcon from "@/assets/yellowDollerIcon.svg";
 import SalmonGraphIcon from "@/assets/salmonGraphIcon.svg";
-import ProfitIcon from "@/assets/ProfitIcon.svg";
-import HashIcon from "@/assets/hashIcon.svg";
-import InvoiceDueIcon from "@/assets/InvoiceDueIcon.svg";
-import ExpensesIcon from "@/assets/ExpensesIcon.svg";
 import TitleSubtitle from "@/components/common_component/TitleSubtitle";
 import { dashboardText } from "@/data/text/DashboardText";
 import ProductionOverview from "@/components/ProductionOverview";
@@ -174,28 +167,28 @@ export const materialKpisByFilter: Record<
   ],
 } as const;
 
-const kpiVisuals = [
-  {
-    icon: <img src={ProfitIcon} alt="revenue" className="size-5" />,
-    iconBgColor: "bg-[#E9F8FB]",
-    iconColor: "text-[#06AED4]",
-  },
-  {
-    icon: <img src={InvoiceDueIcon} alt="revenue" className="size-5" />,
-    iconBgColor: "bg-[#E9F5F4]",
-    iconColor: "text-green-500",
-  },
-  {
-    icon: <img src={ExpensesIcon} alt="revenue" className="size-4" />,
-    iconBgColor: "bg-[#FCEFEA]",
-    iconColor: "text-orange-500",
-  },
-  {
-    icon: <img src={HashIcon} alt="revenue" className="size-4" />,
-    iconBgColor: "bg-[#EDEDFB]",
-    iconColor: "text-purple-500",
-  },
-];
+// const kpiVisuals = [
+//   {
+//     icon: <img src={ProfitIcon} alt="revenue" className="size-5" />,
+//     iconBgColor: "bg-[#E9F8FB]",
+//     iconColor: "text-[#06AED4]",
+//   },
+//   {
+//     icon: <img src={InvoiceDueIcon} alt="revenue" className="size-5" />,
+//     iconBgColor: "bg-[#E9F5F4]",
+//     iconColor: "text-green-500",
+//   },
+//   {
+//     icon: <img src={ExpensesIcon} alt="revenue" className="size-4" />,
+//     iconBgColor: "bg-[#FCEFEA]",
+//     iconColor: "text-orange-500",
+//   },
+//   {
+//     icon: <img src={HashIcon} alt="revenue" className="size-4" />,
+//     iconBgColor: "bg-[#EDEDFB]",
+//     iconColor: "text-purple-500",
+//   },
+// ];
 
 const filterLabels: Record<TabType, string> = {
   today: "Today",
@@ -205,7 +198,7 @@ const filterLabels: Record<TabType, string> = {
 
 const PlantPage = () => {
   const [activeTab, setActiveTab] = useState<TabType>("today");
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   const productionMetrics = productionMetricsByFilter[activeTab];
   const shipperFiles = shipperFilesByFilter[activeTab];
