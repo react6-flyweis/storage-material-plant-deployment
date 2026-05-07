@@ -24,39 +24,39 @@ const ViewDrawingModal: React.FC<ViewDrawingModalProps> = ({
 }) => {
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="" width="max-w-6xl">
-      <div className="flex flex-col h-full max-h-[90vh]">
+      <div className="flex flex-col h-full max-h-[80vh]">
         {/* Header */}
-        <div className="px-4 py-4 md:px-8 md:py-6 flex flex-col md:flex-row md:items-start md:justify-between border-b border-gray-100 bg-white sticky top-0 z-10 gap-4 md:gap-6">
+        <div className="px-4 py-0 flex flex-col md:flex-row md:items-start md:justify-between border-b border-gray-100 bg-white sticky top-0 z-10 gap-4 md:gap-6">
           <div>
             <h2 className="xl:text-xl md:text-2xl font-bold text-gray-900 leading-tight">
               {drawing.name}
             </h2>
-            <p className="text-gray-500 font-medium text-xs md:text-sm mt-1">
+            <p className="text-(--text-color-gray-2) font-medium text-xs md:text-sm mt-1">
               {drawing.id}
             </p>
           </div>
-          <div className="grid grid-cols-2 sm:flex sm:flex-wrap md:flex-nowrap gap-4 md:gap-12 text-left md:text-right">
+          <div className="mr-auto grid grid-cols-2 sm:flex sm:flex-wrap md:flex-nowrap gap-4 md:gap-12 font-inter text-black">
             <div>
-              <p className="text-[10px] text-gray-400 uppercase font-bold tracking-wider">
+              <p className="text-xs md:text-sm font-normal text-left">
                 Pune,
               </p>
-              <p className="text-xs md:text-sm font-semibold text-gray-900 mt-1">
+              <p className="text-xs md:text-sm font-normal mt-1">
                 {drawing.location}
               </p>
             </div>
             <div>
-              <p className="text-[10px] text-gray-400 uppercase font-bold tracking-wider">
+              <p className="text-xs md:text-sm font-normal text-left">
                 Uploaded By:
               </p>
-              <p className="text-xs md:text-sm font-semibold text-gray-900 mt-1">
+              <p className="text-xs md:text-sm font-normal mt-1">
                 {drawing.uploadedBy}
               </p>
             </div>
             <div className="col-span-2 sm:col-span-1">
-              <p className="text-[10px] text-gray-400 uppercase font-bold tracking-wider">
+              <p className="text-xs md:text-sm font-normal text-left">
                 Received on
               </p>
-              <p className="text-xs md:text-sm font-semibold text-gray-600 mt-1">
+              <p className="text-xs md:text-sm font-normal text-gray-600 mt-1">
                 {drawing.receivedDate}
               </p>
             </div>
@@ -70,8 +70,8 @@ const ViewDrawingModal: React.FC<ViewDrawingModalProps> = ({
         </div>
 
         {/* Content - Image Preview */}
-        <div className="flex-1 overflow-y-auto py-4 md:py-8 bg-gray-50 flex items-center justify-center min-h-[300px] md:min-h-[400px]">
-          <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 w-full flex items-center justify-center">
+        <div className="flex-1 overflow-y-auto py-4 flex items-center justify-center min-h-[300px] md:min-h-[400px]">
+          <div className="bg-white p-4 rounded-[14px] shadow-xs border border-gray-200 w-full flex items-center justify-center">
             <img
               src={DrawingImg}
               alt={drawing.name}
@@ -99,9 +99,14 @@ const ViewDrawingModal: React.FC<ViewDrawingModalProps> = ({
                   </span>
                 </div>
               ) : drawing.status === "Revision Required" ? (
-                <span className="px-5 py-1.5 bg-[#FFF7ED] text-[#FF9409] rounded-full text-sm font-normal border border-[#FFEDD5]">
-                  Sent for Revision
-                </span>
+                <div className="flex items-center gap-4">
+                  <p className="text-black text-sm font-normal">
+                    31-April-2025
+                  </p>
+                  <span className="px-5 py-1.5 bg-[#FFF7ED] text-[#FF9409] rounded-full text-sm font-normal border border-[#FFEDD5]">
+                    Revision Requested
+                  </span>
+                </div>
               ) : (
                 <>
                   <button className="px-5 py-1.5 bg-[#FF9409] text-white rounded-full text-sm font-normal shadow-sm shadow-orange-100">
@@ -114,6 +119,25 @@ const ViewDrawingModal: React.FC<ViewDrawingModalProps> = ({
               )}
             </div>
           </div>
+
+          {/* Revision Messages Section */}
+          {drawing.status === "Revision Required" && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-6 border-t border-gray-100 px-2 sm:px-6">
+              <div className="space-y-3">
+                <h3 className="text-lg font-bold text-gray-900">Revision Message</h3>
+                <p className="text-sm text-gray-800 leading-relaxed">
+                  Please update the building height to [value] and adjust door positions.
+                </p>
+              </div>
+              <div className="space-y-3 border-l-0 md:border-l border-gray-100 md:pl-8">
+                <h3 className="text-lg font-bold text-gray-900">Customer Suggestions</h3>
+                <p className="text-sm text-gray-800 leading-relaxed">
+                  We suggest increasing the roof slope for better drainage
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
 
           {/* Comment box only for Pending Review */}
           {/* {drawing.status === "Pending Review" && (
@@ -134,7 +158,6 @@ const ViewDrawingModal: React.FC<ViewDrawingModalProps> = ({
             </div>
           )} */}
         </div>
-      </div>
     </Modal>
   );
 };

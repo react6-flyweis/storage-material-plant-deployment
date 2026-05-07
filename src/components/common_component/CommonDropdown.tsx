@@ -30,7 +30,10 @@ const CommonDropdown: React.FC<CommonDropdownProps> = ({
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
       }
     };
@@ -41,7 +44,7 @@ const CommonDropdown: React.FC<CommonDropdownProps> = ({
   return (
     <div className={`flex flex-col gap-2 ${className}`} ref={dropdownRef}>
       {label && (
-        <label className="text-sm md:text-base font-inter font-normal text-black">
+        <label className="text-sm font-inter font-normal text-black">
           {label}
         </label>
       )}
@@ -51,7 +54,9 @@ const CommonDropdown: React.FC<CommonDropdownProps> = ({
           onClick={() => setIsOpen(!isOpen)}
           className="w-full flex items-center justify-between px-4 py-3 bg-[#F7F8F9] border border-[#E2E4E6] rounded-sm text-left focus:outline-none focus:ring focus:ring-blue-500/20 transition-all"
         >
-          <span className={`text-base font-inter ${selectedOption ? "text-black" : "text-gray-400"}`}>
+          <span
+            className={`text-base font-inter ${selectedOption ? "text-black" : "text-gray-400"}`}
+          >
             {selectedOption ? selectedOption.label : placeholder}
           </span>
           <ChevronDown
@@ -72,7 +77,9 @@ const CommonDropdown: React.FC<CommonDropdownProps> = ({
                     setIsOpen(false);
                   }}
                   className={`w-full px-4 py-3 text-left text-base font-inter hover:bg-gray-50 transition-colors ${
-                    value === option.value ? "bg-gray-50 text-blue-600 font-semibold" : "text-[#637381]"
+                    value === option.value
+                      ? "bg-gray-50 text-blue-600 font-semibold"
+                      : "text-[#637381]"
                   }`}
                 >
                   {option.label}

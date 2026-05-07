@@ -30,12 +30,12 @@ export default function StatCard({
           <p className="xl:text-base md:text-sm text-sm opacity-90">
             {title}
           </p>
-          <p className="xl:text-2xl md:text-lg text-base mt-1 w-[70px] sm:w-auto overflow-y-hidden overflow-x-auto">
+          <p className="xl:text-xl md:text-lg text-base mt-1 w-[70px] sm:w-auto overflow-y-hidden overflow-x-auto">
             {value}
           </p>
         </div>
 
-        <div className="bg-white md:p-1.5 md:h-10 md:w-10 p-0 h-7 w-7 flex items-center justify-center rounded-md ml-auto">
+        <div className="bg-white md:p-1.5 md:h-8 md:w-8 p-0 h-7 w-7 flex items-center justify-center rounded-md ml-auto">
           {icon}
         </div>
       </div>

@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import Modal from "../Modal";
-import { ChevronDownIcon } from "lucide-react";
+import CommonDropdown from "../common_component/CommonDropdown";
+import Button from "../common_component/Button";
 
 interface AddMaterialModalProps {
   isOpen: boolean;
@@ -13,6 +14,9 @@ const AddMaterialModal: React.FC<AddMaterialModalProps> = ({
   onClose,
   onSubmit, 
 }) => {
+  const [material, setMaterial] = useState("Cement OPC 53");
+  const [category, setCategory] = useState("Cement");
+  const [unit, setUnit] = useState("Bags");
   return (
     <Modal
       isOpen={isOpen}
@@ -24,38 +28,30 @@ const AddMaterialModal: React.FC<AddMaterialModalProps> = ({
         <div className="overflow-y-auto pr-2 max-h-[600px] scrollbar-thin scrollbar-thumb-gray-200">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-2">
             {/* Material Name */}
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-gray-700">
-                Material Name*
-              </label>
-              <div className="relative">
-                <select className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-gray-700">
-                  <option>Cement OPC 53</option>
-                  <option>Steel TMT Bars</option>
-                  <option>River Sand</option>
-                </select>
-                <div className="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-gray-500">
-                  <ChevronDownIcon className="text-muted-foreground size-4 pointer-events-none" />
-                </div>
-              </div>
-            </div>
+            <CommonDropdown
+              label="Material Name*"
+              value={material}
+              onChange={setMaterial}
+              options={[
+                { label: "Cement OPC 53", value: "Cement OPC 53" },
+                { label: "Steel TMT Bars", value: "Steel TMT Bars" },
+                { label: "River Sand", value: "River Sand" },
+              ]}
+              className="w-full"
+            />
 
             {/* Category */}
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-gray-700">
-                Category*
-              </label>
-              <div className="relative">
-                <select className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-gray-700">
-                  <option>Cement</option>
-                  <option>Steel</option>
-                  <option>Aggregates</option>
-                </select>
-                <div className="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-gray-500">
-                  <ChevronDownIcon className="text-muted-foreground size-4 pointer-events-none" />
-                </div>
-              </div>
-            </div>
+            <CommonDropdown
+              label="Category*"
+              value={category}
+              onChange={setCategory}
+              options={[
+                { label: "Cement", value: "Cement" },
+                { label: "Steel", value: "Steel" },
+                { label: "Aggregates", value: "Aggregates" },
+              ]}
+              className="w-full"
+            />
 
             {/* Description - Full Width */}
             <div className="flex flex-col gap-1.5 md:col-span-2">
@@ -70,21 +66,17 @@ const AddMaterialModal: React.FC<AddMaterialModalProps> = ({
             </div>
 
             {/* Unit of Measurement */}
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-gray-700">
-                Unit of Measurement*
-              </label>
-              <div className="relative">
-                <select className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-gray-700">
-                  <option>Bags</option>
-                  <option>Metric Tons</option>
-                  <option>Cubic Feet</option>
-                </select>
-                <div className="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-gray-500">
-                  <ChevronDownIcon className="text-muted-foreground size-4 pointer-events-none" />
-                </div>
-              </div>
-            </div>
+            <CommonDropdown
+              label="Unit of Measurement*"
+              value={unit}
+              onChange={setUnit}
+              options={[
+                { label: "Bags", value: "Bags" },
+                { label: "Metric Tons", value: "Metric Tons" },
+                { label: "Cubic Feet", value: "Cubic Feet" },
+              ]}
+              className="w-full"
+            />
 
             {/* Quantity */}
             <div className="flex flex-col gap-1.5">
@@ -94,7 +86,7 @@ const AddMaterialModal: React.FC<AddMaterialModalProps> = ({
               <input
                 type="text"
                 placeholder="50 Bags"
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 placeholder-gray-400 text-gray-700"
+                className="w-full px-4 py-3 border border-gray-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 placeholder-gray-400 text-gray-700"
               />
             </div>
 
@@ -149,19 +141,20 @@ const AddMaterialModal: React.FC<AddMaterialModalProps> = ({
 
           {/* Buttons */}
           <div className="flex items-center justify-end gap-5 pt-6 border-t border-gray-100 mt-4">
-            <button
-              type="button"
+            <Button
+            variant="outline"
+            size="md"
               onClick={onClose}
-              className="px-8 py-3 rounded-xl bg-[#F0F0F0] text-[#1A1A1A] font-medium hover:bg-gray-200 transition-colors"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
+            variant="primary"
+            size="md"
               onClick={onSubmit}
-              className="px-10 py-3 rounded-xl bg-[#2563EB] text-white font-normal hover:bg-blue-700 transition-colors shadow-sm"
             >
               Create
-            </button>
+            </Button>
           </div>
         </div>
       </form>

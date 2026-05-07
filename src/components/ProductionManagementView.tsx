@@ -16,105 +16,11 @@ import SuccessModal from "./common_component/SuccessModal";
 
 
 import { UserPlus, Check, CircleDollarSign, ChartSpline, ArrowUpToLine, ArrowDownToLine } from "lucide-react";
-
-// const equipmentStatsByFilter: Record<
-//   TabType,
-//   {
-//     title: string;
-//     value: string;
-//     icon: any;
-//     color: string;
-//   }[]
-// > = {
-//   today: [
-//     {
-//       title: "Total Projects",
-//       value: "4",
-//       icon: <UserPlus className="md:size-6 size-4" />,
-//       color: "bg-[#1E51A4]",
-//     },
-//     {
-//       title: "Active Projects",
-//       value: "1",
-//       icon: <Check className="md:size-6 size-4" />,
-//       color: "bg-[#3AB449]",
-//     },
-//     {
-//       title: "Pending Customer Approval",
-//       value: "1",
-//       icon: <CircleDollarSign className="md:size-6 size-4" />,
-//       color: "bg-[#EAB308]",
-//     },
-//     {
-//       title: "Canceled Projects",
-//       value: "0",
-//       icon: <ChartSpline className="md:size-6 size-4" />,
-//       color: "bg-[#FD8D5B]",
-//     },
-//   ],
-//   week: [
-//     {
-//       title: "Total Projects",
-//       value: "12",
-//       icon: <UserPlus className="md:size-6 size-4" />,
-//       color: "bg-[#1E51A4]",
-//     },
-//     {
-//       title: "Active Projects",
-//       value: "8",
-//       icon: <Check className="md:size-6 size-4" />,
-//       color: "bg-[#3AB449]",
-//     },
-//     {
-//       title: "Pending Customer Approval",
-//       value: "3",
-//       icon: <CircleDollarSign className="md:size-6 size-4" />,
-//       color: "bg-[#EAB308]",
-//     },
-//     {
-//       title: "Canceled Projects",
-//       value: "1",
-//       icon: <ChartSpline className="md:size-6 size-4" />,
-//       color: "bg-[#FD8D5B]",
-//     },
-//   ],
-//   month: [
-//     {
-//       title: "Total Projects",
-//       value: "45",
-//       icon: <UserPlus className="md:size-6 size-4" />,
-//       color: "bg-[#1E51A4]",
-//     },
-//     {
-//       title: "Active Projects",
-//       value: "32",
-//       icon: <Check className="md:size-6 size-4" />,
-//       color: "bg-[#3AB449]",
-//     },
-//     {
-//       title: "Pending Customer Approval",
-//       value: "10",
-//       icon: <CircleDollarSign className="md:size-6 size-4" />,
-//       color: "bg-[#EAB308]",
-//     },
-//     {
-//       title: "Canceled Projects",
-//       value: "3",
-//       icon: <ChartSpline className="md:size-6 size-4" />,
-//       color: "bg-[#FD8D5B]",
-//     },
-//   ],
-// };
-
-/* ---------------- COMPONENT ---------------- */
-
 const ProductionManagementView = () => {
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [_selectedLead, _setSelectedLead] = useState<any>(null);
     const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
-  // const [activeTab, setActiveTab] = useState<TabType>("month");
-
   /* ✅ FILTER STATES */
   const [buildingType, setBuildingType] = useState<string>("all");
   const [projectValue, setProjectValue] = useState<string>("all");

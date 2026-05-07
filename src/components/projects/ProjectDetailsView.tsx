@@ -12,6 +12,7 @@ import ProjectPhotos from "./ProjectPhotos";
 import CustomerInvoicesTable from "./CustomerInvoicesTable";
 import { UploadModal, SuccessModal } from "./ProjectUploadModals";
 import { useState } from "react";
+import Button from "../common_component/Button";
 
 const ProjectDetailsView = () => {
   const navigate = useNavigate();
@@ -34,12 +35,14 @@ const ProjectDetailsView = () => {
       {/* Header Section */}
       <div className="flex flex-wrap md:items-center justify-between gap-4 mt-2">
         <div className="flex items-center gap-4">
-          <button 
-            onClick={() => navigate(-1)}
-            className="flex items-center gap-2 px-4 md:px-6 py-2 bg-[#446DF6] text-white rounded-lg hover:opacity-90 transition-opacity font-inter font-semibold text-sm shadow-md"
-          >
-            <ArrowLeft size={18} strokeWidth={2.5} /> Back
-          </button>
+        <Button
+          variant="blueFilled"
+          size="sm"
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-2 shrink-0"
+        >
+          <ArrowLeft size={18} strokeWidth={2.5} /> Back
+        </Button>
           <h1 className="text-xl md:text-2xl font-inter font-bold text-[#212B36]">
             Project Details- <span className="text-[#637381] font-medium">{project.name}</span>
           </h1>
@@ -47,20 +50,24 @@ const ProjectDetailsView = () => {
         </div>
         
         <div className="flex flex-wrap items-center gap-3 ml-auto">
-          <button 
+          <Button
+            variant="white"
+            size="sm"
             onClick={() => setIsBOMUploadOpen(true)}
             className="flex items-center gap-2 px-2 py-2 md:px-4 md:py-2.5 bg-white border border-[#1E51A4] text-[#212B36] rounded-lg hover:bg-gray-50 transition-colors font-inter font-bold text-xs md:text-sm shadow-sm"
           >
             <Upload size={18} className="text-[#1E51A4]" />
             Upload BOM File
-          </button>
-          <button 
+          </Button>
+          <Button
+            variant="white"
+            size="sm"
             onClick={() => setIsDrawingUploadOpen(true)}
             className="flex items-center gap-2 px-2 py-2 md:px-4 md:py-2.5 bg-white border border-[#1E51A4] text-[#212B36] rounded-lg hover:bg-gray-50 transition-colors font-inter font-bold text-xs md:text-sm shadow-sm"
           >
             <Upload size={18} className="text-[#1E51A4]" />
             Upload Drawing File
-          </button>
+          </Button>
         </div>
       </div>
 

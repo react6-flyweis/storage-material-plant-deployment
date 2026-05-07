@@ -22,6 +22,12 @@ import ProjectDetailsView from "./components/projects/ProjectDetailsView";
 import BOMView from "./components/projects/BOMView";
 import GenerateShipperOrder from "./components/projects/GenerateShipperOrder";
 import ProjectDrawingsView from "./components/projects/ProjectDrawingsView";
+import MaterialDeliveryView from "./components/projects/MaterialDeliveryView";
+import EditDeliveryView from "./components/projects/EditDeliveryView";
+import ShipperFilesView from "./components/projects/ShipperFilesView";
+import ShipperFileDetailsView from "./components/projects/ShipperFileDetailsView";
+import MaterialRequestView from "./components/projects/MaterialRequestView";
+import UploadedBOMFilesView from "./components/projects/UploadedBOMFilesView";
 const Dashboard = lazy(() => import("@/pages/plantDashboard/PlantDashboard"));
 
 
@@ -75,6 +81,30 @@ export const adminRoutes: RouteObject[] = [
       {
         path: "/projects/view-drawings/:customerId/:projectId",
         element: <ProjectDrawingsView />,
+      },
+      {
+        path: "/projects/material-delivery/:customerId/:projectId",
+        element: <MaterialDeliveryView />,
+      },
+      {
+        path: "/projects/material-delivery/:customerId/:projectId/edit",
+        element: <EditDeliveryView />,
+      },
+      {
+        path: "/projects/shipper-files/:customerId/:projectId",
+        element: <ShipperFilesView />,
+      },
+      {
+        path: "/projects/shipper-file-details/:customerId/:projectId/:fileName",
+        element: <ShipperFileDetailsView />,
+      },
+      {
+        path: "/projects/material-request/:customerId/:projectId",
+        element: <MaterialRequestView />,
+      },
+      {
+        path: "/load_planning/uploaded-bom-files",
+        element: <UploadedBOMFilesView />,
       },
       {
         path: "/communication",

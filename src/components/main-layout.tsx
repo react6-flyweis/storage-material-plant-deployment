@@ -4,6 +4,7 @@ import Sidebar from "@/components/common_component/Sidebar";
 import Header from "@/components/common_component/Header";
 import SidePanel from "@/components/SidePanel";
 import { NAV_ITEMS } from "@/config/navigation.config";
+import { UploadModal } from "@/components/projects/ProjectUploadModals";
 
 export function MainLayout() {
   const navigate = useNavigate();
@@ -12,6 +13,7 @@ export function MainLayout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
   const [activeSubTab, setActiveSubTab] = useState<string>("");
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
 
   const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
 
@@ -22,9 +24,14 @@ export function MainLayout() {
     localStorage.setItem("activeTab", index.toString());
 
     if (tab.items?.length) {
-      setActiveSubTab(tab.items[0].label);
-      localStorage.setItem("activeSubTab", tab.items[0].label);
-      navigate(tab.items[0].path);
+      const firstNavigableItem = tab.items.find(item => !item.isAction) || tab.items[0];
+      
+      setActiveSubTab(firstNavigableItem.label);
+      localStorage.setItem("activeSubTab", firstNavigableItem.label);
+      
+      if (!firstNavigableItem.isAction) {
+        navigate(firstNavigableItem.path);
+      }
     } else if (tab.path) {
       setActiveSubTab("");
       localStorage.removeItem("activeSubTab");
@@ -34,6 +41,16 @@ export function MainLayout() {
 
   // 🔹 Sub-tab click
   const handleSubTabChange = (label: string, path: string) => {
+    const currentNav = NAV_ITEMS[activeTab];
+    const subItem = currentNav.items?.find(item => item.label === label);
+
+    if (subItem?.isAction) {
+      if (label === "Upload BOM File") {
+        setIsUploadModalOpen(true);
+      }
+      return; // 🔹 Exit early without updating activeSubTab
+    }
+
     setActiveSubTab(label);
     localStorage.setItem("activeSubTab", label);
     navigate(path);
@@ -84,6 +101,18 @@ export function MainLayout() {
           <Outlet />
         </main>
       </div>
+
+      <UploadModal 
+        isOpen={isUploadModalOpen}
+        onClose={() => setIsUploadModalOpen(false)}
+        title="Upload BOM File"
+        subtitle="Please upload your BOM file to continue."
+        fileLabel="BOM File"
+        onUpload={() => {
+          setIsUploadModalOpen(false);
+          // Handle upload success logic
+        }}
+      />
     </div>
   );
 }

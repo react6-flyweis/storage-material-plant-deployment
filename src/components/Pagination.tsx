@@ -1,73 +1,127 @@
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Button } from "../components/ui/button";
+import React from "react";
+import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface PaginationProps {
-  totalItems: number;
-  itemsPerPage: number;
+  // Existing props (maintained for backward compatibility)
+  totalItems?: number;
+  itemsPerPage?: number;
   currentPage: number;
   onPageChange: (page: number) => void;
+
+  // New optional props for advanced mode
+  totalPages?: number;
+  rowsPerPage?: number;
+  onRowsPerPageChange?: (rows: number) => void;
+  rowsPerPageOptions?: number[];
+  getPageNumbers?: () => (number | "...")[];
 }
 
-const Pagination = ({
-  totalItems=5,
-  itemsPerPage=5,
-  currentPage=1,
+const Pagination: React.FC<PaginationProps> = ({
+  totalItems,
+  itemsPerPage,
+  currentPage,
   onPageChange,
-}: PaginationProps) => {
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  totalPages: propTotalPages,
+  rowsPerPage,
+  onRowsPerPageChange,
+  rowsPerPageOptions = [5, 10, 20],
+  getPageNumbers: propGetPageNumbers,
+}) => {
+  // Calculate total pages if not explicitly provided
+  const totalPages = propTotalPages ?? (totalItems && itemsPerPage ? Math.ceil(totalItems / itemsPerPage) : 1);
 
-  const startItem = (currentPage - 1) * itemsPerPage + 1;
-  const endItem = Math.min(currentPage * itemsPerPage, totalItems);
+  // Helper for simple mode page numbers
+  const defaultGetPageNumbers = () => {
+    const pages: (number | "...")[] = [];
+    if (totalPages <= 6) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+    pages.push(1, 2, 3);
+    if (currentPage > 4) pages.push("...");
+    if (currentPage > 3 && currentPage < totalPages - 2) pages.push(currentPage);
+    if (currentPage < totalPages - 3) pages.push("...");
+    pages.push(totalPages - 1, totalPages);
+    return [...new Set(pages)];
+  };
+
+  const pageNumbers = propGetPageNumbers ? propGetPageNumbers() : defaultGetPageNumbers();
 
   return (
-    <div className="flex flex-wrap items-center justify-between mt-6 p-4 border-t border-gray-100">
-      <p className="lg:text-sm text-xs text-gray-500">
-        Showing {startItem} to {endItem} of {totalItems} results
-      </p>
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
+      {/* Left side: either Rows per page OR Results info */}
+      <div className="flex items-center gap-2 text-sm text-[#637381] p-3">
+        {rowsPerPage !== undefined && onRowsPerPageChange ? (
+          <>
+            <span>Row Per Page</span>
+            <div className="relative">
+              <select
+                value={rowsPerPage}
+                onChange={(e) => onRowsPerPageChange(Number(e.target.value))}
+                className="appearance-none font-normal border border-[#E2E8F0] rounded-[6px] px-3 py-1 pr-7 text-sm text-[#212B36] bg-white focus:outline-none cursor-pointer"
+              >
+                {rowsPerPageOptions.map((n) => (
+                  <option key={n} value={n}>
+                    {n}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown
+                size={13}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-[#637381] pointer-events-none"
+              />
+            </div>
+            <span>Entries</span>
+          </>
+        ) : (
+          totalItems !== undefined && itemsPerPage !== undefined && (
+            <span>
+              Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
+              {Math.min(currentPage * itemsPerPage, totalItems)} of {totalItems} results
+            </span>
+          )
+        )}
+      </div>
 
-      <div className="flex items-center gap-2">
-        {/* Previous */}
-        <Button
-          variant="outline"
-          size="sm"
-          className="h-8 text-gray-600 bg-transparent shadow-none hover:bg-gray-50 hover:text-gray-900"
+      {/* Right side: Page buttons */}
+      <div className="flex items-center gap-1">
+        <button
+          onClick={() => onPageChange(Math.max(1, currentPage - 1))}
           disabled={currentPage === 1}
-          onClick={() => onPageChange(currentPage - 1)}
+          className="w-8 h-8 flex border border-[#E6EAED] bg-white items-center justify-center rounded-full text-[#637381] hover:bg-gray-100 disabled:opacity-40 transition-colors"
         >
-          <ChevronLeft />
-        </Button>
+          <ChevronLeft size={16} />
+        </button>
 
-        {/* Page Numbers */}
-        {Array.from({ length: totalPages }).map((_, index) => {
-          const page = index + 1;
-
-          return (
-            <Button
-              key={page}
-              variant={page === currentPage ? "default" : "outline"}
-              size="sm"
-              className={`h-8 w-8 rounded-full p-0 ${
-                page === currentPage
-                  ? "bg-[#FF885B] hover:bg-[#FF885B] text-white"
-                  : "text-gray-600 border-gray-200 hover:bg-gray-50"
-              }`}
-              onClick={() => onPageChange(page)}
+        {pageNumbers.map((pg, i) =>
+          pg === "..." ? (
+            <span
+              key={`ellipsis-${i}`}
+              className="w-8 h-8 flex items-center justify-center text-[#637381] text-sm border border-[#E6EAED]"
             >
-              {page}
-            </Button>
-          );
-        })}
+              …
+            </span>
+          ) : (
+            <button
+              key={pg}
+              onClick={() => onPageChange(pg as number)}
+              className={`w-8 h-8 flex items-center justify-center rounded-full text-sm font-medium transition-colors border border-[#E6EAED] ${
+                currentPage === pg
+                  ? "bg-[#FE9F43] text-white shadow-sm"
+                  : "text-[#637381] hover:bg-gray-100 border border-[#E6EAED]"
+              }`}
+            >
+              {pg}
+            </button>
+          )
+        )}
 
-        {/* Next */}
-        <Button
-          variant="outline"
-          size="sm"
-          className="h-8 text-gray-60 bg-transparent shadow-none hover:bg-gray-50 hover:text-gray-900"
+        <button
+          onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
           disabled={currentPage === totalPages}
-          onClick={() => onPageChange(currentPage + 1)}
+          className="w-8 h-8 flex border border-[#E6EAED] bg-white items-center justify-center rounded-full text-[#637381] hover:bg-gray-100 disabled:opacity-40 transition-colors"
         >
-          <ChevronRight />
-        </Button>
+          <ChevronRight size={16} />
+        </button>
       </div>
     </div>
   );

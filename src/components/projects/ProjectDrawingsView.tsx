@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Search, Eye, FileText, ArrowDown } from "lucide-react";
+import { ArrowLeft, Search, Eye, ArrowDown } from "lucide-react";
 import { customersData } from "@/data/productionMockData";
 import Heading from "../common_component/Heading";
 import Button from "../common_component/Button";
@@ -8,6 +8,7 @@ import ViewDrawingModal from "../leads/ViewDrawingModal";
 import { UploadModal, SuccessModal } from "./ProjectUploadModals";
 import FilterDropdown from "../common_component/FilterDropdown";
 import SubHeading from "../common_component/SubHeading";
+import filePdf from "../../assets/icon/file-pdf.svg"
 
 const FileCard = ({
   file,
@@ -18,7 +19,7 @@ const FileCard = ({
   onView: (file: any) => void;
   type?: "drawing" | "photo";
 }) => (
-  <div className="bg-white border border-[#E2E4E6] rounded-[10px] p-3 shadow-sm relative transition-all md:min-h-[100px] flex items-center">
+  <div className="bg-white border border-[#0000001A] rounded-[6px] p-3 shadow-xs relative transition-all md:min-h-[100px] flex items-center">
     {/* Floating Status Badge */}
     <div className="absolute -top-3.5 -right-2 z-20">
       <span
@@ -33,9 +34,7 @@ const FileCard = ({
       {/* Icon/Thumbnail Section */}
       <div className="shrink-0">
         {type === "drawing" ? (
-          <div className="md:size-[52px] size-[30px] rounded-lg bg-red-50 flex items-center justify-center text-red-500">
-            <FileText className="md:size-7 size-4" />
-          </div>
+            <img src={filePdf} alt="pdf" className="md:size-[32px] size-[24px]" />
         ) : (
           <div className="md:size-[52px] size-[30px] rounded-lg overflow-hidden border border-gray-100">
             <img 
@@ -50,7 +49,7 @@ const FileCard = ({
       {/* Content Section */}
       <div className="flex-1 flex items-center justify-between min-w-0">
         <div className="min-w-0 pr-2">
-          <h4 className="md:text-sm text-xs text-[#0D1522] font-bold truncate leading-tight">
+          <h4 className="md:text-base text-xs text-[#0D1522] font-bold truncate leading-tight">
             {file.name}
           </h4>
           <p className="md:text-sm text-xs text-[#637381] font-medium mt-1">
@@ -130,7 +129,7 @@ const ProjectDrawingsView: React.FC = () => {
       size: "15.2 MB",
       status: "Pending Review",
       statusColor: "bg-[#FEFAE2] text-[#F0CC16] border-[#FEFAE2]",
-      thumbnail: "https://images.unsplash.com/photo-1541888941259-7b9d921857df?q=80&w=2070&auto=format&fit=crop",
+  thumbnail: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?q=80&w=2062&auto=format&fit=crop",
     },
     {
       name: "Structural Building.dwg",
@@ -144,7 +143,7 @@ const ProjectDrawingsView: React.FC = () => {
       size: "15.2 MB",
       status: "Revision Required",
       statusColor: "bg-red-50 text-red-600 border-red-100",
-      thumbnail: "https://images.unsplash.com/photo-1590069230002-70cc1f47d33b?q=80&w=2106&auto=format&fit=crop",
+  thumbnail: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?q=80&w=2062&auto=format&fit=crop",
     },
   ];
 
@@ -165,14 +164,14 @@ const ProjectDrawingsView: React.FC = () => {
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mt-2">
         <div className="flex items-center gap-4">
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={() => navigate(-1)}
-            className="flex items-center gap-2"
-          >
-            <ArrowLeft size={18} strokeWidth={2.5} /> Back
-          </Button>
+        <Button
+          variant="blueFilled"
+          size="sm"
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-2 shrink-0"
+        >
+          <ArrowLeft size={18} strokeWidth={2.5} /> Back
+        </Button>
           <Heading text={`${project?.name || "Project"} - Drawings`} />
         </div>
 
@@ -210,7 +209,7 @@ const ProjectDrawingsView: React.FC = () => {
           {/* Drawings Section */}
           <div className="space-y-6">
             <SubHeading text="Attached Drawings" />
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 xl:gap-6">
               {drawings
                 .filter(file => 
                   (activeStatus === "all" || file.status.toLowerCase().replace(' ', '-') === activeStatus) &&
@@ -225,7 +224,7 @@ const ProjectDrawingsView: React.FC = () => {
           {/* Photos Section */}
           <div className="space-y-6">
             <SubHeading text="Attached Building Photos" />
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 xl:gap-6">
               {photos
                 .filter(file => 
                   (activeStatus === "all" || file.status.toLowerCase().replace(' ', '-') === activeStatus) &&

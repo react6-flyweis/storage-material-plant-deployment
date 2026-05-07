@@ -14,6 +14,7 @@ import CustomerProfileCard from "./CustomerProfileCard";
 import FilterDropdown from "../common_component/FilterDropdown";
 import type { TabType } from "@/pages/PlantPage";
 import Heading from "../common_component/Heading";
+import Button from "../common_component/Button";
 
 const AllProjectsView = () => {
   const navigate = useNavigate();
@@ -49,12 +50,14 @@ const AllProjectsView = () => {
     <div className="xl:pr-5 px-2 pb-10 space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4 mt-2">
-        <button 
+        <Button
+          variant="blueFilled"
+          size="sm"
           onClick={() => navigate(-1)}
-          className="flex items-center gap-2 px-3 md:px-6 py-1 md:py-2 bg-[#1E51A4] text-white rounded-md hover:opacity-90 transition-opacity font-inter font-semibold text-xs md:text-sm shadow-sm"
+          className="flex items-center gap-2 shrink-0"
         >
           <ArrowLeft size={18} strokeWidth={2.5} /> Back
-        </button>
+        </Button>
         <Heading text="All Projects" />
         
       </div>

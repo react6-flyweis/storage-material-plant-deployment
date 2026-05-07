@@ -48,14 +48,14 @@ const BOMView: React.FC = () => {
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mt-2">
         <div className="flex items-center gap-4">
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={() => navigate(-1)}
-            className="flex items-center gap-2"
-          >
-            <ArrowLeft size={18} strokeWidth={2.5} /> Back
-          </Button>
+        <Button
+          variant="blueFilled"
+          size="sm"
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-2 shrink-0"
+        >
+          <ArrowLeft size={18} strokeWidth={2.5} /> Back
+        </Button>
           <Heading text="BOM Files Details" />
         </div>
 
