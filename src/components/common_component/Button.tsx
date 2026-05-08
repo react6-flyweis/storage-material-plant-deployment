@@ -1,7 +1,7 @@
 import React from "react";
 import clsx from "clsx";
 
-type Variant = "primary" | "secondary" | "gradient" | "outline" | "danger" | "white" | "purpleFilled" | "greenFilled" | "blueFilled";
+type Variant = "primary" | "secondary" | "gradient" | "outline" | "danger" | "white" | "purpleFilled" | "greenFilled" | "blueFilled" | "grayFilled";
 type Size = "sm" | "md" | "lg" | "xl";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -10,14 +10,14 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const baseStyles =
-  "font-inter font-medium transition-all duration-200 rounded-[8px] flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed";
+  "font-inter w-fit font-medium transition-all duration-200 rounded-[8px] flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed";
 
 const variants: Record<Variant, string> = {
   primary:
     "bg-[#1E51A4] text-white hover:opacity-90 shadow-xs shadow-blue-500/20",
 
   secondary:
-    "bg-white border-2 border-[#446DF6] text-[#212B36] hover:bg-gray-50 shadow-xs",
+    "bg-white border border-[#446DF6] text-[#446DF6] rounded-lg text-sm font-inter font-bold hover:bg-[#446DF6]/5 transition-colors",
 
   gradient:
     "bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:opacity-90 shadow-xs shadow-blue-500/20 ",
@@ -37,6 +37,7 @@ const variants: Record<Variant, string> = {
   greenFilled: "bg-[#3AB449] text-white hover:opacity-90 border border-[#E2E4E6]  shadow-xs font-medium",
 
   blueFilled: "bg-[#2563EB] text-white hover:opacity-90 border border-[#E2E4E6]  shadow-xs font-medium",
+  grayFilled: "bg-[#5D6772] text-white border border-[#E2E4E6]  shadow-xs font-medium",
 };
 
 const sizes: Record<Size, string> = {

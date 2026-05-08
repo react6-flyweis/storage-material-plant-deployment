@@ -13,7 +13,7 @@ interface UploadModalProps {
   title: string;
   subtitle: string;
   fileLabel: string;
-  onUpload: () => void;
+  onUpload: (file: File) => void;
 }
 
 const UploadModal: React.FC<UploadModalProps> = ({
@@ -21,16 +21,41 @@ const UploadModal: React.FC<UploadModalProps> = ({
   onClose,
   title,
   subtitle,
-  fileLabel,
   onUpload,
 }) => {
+  const [selectedFile, setSelectedFile] = React.useState<File | null>(null);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setSelectedFile(e.target.files[0]);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      setSelectedFile(e.dataTransfer.files[0]);
+    }
+  };
+
+  const handleUpload = () => {
+    if (selectedFile) {
+      onUpload(selectedFile);
+      setSelectedFile(null);
+    }
+  };
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} width="max-w-xl" hideHeader>
       <div className="p-1 space-y-6">
         {/* Header */}
         <div className="flex items-start justify-between">
           <div className="space-y-1">
-            {/* <h2 className="text-xl font-inter font-bold text-[#212B36]">{title}</h2> */}
             <SubHeading text={title} />
             <p className="text-sm text-[#637381] font-inter">{subtitle}</p>
           </div>
@@ -43,7 +68,11 @@ const UploadModal: React.FC<UploadModalProps> = ({
         </div>
 
         {/* Dropzone */}
-        <div className="border-2 border-dashed border-[#1849D6] rounded-lg p-6 md:p-10 flex flex-col items-center justify-center space-y-4 bg-white">
+        <div
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
+          className="border-2 border-dashed border-[#1849D6] rounded-lg p-6 md:p-10 flex flex-col items-center justify-center space-y-4 bg-white"
+        >
           <img src={upload} alt="Upload" className="size-8" />
           <p className="text-sm font-inter font-normal text-[#212B36]">
             Drag your file(s) to start uploading
@@ -55,9 +84,20 @@ const UploadModal: React.FC<UploadModalProps> = ({
             </span>
             <div className="h-px bg-gray-200 flex-1" />
           </div>
-          <button className="px-4 md:px-6 py-2 border border-[#446DF6] text-[#446DF6] rounded-lg text-sm font-inter font-bold hover:bg-[#446DF6]/5 transition-colors">
+
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            className="hidden"
+          />
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => fileInputRef.current?.click()}
+          >
             Browse files
-          </button>
+          </Button>
         </div>
 
         <p className="text-xs text-[#919EAB] font-inter">
@@ -65,32 +105,36 @@ const UploadModal: React.FC<UploadModalProps> = ({
         </p>
 
         {/* File List Item */}
-        <div className="bg-white border border-gray-100 rounded-xl p-2 flex items-center gap-2 group">
-          <img src={pdf} alt="Upload" className="size-8" />
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-inter font-normal text-[#212B36] truncate">
-              {fileLabel}
-            </p>
-            <p className="text-xs text-[#919EAB] font-inter">5.3MB</p>
+        {selectedFile && (
+          <div className="bg-white border border-gray-100 rounded-xl p-2 flex items-center gap-2 group">
+            <img src={pdf} alt="Upload" className="size-8" />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-inter font-normal text-[#212B36] truncate">
+                {selectedFile.name}
+              </p>
+              <p className="text-xs text-[#919EAB] font-inter">
+                {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB
+              </p>
+            </div>
+            <button
+              onClick={() => setSelectedFile(null)}
+              className="bg-gray-300 rounded-full text-gray-500 hover:text-[#FF4842] transition-colors hover:bg-gray-100"
+            >
+              <CircleX size={16} />
+            </button>
           </div>
-          <button className="bg-gray-300 rounded-full text-gray-500 hover:text-[#FF4842] transition-colors hover:bg-gray-100">
-            <CircleX size={16} />
-          </button>
-        </div>
+        )}
 
         {/* Footer Buttons */}
         <div className="flex items-center justify-end gap-3 pt-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onClose}
-          >
+          <Button variant="outline" size="sm" onClick={onClose}>
             Cancel
           </Button>
           <Button
             variant="primary"
             size="sm"
-            onClick={onUpload}
+            onClick={handleUpload}
+            disabled={!selectedFile}
           >
             Upload
           </Button>

@@ -28,6 +28,10 @@ import ShipperFilesView from "./components/projects/ShipperFilesView";
 import ShipperFileDetailsView from "./components/projects/ShipperFileDetailsView";
 import MaterialRequestView from "./components/projects/MaterialRequestView";
 import UploadedBOMFilesView from "./components/projects/UploadedBOMFilesView";
+import ShipperQuotationView from "./components/projects/ShipperQuotationView";
+import OrderVerificationView from "./components/projects/OrderVerificationView";
+import StartLoadPlanningView from "./components/projects/StartLoadPlanningView";
+import ComparisonResultView from "./components/projects/ComparisonResultView";
 const Dashboard = lazy(() => import("@/pages/plantDashboard/PlantDashboard"));
 
 
@@ -105,6 +109,22 @@ export const adminRoutes: RouteObject[] = [
       {
         path: "/load_planning/uploaded-bom-files",
         element: <UploadedBOMFilesView />,
+      },
+      {
+        path: "/load_planning/shipper-quotation",
+        element: <ShipperQuotationView />,
+      },
+      {
+        path: "/load_planning/order-verification",
+        element: <OrderVerificationView />,
+      },
+      {
+        path: "/load_planning/comparison-result",
+        element: <ComparisonResultView />,
+      },
+      {
+        path: "/load_planning/start-load-planning",
+        element: <StartLoadPlanningView />,
       },
       {
         path: "/communication",

@@ -27,7 +27,7 @@ const FilterDropdown = <T extends string>({ activeTab, onTabChange, options }: P
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex bg-white items-center gap-2 border border-[#DBEAFE] rounded-lg px-4 py-2 text-sm font-medium text-[#212B36] min-w-[140px] justify-between hover:bg-gray-50 transition-colors shadow-sm"
+        className="flex bg-white items-center gap-2 border border-[#DBEAFE] rounded-lg px-4 py-2 text-sm font-medium text-[#212B36] min-w-[140px] justify-between hover:bg-gray-50 transition-colors"
       >
         <div className="flex items-center gap-2">
           <Filter size={18} className="text-[#637381]" />

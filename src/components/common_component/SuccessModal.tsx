@@ -1,7 +1,7 @@
 import React from "react";
 import Modal from "../Modal";
-import { Button } from "@/components/ui/button";
 import SuccessModalCheckIcon from "../../assets/SuccessModalCheckIcon.svg";
+import Button from "./Button";
 
 interface SuccessModalProps {
   isOpen: boolean;
@@ -26,13 +26,14 @@ const SuccessModal: React.FC<SuccessModalProps> = ({
           <img
             src={SuccessModalCheckIcon}
             alt="Success"
-            className="md:w-60 md:h-60 w-40 h-40"
+            className="md:w-60 md:h-60 w-36 h-36"
           />
         </div>
 
         <Button
+        variant="gradient"
           onClick={onClose}
-          className="w-40 md:w-60 bg-[#4F46E5] hover:bg-[#4338ca] text-white rounded-xl py-6 text-lg font-medium"
+          className="w-30 md:w-44 py-3"
         >
           Ok
         </Button>

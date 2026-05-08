@@ -1,45 +1,164 @@
 import React from "react";
-import { Search, Filter, Eye, ArrowUpDown, Hammer, ShieldCheck, DollarSign, BarChart3 } from "lucide-react";
+import {
+  Search,
+  Filter,
+  Eye,
+  ArrowUpDown,
+  Hammer,
+  ShieldCheck,
+  DollarSign,
+  BarChart3,
+  CircleCheck,
+} from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import StatCard from "../ui/stat-card";
 import Button from "../common_component/Button";
 import Heading from "../common_component/Heading";
 import Pagination from "../Pagination";
 import { UploadModal } from "./ProjectUploadModals";
 import FilterDropdown from "../common_component/FilterDropdown";
+import CommonCheckbox from "../common_component/CommonCheckbox";
+import CommonStatusBadge from "../common_component/CommonStatusBadge";
+import { cn } from "@/lib/utils";
 
 const UploadedBOMFilesView: React.FC = () => {
+  const navigate = useNavigate();
   const [currentPage, setCurrentPage] = React.useState(1);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [sortBy, setSortBy] = React.useState("Latest");
+  const [selectedRows, setSelectedRows] = React.useState<number[]>([]);
+  const [sortConfig, setSortConfig] = React.useState<{
+    key: string;
+    direction: "asc" | "desc" | null;
+  }>({
+    key: "",
+    direction: null,
+  });
 
   const stats = [
-    { title: "Total BOM Files", value: "58 Files", color: "bg-[#1E51A4]", icon: <Hammer className="text-[#1E51A4]" size={18} /> },
-    { title: "Pending Upload", value: "12 Files", color: "bg-[#3AB449]", icon: <ShieldCheck className="text-[#3AB449]" size={18} /> },
-    { title: "Ready for Shipper", value: "26 Files", color: "bg-[#DCC426]", icon: <DollarSign className="text-[#DCC426]" size={18} /> },
-    { title: "Issues Detected", value: "8 Files", color: "bg-[#FD8D5B]", icon: <BarChart3 className="text-[#FD8D5B]" size={18} /> },
+    {
+      title: "Total BOM Files",
+      value: "58 Files",
+      color: "bg-[#1E51A4]",
+      icon: <Hammer className="text-[#1E51A4]" size={18} />,
+    },
+    {
+      title: "Pending Upload",
+      value: "12 Files",
+      color: "bg-[#3AB449]",
+      icon: <ShieldCheck className="text-[#3AB449]" size={18} />,
+    },
+    {
+      title: "Ready for Shipper",
+      value: "26 Files",
+      color: "bg-[#DCC426]",
+      icon: <DollarSign className="text-[#DCC426]" size={18} />,
+    },
+    {
+      title: "Issues Detected",
+      value: "8 Files",
+      color: "bg-[#FD8D5B]",
+      icon: <BarChart3 className="text-[#FD8D5B]" size={18} />,
+    },
   ];
 
-  const tableData = [
-    { project: "ABC Warehouse", date: "22 Feb 2025", items: "125", status: "Pending" },
-    { project: "Riya Buildings", date: "07 Feb 2025", items: "98", status: "Shared to Shippers" },
-    { project: "ABC Warehouse", date: "30 Jan 2025", items: "210", status: "🔒 Locked" },
-    { project: "Riya Buildings", date: "17 Jan 2025", items: "125", status: "🔒 Locked" },
-    { project: "ABC Warehouse", date: "04 Jan 2025", items: "98", status: "🔒 Locked" },
-    { project: "Riya Buildings", date: "09 Dec 2024", items: "210", status: "🔒 Locked" },
+  const initialData = [
+    {
+      project: "ABC Warehouse",
+      date: "22 Feb 2025",
+      items: "125",
+      status: "Draft",
+      customerId: "ID-2025-1047",
+      projectId: "PRJ-001",
+    },
+    {
+      project: "Riya Buildings",
+      date: "07 Feb 2025",
+      items: "98",
+      status: "✅ Approved",
+      customerId: "ID-2025-1047",
+      projectId: "PRJ-002",
+    },
+    {
+      project: "ABC Warehouse",
+      date: "30 Jan 2025",
+      items: "210",
+      status: "🔒 Locked",
+      customerId: "ID-2025-1047",
+      projectId: "PRJ-001",
+    },
+    {
+      project: "Riya Buildings",
+      date: "17 Jan 2025",
+      items: "125",
+      status: "🔒 Locked",
+      customerId: "ID-2025-1047",
+      projectId: "PRJ-002",
+    },
+    {
+      project: "ABC Warehouse",
+      date: "04 Jan 2025",
+      items: "98",
+      status: "🔒 Locked",
+      customerId: "ID-2025-1047",
+      projectId: "PRJ-001",
+    },
+    {
+      project: "Riya Buildings",
+      date: "09 Dec 2024",
+      items: "210",
+      status: "🔒 Locked",
+      customerId: "ID-2025-1047",
+      projectId: "PRJ-002",
+    },
   ];
 
-  const getStatusStyle = (status: string) => {
-    switch (status) {
-      case "Pending":
-        return "bg-[#FFF6D0] text-[#B78B00] border-[#FFF6D0]";
-      case "Shared to Shippers":
-        return "bg-[#E6FFFA] text-[#047857] border-[#E6FFFA]";
-      case "Locked":
-        return "bg-[#F3F4F6] text-[#6B7280] border-[#F3F4F6]";
-      default:
-        return "bg-gray-100 text-gray-800";
+  const handleSort = (key: string) => {
+    let direction: "asc" | "desc" = "asc";
+    if (sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
     }
+    setSortConfig({ key, direction });
+  };
+
+  const sortedData = React.useMemo(() => {
+    const data = [...initialData];
+    if (sortConfig.key) {
+      data.sort((a: any, b: any) => {
+        let valA = a[sortConfig.key];
+        let valB = b[sortConfig.key];
+
+        // Special handling for date strings
+        if (sortConfig.key === "date") {
+          valA = new Date(valA).getTime();
+          valB = new Date(valB).getTime();
+        }
+
+        // Special handling for items (number strings)
+        if (sortConfig.key === "items") {
+          valA = parseInt(valA);
+          valB = parseInt(valB);
+        }
+
+        if (valA < valB) return sortConfig.direction === "asc" ? -1 : 1;
+        if (valA > valB) return sortConfig.direction === "asc" ? 1 : -1;
+        return 0;
+      });
+    }
+    return data;
+  }, [sortConfig]);
+
+  const handleViewBOM = (item: any) => {
+    navigate(`/projects/view-bom/${item.customerId}/${item.projectId}`);
+  };
+
+  const getBadgeVariant = (status: string) => {
+    const s = status.toLowerCase();
+    if (s === "draft") return "yellow";
+    if (s.includes("approved")) return "green";
+    if (s.includes("locked")) return "green";
+    return "blue";
   };
 
   return (
@@ -47,9 +166,9 @@ const UploadedBOMFilesView: React.FC = () => {
       {/* ── Header ────────────────────────────────────────────────────── */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mt-2">
         <Heading text="Uploaded BOM Files" />
-        <Button 
-          variant="primary" 
-          size="sm" 
+        <Button
+          variant="primary"
+          size="sm"
           className="px-8 py-3"
           onClick={() => setIsModalOpen(true)}
         >
@@ -88,9 +207,9 @@ const UploadedBOMFilesView: React.FC = () => {
 
         <div className="flex items-center gap-2 text-sm text-[#637381]">
           <span>Sort by :</span>
-          <FilterDropdown 
-            activeTab={sortBy} 
-            onTabChange={setSortBy} 
+          <FilterDropdown
+            activeTab={sortBy}
+            onTabChange={setSortBy}
             options={[
               { label: "Latest", value: "Latest" },
               { label: "Oldest", value: "Oldest" },
@@ -103,47 +222,110 @@ const UploadedBOMFilesView: React.FC = () => {
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse min-w-[800px]">
             <thead>
-              <tr className="bg-[#F7F8F9] border-b border-[#F4F6F8]">
+              <tr className="bg-[#F7F8F9] border-b border-[#E2E4E6]">
                 <th className="py-4 px-6 w-12">
-                  <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                  <CommonCheckbox
+                    checked={selectedRows.length === initialData.length}
+                    onChange={(checked) => {
+                      if (checked)
+                        setSelectedRows(initialData.map((_, i) => i));
+                      else setSelectedRows([]);
+                    }}
+                  />
                 </th>
-                <th className="py-4 px-4 text-sm font-archivo font-semibold text-black">
+                <th
+                  className="py-3 px-4 text-sm font-archivo font-semibold text-black cursor-pointer group"
+                  onClick={() => handleSort("project")}
+                >
                   <div className="flex items-center gap-1">
-                    Project <ArrowUpDown size={14} className="text-[#5D6772]" />
+                    Project
+                    <ArrowUpDown
+                      size={14}
+                      className={cn(
+                        "transition-colors",
+                        sortConfig.key === "project"
+                          ? "text-(--text-color-primary-blue)"
+                          : "text-(--text-color-gray-4)",
+                      )}
+                    />
+                  </div>
+                </th>
+                <th
+                  className="py-3 px-4 text-sm font-archivo font-semibold text-black cursor-pointer group"
+                  onClick={() => handleSort("date")}
+                >
+                  <div className="flex items-center gap-1">
+                    Upload Date
+                    <ArrowUpDown
+                      size={14}
+                      className={cn(
+                        "transition-colors",
+                        sortConfig.key === "date"
+                          ? "text-(--text-color-primary-blue)"
+                          : "text-(--text-color-gray-4)",
+                      )}
+                    />
+                  </div>
+                </th>
+                <th
+                  className="py-4 px-4 text-sm font-archivo font-semibold text-black cursor-pointer group"
+                  onClick={() => handleSort("items")}
+                >
+                  <div className="flex items-center gap-1">
+                    Items
+                    <ArrowUpDown
+                      size={14}
+                      className={cn(
+                        "transition-colors",
+                        sortConfig.key === "items"
+                          ? "text-(--text-color-primary-blue)"
+                          : "text-(--text-color-gray-4)",
+                      )}
+                    />
                   </div>
                 </th>
                 <th className="py-4 px-4 text-sm font-archivo font-semibold text-black">
-                  <div className="flex items-center gap-1">
-                    Upload Date <ArrowUpDown size={14} className="text-[#5D6772]" />
-                  </div>
+                  File Status
                 </th>
-                <th className="py-4 px-4 text-sm font-archivo font-semibold text-black">
-                  <div className="flex items-center gap-1">
-                    Items <ArrowUpDown size={14} className="text-[#5D6772]" />
-                  </div>
-                </th>
-                <th className="py-4 px-4 text-sm font-archivo font-semibold text-black">File Status</th>
                 <th className="py-4 px-6 text-right"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#F4F6F8]">
-              {tableData.map((item, idx) => (
+            <tbody className="divide-y divide-[#E2E4E6]">
+              {sortedData.map((item, idx) => (
                 <tr key={idx} className="hover:bg-gray-50/50 transition-colors">
-                  <td className="py-5 px-6">
-                    <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                  <td className="py-2 px-6">
+                    <CommonCheckbox
+                      checked={selectedRows.includes(idx)}
+                      onChange={(checked) => {
+                        if (checked) setSelectedRows([...selectedRows, idx]);
+                        else
+                          setSelectedRows(
+                            selectedRows.filter((i) => i !== idx),
+                          );
+                      }}
+                    />
                   </td>
-                  <td className="py-5 px-4 text-[15px] font-archivo font-normal text-[#637381]">{item.project}</td>
-                  <td className="py-5 px-4 text-[15px] font-inter text-[#637381]">{item.date}</td>
-                  <td className="py-5 px-4 text-[15px] font-inter font-medium text-black">{item.items}</td>
-                  <td className="py-5 px-4">
-                    <span className={`px-3 py-1 rounded-full text-xs font-inter font-normal inline-flex items-center gap-1.5 whitespace-nowrap ${getStatusStyle(item.status)}`}>
-                      {item.status}
-                    </span>
+                  <td className="py-2 px-4 text-[15px] font-archivo font-normal text-[#637381]">
+                    {item.project}
                   </td>
-                  <td className="py-5 px-6 text-right">
+                  <td className="py-2 px-4 text-[15px] font-inter text-[#637381]">
+                    {item.date}
+                  </td>
+                  <td className="py-2 px-4 text-[15px] font-inter font-normal text-black">
+                    {item.items}
+                  </td>
+                  <td className="py-2 px-4">
+                    <CommonStatusBadge
+                      text={item.status}
+                      variant={getBadgeVariant(item.status)}
+                      icon={<CircleCheck size={14} />}
+                    />
+                  </td>
+                  <td className="py-3 px-6 text-right">
                     <Button
-                    variant={"gradient"}
-                    size={"sm"}
+                      variant={"gradient"}
+                      size={"sm"}
+                      onClick={() => handleViewBOM(item)}
                     >
                       <Eye size={18} />
                     </Button>
@@ -167,7 +349,7 @@ const UploadedBOMFilesView: React.FC = () => {
         getPageNumbers={() => [1, 2, 3, 4, "...", 15]}
       />
 
-      <UploadModal 
+      <UploadModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         title="Upload BOM File"
