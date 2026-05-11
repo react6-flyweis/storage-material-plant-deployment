@@ -32,6 +32,13 @@ import ShipperQuotationView from "./components/projects/ShipperQuotationView";
 import OrderVerificationView from "./components/projects/OrderVerificationView";
 import StartLoadPlanningView from "./components/projects/StartLoadPlanningView";
 import ComparisonResultView from "./components/projects/ComparisonResultView";
+import LoadPlanningList from "./components/projects/LoadPlanningList";
+import PackingListView from "./components/projects/PackingListView";
+import LoadPlanDetailsView from "./components/projects/LoadPlanDetailsView";
+import PackingListDetailsView from "./components/projects/PackingListDetailsView";
+import QRLabelsView from "./components/projects/QRLabelsView";
+import FreightLoadsView from "./components/delivery/FreightLoadsView";
+import AwardedLoadsView from "./components/delivery/AwardedLoadsView";
 const Dashboard = lazy(() => import("@/pages/plantDashboard/PlantDashboard"));
 
 
@@ -105,6 +112,34 @@ export const adminRoutes: RouteObject[] = [
       {
         path: "/projects/material-request/:customerId/:projectId",
         element: <MaterialRequestView />,
+      },
+      {
+        path: "/load_planning/list",
+        element: <LoadPlanningList />,
+      },
+      {
+        path: "/load_planning/packing-list",
+        element: <PackingListView />,
+      },
+      {
+        path: "/load_planning/details/:id",
+        element: <LoadPlanDetailsView />,
+      },
+      {
+        path: "/load_planning/packing-list/details/:id",
+        element: <PackingListDetailsView />,
+      },
+      {
+        path: "/load_planning/qr-labels",
+        element: <QRLabelsView />,
+      },
+      {
+        path: "/delivery/freight-loads",
+        element: <FreightLoadsView />,
+      },
+      {
+        path: "/delivery/awarded-loads",
+        element: <AwardedLoadsView />,
       },
       {
         path: "/load_planning/uploaded-bom-files",

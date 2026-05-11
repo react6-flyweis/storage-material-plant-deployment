@@ -4,8 +4,8 @@ import { recentShipperFilesByFilter } from "@/data/productionMockData";
 import type { RecentShipperFile } from "@/data/productionMockData";
 import RecentShipperFilesTable from "@/components/RecentShipperFilesTable";
 import Pagination from "@/components/Pagination";
-import Heading from "../common_component/Heading";
 import FilterDropdown from "../common_component/FilterDropdown";
+import TitleSubtitle from "../common_component/TitleSubtitle";
 
 const ShipperQuotationView: React.FC = () => {
   const [search, setSearch] = useState("");
@@ -55,12 +55,9 @@ const ShipperQuotationView: React.FC = () => {
   return (
     <div className="xl:pr-5 px-2 pb-10 space-y-6">
       {/* ── Header ────────────────────────────────────────────────────── */}
-      <div className="mt-2">
-        <Heading text="Shipper Files" />
-        <p className="text-sm text-[#637381] mt-1 font-inter">
-          Manage vendor shipment files and prepare for validation
-        </p>
-      </div>
+      <TitleSubtitle
+      title="Shipper Files"
+      subtitle="Manage vendor shipment files and prepare for validation"/>
 
       {/* ── Search / Filter / Status bar ────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 justify-between">

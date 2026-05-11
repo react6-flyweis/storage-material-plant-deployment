@@ -67,7 +67,7 @@ const SidePanel: React.FC<SidePanelProps> = ({
         style={{ top: `${topPosition}px` }}
       >
         {/* Title */}
-        {currentNav.title && (
+        {currentNav.title && !currentNav.items?.length && (
           <button
             className={`w-full text-sm text-white rounded-lg md:py-3 py-2 font-medium shadow-sm mb-3 ${currentNav.color}`}
           >

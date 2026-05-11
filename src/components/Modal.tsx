@@ -59,8 +59,8 @@ const Modal: React.FC<ModalProps> = ({
       >
         {/* Header */}
         {!hideHeader && title && (
-          <div className="flex items-center justify-between p-6 border-b border-[#D5D5D5]">
-            <h2 className="md:text-base text-sm font-bold text-gray-800">
+          <div className="flex items-center justify-between p-4 lg:p-5 border-b border-[#D5D5D5]">
+            <h2 className="text-base lg:text-lg font-semibold text-black">
               {title}
             </h2>
           </div>

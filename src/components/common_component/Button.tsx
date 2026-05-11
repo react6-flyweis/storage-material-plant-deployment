@@ -1,7 +1,7 @@
 import React from "react";
 import clsx from "clsx";
 
-type Variant = "primary" | "secondary" | "gradient" | "outline" | "danger" | "white" | "purpleFilled" | "greenFilled" | "blueFilled" | "grayFilled";
+type Variant = "primary" | "secondary" | "gradient" | "outline" | "danger" | "white" | "purpleFilled" | "greenFilled" | "blueFilled" | "grayFilled" | "mint";
 type Size = "sm" | "md" | "lg" | "xl";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -38,13 +38,14 @@ const variants: Record<Variant, string> = {
 
   blueFilled: "bg-[#2563EB] text-white hover:opacity-90 border border-[#E2E4E6]  shadow-xs font-medium",
   grayFilled: "bg-[#5D6772] text-white border border-[#E2E4E6]  shadow-xs font-medium",
+  mint:"bg-[#00C8B3] text-black border border-[#FCF8EB] font-medium",
 };
 
 const sizes: Record<Size, string> = {
-  sm: "px-4 py-2 text-sm",
-  md: "px-6 py-3 text-sm",
-  lg: "px-8 py-3 text-base",
-  xl: "px-8 py-4 text-lg",
+  sm: "px-4 py-2 md:text-sm text-xs",
+  md: "px-6 py-3 md:text-sm text-xs",
+  lg: "px-8 py-3 md:text-base text-sm",
+  xl: "px-8 py-4 md:text-lg text-sm",
 };
 
 const Button: React.FC<ButtonProps> = ({

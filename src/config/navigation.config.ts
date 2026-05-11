@@ -6,6 +6,7 @@ import MenuIcon5 from "@/assets/menuIcon5.svg";
 import MenuIcon6 from "@/assets/menuIcon6.svg";
 import Cube from "@/assets/icon/sidebar/cubeIcon.svg";
 import ProjectManagementIcon from "@/assets/icon/sidebar/projectsIcon.svg";
+import DeliveryIcon from "@/assets/icon/sidebar/DeliveryIcon.svg";
 
 export type SubNavItem = {
   label: string;
@@ -47,6 +48,18 @@ export const NAV_ITEMS: NavItem[] = [
       { label: "Load Planning", path: "/load_planning/list" },
       { label: "Packing List", path: "/load_planning/packing-list" },
       { label: "QR Labels", path: "/load_planning/qr-labels" },
+    ],
+  },
+  {
+    title: "Delivery",
+    color: "bg-[#2563EB]",
+    icon: DeliveryIcon,
+    items: [
+      { label: "Freight Loads", path: "/delivery/freight-loads" },
+      { label: "Awarded Loads", path: "/delivery/awarded-loads" },
+      { label: "Deliveries Calendar", path: "/delivery/calendar" },
+      { label: "All Deliveries", path: "/delivery/all-deliveries" },
+      { label: "Notification Details", path: "/delivery/notifications" },
     ],
   },
 

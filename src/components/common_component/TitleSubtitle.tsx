@@ -3,6 +3,7 @@ type TitleSubtitleProps = {
   subtitle: string;
   titleClassName?: string;
   subtitleClassName?: string;
+  widthClass?:string;
 };
 
 const TitleSubtitle: React.FC<TitleSubtitleProps> = ({
@@ -10,11 +11,12 @@ const TitleSubtitle: React.FC<TitleSubtitleProps> = ({
   subtitle,
   titleClassName = "",
   subtitleClassName = "",
+  widthClass="lg:max-w-3/6 max-w-auto"
 }) => {
   return (
-    <div className="flex items-start gap-1 flex-col lg:max-w-3/6 max-w-auto">
+    <div className={`flex items-start gap-1 flex-col ${widthClass}`}>
       <h1
-        className={`lg:text-3xl md:text-2xl text-xl font-archivo font-normal text-[#111827] md:mb-2 mb-1 ${titleClassName}`}
+        className={`md:text-2xl text-xl font-normal text-[#111827] md:mb-2 mb-1 ${titleClassName}`}
       >
         {title}
       </h1>

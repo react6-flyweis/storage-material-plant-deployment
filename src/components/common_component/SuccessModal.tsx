@@ -8,6 +8,7 @@ interface SuccessModalProps {
   onClose: () => void;
   title?: string;
   subTitle?: string;
+  buttonText?: string;
 }
 
 const SuccessModal: React.FC<SuccessModalProps> = ({
@@ -15,12 +16,19 @@ const SuccessModal: React.FC<SuccessModalProps> = ({
   onClose,
   title = "Entry Added",
   subTitle,
+  buttonText = "Ok",
 }) => {
   return (
     <Modal isOpen={isOpen} onClose={onClose} width="max-w-lg" hideHeader={true}>
-      <div className="flex flex-col items-center text-center justify-center">
-        <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold text-black mb-1 mx-10">{title}</h2>
-       {subTitle && <h2 className="text-lg md:text-2xl font-semibold text-black mb-6">{subTitle}</h2>}
+      <div className="flex flex-col items-center text-center justify-center p-4">
+        <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold text-black mb-1 mx-4">
+          {title}
+        </h2>
+        {subTitle && (
+          <h2 className="text-lg md:text-2xl font-semibold text-black mb-6">
+            {subTitle}
+          </h2>
+        )}
 
         <div className="md:-mt-6 md:-mb-6">
           <img
@@ -31,11 +39,11 @@ const SuccessModal: React.FC<SuccessModalProps> = ({
         </div>
 
         <Button
-        variant="gradient"
+          variant="gradient"
           onClick={onClose}
-          className="w-30 md:w-44 py-3"
+          className="min-w-[120px] md:min-w-[180px] py-3 md:py-4 px-6 md:text-lg font-bold"
         >
-          Ok
+          {buttonText}
         </Button>
       </div>
     </Modal>

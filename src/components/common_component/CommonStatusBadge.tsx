@@ -2,7 +2,7 @@ import React from "react";
 import { CircleCheck} from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export type BadgeVariant = "green" | "yellow" | "red" | "gray" | "blue" | "cyan";
+export type BadgeVariant = "green" | "yellow" | "red" | "gray" | "blue" | "cyan" | "gradient";
 
 interface CommonStatusBadgeProps {
   text: string;
@@ -24,6 +24,7 @@ const CommonStatusBadge: React.FC<CommonStatusBadgeProps> = ({
     cyan: "bg-[#E6FFFA] text-[#047857] border-[#E6FFFA]",
     gray: "bg-[#F3F4F6] text-[#6B7280] border-[#F3F4F6]",
     blue: "bg-[#E0F2FE] text-[#0369A1] border-[#E0F2FE]",
+    gradient:"bg-[#F4F8FE] text-[#2563EB] border-[#E9F4FD]",
   };
 
   const getAutoIcon = (v: BadgeVariant, t: string) => {

@@ -14,13 +14,24 @@ import {
   Paperclip,
   MapPin,
   Calendar,
+  User,
+  FileText,
+  DollarSign,
+  Send,
+  Save,
 } from "lucide-react";
 import Button from "../common_component/Button";
 import CommonDropdown from "../common_component/CommonDropdown";
 import SubHeading from "../common_component/SubHeading";
 import TitleSubtitle from "../common_component/TitleSubtitle";
+import CardHeader from "../common_component/CardHeader";
 import QuickenSteelDocument from "./QuickenSteelDocument";
-import CheckIcon  from "../../assets/icon/checkIcon.svg"
+import CheckIcon from "../../assets/icon/checkIcon.svg";
+import PackingListModal from "./PackingListModal";
+import CarrierFilterModal from "./CarrierFilterModal";
+import FreightReviewModal from "./FreightReviewModal";
+import SuccessModal from "../common_component/SuccessModal";
+import CommonInfoList from "../common_component/CommonInfoList";
 
 const steps = [
   "Shipper Upload",
@@ -47,6 +58,10 @@ const StartLoadPlanningView: React.FC = () => {
   const [notes, setNotes] = useState("First batch for structural steel");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isPackingListModalOpen, setIsPackingListModalOpen] = useState(false);
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  const [isDraftSuccessModalOpen, setIsDraftSuccessModalOpen] = useState(false);
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+  const [isSentSuccessModalOpen, setIsSentSuccessModalOpen] = useState(false);
 
   const orderItems = [
     {
@@ -238,16 +253,24 @@ const StartLoadPlanningView: React.FC = () => {
       <div className="flex flex-wrap items-center justify-between mb-8 gap-4 px-2">
         <div className="flex gap-4">
           <button
-            onClick={() => navigate(-1)}
+            onClick={() => {
+              if (currentStep > 0) {
+                setCurrentStep((prev) => prev - 1);
+              } else {
+                navigate(-1);
+              }
+            }}
             className="text-black transition-colors"
           >
             <ArrowLeft size={22} />
           </button>
           <TitleSubtitle
+          widthClass="max-w-auto"
             title={
-              currentStep === 8
-                ? "Shipment Dispatch"
-                : currentStep === 7
+              // currentStep === 8
+              //   ? "Shipment Dispatch"
+              //   :
+                 currentStep === 7
                   ? "Create Freight Request"
                   : currentStep === 6
                     ? "Load Plan Review"
@@ -262,9 +285,10 @@ const StartLoadPlanningView: React.FC = () => {
                             : steps[currentStep]
             }
             subtitle={
-              currentStep === 8
-                ? "Finalize dispatch and initiate shipment tracking for the completed load plan."
-                : currentStep === 7
+              // currentStep === 8
+              //   ? "Finalize dispatch and initiate shipment tracking for the completed load plan."
+              //   :
+                 currentStep === 7
                   ? "Request freight pricing from carriers and compare competitive bids"
                   : currentStep === 6
                     ? "Final check of the entire load plan, including bundles, trucks, and weights, before selecting freight carriers."
@@ -283,19 +307,28 @@ const StartLoadPlanningView: React.FC = () => {
           />
         </div>
         <div className="flex items-center gap-3">
+          {currentStep === 4 && (
+            <Button
+              variant="purpleFilled"
+              onClick={() => setCurrentStep(5)}
+              className="px-8 py-2.5 font-bold"
+            >
+              Generate QR Label
+            </Button>
+          )}
           {currentStep === 8 ? (
             <>
-              <Button
+              {/* <Button
                 variant="purpleFilled"
                 onClick={() => navigate("/projects")}
                 className="px-8 py-2.5 font-bold"
               >
                 Go to Project Dashboard
-              </Button>
+              </Button> */}
             </>
           ) : currentStep === 7 ? (
             <>
-              <Button
+              {/* <Button
                 variant="white"
                 className="border-[#E2E4E6] text-[#212B36] font-bold text-sm px-5"
               >
@@ -310,7 +343,7 @@ const StartLoadPlanningView: React.FC = () => {
                 className="px-8 py-2.5 font-bold"
               >
                 Confirm & Dispatch
-              </Button>
+              </Button> */}
             </>
           ) : currentStep === 6 ? (
             <>
@@ -616,43 +649,17 @@ const StartLoadPlanningView: React.FC = () => {
           <div className="bg-[#F8F9FB] rounded-xl border border-gray-100 p-6 md:p-8 shadow-sm">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
               <div className="space-y-4">
-                <h2 className="text-2xl font-inter font-bold text-black">
-                  Project: Riverside Complex | Upload ID: UPL-001
-                </h2>
-                <div className="space-y-1.5">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-inter font-bold text-black min-w-[140px]">
-                      Project:
-                    </span>
-                    <span className="text-sm font-inter text-[#637381]">
-                      Riverside Complex
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-inter font-bold text-black min-w-[140px]">
-                      Upload ID:
-                    </span>
-                    <span className="text-sm font-inter text-[#637381]">
-                      UPL-001
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-inter font-bold text-black min-w-[140px]">
-                      Shipper Reference:
-                    </span>
-                    <span className="text-sm font-inter text-[#637381]">
-                      SHP-1044
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-inter font-bold text-black min-w-[140px]">
-                      Vendor:
-                    </span>
-                    <span className="text-sm font-inter text-[#637381]">
-                      ABC Shipper
-                    </span>
-                  </div>
-                </div>
+                <CommonInfoList
+                  title="Project: Riverside Complex | Upload ID: UPL-001"
+                  items={[
+                    { label: "Project", value: "Riverside Complex" },
+                    { label: "Upload ID", value: "UPL-001" },
+                    { label: "Shipper Reference", value: "SHP-1044" },
+                    { label: "Vendor", value: "ABC Shipper" },
+                  ]}
+                  labelWidth="min-w-[140px]"
+                  className="space-y-1.5"
+                />
               </div>
               <Button
                 variant="purpleFilled"
@@ -672,43 +679,17 @@ const StartLoadPlanningView: React.FC = () => {
       {currentStep === 2 && (
         <div className="space-y-8 bg-white rounded-xl border border-gray-100 shadow-sm p-4 md:p-8">
           <div className="bg-[#F8F9FB] rounded-xl p-6 md:p-8 border border-gray-100">
-            <h2 className="text-2xl font-inter font-bold text-black mb-6">
-              Project: Riverside Complex | Upload ID: UPL-001
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-y-1.5">
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-inter font-bold text-black min-w-[140px]">
-                  Project:
-                </span>
-                <span className="text-sm font-inter text-[#637381]">
-                  Riverside Complex
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-inter font-bold text-black min-w-[140px]">
-                  Shipper Reference:
-                </span>
-                <span className="text-sm font-inter text-[#637381]">
-                  SHP-1044
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-inter font-bold text-black min-w-[140px]">
-                  Upload ID:
-                </span>
-                <span className="text-sm font-inter text-[#637381]">
-                  UPL-001
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-inter font-bold text-black min-w-[140px]">
-                  Vendor:
-                </span>
-                <span className="text-sm font-inter text-[#637381]">
-                  ABC Shipper
-                </span>
-              </div>
-            </div>
+            <CommonInfoList
+              title="Project: Riverside Complex | Upload ID: UPL-001"
+              items={[
+                { label: "Project", value: "Riverside Complex" },
+                { label: "Shipper Reference", value: "SHP-1044" },
+                { label: "Upload ID", value: "UPL-001" },
+                { label: "Vendor", value: "ABC Shipper" },
+              ]}
+              labelWidth="min-w-[140px]"
+              className="grid grid-cols-1 md:grid-cols-2 gap-y-1.5"
+            />
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             <div>
@@ -1034,44 +1015,16 @@ const StartLoadPlanningView: React.FC = () => {
 
       {currentStep === 4 && (
         <div className="space-y-8 bg-white rounded-[14px] border border-gray-100 shadow-sm p-4 md:p-8">
-          <div className="bg-[#F8F9FB] rounded-xl p-6 md:p-10 border border-gray-100">
-            <h2 className="text-lg md:text-2xl lg:text-3xl font-inter font-semibold text-[#212B36] mb-6">
-              Project: Riverside Complex | Truckloads: 2
-            </h2>
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <span className="text-sm md:text-base font-inter font-semibold text-[#212B36] min-w-[160px]">
-                  Project:
-                </span>
-                <span className="text-sm md:text-base font-inter text-[#637381]">
-                  Riverside Complex
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm md:text-base font-inter font-semibold text-[#212B36] min-w-[160px]">
-                  Upload ID:
-                </span>
-                <span className="text-sm md:text-base font-inter text-[#637381]">
-                  UPL-001
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-base font-inter font-semibold text-[#212B36] min-w-[160px]">
-                  Bundles Created:
-                </span>
-                <span className="text-base font-inter text-[#637381]">5</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-base font-inter font-semibold text-[#212B36] min-w-[160px]">
-                  Total Weight:
-                </span>
-                <span className="text-base font-inter text-[#637381]">
-                  18500 IBS
-                </span>
-              </div>
-            </div>
-          </div>
-
+            <CommonInfoList
+              title="Project: Riverside Complex | Truckloads: 2"
+              items={[
+                { label: "Project", value: "Riverside Complex" },
+                { label: "Upload ID", value: "UPL-001" },
+                { label: "Bundles Created", value: "5" },
+                { label: "Total Weight", value: "18500 IBS" },
+              ]}
+              labelWidth="min-w-[160px]"
+            />
           <div className="space-y-6">
             <SubHeading text="Optimization Summary Card" />
             <div className="max-w-md space-y-4">
@@ -1147,7 +1100,7 @@ const StartLoadPlanningView: React.FC = () => {
                   ].map((row) => (
                     <tr
                       key={row.id}
-                      className="hover:bg-gray-50/50 transition-colors"
+                      className="hover:bg-gray-50/50 transition-colors font-inter"
                     >
                       <td className="py-6 px-6 font-normal">{row.num}</td>
                       <td className="py-6 px-6 font-normal text-(--text-color-gray-4)">
@@ -1198,28 +1151,16 @@ const StartLoadPlanningView: React.FC = () => {
       {currentStep === 5 && (
         <div className="space-y-8 bg-white rounded-xl border border-gray-100 shadow-sm p-4 md:p-8">
           {/* Project Header Card */}
-          <div className="bg-[#F8F9FB] rounded-xl p-6 md:p-10 border border-gray-100">
-            <h2 className="text-lg md:text-2xl lg:text-3xl font-inter font-bold text-[#212B36] mb-6">
-              Project: Riverside Complex | Shipper Ref: SHP-1044
-            </h2>
-            <div className="space-y-2">
-              {[
+            <CommonInfoList
+              title="Project: Riverside Complex | Shipper Ref: SHP-1044"
+              items={[
                 { label: "Project", value: "Riverside Complex" },
                 { label: "Upload ID", value: "UPL-001" },
                 { label: "Bundles Created", value: "5" },
                 { label: "Total Weight", value: "18500 IBS" },
-              ].map((item) => (
-                <div key={item.label} className="flex items-center gap-2">
-                  <span className="text-sm md:text-base font-inter font-semibold text-[#212B36] min-w-[160px]">
-                    {item.label}:
-                  </span>
-                  <span className="text-sm md:text-base font-inter text-[#637381]">
-                    {item.value}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
+              ]}
+              labelWidth="min-w-[160px]"
+            />
 
           {/* Summary Card Section */}
           <div className="space-y-6">
@@ -1304,29 +1245,16 @@ const StartLoadPlanningView: React.FC = () => {
       {currentStep === 6 && (
         <div className="space-y-12 bg-white rounded-xl border border-gray-100 shadow-sm p-4 md:p-8">
           {/* Project Header Card */}
-          <div className="bg-[#F8F9FB] rounded-xl p-6 md:p-10 border border-gray-100">
-            <h2 className="text-lg md:text-2xl lg:text-3xl font-inter font-bold text-[#212B36] mb-6">
-              Project: Riverside Complex | Shipper Ref: SHP-1044
-            </h2>
-            <div className="space-y-1">
-              {[
+            <CommonInfoList
+              title="Project: Riverside Complex | Shipper Ref: SHP-1044"
+              items={[
                 { label: "Project", value: "Riverside Complex" },
-                { label: "Upload ID", value: "UPL-001" },
-                { label: "Bundles Created", value: "5" },
-                { label: "Total Weight", value: "18500 IBS" },
-              ].map((item) => (
-                <div key={item.label} className="flex items-center gap-2">
-                  <span className="text-sm md:text-base font-inter font-bold text-[#212B36] min-w-[160px]">
-                    {item.label}:
-                  </span>
-                  <span className="text-sm md:text-base font-inter font-bold text-[#212B36]">
-                    {item.value}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-
+                { label: "Load ID", value: "LOAD-001" },
+                { label: "Shipper Reference", value: "SHP-1044" },
+                { label: "Status", value: "Planning" },
+              ]}
+              labelWidth="min-w-[160px]"
+            />
           {/* Load Summary Card */}
           <div className="space-y-6">
             <SubHeading text="Load Summary Card" />
@@ -1443,35 +1371,33 @@ const StartLoadPlanningView: React.FC = () => {
       )}
 
       {currentStep === 7 && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           <div className="lg:col-span-8 space-y-8">
             {/* Load Details Card */}
-            <div className="bg-white rounded-[20px] border border-gray-100 shadow-sm p-6 md:p-10 space-y-8">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-[#FFF4E5] rounded-full flex items-center justify-center text-[#FFAB00]">
-                  <Package size={24} />
-                </div>
-                <div>
-                  <h3 className="text-xl font-inter font-bold text-[#212B36]">Load Details (Auto-Fill)</h3>
-                  <p className="text-sm text-[#637381]">Describe what needs to be transported</p>
-                </div>
-              </div>
+            <div className="bg-white rounded-[20px] border border-gray-100 shadow-sm p-4 md:p-6 space-y-8">
+              <CardHeader
+                icon={<Package />}
+                title="Load Details (Auto-Fill)"
+                subtitle="Describe what needs to be transported"
+                iconBgColor="bg-[#FFF4E5]"
+                iconColor="text-[#FFAB00]"
+              />
 
               <div className="space-y-6">
                 <div className="space-y-2">
-                  <label className="text-sm font-inter font-bold text-[#212B36]">
+                  <label className="text-sm font-inter font-semibold text-[#212B36]">
                     Load Description <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
                     defaultValue="Primary Steel Frame - 45,000 lbs"
-                    className="w-full px-4 py-3 bg-white border border-[#E2E4E6] rounded-xl text-base font-inter focus:outline-none focus:ring-1 focus:ring-[#0043CE]"
+                    className="w-full px-4 py-3 bg-white border border-[#E2E4E6] rounded-md text-base font-inter focus:outline-none focus:ring-1 focus:ring-[#0043CE]"
                   />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <label className="text-sm font-inter font-bold text-[#212B36]">
+                    <label className="text-sm font-inter font-semibold text-[#212B36]">
                       Weight <span className="text-red-500">*</span>
                     </label>
                     <div className="flex gap-3">
@@ -1497,7 +1423,7 @@ const StartLoadPlanningView: React.FC = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-sm font-inter font-bold text-[#212B36]">
+                    <label className="text-sm font-inter font-semibold text-[#212B36]">
                       Dimensions
                     </label>
                     <div className="relative">
@@ -1514,7 +1440,7 @@ const StartLoadPlanningView: React.FC = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-inter font-bold text-[#212B36]">
+                  <label className="text-sm font-inter font-semibold text-[#212B36]">
                     Material Type
                   </label>
                   <CommonDropdown 
@@ -1526,7 +1452,7 @@ const StartLoadPlanningView: React.FC = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-inter font-bold text-[#212B36]">
+                  <label className="text-sm font-inter font-semibold text-[#212B36]">
                     Pallet / Package Count
                   </label>
                   <CommonDropdown 
@@ -1537,8 +1463,8 @@ const StartLoadPlanningView: React.FC = () => {
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-sm font-inter font-bold text-[#212B36]">
+                <div className="">
+                  <label className="text-sm font-inter font-semibold text-[#212B36]">
                     Loading Equipment
                   </label>
                   <CommonDropdown 
@@ -1551,33 +1477,33 @@ const StartLoadPlanningView: React.FC = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <label className="text-sm font-inter font-bold text-[#212B36]">
+                    <label className="text-sm font-inter font-semibold text-[#212B36]">
                       Bid Deadline
                     </label>
-                    <div className="relative">
+                    <div className="relative mt-2">
                       <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
                         <Clock size={18} />
                       </span>
                       <input
-                        type="text"
+                        type="datetime-local"
                         defaultValue="Carriers must respond within 6 hours."
-                        className="w-full pl-12 pr-4 py-3 bg-white border border-[#E2E4E6] rounded-xl text-sm font-inter focus:outline-none focus:ring-1 focus:ring-[#0043CE]"
+                        className="w-full pl-12 pr-4 py-3 bg-white border border-[#E2E4E6] rounded-md text-sm font-inter focus:outline-none focus:ring-1 focus:ring-[#0043CE]"
                       />
                     </div>
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-sm font-inter font-bold text-[#212B36]">
+                    <label className="text-sm font-inter font-semibold text-[#212B36]">
                       Document Upload
                     </label>
-                    <div className="relative">
+                    <div className="relative mt-2">
                       <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
                         <Paperclip size={18} />
                       </span>
                       <input
                         type="text"
                         defaultValue="Attachments"
-                        className="w-full pl-12 pr-4 py-3 bg-white border border-[#E2E4E6] rounded-xl text-sm font-inter focus:outline-none focus:ring-1 focus:ring-[#0043CE] text-gray-400"
+                        className="w-full pl-12 pr-4 py-3 bg-white border border-[#E2E4E6] rounded-md text-sm font-inter focus:outline-none focus:ring-1 focus:ring-[#0043CE] text-gray-400"
                       />
                     </div>
                   </div>
@@ -1586,16 +1512,14 @@ const StartLoadPlanningView: React.FC = () => {
             </div>
 
             {/* Locations Card */}
-            <div className="bg-white rounded-[20px] border border-gray-100 shadow-sm p-6 md:p-10 space-y-8">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-[#E8F1FF] rounded-full flex items-center justify-center text-[#1E51A4]">
-                  <MapPin size={24} />
-                </div>
-                <div>
-                  <h3 className="text-xl font-inter font-bold text-[#212B36]">Locations</h3>
-                  <p className="text-sm text-[#637381]">Pickup and delivery addresses</p>
-                </div>
-              </div>
+            <div className="bg-white rounded-[20px] border border-gray-100 shadow-sm p-4 md:p-6 space-y-8">
+              <CardHeader
+                icon={<MapPin size={24}/>}
+                title="Locations"
+                subtitle="Pickup and delivery addresses"
+                iconBgColor="bg-[#E8F1FF]"
+                iconColor="text-[#1E51A4]"
+              />
 
               <div className="space-y-6">
                 <div className="space-y-2">
@@ -1609,7 +1533,7 @@ const StartLoadPlanningView: React.FC = () => {
                     <input
                       type="text"
                       placeholder="e.g., Steel Mill, Pittsburgh, PA"
-                      className="w-full pl-12 pr-4 py-3 bg-white border border-[#E2E4E6] rounded-xl text-base font-inter focus:outline-none focus:ring-1 focus:ring-[#0043CE]"
+                      className="w-full pl-12 pr-4 py-3 bg-white border border-[#E2E4E6] rounded-md text-base font-inter focus:outline-none focus:ring-1 focus:ring-[#0043CE]"
                     />
                   </div>
                 </div>
@@ -1625,7 +1549,7 @@ const StartLoadPlanningView: React.FC = () => {
                     <input
                       type="text"
                       placeholder="e.g., Construction Site, Austin, TX"
-                      className="w-full pl-12 pr-4 py-3 bg-white border border-[#E2E4E6] rounded-xl text-base font-inter focus:outline-none focus:ring-1 focus:ring-[#0043CE]"
+                      className="w-full pl-12 pr-4 py-3 bg-white border border-[#E2E4E6] rounded-md text-base font-inter focus:outline-none focus:ring-1 focus:ring-[#0043CE]"
                     />
                   </div>
                 </div>
@@ -1633,16 +1557,14 @@ const StartLoadPlanningView: React.FC = () => {
             </div>
 
             {/* Timing Card */}
-            <div className="bg-white rounded-[20px] border border-gray-100 shadow-sm p-6 md:p-10 space-y-8">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-[#E8F5E9] rounded-full flex items-center justify-center text-[#2E7D32]">
-                  <Calendar size={24} />
-                </div>
-                <div>
-                  <h3 className="text-xl font-inter font-bold text-[#212B36]">Timing</h3>
-                  <p className="text-sm text-[#637381]">Pickup and delivery schedule</p>
-                </div>
-              </div>
+            <div className="bg-white rounded-[20px] border border-gray-100 shadow-sm p-4 md:p-6 space-y-8">
+              <CardHeader
+                icon={<Calendar />}
+                title="Timing"
+                subtitle="Pickup and delivery schedule"
+                iconBgColor="bg-[#E8F5E9]"
+                iconColor="text-[#2E7D32]"
+              />
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
                 <div className="space-y-2">
@@ -1654,9 +1576,9 @@ const StartLoadPlanningView: React.FC = () => {
                       <Calendar size={18} />
                     </span>
                     <input
-                      type="text"
+                      type="date"
                       placeholder="DD/MM/YYYY"
-                      className="w-full pl-12 pr-4 py-3 bg-white border border-[#E2E4E6] rounded-xl text-base font-inter focus:outline-none focus:ring-1 focus:ring-[#0043CE]"
+                      className="w-full pl-12 pr-4 py-3 bg-white border border-[#E2E4E6] rounded-md text-base font-inter focus:outline-none focus:ring-1 focus:ring-[#0043CE]"
                     />
                   </div>
                 </div>
@@ -1670,9 +1592,9 @@ const StartLoadPlanningView: React.FC = () => {
                       <Clock size={18} />
                     </span>
                     <input
-                      type="text"
+                      type="time"
                       placeholder="HH:MM"
-                      className="w-full pl-12 pr-4 py-3 bg-white border border-[#E2E4E6] rounded-xl text-base font-inter focus:outline-none focus:ring-1 focus:ring-[#0043CE]"
+                      className="w-full pl-12 pr-4 py-3 bg-white border border-[#E2E4E6] rounded-md text-base font-inter focus:outline-none focus:ring-1 focus:ring-[#0043CE]"
                     />
                   </div>
                 </div>
@@ -1686,9 +1608,9 @@ const StartLoadPlanningView: React.FC = () => {
                       <Calendar size={18} />
                     </span>
                     <input
-                      type="text"
+                      type="date"
                       placeholder="DD/MM/YYYY"
-                      className="w-full pl-12 pr-4 py-3 bg-white border border-[#E2E4E6] rounded-xl text-base font-inter focus:outline-none focus:ring-1 focus:ring-[#0043CE]"
+                      className="w-full pl-12 pr-4 py-3 bg-white border border-[#E2E4E6] rounded-md text-base font-inter focus:outline-none focus:ring-1 focus:ring-[#0043CE]"
                     />
                   </div>
                 </div>
@@ -1702,9 +1624,79 @@ const StartLoadPlanningView: React.FC = () => {
                       <Clock size={18} />
                     </span>
                     <input
-                      type="text"
+                      type="time"
                       placeholder="HH:MM"
-                      className="w-full pl-12 pr-4 py-3 bg-white border border-[#E2E4E6] rounded-xl text-base font-inter focus:outline-none focus:ring-1 focus:ring-[#0043CE]"
+                      className="w-full pl-12 pr-4 py-3 bg-white border border-[#E2E4E6] rounded-md text-base font-inter focus:outline-none focus:ring-1 focus:ring-[#0043CE]"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Coordination Card */}
+            <div className="bg-white rounded-[20px] border border-gray-100 shadow-sm p-4 md:p-6 space-y-8">
+              <CardHeader
+                icon={<User />}
+                title="Coordination"
+                subtitle="Contact and special requirements"
+                iconBgColor="bg-[#F3E5F5]"
+                iconColor="text-[#9C27B0]"
+              />
+
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-inter font-bold text-[#212B36]">
+                    Receiving POC <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative mt-2">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#919EAB]">
+                      <User size={20} />
+                    </span>
+                    <input
+                      type="text"
+                      placeholder="Full name of on-site contact"
+                      className="w-full pl-12 pr-4 py-3 bg-white border border-[#E2E4E6] rounded-md text-base font-inter focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-inter font-semibold text-[#212B36]">
+                    Pickup Contact Phone <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative mt-2">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#919EAB]">
+                      <User size={20} />
+                    </span>
+                    <input
+                      type="text"
+                      defaultValue="0987654321"
+                      className="w-full pl-12 pr-4 py-3 bg-white border border-[#E2E4E6] rounded-md text-base font-inter focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="">
+                  <label className="text-sm font-inter font-semibold text-[#212B36]">
+                    Special Requirements
+                  </label>
+                  <textarea
+                    placeholder="e.g., Crane unloading required, liftgate needed, fragile..."
+                    className="w-full px-4 py-3 bg-white border border-[#E2E4E6] rounded-md mt-2 text-base font-inter focus:outline-none"
+                  />
+                </div>
+
+                <div className="">
+                  <label className="text-sm font-inter font-semibold text-[#212B36]">
+                    Additional Notes
+                  </label>
+                  <div className="relative mt-2">
+                    <span className="absolute left-4 top-4 text-[#919EAB]">
+                      <FileText size={20} />
+                    </span>
+                    <textarea
+                      placeholder="Any other information for carriers..."
+                      className="w-full pl-12 pr-4 py-4 bg-white border border-[#E2E4E6] rounded-md text-base font-inter focus:outline-none"
                     />
                   </div>
                 </div>
@@ -1713,60 +1705,104 @@ const StartLoadPlanningView: React.FC = () => {
           </div>
 
           {/* Right Column: Select Carriers */}
-          <div className="lg:col-span-4 bg-white rounded-[20px] border border-gray-100 shadow-sm p-6 space-y-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-[#E8F1FF] rounded-full flex items-center justify-center text-[#1E51A4]">
-                  <Truck size={20} />
-                </div>
-                <div>
-                  <h3 className="text-lg font-inter font-bold text-[#212B36]">Select Carriers</h3>
-                  <p className="text-xs text-[#637381]">Send bid request to carriers</p>
-                </div>
-              </div>
-              <button className="p-2 hover:bg-gray-50 rounded-lg transition-colors border border-[#E2E4E6] text-gray-500">
-                <SlidersHorizontal size={20} />
-              </button>
-            </div>
-
-            <div className="space-y-4">
-              {[
-                { name: "QuickFreight Solutions", rating: 4.8, lastQuote: "$2,850", special: "Steel, Heavy Equipment", onTime: "94%", area: "Texas / Oklahoma", checked: true },
-                { name: "National Haulers Inc.", rating: 4.5, lastQuote: "$2,950", special: "General Freight", onTime: "94%", area: "Texas / Oklahoma", checked: true },
-                { name: "Regional Transport Co.", rating: 4.2, lastQuote: "$3,100", special: "Regional Delivery", onTime: "94%", area: "Texas / Oklahoma", checked: true },
-                { name: "FastFreight Logistics", rating: 4.9, lastQuote: "$3,250", special: "Express Delivery", onTime: "94%", area: "Texas / Oklahoma", checked: false },
-              ].map((carrier) => (
-                <div 
-                  key={carrier.name}
-                  className={`p-4 rounded-2xl border-2 transition-all cursor-pointer ${carrier.checked ? "border-[#0043CE]/20 bg-[#F8F9FB]" : "border-gray-50 bg-white"}`}
-                >
-                  <div className="flex items-start gap-4">
-                    <div className={`mt-1 w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${carrier.checked ? "bg-[#0043CE] border-[#0043CE]" : "bg-white border-gray-200"}`}>
-                      {carrier.checked && <Check size={12} className="text-white" strokeWidth={4} />}
-                    </div>
-                    <div className="flex-1 space-y-1">
-                      <div className="flex justify-between items-start">
-                        <h4 className="font-bold text-[#212B36] text-sm">{carrier.name}</h4>
-                      </div>
-                      <div className="flex items-center gap-2 text-xs">
-                        <span className="text-[#FFAB00] font-bold">★ {carrier.rating}</span>
-                        <span className="text-[#637381]">Last: {carrier.lastQuote}</span>
-                      </div>
-                      <p className="text-[11px] text-[#637381] font-medium leading-relaxed">
-                        {carrier.special}<br/>
-                        On-time rate: {carrier.onTime}<br/>
-                        Service Area: {carrier.area}
-                      </p>
-                    </div>
+          <div className="lg:col-span-4 space-y-8">
+            <div className="bg-white rounded-[14px] border border-gray-100 shadow-sm p-4 md:p-6 space-y-6">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <div className="flex items-start md:items-center gap-3">
+                  <div className="w-8 h-8 md:w-10 md:h-10 bg-[#E8F1FF] rounded-full flex items-center justify-center text-[#1E51A4]">
+                    <Truck size={16} className="md:size-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm md:text-lg font-inter font-semibold text-[#212B36]">Select Carriers</h3>
+                    <p className="text-xs text-[#637381]">Send bid request to carriers</p>
                   </div>
                 </div>
-              ))}
+                <button 
+                  onClick={() => setIsFilterModalOpen(true)}
+                  className="p-2 bg-[#DFDFDF] ml-auto rounded-full border border-[#E2E4E6] text-black"
+                >
+                  <SlidersHorizontal size={20} strokeWidth={2.5} />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                {[
+                  { name: "QuickFreight Solutions", rating: 4.8, lastQuote: "$2,850", special: "Steel, Heavy Equipment", onTime: "94%", area: "Texas / Oklahoma", checked: true },
+                  { name: "National Haulers Inc.", rating: 4.5, lastQuote: "$2,950", special: "General Freight", onTime: "94%", area: "Texas / Oklahoma", checked: true },
+                  { name: "Regional Transport Co.", rating: 4.2, lastQuote: "$3,100", special: "Regional Delivery", onTime: "94%", area: "Texas / Oklahoma", checked: true },
+                  { name: "FastFreight Logistics", rating: 4.9, lastQuote: "$3,250", special: "Express Delivery", onTime: "94%", area: "Texas / Oklahoma", checked: false },
+                ].map((carrier) => (
+                  <div 
+                    key={carrier.name}
+                    className={`p-2 md:p-4 rounded-md border transition-all cursor-pointer font-inter text-sm${carrier.checked ? "border-[#E2E4E6] bg-white" : "border-gray-50 bg-white"}`}
+                  >
+                    <div className="flex items-start gap-4">
+                      <div className={`mt-1 w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${carrier.checked ? "bg-white border-[#22C55E]" : "bg-white border-gray-200"}`}>
+                        {carrier.checked && <Check size={12} className="text-[#22C55E]" strokeWidth={4} />}
+                      </div>
+                      <div className="flex-1 space-y-1">
+                        <div className="flex justify-between items-start">
+                          <h4 className="font-semibold text-[#212B36] text-sm">{carrier.name}</h4>
+                        </div>
+                        <div className="flex items-center gap-2 text-xs">
+                          <span className="text-[#FFAB00] font-bold">★ {carrier.rating}</span>
+                          <span className="text-gray-300">•</span>
+                          <span className="text-[#637381]">Last: {carrier.lastQuote}</span>
+                        </div>
+                        <p className="text-xs text-[#637381] font-medium leading-relaxed">
+                          {carrier.special}<br/>
+                          On-time rate: {carrier.onTime}<br/>
+                          Service Area: {carrier.area}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Selection Summary */}
+              <div className="bg-[#EFF6FF] rounded-xl p-4 flex items-start gap-3">
+                <div className="text-[#1D4ED8] mt-1">
+                  <DollarSign size={20} />
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-[#1D4ED8]">3 Carriers Selected</p>
+                  <p className="text-xs text-[#1D4ED8]/70">Select carriers to request freight quotes</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="bg-white rounded-[20px] border border-gray-100 shadow-sm p-4 space-y-3 flex flex-col justify-center items-center">
+              <Button 
+                variant="blueFilled" 
+                onClick={() => setIsReviewModalOpen(true)}
+                className="w-full"
+              >
+                <Send size={18}  className="mr-3"/>
+                Send to 3 Carriers
+              </Button>
+              <Button 
+                variant="white" 
+                className="w-full"
+                onClick={() => setIsDraftSuccessModalOpen(true)}
+              >
+                <Save size={18} className="mr-3" />
+                Save as Draft
+              </Button>
+              <Button 
+                variant="outline"
+                onClick={() => setCurrentStep(6)}
+                className="w-full"
+              >
+                Cancel
+              </Button>
             </div>
           </div>
         </div>
       )}
 
-      {currentStep === 8 && (
+      {/* {currentStep === 8 && (
         <div className="space-y-8 bg-white rounded-xl border border-gray-100 shadow-sm p-4 md:p-8">
           <div className="text-center py-12">
             <div className="w-20 h-20 bg-[#E8F5E9] text-[#2E7D32] rounded-full flex items-center justify-center mx-auto mb-6">
@@ -1826,221 +1862,38 @@ const StartLoadPlanningView: React.FC = () => {
             </div>
           </div>
         </div>
-      )}
-      {/* ── Packing List Details Modal ─────────────────────────────── */}
-      {isPackingListModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 overflow-y-auto">
-          <div className="bg-white rounded-[24px] w-full max-w-6xl shadow-2xl relative my-auto p-4 md:p-10">
-            {/* Header Actions */}
-            <div className="flex flex-wrap justify-between items-start mb-10 gap-4">
-              <button
-                onClick={() => setIsPackingListModalOpen(false)}
-                className="px-6 py-2 bg-white border border-gray-100 rounded-lg text-sm font-semibold shadow-sm hover:bg-gray-50 transition-colors"
-              >
-                Back
-              </button>
-              <div className="flex flex-wrap gap-3">
-                <Button
-                  variant="purpleFilled"
-                  size="sm"
-                  className="px-6 font-bold"
-                >
-                  Download PDF
-                </Button>
-                <Button
-                  variant="purpleFilled"
-                  size="sm"
-                  className="px-6 font-bold"
-                >
-                  Print Packing List
-                </Button>
-                <Button
-                  variant="purpleFilled"
-                  size="sm"
-                  className="px-6 font-bold"
-                >
-                  Export Excel
-                </Button>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-16">
-              {/* Load Information */}
-              <div>
-                <h3 className="text-xl font-bold text-[#212B36] mb-8">
-                  Load Information
-                </h3>
-                <div className="space-y-4">
-                  {[
-                    { label: "Packing List ID", value: "PKL-001" },
-                    { label: "Load ID", value: "LOAD-001" },
-                    { label: "Project", value: "Riverside Complex" },
-                    { label: "Truck", value: "TX-9876" },
-                    { label: "Driver", value: "John Miler" },
-                    { label: "Destination", value: "Construction Site A" },
-                    { label: "Dispatch Date", value: "April 5" },
-                  ].map((item) => (
-                    <div
-                      key={item.label}
-                      className="flex justify-between border-b border-gray-50 pb-2"
-                    >
-                      <span className="text-[#637381] font-semibold">
-                        {item.label}
-                      </span>
-                      <span className="text-[#212B36] font-bold text-right">
-                        {item.value}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Packing Summary & Verification */}
-              <div className="space-y-12">
-                <div>
-                  <h3 className="text-xl font-bold text-[#212B36] mb-8">
-                    Packing Summary
-                  </h3>
-                  <div className="space-y-4">
-                    {[
-                      { label: "Total Bundles", value: "3" },
-                      { label: "Total Items", value: "150" },
-                      { label: "Total weight", value: "36,000 lbs" },
-                    ].map((item) => (
-                      <div
-                        key={item.label}
-                        className="flex justify-between border-b border-gray-50 pb-2"
-                      >
-                        <span className="text-[#637381] font-semibold">
-                          {item.label}
-                        </span>
-                        <span className="text-[#212B36] font-bold text-right">
-                          {item.value}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="text-xl font-bold text-[#212B36] mb-8">
-                    Loading Verification
-                  </h3>
-                  <div className="space-y-5 max-w-sm">
-                    {[
-                      "All Bundles Present",
-                      "QR Labels Verified",
-                      "Packing List Matches Load",
-                    ].map((item) => (
-                      <div
-                        key={item}
-                        className="flex justify-between items-center"
-                      >
-                        <span className="text-[#212B36] font-semibold">
-                          {item}
-                        </span>
-                        <div className="w-6 h-6 bg-[#6366F1] rounded-md flex items-center justify-center">
-                          <Check
-                            size={14}
-                            className="text-white"
-                            strokeWidth={4}
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Bundle List */}
-            <div>
-              <h3 className="text-xl font-bold text-[#212B36] mb-6">
-                Bundle List
-              </h3>
-              <div className="overflow-x-auto rounded-xl border border-gray-100">
-                <table className="w-full text-left border-collapse font-inter min-w-[800px]">
-                  <thead>
-                    <tr className="bg-[#212B36] text-white text-xs font-semibold tracking-wider">
-                      <th className="py-4 px-6 w-16">#</th>
-                      <th className="py-4 px-6">Bundle ID</th>
-                      <th className="py-4 px-6">Part Number</th>
-                      <th className="py-4 px-6">Quantity</th>
-                      <th className="py-4 px-6">Length</th>
-                      <th className="py-4 px-6">Weight</th>
-                      <th className="py-4 px-6">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100 text-sm">
-                    {[
-                      {
-                        id: "BND-001",
-                        num: 1,
-                        part: "STL-B12",
-                        qty: 20,
-                        len: "20ft",
-                        weight: "3600 IBS",
-                        status: "Verified",
-                      },
-                      {
-                        id: "BND-002",
-                        num: 2,
-                        part: "STL-B12",
-                        qty: 30,
-                        len: "30ft",
-                        weight: "2400 IBS",
-                        status: "Verified",
-                      },
-                      {
-                        id: "BND-003",
-                        num: 3,
-                        part: "STL-B12",
-                        qty: 100,
-                        len: "20ft",
-                        weight: "4500 IBS",
-                        status: "Verified",
-                      },
-                      {
-                        id: "BND-004",
-                        num: 4,
-                        part: "STL-B12",
-                        qty: 20,
-                        len: "15ft",
-                        weight: "2700 IBS",
-                        status: "Pending",
-                      },
-                    ].map((bundle) => (
-                      <tr key={bundle.id} className="hover:bg-gray-50/50">
-                        <td className="py-6 px-6 font-normal text-gray-400">
-                          {bundle.num}
-                        </td>
-                        <td className="py-6 px-6 font-bold text-[#212B36]">
-                          {bundle.id}
-                        </td>
-                        <td className="py-6 px-6 font-normal text-[#919EAB]">
-                          {bundle.part}
-                        </td>
-                        <td className="py-6 px-6 font-normal text-[#919EAB]">
-                          {bundle.qty}
-                        </td>
-                        <td className="py-6 px-6 font-normal text-[#919EAB]">
-                          {bundle.len}
-                        </td>
-                        <td className="py-6 px-6 font-normal text-[#919EAB]">
-                          {bundle.weight}
-                        </td>
-                        <td className="py-6 px-6 font-normal text-[#637381]">
-                          {bundle.status}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      )} */}
+      <PackingListModal
+        isOpen={isPackingListModalOpen}
+        onClose={() => setIsPackingListModalOpen(false)}
+      />
+      <CarrierFilterModal
+        isOpen={isFilterModalOpen}
+        onClose={() => setIsFilterModalOpen(false)}
+      />
+      <FreightReviewModal
+        isOpen={isReviewModalOpen}
+        onClose={() => setIsReviewModalOpen(false)}
+        onSubmit={() => {
+          setIsReviewModalOpen(false);
+          setIsSentSuccessModalOpen(true);
+        }}
+      />
+      <SuccessModal
+        isOpen={isDraftSuccessModalOpen}
+        onClose={() => setIsDraftSuccessModalOpen(false)}
+        title="Freight request saved as draft"
+        buttonText="Ok"
+      />
+      <SuccessModal
+        isOpen={isSentSuccessModalOpen}
+        onClose={() => {
+          setIsSentSuccessModalOpen(false);
+          // setCurrentStep(8);
+        }}
+        title="Freight request sent to 3 Carriers"
+        buttonText="View Carriers Quotations"
+      />
     </div>
   );
 };
