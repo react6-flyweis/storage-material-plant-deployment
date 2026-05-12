@@ -39,6 +39,11 @@ import PackingListDetailsView from "./components/projects/PackingListDetailsView
 import QRLabelsView from "./components/projects/QRLabelsView";
 import FreightLoadsView from "./components/delivery/FreightLoadsView";
 import AwardedLoadsView from "./components/delivery/AwardedLoadsView";
+import FreightRequestDetailsView from "./components/delivery/FreightRequestDetailsView";
+import DeliveryDetailsView from "./components/delivery/DeliveryDetailsView";
+import FreightLoadDetailsView from "./components/delivery/FreightLoadDetailsView";
+import DeliveryCalendarView from "./components/delivery/DeliveryCalendarView";
+import AllDeliveriesView from "./components/delivery/AllDeliveriesView";
 const Dashboard = lazy(() => import("@/pages/plantDashboard/PlantDashboard"));
 
 
@@ -140,6 +145,26 @@ export const adminRoutes: RouteObject[] = [
       {
         path: "/delivery/awarded-loads",
         element: <AwardedLoadsView />,
+      },
+      {
+        path: "/delivery/freight-request/:id",
+        element: <FreightRequestDetailsView />,
+      },
+      {
+        path: "/delivery/freight-load/:id",
+        element: <FreightLoadDetailsView />,
+      },
+      {
+        path: "/delivery/delivery-details/:id",
+        element: <DeliveryDetailsView />,
+      },
+      {
+        path: "/delivery/all-deliveries",
+        element: <AllDeliveriesView />,
+      },
+      {
+        path: "/delivery/calendar",
+        element: <DeliveryCalendarView />,
       },
       {
         path: "/load_planning/uploaded-bom-files",

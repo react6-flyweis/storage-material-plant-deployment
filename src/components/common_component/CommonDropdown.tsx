@@ -52,10 +52,10 @@ const CommonDropdown: React.FC<CommonDropdownProps> = ({
         <button
           type="button"
           onClick={() => setIsOpen(!isOpen)}
-          className="w-full flex items-center justify-between px-4 py-3 bg-[#F7F8F9] border border-[#E2E4E6] rounded-sm text-left focus:outline-none focus:ring focus:ring-blue-500/20 transition-all"
+          className="w-full flex items-center justify-between px-2 py-2 md:px-4 md:py-3 bg-[#F7F8F9] border border-[#E2E4E6] rounded-sm text-left focus:outline-none focus:ring focus:ring-blue-500/20 transition-all"
         >
           <span
-            className={`text-sm md:text-base font-inter ${selectedOption ? "text-black" : "text-gray-400"}`}
+            className={`text-xs md:text-sm font-inter ${selectedOption ? "text-black" : "text-gray-400"}`}
           >
             {selectedOption ? selectedOption.label : placeholder}
           </span>
@@ -66,7 +66,7 @@ const CommonDropdown: React.FC<CommonDropdownProps> = ({
         </button>
 
         {isOpen && (
-          <div className="absolute z-50 w-full mt-2 bg-white border border-gray-100 rounded-xl shadow-xl overflow-hidden animate-in fade-in zoom-in duration-200">
+          <div className="absolute z-50 w-full mt-2 bg-white border border-gray-100 rounded-md shadow-sm overflow-hidden animate-in fade-in zoom-in duration-200">
             <div className="max-h-60 overflow-y-auto">
               {options.map((option) => (
                 <button
@@ -76,9 +76,9 @@ const CommonDropdown: React.FC<CommonDropdownProps> = ({
                     onChange(option.value);
                     setIsOpen(false);
                   }}
-                  className={`w-full px-4 py-3 text-left text-sm md:text-base font-inter hover:bg-gray-50 transition-colors ${
+                  className={`w-full px-4 py-2 text-left text-sm md:text-base font-inter hover:bg-gray-50 transition-colors ${
                     value === option.value
-                      ? "bg-gray-50 text-blue-600 font-semibold"
+                      ? "bg-gray-50 text-blue-600 font-medium"
                       : "text-[#637381]"
                   }`}
                 >

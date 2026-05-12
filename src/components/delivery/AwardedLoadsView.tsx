@@ -14,6 +14,8 @@ import {
 import TitleSubtitle from "../common_component/TitleSubtitle";
 import Button from "../common_component/Button";
 import CommonStatusBadge from "../common_component/CommonStatusBadge";
+import { useNavigate } from "react-router-dom";
+import FreightFilterModal from "./FreightFilterModal";
 
 const mockAwardedLoads = [
   {
@@ -128,6 +130,8 @@ const StatCard = ({ title, value, icon: Icon, color, borderL }: any) => (
 
 const AwardedLoadsView: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  const navigate = useNavigate();
 
   const tableHeaders = [
     { label: "Request ID", align: "text-left" },
@@ -156,7 +160,7 @@ const AwardedLoadsView: React.FC = () => {
           subtitle="Track all awarded freight loads"
         />
         <div className="flex items-center gap-3 ml-auto">
-          <Button variant="white" size="sm">
+          <Button variant="white" size="sm" onClick={() => setIsFilterModalOpen(true)}>
             <Filter size={18} className="mr-2" /> Filter
           </Button>
           <Button variant="white" size="sm">
@@ -184,7 +188,7 @@ const AwardedLoadsView: React.FC = () => {
             className="max-w-md w-full pl-12 pr-4 py-3.5 bg-[#F4F6F8] border-none rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1E51A4]/10 transition-all placeholder:text-gray-400"
           />
         </div>
-        <Button variant="gradient" className="ml-auto">
+        <Button variant="gradient" className="ml-auto" onClick={() => setIsFilterModalOpen(true)}>
           Filter
         </Button>
       </div>
@@ -233,13 +237,17 @@ const AwardedLoadsView: React.FC = () => {
                   <td className="p-2 md:p-4">
                     <div className="text-sm font-bold text-(--text-color-gray-5)">{item.budget}</div>
                     <div className="text-xs text-[#637381] mt-1">Awarded: <span className="font-medium">{item.awardedAmount}</span></div>
-                    <div className="text-[11px] text-[#919EAB] mt-0.5">{item.bidsCount}</div>
+                    <div className="text-xs text-[#919EAB] mt-0.5">{item.bidsCount}</div>
                   </td>
                   <td className="p-2 md:p-4 text-center">
                     <CommonStatusBadge text={item.status} variant="green" />
                   </td>
                   <td className="p-2 md:p-4 text-center">
-                    <Button variant="white" size="sm">
+                    <Button 
+                      variant="white" 
+                      size="sm"
+                      onClick={() => navigate(`/delivery/freight-request/${item.id}`)}
+                    >
                       <Eye size={16} className="mr-2" /> View
                     </Button>
                   </td>
@@ -266,6 +274,12 @@ const AwardedLoadsView: React.FC = () => {
           </table>
         </div>
       </div>
+
+      <FreightFilterModal 
+        isOpen={isFilterModalOpen} 
+        onClose={() => setIsFilterModalOpen(false)} 
+        onApply={(f) => { console.log(f); setIsFilterModalOpen(false); }}
+      />
     </div>
   );
 };
