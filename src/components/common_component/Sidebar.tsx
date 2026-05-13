@@ -20,7 +20,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             flex flex-col items-center
             h-screen
             fixed left-0 top-0
-            z-40 bg-[#1D51A4]
+            z-50 bg-[#1D51A4]
             transition-transform duration-300 ease-in-out
             ${isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
           `}
@@ -45,10 +45,20 @@ const Sidebar: React.FC<SidebarProps> = ({
 
             <button
               onClick={() => setActiveTab(index)}
-              className="relative z-20 p-0 flex justify-center items-center group focus:outline-none"
+              className="relative z-20 p-0 flex items-center group focus:outline-none"
             >
+              {/* Hover Label Pill */}
+              <div className="absolute left-[-4px] flex items-center bg-white rounded-full py-1 pl-1 pr-6 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none whitespace-nowrap shadow-[0_10px_20px_-5px_rgba(0,0,0,0.1),0_8px_8px_-6px_rgba(0,0,0,0.1)] z-10 -translate-x-1 group-hover:translate-x-0">
+                {/* Spacer to keep text to the right of the icon */}
+                <div className="w-10 h-10 shrink-0" />
+                <span className="ml-4 font-normal text-black text-base lg:text-[17px] tracking-tight">
+                  {item.title}
+                </span>
+              </div>
+
+              {/* Icon Container */}
               <div
-                className={`w-10 h-10 p-1.5 rounded-full flex items-center justify-center transition-transform hover:scale-105 ${item.color} shadow-lg`}
+                className={`relative z-30 w-10 h-10 p-1.5 rounded-full flex items-center justify-center transition-all duration-300 group-hover:scale-105 ${item.color} shadow-lg`}
               >
                 <img
                   src={item.icon}

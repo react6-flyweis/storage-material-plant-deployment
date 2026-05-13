@@ -31,6 +31,36 @@ const ProjectStatsAndActivity: React.FC<ProjectStatsAndActivityProps> = ({
 }) => {
   const percentage = (stepNumber / totalSteps) * 100;
 
+  const mockActivities: Activity[] = [
+    {
+      building: "Building A",
+      action: "Step updated: material request completed",
+      date: "19 Jan 2025",
+    },
+    {
+      building: "Building B",
+      action: "Additional material request #AMR-001 Created",
+      date: "18 Jan 2025",
+    },
+    {
+      building: "Building C",
+      action: "Material Check Completed",
+      date: "18 Jan 2025",
+    },
+    {
+      building: "Building B",
+      action: "BOM Review completed",
+      date: "17 Jan 2025",
+    },
+    {
+      building: "",
+      action: "2 unread messages",
+      date: "17 Jan 2025",
+    },
+  ];
+
+  const displayActivities = activities && activities.length > 0 ? activities : mockActivities;
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 xl:gap-6">
       {/* Project Status Card */}
@@ -102,7 +132,7 @@ const ProjectStatsAndActivity: React.FC<ProjectStatsAndActivityProps> = ({
           {/* Vertical Dashed Line */}
           <div className="absolute left-[9px] top-2 bottom-2 border-l-2 border-dashed border-gray-100" />
 
-          {activities.map((activity, index) => (
+          {displayActivities.map((activity, index) => (
             <div key={index} className="flex gap-6 relative">
               {/* Purple Circle with Dot */}
               <div className="size-5 rounded-full border-2 border-(--text-color-purple) bg-white flex items-center justify-center z-10 mt-1 shrink-0">

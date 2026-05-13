@@ -34,7 +34,7 @@ const SidePanel: React.FC<SidePanelProps> = ({
         transition-all duration-300 ease-in-out
         overflow-y-auto
         shrink-0
-        ${isOpen ? "translate-x-0" : "-translate-x-[200%] md:translate-x-0"}
+        ${isOpen ? "translate-x-0" : "-translate-x-[200%] md:-translate-x-full"}
         bg-[#E5ECFF] p-3 pt-6
       `}
     >

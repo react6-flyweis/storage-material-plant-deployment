@@ -5,6 +5,7 @@ import {
   AddNotesModal,  
 } from "./ProjectActionModals";
 import SuccessModal from "../common_component/SuccessModal";
+import Button from "../common_component/Button";
 
 const ProjectLifecycle: React.FC = () => {
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
@@ -43,15 +44,15 @@ const ProjectLifecycle: React.FC = () => {
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-8">
-      <h2 className="text-xl font-inter font-bold text-[#212B36]">Project Lifecycle</h2>
+      <h2 className="text-xl font-semibold text-[#212B36]">Project Lifecycle</h2>
 
       {/* Timeline */}
-      <div className="relative overflow-x-auto pb-8 pt-4">
+      <div className="relative overflow-x-auto pb-6 pt-4">
         <div className="min-w-[1200px] relative">
           {/* Connection Line */}
           <div className="absolute top-4 left-10 right-10 h-1 bg-[#E5E7EB]" />
           <div 
-            className="absolute top-4 left-10 h-1 bg-[#3AB449] transition-all duration-500" 
+            className="absolute top-4 left-10 h-1 bg-[#0043CE] transition-all duration-500" 
             style={{ width: '43%' }} // Up to step 7
           />
           <div 
@@ -61,7 +62,7 @@ const ProjectLifecycle: React.FC = () => {
           
           <div className="relative flex justify-between">
             {steps.map((step) => (
-              <div key={step.id} className="flex flex-col items-center w-[85px] z-10">
+              <div key={step.id} className="flex flex-col items-center w-[80px] z-10">
                 {/* Step Circle */}
                 <div 
                   className={`size-8 rounded-full flex items-center justify-center text-xs border-2 border-[#C6C6C6] font-inter font-medium transition-all ${
@@ -75,17 +76,17 @@ const ProjectLifecycle: React.FC = () => {
                 
                 {/* Step Label */}
                 <div className="mt-3 text-center space-y-1">
-                  <p className={`text-[10px] font-inter font-medium leading-tight line-clamp-2 h-6 ${
+                  <p className={`text-[10px] font-inter font-normal leading-tight line-clamp-2 h-6 ${
                     step.current ? 'text-[#6F6F6F]' : 'text-[#6F6F6F]'
                   }`}>
                     {step.label}
                   </p>
                   <div className="h-4">
                     {step.date && (
-                      <p className="text-[9px] font-inter text-[#6F6F6F]">{step.date}</p>
+                      <p className="text-xs font-inter text-[#6F6F6F]">{step.date}</p>
                     )}
                     {step.status && (
-                      <p className="text-[9px] font-inter text-[#6F6F6F] font-normal capitalize tracking-tighter">Current Step</p>
+                      <p className="text-xs font-inter text-[#6F6F6F] font-normal capitalize tracking-tighter">Current Step</p>
                     )}
                   </div>
                 </div>
@@ -96,11 +97,11 @@ const ProjectLifecycle: React.FC = () => {
       </div>
 
       {/* Current Step Details Card */}
-      <div className="bg-[#F9FAFB] rounded-2xl p-6">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <div className="bg-[#F9FAFB] rounded-2xl p-4 lg:p-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 xl:gap-8">
           {/* Left: Step Info */}
           <div className="lg:col-span-1 space-y-3 lg:border-r border-gray-200 lg:pr-8">
-            <h3 className="text-sm font-inter font-bold text-[#212B36]">
+            <h3 className="text-sm font-inter font-medium text-[#212B36]">
               Production Planning (Step 7 of 14)
             </h3>
             <p className="text-xs text-[#637381] font-inter leading-relaxed">
@@ -115,7 +116,7 @@ const ProjectLifecycle: React.FC = () => {
                 <Calendar size={18} />
               </div>
               <div>
-                <p className="text-sm font-inter font-bold text-[#212B36]">Planned start date</p>
+                <p className="text-sm font-inter font-medium text-[#212B36]">Planned start date</p>
                 <p className="text-xs text-[#637381] font-inter">2024-10-10</p>
               </div>
             </div>
@@ -124,7 +125,7 @@ const ProjectLifecycle: React.FC = () => {
                 <Calendar size={18} />
               </div>
               <div>
-                <p className="text-sm font-inter font-bold text-[#212B36]">Target Completion</p>
+                <p className="text-sm font-inter font-medium text-[#212B36]">Target Completion</p>
                 <p className="text-xs text-[#637381] font-inter">2024-10-10</p>
               </div>
             </div>
@@ -133,12 +134,12 @@ const ProjectLifecycle: React.FC = () => {
           {/* Right: Planner & Priority */}
           <div className="lg:col-span-1 space-y-4 lg:border-r border-gray-200 lg:pr-8">
             <div>
-              <p className="text-sm font-inter font-bold text-[#212B36]">Assigned Planner</p>
+              <p className="text-sm font-inter font-medium text-[#212B36]">Assigned Planner</p>
               <p className="text-sm text-[#637381] font-inter">Sarah Lee</p>
             </div>
             <div>
-              <p className="text-sm font-inter font-bold text-[#212B36] mb-2">Priority</p>
-              <span className="px-4 py-1 bg-[#FFF9E7] text-[#EAB308] border border-[#EAB308]/20 rounded-full text-xs font-inter font-medium">
+              <p className="text-sm font-inter font-medium text-[#212B36] mb-2">Priority</p>
+              <span className="px-4 py-1 bg-[#FFF9E7] text-[#EAB308] border border-[#EAB308]/20 rounded-full text-xs font-inter font-normal">
                 Medium
               </span>
             </div>
@@ -146,10 +147,10 @@ const ProjectLifecycle: React.FC = () => {
 
           {/* Far Right: Next Step */}
           <div className="lg:col-span-1 space-y-3">
-            <h3 className="text-sm font-inter font-bold text-[#212B36]">Next Step</h3>
+            <h3 className="text-sm font-inter font-medium text-[#212B36]">Next Step</h3>
             <div className="space-y-1">
               <p className="text-sm text-[#637381] font-inter">Fabrication Production Started</p>
-              <p className="text-xs text-[#919EAB] font-inter italic">Upcoming After completion</p>
+              <p className="text-xs text-[#5D6772] font-inter">Upcoming After completion</p>
             </div>
           </div>
         </div>
@@ -157,18 +158,19 @@ const ProjectLifecycle: React.FC = () => {
 
       {/* Action Buttons */}
       <div className="flex flex-wrap items-center gap-4 pt-4">
-        <button 
+        <Button
+        variant="primary"
+        size="md"
           onClick={() => setIsUpdateModalOpen(true)}
-          className="px-8 py-3 bg-[#1E51A4] text-white rounded-xl text-sm font-inter font-bold hover:opacity-90 transition-opacity shadow-lg shadow-blue-500/20"
         >
           Update Step Status
-        </button>
-        <button 
+        </Button>
+        <Button
+        variant="blueOutlined"
           onClick={() => setIsNotesModalOpen(true)}
-          className="px-8 py-3 bg-white border-2 border-[#446DF6] text-[#212B36] rounded-xl text-sm font-inter font-bold hover:bg-gray-50 transition-colors shadow-sm"
         >
           Add Notes
-        </button>
+        </Button>
       </div>
 
       {/* Action Modals */}

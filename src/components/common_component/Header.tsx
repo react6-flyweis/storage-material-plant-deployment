@@ -40,7 +40,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
     <header className="flex items-center justify-between p-3 md:p-4 bg-white shadow-sm rounded-none z-20 sticky top-0 w-full gap-2 md:gap-4">
       <div className="flex items-center gap-2 md:gap-4 flex-1 min-w-0">
         <button
-          className="md:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+          className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
           onClick={onMenuToggle}
         >
           <svg

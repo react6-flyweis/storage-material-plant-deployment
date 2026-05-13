@@ -1,7 +1,6 @@
 import React from "react";
 import {
   Search,
-  Filter,
   Eye,
   ArrowUpDown,
   Hammer,
@@ -27,6 +26,8 @@ const UploadedBOMFilesView: React.FC = () => {
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [sortBy, setSortBy] = React.useState("Latest");
+  const [searchQuery, setSearchQuery] = React.useState("");
+  const [projectFilter, setProjectFilter] = React.useState("all");
   const [selectedRows, setSelectedRows] = React.useState<number[]>([]);
   const [sortConfig, setSortConfig] = React.useState<{
     key: string;
@@ -66,7 +67,7 @@ const UploadedBOMFilesView: React.FC = () => {
   const initialData = [
     {
       project: "ABC Warehouse",
-      date: "22 Feb 2025",
+      date: "15 Jan 2025",
       items: "125",
       status: "Draft",
       customerId: "ID-2025-1047",
@@ -74,45 +75,45 @@ const UploadedBOMFilesView: React.FC = () => {
     },
     {
       project: "Riya Buildings",
-      date: "07 Feb 2025",
+      date: "22 Feb 2025",
       items: "98",
       status: "✅ Approved",
       customerId: "ID-2025-1047",
       projectId: "PRJ-002",
     },
     {
-      project: "ABC Warehouse",
-      date: "30 Jan 2025",
+      project: "Z-Tech Park",
+      date: "05 Dec 2024",
       items: "210",
       status: "🔒 Locked",
-      customerId: "ID-2025-1047",
-      projectId: "PRJ-001",
+      customerId: "ID-2025-1048",
+      projectId: "PRJ-003",
     },
     {
-      project: "Riya Buildings",
-      date: "17 Jan 2025",
-      items: "125",
-      status: "🔒 Locked",
-      customerId: "ID-2025-1047",
-      projectId: "PRJ-002",
+      project: "Global Logistics",
+      date: "10 Mar 2025",
+      items: "150",
+      status: "Draft",
+      customerId: "ID-2025-1049",
+      projectId: "PRJ-004",
     },
     {
-      project: "ABC Warehouse",
-      date: "04 Jan 2025",
-      items: "98",
+      project: "Metro Station",
+      date: "01 Jan 2025",
+      items: "300",
       status: "🔒 Locked",
-      customerId: "ID-2025-1047",
-      projectId: "PRJ-001",
-    },
-    {
-      project: "Riya Buildings",
-      date: "09 Dec 2024",
-      items: "210",
-      status: "🔒 Locked",
-      customerId: "ID-2025-1047",
-      projectId: "PRJ-002",
+      customerId: "ID-2025-1050",
+      projectId: "PRJ-005",
     },
   ];
+
+  const projectOptions = React.useMemo(() => {
+    const uniqueProjects = Array.from(new Set(initialData.map((d) => d.project)));
+    return [
+      { label: "All Projects", value: "all" },
+      ...uniqueProjects.map((p) => ({ label: p, value: p })),
+    ];
+  }, []);
 
   const handleSort = (key: string) => {
     let direction: "asc" | "desc" = "asc";
@@ -122,20 +123,33 @@ const UploadedBOMFilesView: React.FC = () => {
     setSortConfig({ key, direction });
   };
 
-  const sortedData = React.useMemo(() => {
-    const data = [...initialData];
+  const filteredAndSortedData = React.useMemo(() => {
+    let data = [...initialData];
+
+    // Filter by search query
+    if (searchQuery) {
+      data = data.filter((item) =>
+        item.project.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    // Filter by project dropdown
+    if (projectFilter !== "all") {
+      data = data.filter((item) => item.project === projectFilter);
+    }
+
+    // Sort logic
     if (sortConfig.key) {
+      // Manual column sort
       data.sort((a: any, b: any) => {
         let valA = a[sortConfig.key];
         let valB = b[sortConfig.key];
 
-        // Special handling for date strings
         if (sortConfig.key === "date") {
           valA = new Date(valA).getTime();
           valB = new Date(valB).getTime();
         }
 
-        // Special handling for items (number strings)
         if (sortConfig.key === "items") {
           valA = parseInt(valA);
           valB = parseInt(valB);
@@ -145,9 +159,17 @@ const UploadedBOMFilesView: React.FC = () => {
         if (valA > valB) return sortConfig.direction === "asc" ? 1 : -1;
         return 0;
       });
+    } else {
+      // Fallback to Sort By dropdown (Latest/Oldest)
+      data.sort((a, b) => {
+        const dateA = new Date(a.date).getTime();
+        const dateB = new Date(b.date).getTime();
+        return sortBy === "Latest" ? dateB - dateA : dateA - dateB;
+      });
     }
+
     return data;
-  }, [sortConfig]);
+  }, [searchQuery, projectFilter, sortConfig, sortBy]);
 
   const handleViewBOM = (item: any) => {
     navigate(`/projects/view-bom/${item.customerId}/${item.projectId}`);
@@ -162,9 +184,9 @@ const UploadedBOMFilesView: React.FC = () => {
   };
 
   return (
-    <div className="xl:pr-5 px-2 pb-10 space-y-8">
+    <div className="xl:pr-2 md:px-4 px-2 pb-10 space-y-6">
       {/* ── Header ────────────────────────────────────────────────────── */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mt-2">
+      <div className="flex flex-wrap items-center justify-between gap-4 mt-2">
         <Heading text="Uploaded BOM Files" />
         <Button
           variant="primary"
@@ -190,22 +212,27 @@ const UploadedBOMFilesView: React.FC = () => {
       </div>
 
       {/* ── Filters ───────────────────────────────────────────────────── */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex flex-wrap items-center gap-3">
           <div className="relative group min-w-[280px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[#637381] size-5" />
             <input
               type="text"
               placeholder="Search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-2.5 bg-white border border-[#E2E8F0] rounded-[8px] text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/10 transition-all placeholder:text-[#919EAB]"
             />
           </div>
-          <button className="flex items-center gap-2 px-4 py-2.5 bg-white border border-[#E2E8F0] rounded-[8px] text-sm font-medium text-[#212B36] hover:bg-gray-50 transition-all">
-            <Filter size={18} /> Filter
-          </button>
+          <FilterDropdown
+            activeTab={projectFilter}
+            onTabChange={setProjectFilter}
+            options={projectOptions}
+            label="Filter"
+          />
         </div>
 
-        <div className="flex items-center gap-2 text-sm text-[#637381]">
+        <div className="flex items-center gap-2 text-sm text-[#637381] ml-auto">
           <span>Sort by :</span>
           <FilterDropdown
             activeTab={sortBy}
@@ -225,10 +252,10 @@ const UploadedBOMFilesView: React.FC = () => {
               <tr className="bg-[#F7F8F9] border-b border-[#E2E4E6]">
                 <th className="py-4 px-6 w-12">
                   <CommonCheckbox
-                    checked={selectedRows.length === initialData.length}
+                    checked={selectedRows.length === filteredAndSortedData.length && filteredAndSortedData.length > 0}
                     onChange={(checked) => {
                       if (checked)
-                        setSelectedRows(initialData.map((_, i) => i));
+                        setSelectedRows(filteredAndSortedData.map((_, i) => i));
                       else setSelectedRows([]);
                     }}
                   />
@@ -291,7 +318,7 @@ const UploadedBOMFilesView: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#E2E4E6]">
-              {sortedData.map((item, idx) => (
+              {filteredAndSortedData.map((item, idx) => (
                 <tr key={idx} className="hover:bg-gray-50/50 transition-colors">
                   <td className="py-2 px-6">
                     <CommonCheckbox

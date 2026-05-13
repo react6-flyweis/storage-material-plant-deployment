@@ -9,8 +9,8 @@ interface Option {
 interface CommonDropdownProps {
   label?: string;
   options: Option[];
-  value: string;
-  onChange: (value: string) => void;
+  value?: string;
+  onChange?: (value: string) => void;
   placeholder?: string;
   className?: string;
 }
@@ -73,7 +73,7 @@ const CommonDropdown: React.FC<CommonDropdownProps> = ({
                   key={option.value}
                   type="button"
                   onClick={() => {
-                    onChange(option.value);
+                    onChange?.(option.value);
                     setIsOpen(false);
                   }}
                   className={`w-full px-4 py-2 text-left text-sm md:text-base font-inter hover:bg-gray-50 transition-colors ${

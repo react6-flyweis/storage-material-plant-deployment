@@ -11,14 +11,16 @@ import {
   RotateCcw,
   X,
   Check,
-  ChevronUp,
-  ChevronDown,
+  ArrowUpDown,
   Phone,
   Mail
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import TitleSubtitle from "../common_component/TitleSubtitle";
 import Button from "../common_component/Button";
 import CommonDropdown from "../common_component/CommonDropdown";
+import CommonInput from "../common_component/CommonInput";
+import Pagination from "../Pagination";
 
 const statsData = [
   { title: "Draft", value: "1", icon: FileText, color: "text-[#D08700]", bgColor: "bg-[#FFF9E6]" },
@@ -44,8 +46,10 @@ const StatCard = ({ title, value, icon: Icon, color, bgColor }: any) => (
 );
 
 const AllDeliveriesView: React.FC = () => {
+  const navigate = useNavigate();
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [itemsPerPage, setItemsPerPage] = useState("10");
+  const [currentPage, setCurrentPage] = useState(1);
   const [visibleColumns, setVisibleColumns] = useState<Record<string, boolean>>({
     Project: true,
     Customer: true,
@@ -57,7 +61,6 @@ const AllDeliveriesView: React.FC = () => {
     Equipment: true,
     Site: true,
   });
-
   const [filters, setFilters] = useState({
     status: "all",
     project: "all",
@@ -69,8 +72,50 @@ const AllDeliveriesView: React.FC = () => {
     internalOwner: "all"
   });
 
+  const [data, setData] = useState([
+    { id: "DEL-1012", priority: "Normal", priorityColor: "text-[#00C853] bg-[#E6FFEF]", status: "Delay", statusColor: "text-[#155DFC] bg-[#E6F0FF]", date: "Apr 1, 2026", time: "07:30 - 11:30", item: "Steel Frame - Primary frame set", project: "ABC Logistics Warehouse", customer: "Austin McClume", vendor: "Roof Masters Ltd.", carrier: "Rapid Delivery Services", poc: "John Smith", equipment: "5,000 lb forklift", site: "Austin Warehouse", address: "Austin TX" },
+    { id: "DEL-1010", priority: "High", priorityColor: "text-[#FF4842] bg-[#FFE9E9]", status: "Delay", statusColor: "text-[#155DFC] bg-[#E6F0FF]", date: "Mar 31, 2026", time: "11:00 - 15:00", item: "Doors - Roll-up doors", project: "Metro Cast Factory", customer: "Sarah Williams", vendor: "Climate Control Inc.", carrier: "FastFreight Logistics", poc: "John Smith", equipment: "Crane required", site: "Austin Warehouse", address: "Austin TX" },
+    { id: "DEL-1008", priority: "Critical", priorityColor: "text-[#FFAB00] bg-[#FFF9E6]", status: "Delivered", statusColor: "text-[#00C853] bg-[#E6FFEF]", date: "Mar 30, 2026", time: "10:00 - 14:00", item: "Steel Frame - Primary frame set", project: "Warehouse Phase 2", customer: "David Martinez", vendor: "Panel Systems Inc.", carrier: "Premier Transport Co.", poc: "John Smith", equipment: "5,000 lb forklift", site: "Warehouse Alpha", address: "Dallas TX" },
+    { id: "DEL-1007", priority: "Normal", priorityColor: "text-[#00C853] bg-[#E6FFEF]", status: "Delay", statusColor: "text-[#155DFC] bg-[#E6F0FF]", date: "Mar 29, 2026", time: "08:00 - 12:00", item: "Doors - Roll-up doors", project: "Storage Facility B", customer: "Patricia Davis", vendor: "Fastener Wholesale", carrier: "FastFreight Logistics", poc: "John Smith", equipment: "Crane required", site: "Storage Hub 5", address: "Houston TX" },
+  ]);
+
+  const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' | null }>({ key: "", direction: null });
+
   const handleFilterChange = (key: string, value: string) => {
     setFilters(prev => ({ ...prev, [key]: value }));
+  };
+
+  const handleSort = (key: string) => {
+    let direction: 'asc' | 'desc' = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+
+    const headerToDataKey: Record<string, string> = {
+      ID: "id",
+      Status: "status",
+      Items: "item",
+      Project: "project",
+      Customer: "customer",
+      Vendor: "vendor",
+      Carrier: "carrier",
+      DeliveryDate: "date",
+      Equipment: "equipment",
+      Site: "site"
+    };
+
+    const dataKey = headerToDataKey[key] || key;
+
+    const sortedData = [...data].sort((a: any, b: any) => {
+      const valA = a[dataKey];
+      const valB = b[dataKey];
+      
+      if (valA < valB) return direction === 'asc' ? -1 : 1;
+      if (valA > valB) return direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+    setData(sortedData);
   };
 
   const toggleColumn = (column: string) => {
@@ -94,7 +139,7 @@ const AllDeliveriesView: React.FC = () => {
   ];
 
   return (
-    <div className="xl:pr-5 pb-10 space-y-8 mt-2 font-inter min-h-screen">
+    <div className="xl:pr-5 pb-10 space-y-5 mt-2 font-inter min-h-screen">
       <TitleSubtitle title="All Deliveries" subtitle="Comprehensive delivery management and tracking"/>
 
       {/* Stats Grid */}
@@ -105,54 +150,56 @@ const AllDeliveriesView: React.FC = () => {
       </div>
 
       {/* Search & Main Filter Bar */}
-      <div className="bg-white p-4 md:p-6 rounded-[14px] shadow-xs border border-gray-50 space-y-4">
-        <div className="flex flex-col lg:flex-row lg:items-center gap-6">
-          <div className="relative flex-1 flex gap-2 max-w-2xl">
-            <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 size-6" />
+      <div className="bg-white p-4 md:p-5 rounded-[14px] shadow-xs border border-gray-50 space-y-4">
+        <div className="flex flex-col xl:flex-row lg:items-center gap-6">
+          <div className="relative flex-1 flex gap-2 max-w-sm xl:max-w-2xl">
+            <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 size-4 md:size-6" />
             <input 
               type="text" 
               placeholder="Search by ID, project, customer, item, vendor..." 
               className="w-full pl-14 pr-6 py-3 bg-[#F4F6F8] border-none rounded-lg md:text-base text-sm outline-none transition-all placeholder:text-gray-400"
             />
-                 <CommonDropdown 
+              <CommonDropdown 
               value={filters.status}
               onChange={(v) => handleFilterChange("status", v)}
               options={[{ label: "All Status", value: "all" }, { label: "Draft Only", value: "draft" }, { label: "Scheduled Only", value: "scheduled" }]}
               placeholder="All Status"
-              className="md:min-w-[200px]"
+              className="min-w-[120px] md:min-w-[200px]"
             />
           </div>
 
-          <div className="flex flex-wrap items-center gap-4 ml-auto">            
+          <div className="flex flex-wrap items-center gap-2 xl:gap-4 ml-auto">            
             <Button 
               variant="white"
               onClick={() => setShowAdvanced(!showAdvanced)}
               size="md"
             >
-              <Settings2 size={20} className="mr-3" /> Advanced Filters
+              <Settings2 className="mr-3 size-4 xl:size-5" /> Advanced Filters
             </Button>
 
             <Button 
               variant="outlineGreen"
               size="md"
             >
-              <Download size={20} className="mr-3 text-[#00C853]" /> Export CSV
+              <Download className="mr-3 size-4 xl:size-5 text-[#00C853]" /> Export CSV
             </Button>
           </div>
         </div>
 
         {/* Advanced Filters Section */}
         {showAdvanced && (
-          <div className="pt-10 border-t border-gray-100 animate-in fade-in slide-in-from-top-4 duration-300">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-              <div className="space-y-3">
-                <label className="text-sm font-bold text-[#212B36]">Date From</label>
-                <input type="text" placeholder="DD/MM/YYYY" className="w-full h-14 px-6 bg-white border border-gray-200 rounded-2xl text-base focus:border-[#1E51A4] outline-none shadow-sm transition-all" />
-              </div>
-              <div className="space-y-3">
-                <label className="text-sm font-bold text-[#212B36]">Date To</label>
-                <input type="text" placeholder="DD/MM/YYYY" className="w-full h-14 px-6 bg-white border border-gray-200 rounded-2xl text-base focus:border-[#1E51A4] outline-none shadow-sm transition-all" />
-              </div>
+          <div className="pt-5 border-t border-gray-100 animate-in fade-in slide-in-from-top-4 duration-300">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+              <CommonInput 
+                label="Date From"
+                type="date"
+                placeholder="DD/MM/YYYY"
+              />
+              <CommonInput 
+                label="Date To"
+                type="date"
+                placeholder="DD/MM/YYYY"
+              />
               <CommonDropdown 
                 label="Project"
                 value={filters.project}
@@ -214,13 +261,13 @@ const AllDeliveriesView: React.FC = () => {
               <div className="flex items-end">
                 <Button 
                   variant="white"
-                  className="w-full h-14 rounded-2xl text-[#212B36] font-bold text-base border-gray-200 shadow-sm"
                   onClick={() => setFilters({
                     status: "all", project: "all", customer: "all", vendor: "all",
                     carrier: "all", category: "all", equipment: "all", internalOwner: "all"
                   })}
+                  size="md"
                 >
-                  <RotateCcw size={20} className="mr-3" /> Clear All Filters
+                  <RotateCcw className="mr-3 size-4 xl:size-5" /> Clear All Filters
                 </Button>
               </div>
             </div>
@@ -229,19 +276,19 @@ const AllDeliveriesView: React.FC = () => {
       </div>
 
       {/* Pagination Info & Column Toggles */}
-      <div className="space-y-6">
+      <div className="space-y-3">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <p className="text-[#637381] font-medium text-sm sm:text-base">
-            Showing <span className="font-bold text-[#212B36]">1</span> to <span className="font-bold text-[#212B36]">10</span> of <span className="font-bold text-[#212B36]">12</span> deliveries
+          <p className="text-[#637381] font-normal text-xs sm:text-sm">
+            Showing <span className="font-medium text-[#212B36]">1</span> to <span className="font-bold text-[#212B36]">10</span> of <span className="font-bold text-[#212B36]">12</span> deliveries
           </p>
           <div className="flex items-center gap-3">
-            <span className="text-[#637381] font-medium text-sm sm:text-base">Items per page:</span>
+            <span className="text-[#637381] font-normal text-xs sm:text-sm ml-auto">Items per page:</span>
             <div className="w-20">
               <input 
                 type="text" 
                 value={itemsPerPage}
                 onChange={(e) => setItemsPerPage(e.target.value)}
-                className="w-full px-3 py-2 bg-white border border-[#E2E4E6] rounded-lg text-center font-bold text-[#212B36] shadow-sm outline-none focus:border-[#1E51A4]"
+                className="w-full px-2 py-1 bg-white border border-[#E2E4E6] rounded-sm text-center font-medium text-[#212B36] shadow-sm outline-none"
               />
             </div>
           </div>
@@ -252,32 +299,35 @@ const AllDeliveriesView: React.FC = () => {
             <div 
               key={col}
               onClick={() => toggleColumn(col)}
-              className="bg-white px-4 py-3 rounded-[8px] border border-gray-100 shadow-md flex items-center gap-3 cursor-pointer select-none transition-all active:scale-95"
+              className="bg-white px-4 py-2 rounded-[8px] border border-gray-100 shadow-md flex items-center gap-3 cursor-pointer select-none transition-all active:scale-95"
             >
               <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${visibleColumns[col] ? "bg-white border-[#00C853]" : "bg-gray-50 border-gray-200"}`}>
                 {visibleColumns[col] && <Check size={14} className="text-[#00C853]" strokeWidth={3} />}
               </div>
-              <span className="text-[#4A5565] font-medium text-sm md:text-base">{col}</span>
+              <span className="text-[#4A5565] font-normal text-xs md:text-sm">{col}</span>
             </div>
           ))}
         </div>
       </div>
 
       {/* Deliveries Table */}
-      <div className="bg-white rounded-[14px] overflow-hidden border border-gray-100 shadow-sm flex flex-col min-h-[500px]">
+      <div className="bg-white rounded-[14px] overflow-hidden border border-gray-100 shadow-xs flex flex-col min-h-[500px]">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-nowrap">
             <thead className="bg-[linear-gradient(90deg,_#DBEAFE_0%,_#F3E8FF_100%)]">
               <tr className="border-b border-blue-100">
                 {tableHeaders.map((header) => (
                   (header.key === "ID" || header.key === "Status" || header.key === "Actions" || visibleColumns[header.key]) && (
-                    <th key={header.key} className="px-6 py-5 text-[#212B36] font-bold text-sm tracking-tight">
+                    <th 
+                      key={header.key} 
+                      className={`px-6 py-5 text-[#212B36] font-semibold text-sm tracking-tight ${header.sortable ? "cursor-pointer select-none hover:bg-black/5 transition-colors" : ""}`}
+                      onClick={() => header.sortable && handleSort(header.key)}
+                    >
                       <div className="flex items-center gap-1.5">
                         {header.label}
                         {header.sortable && (
-                          <div className="flex flex-col -space-y-1 opacity-30">
-                            <ChevronUp size={12} />
-                            <ChevronDown size={12} />
+                          <div className={`flex flex-col ${sortConfig.key === header.key ? "text-[#1E51A4]" : "text-[#99A1AF]"}`}>
+                            <ArrowUpDown size={12} />
                           </div>
                         )}
                       </div>
@@ -287,63 +337,68 @@ const AllDeliveriesView: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {[
-                { id: "DEL-1012", priority: "Normal", priorityColor: "text-[#00C853] bg-[#E6FFEF]", status: "Delay", statusColor: "text-[#155DFC] bg-[#E6F0FF]", date: "Apr 1, 2026", time: "07:30 - 11:30", item: "Steel Frame - Primary frame set", project: "ABC Logistics Warehouse", customer: "Austin McClume", vendor: "Roof Masters Ltd.", carrier: "Rapid Delivery Services", poc: "John Smith", equipment: "5,000 lb forklift", site: "Austin Warehouse", address: "Austin TX" },
-                { id: "DEL-1010", priority: "High", priorityColor: "text-[#FF4842] bg-[#FFE9E9]", status: "Delay", statusColor: "text-[#155DFC] bg-[#E6F0FF]", date: "Mar 31, 2026", time: "11:00 - 15:00", item: "Doors - Roll-up doors", project: "Metro Cast Factory", customer: "Sarah Williams", vendor: "Climate Control Inc.", carrier: "FastFreight Logistics", poc: "John Smith", equipment: "Crane required", site: "Austin Warehouse", address: "Austin TX" },
-                { id: "DEL-1008", priority: "Critical", priorityColor: "text-[#FFAB00] bg-[#FFF9E6]", status: "Delivered", statusColor: "text-[#00C853] bg-[#E6FFEF]", date: "Mar 30, 2026", time: "10:00 - 14:00", item: "Steel Frame - Primary frame set", project: "Warehouse Phase 2", customer: "David Martinez", vendor: "Panel Systems Inc.", carrier: "Premier Transport Co.", poc: "John Smith", equipment: "5,000 lb forklift", site: "Warehouse Alpha", address: "Dallas TX" },
-                { id: "DEL-1007", priority: "Normal", priorityColor: "text-[#00C853] bg-[#E6FFEF]", status: "Delay", statusColor: "text-[#155DFC] bg-[#E6F0FF]", date: "Mar 29, 2026", time: "08:00 - 12:00", item: "Doors - Roll-up doors", project: "Storage Facility B", customer: "Patricia Davis", vendor: "Fastener Wholesale", carrier: "FastFreight Logistics", poc: "John Smith", equipment: "Crane required", site: "Storage Hub 5", address: "Houston TX" },
-              ].map((row, idx) => (
-                <tr key={idx} className="hover:bg-gray-50/50 transition-colors group">
-                  <td className="px-6 py-6">
+              {data.map((row, idx) => (
+                <tr 
+                  key={idx} 
+                  className="hover:bg-gray-50/50 transition-colors group cursor-pointer"
+                  onClick={() => navigate(`/delivery/delivery-details/${row.id}`)}
+                >
+                  <td className="p-3 md:p-5">
                     <div className="flex flex-col gap-1.5">
-                      <span className="font-bold text-[#1E51A4] text-[15px]">{row.id}</span>
-                      <span className={`w-fit px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${row.priorityColor}`}>
+                      <span className="font-medium text-[#4A5565] text-sm">{row.id}</span>
+                      <span className={`w-fit px-2.5 py-0.5 rounded-full text-xs font-medium tracking-wider ${row.priorityColor}`}>
                         {row.priority}
                       </span>
                     </div>
                   </td>
-                  <td className="px-6 py-6">
+                  <td className="p-3 md:p-5">
                     <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full w-fit ${row.statusColor}`}>
                       {row.status === "Delay" ? <Calendar size={14} /> : <CheckCircle2 size={14} />}
-                      <span className="text-xs font-bold">{row.status}</span>
+                      <span className="text-xs font-medium">{row.status}</span>
                     </div>
                   </td>
                   {visibleColumns.Items && (
-                    <td className="px-6 py-6 max-w-[200px]">
-                      <span className="font-bold text-[#212B36] text-[14px] leading-snug block whitespace-normal">
+                    <td className="p-3 md:p-5 max-w-[200px]">
+                      <span className="font-medium text-[#212B36] text-sm leading-snug block whitespace-normal">
                         {row.item}
                       </span>
                     </td>
                   )}
                   {visibleColumns.Project && (
-                    <td className="px-6 py-6">
-                      <span className="text-[#637381] font-medium text-sm">{row.project}</span>
+                    <td className="p-3 md:p-5">
+                      <span className="text-[#4A5565] font-medium text-sm">{row.project}</span>
                     </td>
                   )}
                   {visibleColumns.Customer && (
-                    <td className="px-6 py-6">
-                      <span className="text-[#637381] font-medium text-sm">{row.customer}</span>
+                    <td className="p-3 md:p-5">
+                      <span className="text-[#4A5565] font-medium text-sm">{row.customer}</span>
                     </td>
                   )}
                   {visibleColumns.Vendor && (
-                    <td className="px-6 py-6">
-                      <span className="text-[#637381] font-medium text-sm">{row.vendor}</span>
+                    <td className="p-3 md:p-5">
+                      <span className="text-[#4A5565] font-medium text-sm">{row.vendor}</span>
                     </td>
                   )}
                   {visibleColumns.Carrier && (
-                    <td className="px-6 py-6">
-                      <span className="text-[#637381] font-medium text-sm">{row.carrier}</span>
+                    <td className="p-3 md:p-5">
+                      <span className="text-[#4A5565] font-medium text-sm">{row.carrier}</span>
                     </td>
                   )}
                   {visibleColumns.POC && (
-                    <td className="px-6 py-6">
+                    <td className="p-3 md:p-5">
                       <div className="flex flex-col gap-1.5">
-                        <span className="font-bold text-[#212B36] text-sm truncate max-w-[120px]">POC {row.poc}</span>
+                        <span className="font-medium text-[#4A5565] text-sm truncate max-w-[120px]">POC {row.poc}</span>
                         <div className="flex items-center gap-2">
-                          <button className="text-[#1E51A4] hover:bg-blue-50 p-1 rounded-md transition-colors">
+                          <button 
+                            className="text-[#4A5565] hover:bg-blue-50 p-1 rounded-md transition-colors"
+                            onClick={(e) => e.stopPropagation()}
+                          >
                             <Phone size={14} />
                           </button>
-                          <button className="text-[#1E51A4] hover:bg-blue-50 p-1 rounded-md transition-colors">
+                          <button 
+                            className="text-[#4A5565] hover:bg-blue-50 p-1 rounded-md transition-colors"
+                            onClick={(e) => e.stopPropagation()}
+                          >
                             <Mail size={14} />
                           </button>
                         </div>
@@ -351,7 +406,7 @@ const AllDeliveriesView: React.FC = () => {
                     </td>
                   )}
                   {visibleColumns.DeliveryDate && (
-                    <td className="px-6 py-6">
+                    <td className="p-3 md:p-5">
                       <div className="flex flex-col gap-1">
                         <span className="font-bold text-[#212B36] text-[15px]">{row.date}</span>
                         <span className="text-[#637381] text-xs font-medium">{row.time}</span>
@@ -359,16 +414,16 @@ const AllDeliveriesView: React.FC = () => {
                     </td>
                   )}
                   {visibleColumns.Equipment && (
-                    <td className="px-6 py-6">
+                    <td className="p-3 md:p-5">
                       <span className="text-[#637381] font-medium text-sm whitespace-normal max-w-[150px] block">
                         {row.equipment}
                       </span>
                     </td>
                   )}
                   {visibleColumns.Site && (
-                    <td className="px-6 py-6">
+                    <td className="p-3 md:p-5">
                       <div className="flex flex-col gap-1">
-                        <span className="font-semibold text-[#212B36] text-sm">{row.site}</span>
+                        <span className="font-medium text-[#212B36] text-sm">{row.site}</span>
                         <span className="text-[#637381] text-xs font-medium"> – {row.address}</span>
                       </div>
                     </td>
@@ -379,13 +434,13 @@ const AllDeliveriesView: React.FC = () => {
           </table>
         </div>
         
-        {/* Pagination Placeholder */}
-        <div className="p-6 border-t border-gray-50 flex items-center justify-between bg-white mt-auto">
-          <p className="text-sm font-bold text-[#637381]">Showing 1 to 10 of 12 entries</p>
-          <div className="flex gap-3">
-            <Button variant="white" size="sm" disabled className="rounded-xl border-gray-200 font-bold opacity-50">Previous</Button>
-            <Button variant="white" size="sm" className="rounded-xl border-gray-200 font-bold">Next</Button>
-          </div>
+        <div className="p-2 md:p-4 bg-white border-t border-gray-50 md:mt-auto">
+          <Pagination
+            currentPage={currentPage}
+            onPageChange={setCurrentPage}
+            totalItems={12}
+            itemsPerPage={Number(itemsPerPage)}
+          />
         </div>
       </div>
     </div>

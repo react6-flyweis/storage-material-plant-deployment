@@ -65,7 +65,7 @@ const RescheduleDeliveryModal: React.FC<RescheduleDeliveryModalProps> = ({
             <label className="text-sm font-semibold text-[#212B36]">New Delivery Date</label>
             <div className="relative group">
               <input 
-                type="text" 
+                type="date" 
                 defaultValue="March 27, 2026"
                 className="w-full h-12 pl-12 pr-4 bg-white border border-gray-200 rounded-xl text-[#212B36] font-medium focus:border-[#1E51A4] outline-none transition-all"
               />
@@ -79,7 +79,7 @@ const RescheduleDeliveryModal: React.FC<RescheduleDeliveryModalProps> = ({
               <label className="text-sm font-semibold text-[#212B36]">Time Window Start <span className="text-red-500">*</span></label>
               <div className="relative group">
                 <input 
-                  type="text" 
+                  type="time" 
                   placeholder="HH:MM"
                   className="w-full h-12 pl-12 pr-4 bg-white border border-gray-200 rounded-xl text-[#212B36] font-medium focus:border-[#1E51A4] outline-none transition-all"
                 />
@@ -91,7 +91,7 @@ const RescheduleDeliveryModal: React.FC<RescheduleDeliveryModalProps> = ({
               <label className="text-sm font-semibold text-[#212B36]">Time Window End <span className="text-red-500">*</span></label>
               <div className="relative group">
                 <input 
-                  type="text" 
+                  type="time" 
                   placeholder="HH:MM"
                   className="w-full h-12 pl-12 pr-4 bg-white border border-gray-200 rounded-xl text-[#212B36] font-medium focus:border-[#1E51A4] outline-none transition-all"
                 />

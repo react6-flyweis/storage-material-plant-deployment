@@ -27,11 +27,11 @@ const ProjectDetailsView = () => {
   const project = customer?.projects.find(p => p.id === projectId) || customer?.projects[0];
 
   if (!customer || !project) {
-    return <div className="p-10 text-center font-inter text-gray-500">Project not found</div>;
+    return <div className="p-10 text-center text-gray-500">Project not found</div>;
   }
 
   return (
-    <div className="xl:pr-5 px-2 pb-10 space-y-6">
+    <div className="xl:pr-2 md:px-4 px-2 pb-10 space-y-6">
       {/* Header Section */}
       <div className="flex flex-wrap md:items-center justify-between gap-4 mt-2">
         <div className="flex items-center gap-4">

@@ -6,6 +6,7 @@ import Pagination from "./Pagination";
 interface Lead {
   id: string; // Used for address in this context
   customerId: string; // Used for navigation
+  projectId: string; // Used for navigation
   name: string; // Project Name
   customer: {
     name: string;
@@ -46,8 +47,8 @@ const ProductionTable: React.FC<ProductionTableProps> = ({
       <div className="overflow-x-auto">
       <table className="w-full text-left border-collapse min-w-[900px]">
         <thead>
-          <tr className="border-b border-gray-100 bg-[#F9FAFB]">
-            <th className="p-4 w-12 text-center">
+          <tr className="border-b border-gray-100 bg-[#F9FAFB] text-nowrap">
+            <th className="p-2 md:p-4 w-12 text-center">
               <input
                 type="checkbox"
                 className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
@@ -82,13 +83,13 @@ const ProductionTable: React.FC<ProductionTableProps> = ({
               key={index}
               className="hover:bg-gray-50 transition-colors bg-white"
             >
-              <td className="p-4 text-center">
+              <td className="p-2 md:p-4 text-center">
                 <input
                   type="checkbox"
                   className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                 />
               </td>
-              <td className="p-4">
+              <td className="p-2 md:p-4">
                 <div className="flex flex-col">
                   <span className="font-inter font-semibold text-black text-sm">
                     {row.name}
@@ -99,7 +100,7 @@ const ProductionTable: React.FC<ProductionTableProps> = ({
                 </div>
               </td>
               <td 
-                className="p-4 cursor-pointer hover:bg-gray-50 transition-colors"
+                className="p-2 md:p-4 cursor-pointer hover:bg-gray-50 transition-colors"
                 onClick={() => navigate(`/projects/customerinfo/${row.customerId}`)}
               >
                 <div className="flex items-center gap-2">
@@ -118,17 +119,17 @@ const ProductionTable: React.FC<ProductionTableProps> = ({
               <td className="p-4 text-center font-inter font-semibold text-sm text-black">
                 {row.buildings}
               </td>
-              <td className="p-4">
+              <td className="p-2 md:p-4">
                 <span
-                  className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-inter font-normal ${getStatusStyles(row.status)}`}
+                  className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-inter font-normal text-nowrap ${getStatusStyles(row.status)}`}
                 >
                   {row.status}
                 </span>
               </td>
-              <td className="p-4 text-sm font-inter font-semibold text-black">
+              <td className="p-2 md:p-4 text-sm font-inter font-semibold text-black">
                 {row.quoteValue}
               </td>
-              <td className="p-4">
+              <td className="p-2 md:p-4">
                 <button
                   onClick={() => navigate(`/communication`)}
                   className="flex items-center gap-2 px-4 py-1.5 bg-[#F2F6FF] text-[#446DF6] rounded-md hover:bg-blue-100 transition-colors text-xs font-semibold relative group border border-[#DBEAFE]"
@@ -145,7 +146,7 @@ const ProductionTable: React.FC<ProductionTableProps> = ({
               <td className="p-4 text-center">
                 <div className="flex items-center justify-center gap-8">
                   <button
-                    // onClick={() => onViewDetails(row as any)}
+                    onClick={() => navigate(`/projects/project-details/${row.customerId}/${row.projectId}`)}
                     className="text-[#3C40AF] hover:opacity-80 transition-opacity"
                   >
                     <Eye size={20} />

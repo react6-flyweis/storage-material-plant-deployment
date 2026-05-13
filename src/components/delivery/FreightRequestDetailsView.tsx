@@ -22,7 +22,7 @@ import FilterDropdown from "../common_component/FilterDropdown";
 
 // --- Sub-components ---
 
-const StatCard = ({ title, value, subtitle, icon: Icon, gradient }: any) => (
+export const StatCard = ({ title, value, subtitle, icon: Icon, gradient }: any) => (
   <div 
     className="flex-1 p-3 md:p-5 rounded-[14px] text-white relative overflow-hidden md:min-w-[200px] md:h-[160px] flex flex-col justify-between transition-all "
     style={{ 

@@ -44,6 +44,8 @@ import DeliveryDetailsView from "./components/delivery/DeliveryDetailsView";
 import FreightLoadDetailsView from "./components/delivery/FreightLoadDetailsView";
 import DeliveryCalendarView from "./components/delivery/DeliveryCalendarView";
 import AllDeliveriesView from "./components/delivery/AllDeliveriesView";
+import DeliveryNotificationsView from "./components/delivery/DeliveryNotificationsView";
+import CostingView from "./components/costing/CostingView";
 const Dashboard = lazy(() => import("@/pages/plantDashboard/PlantDashboard"));
 
 
@@ -165,6 +167,14 @@ export const adminRoutes: RouteObject[] = [
       {
         path: "/delivery/calendar",
         element: <DeliveryCalendarView />,
+      },
+      {
+        path: "/delivery/notifications",
+        element: <DeliveryNotificationsView />,
+      },
+      {
+        path: "/costing",
+        element: <CostingView />,
       },
       {
         path: "/load_planning/uploaded-bom-files",

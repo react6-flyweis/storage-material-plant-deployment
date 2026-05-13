@@ -26,8 +26,8 @@ export default function StatCard({
       )}
     >
       <div className="flex items-start flex-wrap justify-between">
-        <div className="flex flex-col md:w-2/3 w-2/3">
-          <p className="xl:text-base md:text-sm text-sm opacity-90">
+        <div className="flex flex-col md:w-2/3 w-[80%]">
+          <p className="md:text-base text-sm">
             {title}
           </p>
           <p className="xl:text-xl md:text-lg text-base mt-1 w-[70px] sm:w-auto overflow-y-hidden overflow-x-auto">

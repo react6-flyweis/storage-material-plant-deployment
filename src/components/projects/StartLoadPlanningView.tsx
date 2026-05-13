@@ -206,14 +206,16 @@ const StartLoadPlanningView: React.FC = () => {
   ];
 
   return (
-    <div className="p-1 min-h-screen">
+    <div className="md:px-4 px-2 min-h-screen">
       {/* ── Stepper ─────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-xl py-8 px-4 mb-6 border border-gray-100 overflow-x-auto custom-scrollbar shadow-sm">
-        <div className="relative flex items-center justify-between min-w-[900px] md:min-w-0 max-w-6xl mx-auto px-10">
+      <div className="bg-white rounded-[14px] py-8 px-4 mb-6 border border-gray-100 overflow-x-auto custom-scrollbar shadow-sm">
+        <div className="relative flex items-center justify-between min-w-[900px] md:min-w-0 max-w-6xl mx-auto px-10 md:px-14">
           {/* Progress Line Background */}
-          <div className="absolute top-[13px] left-20 right-20 h-[2px] bg-gray-100">
+          <div className="absolute top-[13px] left-14 right-14 md:left-[70px] md:right-[70px] h-[2px] bg-gray-100">
             {/* Active Progress Line */}
-            <div className="h-[4px] bg-[#0043CE] transition-all duration-300 w-[102%]" />
+            <div 
+              className="h-[4px] bg-[#0043CE] transition-all duration-300 w-full" 
+            />
           </div>
 
           {steps.map((step, idx) => (

@@ -53,7 +53,7 @@ const ShipperQuotationView: React.FC = () => {
   );
 
   return (
-    <div className="xl:pr-5 px-2 pb-10 space-y-6">
+    <div className="xl:pr-2 md:px-4 px-2 pb-10 space-y-6">
       {/* ── Header ────────────────────────────────────────────────────── */}
       <TitleSubtitle
       title="Shipper Files"

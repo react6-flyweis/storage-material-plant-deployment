@@ -10,7 +10,7 @@ export function MainLayout() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [activeTab, setActiveTab] = useState(0);
   const [activeSubTab, setActiveSubTab] = useState<string>("");
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
@@ -19,6 +19,7 @@ export function MainLayout() {
 
   // 🔹 Main tab click
   const handleTabChange = (index: number) => {
+    setIsSidebarOpen(true);
     const tab = NAV_ITEMS[index];
     setActiveTab(index);
     localStorage.setItem("activeTab", index.toString());
@@ -95,7 +96,13 @@ export function MainLayout() {
         onSubTabClick={handleSubTabChange}
       />
 
-      <div className="flex-1 min-w-0 flex flex-col h-screen md:ml-[304px] lg:ml-[336px]">
+      <div 
+        className={`flex-1 min-w-0 flex flex-col h-screen transition-all duration-300 ease-in-out ${
+          isSidebarOpen 
+            ? "md:ml-[304px] lg:ml-[336px]" 
+            : "md:ml-16 lg:ml-20"
+        }`}
+      >
         <Header onMenuToggle={toggleSidebar} />
         <main className="flex-1 overflow-y-auto mt-1 xl:pb-3 xl:pr-3">
           <Outlet />

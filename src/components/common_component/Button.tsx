@@ -17,7 +17,8 @@ type Variant =
   | "error"
   | "orangeFilled"
   | "gradientOrange"
-  | "outlineGreen";
+  | "outlineGreen"
+  | "blueOutlined"
 type Size = "sm" | "md" | "lg" | "xl";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -26,11 +27,11 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const baseStyles =
-  "font-inter w-fit shrink-0 font-medium transition-all duration-200 rounded-[8px] flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed";
+  "font-inter w-fit gap-2 shrink-0 font-medium transition-all duration-200 rounded-[8px] flex items-center justify-center disabled:opacity-60 disabled:cursor-not-allowed";
 
 const variants: Record<Variant, string> = {
   primary:
-    "bg-[#1E51A4] text-white hover:opacity-90 shadow-xs shadow-blue-500/20",
+    "bg-[#1E51A4] border border-[#1E51A4] text-white hover:opacity-90 shadow-xs shadow-blue-500/20",
 
   secondary:
     "bg-white border border-[#446DF6] text-[#446DF6] rounded-lg text-sm font-inter font-bold hover:bg-[#446DF6]/5 transition-colors",
@@ -63,6 +64,7 @@ const variants: Record<Variant, string> = {
   gradientOrange:
     "bg-[linear-gradient(90deg,_#D08700_0%,_#A65F00_100%)] text-white",
   outlineGreen: "border bg-white text-[#008236] border-[#00C853]",
+  blueOutlined: "border-2 border-[#155DFC] text-[#051321] text-sm font-medium shadow-sm hover:opacity-90" 
 };
 
 const sizes: Record<Size, string> = {

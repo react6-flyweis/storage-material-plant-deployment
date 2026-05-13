@@ -20,8 +20,7 @@ const ProductionManagementView = () => {
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [_selectedLead, _setSelectedLead] = useState<any>(null);
-    const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
-  /* ✅ FILTER STATES */
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const [buildingType, setBuildingType] = useState<string>("all");
   const [projectValue, setProjectValue] = useState<string>("all");
   const [assignment, setAssignment] = useState<string>("all");
@@ -37,6 +36,7 @@ console.log("status",projectValue,assignment);
     {
       id: "Workshop . Texas",
       customerId: "ID-2025-1047",
+      projectId: "PRJ-001",
       name: "ABC Constructions",
       customer: { name: "John Doe", image: "https://i.pravatar.cc/150?u=1" },
       buildings: 1,
@@ -47,8 +47,9 @@ console.log("status",projectValue,assignment);
     {
       id: "Warehouse . Texas",
       customerId: "ID-2025-1048",
+      projectId: "PRJ-002",
       name: "PQR Warehouse",
-      customer: { name: "Roahan Sharma", image: "https://i.pravatar.cc/150?u=2" },
+      customer: { name: "Rohan Palkan", image: "https://i.pravatar.cc/150?u=2" },
       buildings: 4,
       status: "BOM Ready",
       quoteValue: "$12,500",
@@ -57,8 +58,9 @@ console.log("status",projectValue,assignment);
     {
       id: "Workshop . Texas",
       customerId: "ID-2025-1049",
+      projectId: "PRJ-003",
       name: "XYZ Mall Building",
-      customer: { name: "Riyaz Verma", image: "https://i.pravatar.cc/150?u=3" },
+      customer: { name: "Vijay Chadda", image: "https://i.pravatar.cc/150?u=3" },
       buildings: 2,
       status: "Shipper File Received",
       quoteValue: "$12,500",
@@ -67,10 +69,11 @@ console.log("status",projectValue,assignment);
     {
       id: "Workshop . Texas",
       customerId: "ID-2025-1050",
+      projectId: "PRJ-004",
       name: "MNP Warehouse",
-      customer: { name: "Riya Wellness", image: "https://i.pravatar.cc/150?u=4" },
+      customer: { name: "John Doe", image: "https://i.pravatar.cc/150?u=4" },
       buildings: 1,
-      status: "Shipper File Received",
+      status: "Approved",
       quoteValue: "$12,500",
       unreadMessages: 2,
     },
@@ -81,18 +84,29 @@ console.log("status",projectValue,assignment);
     return leadsData.filter((lead) => {
       const matchBuilding =
         buildingType === "all" ||
-        lead.id.toLowerCase().includes(buildingType);
+        lead.id.toLowerCase().includes(buildingType.toLowerCase());
 
       const matchStatus =
         status === "all" ||
         lead.status.toLowerCase().includes(status.toLowerCase());
 
+      const matchProject = 
+        projectValue === "all" || 
+        lead.projectId.toLowerCase() === projectValue.toLowerCase() ||
+        lead.name.toLowerCase().includes(projectValue.toLowerCase());
+
+      const matchAssignment = 
+        assignment === "all" || 
+        lead.customer.name.toLowerCase().includes(assignment.toLowerCase());
+
       return (
         matchBuilding &&
-        matchStatus
+        matchStatus &&
+        matchProject &&
+        matchAssignment
       );
     });
-  }, [buildingType, status]);
+  }, [buildingType, status, projectValue, assignment]);
 
   const stats = [
     {
@@ -122,7 +136,7 @@ console.log("status",projectValue,assignment);
   ];
 
   return (
-    <div className="xl:pr-5 px-2 pb-10 space-y-6">
+    <div className="xl:pr-2 md:px-4 px-2 pb-10 space-y-6">
       <div className="flex items-center justify-between flex-wrap mt-1 mb-6">
         <TitleSubtitle
           title={productionManagementText.header.title}
@@ -161,6 +175,10 @@ console.log("status",projectValue,assignment);
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Projects</SelectItem>
+              <SelectItem value="PRJ-001">PRJ-001</SelectItem>
+              <SelectItem value="PRJ-002">PRJ-002</SelectItem>
+              <SelectItem value="PRJ-003">PRJ-003</SelectItem>
+              <SelectItem value="PRJ-004">PRJ-004</SelectItem>
             </SelectContent>
           </Select>
 

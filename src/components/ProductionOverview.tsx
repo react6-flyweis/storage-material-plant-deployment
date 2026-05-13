@@ -32,7 +32,7 @@ const ProductionOverview: React.FC<ProductionOverviewProps> = ({
     <div className=" rounded-xl">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
-        <h2 className="text-base md:text-lg font-archivo font-semibold text-[#212B36]">
+        <h2 className="text-base md:text-lg font-semibold text-[#212B36]">
           Production Overview{" "}
           <span className="text-[#212B36] font-semibold">({filterLabel})</span>
         </h2>

@@ -1,7 +1,5 @@
 import React, { useState } from "react";
 import { 
-  Search, 
-  Filter, 
   Download, 
   Award, 
   Truck, 
@@ -16,6 +14,7 @@ import Button from "../common_component/Button";
 import CommonStatusBadge from "../common_component/CommonStatusBadge";
 import { useNavigate } from "react-router-dom";
 import FreightFilterModal from "./FreightFilterModal";
+import SearchFilterBar from "../common_component/SearchFilterBar";
 
 const mockAwardedLoads = [
   {
@@ -154,19 +153,15 @@ const AwardedLoadsView: React.FC = () => {
   return (
     <div className="xl:pr-5 pb-5 space-y-8 mt-2 px-2 md:px-0">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
+      <div className="flex flex-wrap items-center justify-between gap-2 pt-3">
         <TitleSubtitle
           title="Awarded Loads"
           subtitle="Track all awarded freight loads"
         />
-        <div className="flex items-center gap-3 ml-auto">
-          <Button variant="white" size="sm" onClick={() => setIsFilterModalOpen(true)}>
-            <Filter size={18} className="mr-2" /> Filter
-          </Button>
-          <Button variant="white" size="sm">
+
+          <Button variant="gradient" size="sm" className="ml-auto">
             <Download size={18} className="mr-2" /> Export
           </Button>
-        </div>
       </div>
 
       {/* Stats Section */}
@@ -177,21 +172,12 @@ const AwardedLoadsView: React.FC = () => {
       </div>
 
       {/* Search & Filter */}
-      <div className="bg-white p-3 rounded-[14px] flex flex-col md:flex-row gap-3 items-center border border-gray-50">
-        <div className="relative flex-1 w-full">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 size-5" />
-          <input
-            type="text"
-            placeholder="Search notifications..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="max-w-md w-full pl-12 pr-4 py-3.5 bg-[#F4F6F8] border-none rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1E51A4]/10 transition-all placeholder:text-gray-400"
-          />
-        </div>
-        <Button variant="gradient" className="ml-auto" onClick={() => setIsFilterModalOpen(true)}>
-          Filter
-        </Button>
-      </div>
+      <SearchFilterBar 
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        placeholder="Search awarded loads..."
+        onFilterClick={() => setIsFilterModalOpen(true)}
+      />
 
       {/* Awarded Loads Table */}
       <div className="bg-white rounded-[14px] overflow-hidden border border-gray-100 min-h-[400px] flex flex-col shadow-sm">

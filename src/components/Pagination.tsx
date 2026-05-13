@@ -47,7 +47,7 @@ const Pagination: React.FC<PaginationProps> = ({
   const pageNumbers = propGetPageNumbers ? propGetPageNumbers() : defaultGetPageNumbers();
 
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
+    <div className="flex flex-wrap items-center justify-between gap-2 md:gap-4 my-6">
       {/* Left side: either Rows per page OR Results info */}
       <div className="flex items-center gap-2 text-sm text-[#637381] p-3">
         {rowsPerPage !== undefined && onRowsPerPageChange ? (

@@ -1,7 +1,5 @@
 import React, { useState } from "react";
 import { 
-  Search, 
-  Filter, 
   Download, 
   Award, 
   Truck, 
@@ -15,6 +13,7 @@ import Button from "../common_component/Button";
 import CommonStatusBadge, { type BadgeVariant } from "../common_component/CommonStatusBadge";
 import { useNavigate } from "react-router-dom";
 import FreightFilterModal from "./FreightFilterModal";
+import SearchFilterBar from "../common_component/SearchFilterBar";
 
 const mockFreightLoads = [
   {
@@ -103,7 +102,7 @@ const statsData = [
   },
 ];
 
-const StatCard = ({ title, value, icon: Icon, color, borderL }: any) => (
+export const StatCard = ({ title, value, icon: Icon, color, borderL }: any) => (
   <div
     className={`flex-1 bg-white p-3 md:p-5 rounded-[14px] border border-l-2 md:border-l-4 ${borderL} flex flex-col justify-between shadow-sm font-inter min-w-[180px] md:h-32 transition-all hover:shadow-md md:max-w-[210px]`}
   >
@@ -151,7 +150,7 @@ const FreightLoadsView: React.FC = () => {
   ];
 
   return (
-    <div className="xl:pr-5 pb-5 space-y-8 mt-2">
+    <div className="xl:pr-2 md:px-4 px-2 pb-5 space-y-8 mt-2">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
         <TitleSubtitle
@@ -159,10 +158,7 @@ const FreightLoadsView: React.FC = () => {
           subtitle="Track all awarded freight loads"
         />
         <div className="flex items-center gap-3">
-          <Button variant="white" size="sm" onClick={() => setIsFilterModalOpen(true)}>
-            <Filter size={18} className="mr-2" /> Filter
-          </Button>
-          <Button variant="white" size="sm">
+          <Button variant="gradient" size="sm">
             <Download size={18} className="mr-2" /> Export
           </Button>
         </div>
@@ -176,21 +172,12 @@ const FreightLoadsView: React.FC = () => {
       </div>
 
       {/* Search & Filter */}
-      <div className="bg-white p-3 rounded-[14px] flex flex-col md:flex-row gap-3 items-center border border-gray-50">
-        <div className="relative flex-1 w-full">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 size-5" />
-          <input
-            type="text"
-            placeholder="Search freight loads..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="max-w-md w-full pl-12 pr-4 py-3.5 bg-[#F4F6F8] border-none rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1E51A4]/10 transition-all placeholder:text-gray-400"
-          />
-        </div>
-        <Button variant="gradient" onClick={() => setIsFilterModalOpen(true)}>
-          Filter
-        </Button>
-      </div>
+      <SearchFilterBar 
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        placeholder="Search freight loads..."
+        onFilterClick={() => setIsFilterModalOpen(true)}
+      />
 
       {/* Freight Loads Table */}
       <div className="bg-white rounded-[14px] overflow-hidden border border-gray-100 min-h-[400px] flex flex-col">

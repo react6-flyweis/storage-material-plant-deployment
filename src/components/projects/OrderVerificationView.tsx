@@ -31,7 +31,7 @@ const OrderVerificationView: React.FC = () => {
   };
 
   return (
-    <div className="p-2 md:p-6 min-h-screen bg-[#F8F9FA]">
+    <div className="p-2 md:p-4 min-h-screen bg-[#F8F9FA]">
       {/* ── Header ────────────────────────────────────────────────────── */}
       <div className="flex items-start gap-4 mb-8 flex-wrap w-full">
         <Button variant="primary" onClick={() => navigate(-1)} size="sm">
@@ -56,10 +56,10 @@ const OrderVerificationView: React.FC = () => {
           />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 xl:gap-8 mb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 xl:gap-8 mb-12">
           {/* BOM Upload Area */}
           <div
-            className="border-2 border-dashed border-[#1849D6] rounded-[14px] p-4 lg:p-8 flex flex-col items-center justify-center text-center bg-white transition-colors cursor-pointer min-h-[260px]"
+            className="border-2 border-dashed border-[#1849D6] rounded-[14px] p-3 lg:p-8 flex flex-col items-center justify-center text-center bg-white transition-colors cursor-pointer min-h-[260px]"
             onClick={() => setIsBOMModalOpen(true)}
           >
             <div className="mb-4">
@@ -139,7 +139,7 @@ const OrderVerificationView: React.FC = () => {
         </div>
 
         <div className="flex justify-center">
-          <Button onClick={handleCompare} variant="purpleFilled">
+          <Button onClick={handleCompare} disabled={!bomFile || !shipperFile} variant="purpleFilled">
             <Scale className="size-6 mr-2" />
             Compare Files
           </Button>

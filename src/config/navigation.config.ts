@@ -7,6 +7,8 @@ import MenuIcon6 from "@/assets/menuIcon6.svg";
 import Cube from "@/assets/icon/sidebar/cubeIcon.svg";
 import ProjectManagementIcon from "@/assets/icon/sidebar/projectsIcon.svg";
 import DeliveryIcon from "@/assets/icon/sidebar/DeliveryIcon.svg";
+import CostingIcon from "@/assets/icon/sidebar/costingIcon.svg";
+
 
 export type SubNavItem = {
   label: string;
@@ -126,6 +128,13 @@ export const NAV_ITEMS: NavItem[] = [
   //     },
   //   ],
   // },
+
+  {
+    title: "Costing",
+    color: "bg-[#00C950]",
+    icon: CostingIcon,
+    path: "/costing",
+  },
 
   {
     title: "Communication",

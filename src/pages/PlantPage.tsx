@@ -198,7 +198,16 @@ const filterLabels: Record<TabType, string> = {
 
 const PlantPage = () => {
   const [activeTab, setActiveTab] = useState<TabType>("today");
+  const [font, setFont] = useState("combo1");
   // const navigate = useNavigate();
+
+  const fontCombos: Record<string, { label: string; headline: string; headlineWeight: number; body: string }> = {
+    combo1: { label: "Inter Semibold + Inter Regular", headline: "Inter", headlineWeight: 500, body: "Inter" },
+    combo2: { label: "Poppins Bold + Nunito Sans Regular", headline: "Poppins", headlineWeight: 600, body: "Nunito Sans" },
+    combo3: { label: "Archivo Bold + Inter Regular", headline: "Archivo", headlineWeight: 600, body: "Inter" },
+  };
+
+  const activeCombo = fontCombos[font];
 
   const productionMetrics = productionMetricsByFilter[activeTab];
   const shipperFiles = shipperFilesByFilter[activeTab];
@@ -206,13 +215,34 @@ const PlantPage = () => {
   const carriers = freightCarriersByFilter[activeTab];
 
   return (
-    <div className="xl:px-0 px-2 pb-10 space-y-6 pt-4">
+    <div className="md:px-4 px-2 pb-10 space-y-6 pt-4 plant-page-content" style={{ fontFamily: `"${activeCombo.body}", sans-serif` }}>
+      {/* Inject dynamic headline font override */}
+      <style>{`
+        .plant-page-content h1, .plant-page-content h2, .plant-page-content h3,
+        .plant-page-content h4, .plant-page-content h5, .plant-page-content h6 {
+          font-family: "${activeCombo.headline}", sans-serif !important;
+          font-weight: ${activeCombo.headlineWeight} !important;
+        }
+      `}</style>
       {/* Header: Title + FilterTabs */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div className="flex flex-wrap items-center md:justify-between gap-4">
         <TitleSubtitle
           title={dashboardText.header.title}
           subtitle={dashboardText.header.subtitle}
         />
+        {/* Temporary Font Pair Selector */}
+        <div className="ml-auto flex flex-wrap items-center gap-2 bg-white border border-gray-200 rounded-xl px-4 py-2 shadow-sm">
+          <span className="text-sm font-medium text-gray-600 whitespace-nowrap">Font Pair:</span>
+          <select
+            value={font}
+            onChange={(e) => setFont(e.target.value)}
+            className="border-none bg-transparent text-sm font-semibold text-[#212B36] focus:outline-none cursor-pointer"
+          >
+            {Object.entries(fontCombos).map(([key, combo]) => (
+              <option key={key} value={key}>{combo.label}</option>
+            ))}
+          </select>
+        </div>
       </div>
       {/* Production Overview (new) */}
       <ProductionOverview

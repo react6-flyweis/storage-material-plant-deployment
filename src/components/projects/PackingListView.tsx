@@ -50,7 +50,7 @@ const PackingListView: React.FC = () => {
   ];
 
   return (
-    <div className="xl:pr-5 px-2 pb-10 space-y-6">
+    <div className="xl:pr-2 px-4 px-2 pb-10 space-y-6">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mt-2">
         <TitleSubtitle

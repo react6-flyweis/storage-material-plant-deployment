@@ -113,10 +113,10 @@ const RecentShipperFilesTable: React.FC<Props> = ({ data }) => {
                   }}
                 />
               </th>
-              <th className="py-4 px-4 text-sm font-archivo font-semibold text-black">
+              <th className="py-4 px-4 text-sm  font-semibold text-black">
                 Project Name
               </th>
-              <th className="py-4 px-4 text-sm font-archivo font-semibold text-black">
+              <th className="py-4 px-4 text-sm  font-semibold text-black">
                 <div
                   className="flex items-center gap-1 cursor-pointer group"
                   onClick={() => handleSort("shipperName")}
@@ -132,10 +132,10 @@ const RecentShipperFilesTable: React.FC<Props> = ({ data }) => {
                   />
                 </div>
               </th>
-              <th className="py-4 px-4 text-sm font-archivo font-semibold text-black">
+              <th className="py-4 px-4 text-sm  font-semibold text-black">
                 File Name
               </th>
-              <th className="py-4 px-4 text-sm font-archivo font-semibold text-black">
+              <th className="py-4 px-4 text-sm  font-semibold text-black">
                 <div
                   className="flex items-center gap-1 cursor-pointer group"
                   onClick={() => handleSort("uploadDate")}
@@ -151,7 +151,7 @@ const RecentShipperFilesTable: React.FC<Props> = ({ data }) => {
                   />
                 </div>
               </th>
-              <th className="py-4 px-4 text-sm font-archivo font-semibold text-black">
+              <th className="py-4 px-4 text-sm  font-semibold text-black">
                 <div
                   className="flex items-center gap-1 cursor-pointer group"
                   onClick={() => handleSort("items")}
@@ -167,7 +167,7 @@ const RecentShipperFilesTable: React.FC<Props> = ({ data }) => {
                   />
                 </div>
               </th>
-              <th className="py-4 px-4 text-sm font-archivo font-semibold text-black">
+              <th className="py-4 px-4 text-sm  font-semibold text-black">
                 <div
                   className="flex items-center gap-1 cursor-pointer group"
                   onClick={() => handleSort("rates")}
@@ -183,7 +183,7 @@ const RecentShipperFilesTable: React.FC<Props> = ({ data }) => {
                   />
                 </div>
               </th>
-              <th className="py-4 px-4 text-sm font-archivo font-semibold text-black">
+              <th className="py-4 px-4 text-sm  font-semibold text-black">
                 <div
                   className="flex items-center gap-1 cursor-pointer group"
                   onClick={() => handleSort("weight")}
@@ -199,7 +199,7 @@ const RecentShipperFilesTable: React.FC<Props> = ({ data }) => {
                   />
                 </div>
               </th>
-              <th className="py-4 px-4 text-sm font-archivo font-semibold text-black">
+              <th className="py-4 px-4 text-sm  font-semibold text-black">
                 File Status
               </th>
               <th className="py-4 px-6 text-right"></th>
@@ -221,7 +221,7 @@ const RecentShipperFilesTable: React.FC<Props> = ({ data }) => {
                     }}
                   />
                 </td>
-                <td className="py-3 px-4 text-[15px] font-archivo font-normal text-black">
+                <td className="py-3 px-4 text-[15px]  font-normal text-black">
                   {item.projectName}
                 </td>
                 <td className="py-3 px-4">
@@ -233,24 +233,24 @@ const RecentShipperFilesTable: React.FC<Props> = ({ data }) => {
                         className="w-full h-full object-cover"
                       />
                     </div>
-                    <span className="text-sm font-archivo font-normal text-black">
+                    <span className="text-sm  font-normal text-black">
                       {item.shipperName}
                     </span>
                   </div>
                 </td>
-                <td className="py-3 px-4 text-sm font-inter text-[#637381]">
+                <td className="py-3 px-4 text-sm  text-[#637381]">
                   {item.fileName}
                 </td>
-                <td className="py-3 px-4 text-sm font-inter text-[#637381]">
+                <td className="py-3 px-4 text-sm  text-[#637381]">
                   {item.uploadDate}
                 </td>
-                <td className="py-3 px-4 text-sm font-inter text-black font-medium">
+                <td className="py-3 px-4 text-sm  text-black font-medium">
                   {item.items}
                 </td>
-                <td className="py-3 px-4 text-sm font-inter text-black font-medium">
+                <td className="py-3 px-4 text-sm  text-black font-medium">
                   {item.rates}
                 </td>
-                <td className="py-3 px-4 text-sm font-inter text-black font-medium">
+                <td className="py-3 px-4 text-sm  text-black font-medium">
                   {item.weight}
                 </td>
                 <td className="py-3 px-4">
@@ -275,7 +275,7 @@ const RecentShipperFilesTable: React.FC<Props> = ({ data }) => {
                       {openDropdown === idx && (
                         <div className="absolute top-full left-0 mt-1 w-48 bg-white border border-[#E2E4E6] rounded-[10px] shadow-lg z-50 p-2 space-y-1">
                           <div className="flex items-center justify-between px-2 py-1 mb-1 border-b border-gray-50">
-                            <span className="text-xs font-inter font-normal text-black flex items-center gap-1.5">
+                            <span className="text-xs  font-normal text-black flex items-center gap-1.5">
                               <ChevronDown size={14} className="rotate-90 cursor-pointer" onClick={() => setOpenDropdown(null)} />{" "}
                               Select Status
                             </span>

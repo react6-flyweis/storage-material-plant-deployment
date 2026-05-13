@@ -17,6 +17,7 @@ import pdfIcon from "@/assets/icon/dashboard/pdfIcon.svg";
 import xlxsIcon from "@/assets/icon/dashboard/xlxs.svg";
 import networkIcon from "@/assets/icon/dashboard/network.svg";
 import gitBranchIcon from "@/assets/icon/dashboard/gitBranch.svg";
+import { useNavigate } from "react-router-dom";
 
 interface PlantDataGridsProps {
   shipperFiles: ShipperFile[];
@@ -31,7 +32,7 @@ type SectionTitleProps = {
 const SectionTitle = ({ title, className = "" }: SectionTitleProps) => {
   return (
     <h2
-      className={`text-base md:text-lg font-archivo font-semibold text-black mb-4 ${className}`}
+      className={`text-base md:text-lg  font-semibold text-black mb-4 ${className}`}
     >
       {title}
     </h2>
@@ -43,6 +44,7 @@ const PlantDataGrids: React.FC<PlantDataGridsProps> = ({
   alerts,
   carriers,
 }) => {
+  const navigate = useNavigate()
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3 xl:gap-4 mt-6">
       {/* Card 1: Recent Shipper Files Received */}
@@ -69,7 +71,7 @@ const PlantDataGrids: React.FC<PlantDataGridsProps> = ({
                   />
                 </div>
                 <div className="flex-grow min-w-0">
-                  <h3 className="text-[15px] font-archivo font-semibold text-black truncate">
+                  <h3 className="text-sm  font-medium text-black truncate">
                     {file.name}
                   </h3>
                   <p className="text-sm font-inter text-[#637381] mt-1">
@@ -93,7 +95,8 @@ const PlantDataGrids: React.FC<PlantDataGridsProps> = ({
             );
           })}
         </div>
-        <button className="w-full mt-6 py-2.5 border border-[#155DFC] rounded-lg text-[#0088FF] font-semibold text-base hover:bg-blue-50 transition-colors">
+        <button className="w-full mt-6 py-2.5 border border-[#155DFC] rounded-lg text-[#0088FF] font-semibold text-base hover:bg-blue-50 transition-colors"
+         onClick={()=>navigate("/load_planning/shipper-quotation")}>
           View All Shipper Files
         </button>
       </div>
@@ -101,7 +104,7 @@ const PlantDataGrids: React.FC<PlantDataGridsProps> = ({
       {/* Card 2: Plant Alerts */}
       <div className="bg-white rounded-[14px] p-4 md:p-6 shadow-sm border border-[#F4F6F8] flex flex-col">
         <SectionTitle title="Plant Alerts" />
-        <div className="space-y-0 divide-y divide-[#F4F6F8]">
+        <div className="space-y-0 divide-y divide-[#F4F6F8] max-h-[400px] overflow-y-auto pb-5">
           {alerts.map((alert, idx) => {
             const getAlertStyles = () => {
               switch (alert.type) {
@@ -147,7 +150,7 @@ const PlantDataGrids: React.FC<PlantDataGridsProps> = ({
             return (
               <div
                 key={idx}
-                className="flex items-center py-5 first:pt-0 last:pb-0"
+                className="flex items-center py-4 first:pt-0 last:pb-0"
               >
                 <div
                   className={`w-11 h-11 rounded-lg flex items-center justify-center shrink-0 mr-4 ${styles.bg} ${styles.color}`}
@@ -158,7 +161,7 @@ const PlantDataGrids: React.FC<PlantDataGridsProps> = ({
                   <p className="text-sm font-normal text-black leading-tight">
                     {alert.message}
                   </p>
-                  <span className="text-sm font-archivo text-(--text-color-gray-3) md:ml-4 shrink-0">
+                  <span className="text-sm  text-(--text-color-gray-3) md:ml-4 shrink-0">
                     {alert.time}
                   </span>
                 </div>
@@ -166,7 +169,7 @@ const PlantDataGrids: React.FC<PlantDataGridsProps> = ({
             );
           })}
         </div>
-        <button className="w-full mt-auto py-2.5 border border-[#155DFC] rounded-lg text-[#0088FF] font-semibold text-base hover:bg-blue-50 transition-colors">
+        <button className="w-full mt-auto py-2.5 border border-[#155DFC] rounded-lg text-[#0088FF] font-semibold text-base hover:bg-blue-50 transition-colors"  onClick={()=>navigate("/notification")}>
           View All Alerts
         </button>
       </div>
@@ -174,7 +177,7 @@ const PlantDataGrids: React.FC<PlantDataGridsProps> = ({
       {/* Card 3: Freight Carriers */}
       <div className="bg-white rounded-[14px] p-4 md:p-6 shadow-sm border border-[#F4F6F8] flex flex-col">
         <SectionTitle title="Freight Carriers" />
-        <div className="space-y-0 divide-y divide-[#F4F6F8] max-[400px] overflow-y-auto">
+        <div className="space-y-0 divide-y divide-[#F4F6F8] max-[400px] overflow-y-auto pb-5">
           {carriers.map((carrier, idx) => {
             const isDelayed = carrier.status === "Delayed";
             const icon = idx % 2 === 0 ? networkIcon : gitBranchIcon;
@@ -187,7 +190,7 @@ const PlantDataGrids: React.FC<PlantDataGridsProps> = ({
                   <img src={icon} alt="carrier icon" className="w-full h-full" />
                 </div>
                 <div className="grow min-w-0">
-                  <h3 className="text-sm md:text-base font-archivo font-medium text-black truncate">
+                  <h3 className="text-sm md:text-base  font-medium text-black truncate">
                     {carrier.name}
                   </h3>
                   <p className="text-sm font-inter text-[#637381] mt-1">
