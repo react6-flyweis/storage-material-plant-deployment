@@ -3,15 +3,16 @@ import logo from "../../assets/logo.png";
 import bellIcon from "../../assets/bellIcon.svg";
 import { useNavigate } from "react-router-dom";
 import UserIcon from "../../assets/icon/UserIcon";
-import { Search } from "lucide-react";
+import { ChevronLeft, Search } from "lucide-react";
 
 interface HeaderProps {
   onMenuToggle: () => void;
   onProfileClick?: () => void;
   onSettingsClick?: () => void;
+  isMenuOpen?: boolean;
 }
 
-const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
+const Header: React.FC<HeaderProps> = ({ onMenuToggle, isMenuOpen }) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
@@ -37,26 +38,13 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
   };
 
   return (
-    <header className="flex items-center justify-between p-3 md:p-4 bg-white shadow-sm rounded-none z-20 sticky top-0 w-full gap-2 md:gap-4">
-      <div className="flex items-center gap-2 md:gap-4 flex-1 min-w-0">
+    <header className="flex items-center justify-between p-3 md:p-4 md:pl-2.5 bg-white shadow-sm rounded-none z-20 sticky top-0 w-full gap-2 md:gap-4">
+      <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
         <button
-          className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+          className="text-gray-600 rounded-lg transition-colors"
           onClick={onMenuToggle}
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="w-6 h-6"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
-            />
-          </svg>
+          <ChevronLeft className={`transition-transform duration-500 ${isMenuOpen ? "rotate-0" : "rotate-180"}`} />
         </button>
 
         {/* Search Bar */}

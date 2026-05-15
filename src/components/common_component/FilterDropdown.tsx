@@ -41,7 +41,7 @@ const FilterDropdown = <T extends string>({
           {icon || <ListFilter size={18} className="text-[#637381]" />}
           <div className="flex items-center gap-1">
             {label && <span className="text-[#212B36]">{label}</span>}
-            <span className="text-[#212B36] font-bold">{selectedLabel}</span>
+            <span className="text-[#212B36] font-medium">{selectedLabel}</span>
           </div>
         </div>
         <ChevronDown size={16} className={`transition-transform duration-200 text-[#212B36] ${isOpen ? "rotate-180" : ""}`} />
@@ -57,7 +57,7 @@ const FilterDropdown = <T extends string>({
                 setIsOpen(false);
               }}
               className={`w-full text-left px-4 py-2.5 text-sm transition-colors hover:bg-gray-50 ${
-                activeTab === option.value ? "text-[#1E51A4] font-semibold bg-gray-50" : "text-[#212B36] font-medium"
+                activeTab === option.value ? "text-[#1E51A4] font-medium bg-gray-50" : "text-[#212B36] font-medium"
               }`}
             >
               {option.label}

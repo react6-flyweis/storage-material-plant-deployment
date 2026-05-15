@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useMemo } from "react";
 import { ArrowUpDown } from "lucide-react";
 
 interface BOMListContentProps {
@@ -28,11 +28,47 @@ interface BOMListContentProps {
 }
 
 const BOMListContent: React.FC<BOMListContentProps> = ({ bomData }) => {
+  const [sortConfig, setSortConfig] = useState<{ key: string; direction: "asc" | "desc" } | null>(null);
+
+  const handleSort = (key: string) => {
+    let direction: "asc" | "desc" = "asc";
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const sortedItems = useMemo(() => {
+    let sortableItems = [...bomData.items];
+    if (sortConfig !== null) {
+      sortableItems.sort((a: any, b: any) => {
+        let valA = a[sortConfig.key];
+        let valB = b[sortConfig.key];
+
+        // Special handling for numeric strings if needed, 
+        // but qty is number, weight is string, mark is string
+        if (sortConfig.key === "weight" || sortConfig.key === "qty") {
+          valA = parseFloat(valA);
+          valB = parseFloat(valB);
+        }
+
+        if (valA < valB) {
+          return sortConfig.direction === "asc" ? -1 : 1;
+        }
+        if (valA > valB) {
+          return sortConfig.direction === "asc" ? 1 : -1;
+        }
+        return 0;
+      });
+    }
+    return sortableItems;
+  }, [bomData.items, sortConfig]);
+
   return (
     <div className="bg-white rounded-[14px] overflow-hidden shadow-sm border border-gray-100">
       {/* Project & BOM ID Header */}
       <div className="bg-[#F9FAFB] px-6 py-4 md:px-8 md:py-6 border-b border-gray-100">
-        <h2 className="text-lg lg:text-2xl font-inter font-bold text-[#212B36]">
+        <h2 className="text-lg lg:text-2xl font-inter font-semibold text-[#212B36]">
           Project: <span className="font-bold">{bomData.projectName}</span> |
           BOM ID: <span className="font-bold">{bomData.id}</span>
         </h2>
@@ -96,8 +132,8 @@ const BOMListContent: React.FC<BOMListContentProps> = ({ bomData }) => {
                       STUDS & TOP CHANNELS
                     </h4>
                   </div>
-                  <div className="grid grid-cols-1 lg:grid-cols-3 h-full divide-y md:divide-y-0 md:divide-x-2 divide-black border-t-2 border-b-2 border-black">
-                    <div className="p-2 flex items-center justify-center bg-[#F9FAFB] md:bg-transparent border-b md:border-b-0 border-black">
+                  <div className="grid grid-cols-1 lg:grid-cols-3 h-full divide-y md:divide-y-0 lg:divide-x-2 divide-black border-t-2 border-b-2 border-black">
+                    <div className="p-2 flex items-center justify-center bg-[#F9FAFB] md:bg-transparent border-b lg:border-b-0 border-black">
                       <span className="text-xs md:text-sm font-bold text-[#212B36]">
                         Customer:
                       </span>
@@ -108,14 +144,14 @@ const BOMListContent: React.FC<BOMListContentProps> = ({ bomData }) => {
                       </span>
                     </div>
                   </div>
-                  <div className="grid grid-cols-1 lg:grid-cols-3 h-full divide-y md:divide-y-0 md:divide-x-2 divide-black border-t-2 border-black">
+                  <div className="grid grid-cols-1 lg:grid-cols-3 h-full divide-y md:divide-y-0 lg:divide-x-2 divide-black border-t-2 border-black">
                     <div className="p-2 flex items-center justify-center bg-[#F9FAFB] md:bg-transparent border-b md:border-b-0 border-black">
                       <span className="text-xs md:text-sm font-bold text-[#212B36]">
                         Project Name:
                       </span>
                     </div>
                     <div className="md:col-span-2 p-2 flex items-center justify-center">
-                      <span className="text-xs md:text-sm font-bold text-[#212B36]">
+                      <span className="text-xs md:text-sm font-semibold text-[#212B36]">
                         {bomData.projectName}
                       </span>
                     </div>
@@ -149,14 +185,20 @@ const BOMListContent: React.FC<BOMListContentProps> = ({ bomData }) => {
           <table className="w-full text-left border-collapse min-w-[800px]">
             <thead>
               <tr className="bg-[#F9FAFB] border-y border-gray-200">
-                <th className="py-3 px-4 text-xs md:text-sm font-semibold text-[#212B36] tracking-wider">
+                <th 
+                  className="py-3 px-4 text-xs md:text-sm font-semibold text-[#212B36] tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                  onClick={() => handleSort("qty")}
+                >
                   <div className="flex items-center gap-1">
-                    QTY <ArrowUpDown size={12} className="text-gray-400" />
+                    QTY <ArrowUpDown size={12} className={sortConfig?.key === "qty" ? "text-[#1E51A4]" : "text-gray-400"} />
                   </div>
                 </th>
-                <th className="py-3 px-4 text-xs md:text-sm font-semibold text-[#212B36] tracking-wider">
+                <th 
+                  className="py-3 px-4 text-xs md:text-sm font-semibold text-[#212B36] tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                  onClick={() => handleSort("mark")}
+                >
                   <div className="flex items-center gap-1">
-                    Mark <ArrowUpDown size={12} className="text-gray-400" />
+                    Mark <ArrowUpDown size={12} className={sortConfig?.key === "mark" ? "text-[#1E51A4]" : "text-gray-400"} />
                   </div>
                 </th>
                 <th className="py-3 px-4 text-xs md:text-sm font-semibold text-[#212B36] tracking-wider">
@@ -168,28 +210,37 @@ const BOMListContent: React.FC<BOMListContentProps> = ({ bomData }) => {
                 <th className="py-3 px-4 text-xs md:text-sm font-semibold text-[#212B36] tracking-wider">
                   Color
                 </th>
-                <th className="py-3 px-4 text-xs md:text-sm font-semibold text-[#212B36] tracking-wider">
+                <th 
+                  className="py-3 px-4 text-xs md:text-sm font-semibold text-[#212B36] tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                  onClick={() => handleSort("angle")}
+                >
                   <div className="flex items-center gap-1">
-                    Angle <ArrowUpDown size={12} className="text-gray-400" />
+                    Angle <ArrowUpDown size={12} className={sortConfig?.key === "angle" ? "text-[#1E51A4]" : "text-gray-400"} />
                   </div>
                 </th>
                 <th className="py-3 px-4 text-xs md:text-sm font-semibold text-[#212B36] tracking-wider">
                   Thick
                 </th>
-                <th className="py-3 px-4 text-xs md:text-sm font-semibold text-[#212B36] tracking-wider">
+                <th 
+                  className="py-3 px-4 text-xs md:text-sm font-semibold text-[#212B36] tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                  onClick={() => handleSort("length")}
+                >
                   <div className="flex items-center gap-1">
-                    Length <ArrowUpDown size={12} className="text-gray-400" />
+                    Length <ArrowUpDown size={12} className={sortConfig?.key === "length" ? "text-[#1E51A4]" : "text-gray-400"} />
                   </div>
                 </th>
-                <th className="py-3 px-4 text-xs md:text-sm font-semibold text-[#212B36] tracking-wider text-right">
+                <th 
+                  className="py-3 px-4 text-xs md:text-sm font-semibold text-[#212B36] tracking-wider text-right cursor-pointer hover:bg-gray-100 transition-colors"
+                  onClick={() => handleSort("weight")}
+                >
                   <div className="flex items-center justify-end gap-1">
-                    Weight <ArrowUpDown size={12} className="text-gray-400" />
+                    Weight <ArrowUpDown size={12} className={sortConfig?.key === "weight" ? "text-[#1E51A4]" : "text-gray-400"} />
                   </div>
                 </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {bomData.items.map((item, index) => (
+              {sortedItems.map((item, index) => (
                 <tr key={index} className="hover:bg-gray-50 transition-colors">
                   <td className="py-3 px-4 text-xs md:text-sm font-medium text-[#212B36]">
                     {item.qty}

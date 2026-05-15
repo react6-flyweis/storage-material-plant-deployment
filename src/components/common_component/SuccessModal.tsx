@@ -24,7 +24,7 @@ const SuccessModal: React.FC<SuccessModalProps> = ({
 }) => {
   return (
     <Modal isOpen={isOpen} onClose={onClose} width="max-w-lg" hideHeader={true}>
-      <div className="flex flex-col items-center text-center justify-center p-4">
+      <div className="flex flex-col items-center text-center justify-center p-4 font-inter">
             {!isLogoBottom && (
           <div className="md:-mt-6 md:-mb-6">
             <img
@@ -34,11 +34,11 @@ const SuccessModal: React.FC<SuccessModalProps> = ({
             />
           </div>
         )}
-        <h2 className="text-xl sm:text-xl md:text-2xl font-semibold text-black mb-1 mx-4">
+        <h2 className="text-xl sm:text-2xl md:text-2xl font-semibold text-black mb-1 mx-4">
           {title}
         </h2>
         {subTitle && (
-          <h2 className="text-lg md:text-2xl font-semibold text-black mb-6">
+          <h2 className="text-lg md:text-xl font-semibold text-black mb-6">
             {subTitle}
           </h2>
         )}

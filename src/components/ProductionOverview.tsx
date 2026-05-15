@@ -63,7 +63,7 @@ const ProductionOverview: React.FC<ProductionOverviewProps> = ({
                 <p className="xl:text-sm lg:text-sm md:text-xs text-xs text-[#637381] font-normal truncate">
                   {metric.label}
                 </p>
-                <p className="xl:text-lg lg:text-base md:text-base text-sm font-bold text-[#212B36] leading-tight mt-0.5">
+                <p className="xl:text-lg lg:text-base md:text-base text-sm font-semibold text-[#212B36] leading-tight mt-0.5">
                   {metric.value}
                 </p>
               </div>

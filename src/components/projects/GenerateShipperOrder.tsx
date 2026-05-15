@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Search, Send, X, Plus, Truck } from "lucide-react";
+import { ArrowLeft, Search, Send, X, Truck } from "lucide-react";
 import { customersData } from "@/data/productionMockData";
 import Heading from "../common_component/Heading";
 import Button from "../common_component/Button";
 import BOMListContent from "./BOMListContent";
 
 import SuccessModal from "../common_component/SuccessModal";
+import AddShipperMailModal from "./AddShipperMailModal";
 
 const shippersMockData = [
   { id: 1, name: "Steel Investments", rating: 4.8, serviceArea: "Texas / Oklahoma", selected: true },
@@ -20,8 +21,9 @@ const GenerateShipperOrder: React.FC = () => {
   const { customerId, projectId } = useParams();
   const [shippers, setShippers] = useState(shippersMockData);
   const [newShipperEmails, setNewShipperEmails] = useState(["steelinvestment@gmail.com"]);
-  const [emailInput, setEmailInput] = useState("");
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [isAddShipperModalOpen, setIsAddShipperModalOpen] = useState(false);
+  const [isAddSuccessOpen, setIsAddSuccessOpen] = useState(false);
 
   const customer = customersData[customerId || ""] || customersData["ID-2025-1047"];
   const project = customer?.projects.find((p) => p.id === projectId) || customer?.projects[0];
@@ -38,16 +40,14 @@ const GenerateShipperOrder: React.FC = () => {
       totalPanelsArea: "3,300 sqm",
     },
     items: [
+      { qty: 12, mark: "S-10", description: "STUD", part: "C42516", color: "RO", angle: "90°", thick: "16 GA", length: "10'-2\"", weight: "24.50" },
       { qty: 5, mark: "S-1", description: "STUD", part: "C42516", color: "RO", angle: "-", thick: "16 GA", length: "8'-7 1/4\"", weight: "16.00" },
+      { qty: 25, mark: "S-5", description: "STUD", part: "C42516", color: "RO", angle: "45°", thick: "18 GA", length: "12'-0\"", weight: "42.00" },
       { qty: 8, mark: "S-2", description: "STUD", part: "C42516", color: "RO", angle: "-", thick: "16 GA", length: "8'-7 1/4\"", weight: "16.00" },
+      { qty: 15, mark: "S-8", description: "STUD", part: "C42516", color: "RO", angle: "30°", thick: "14 GA", length: "9'-6\"", weight: "35.20" },
       { qty: 6, mark: "S-3", description: "STUD", part: "C42516", color: "RO", angle: "-", thick: "16 GA", length: "8'-7 1/4\"", weight: "16.00" },
-      { qty: 5, mark: "S-4", description: "STUD", part: "C42516", color: "RO", angle: "-", thick: "16 GA", length: "8'-7 1/4\"", weight: "16.00" },
-      { qty: 8, mark: "S-5", description: "STUD", part: "C42516", color: "RO", angle: "-", thick: "16 GA", length: "8'-7 1/4\"", weight: "16.00" },
-      { qty: 6, mark: "S-6", description: "STUD", part: "C42516", color: "RO", angle: "-", thick: "16 GA", length: "8'-7 1/4\"", weight: "16.00" },
-      { qty: 3, mark: "S-7", description: "STUD", part: "C42516", color: "RO", angle: "-", thick: "16 GA", length: "8'-7 1/4\"", weight: "16.00" },
-      { qty: 4, mark: "S-8", description: "STUD", part: "C42516", color: "RO", angle: "-", thick: "16 GA", length: "8'-7 1/4\"", weight: "16.00" },
-      { qty: 2, mark: "S-9", description: "STUD", part: "C42516", color: "RO", angle: "-", thick: "16 GA", length: "8'-7 1/4\"", weight: "16.00" },
-      { qty: 4, mark: "S-10", description: "STUD", part: "C42516", color: "RO", angle: "-", thick: "16 GA", length: "8'-7 1/4\"", weight: "16.00" },
+      { qty: 2, mark: "S-9", description: "STUD", part: "C42516", color: "RO", angle: "90°", thick: "16 GA", length: "8'-7 1/4\"", weight: "16.00" },
+      { qty: 4, mark: "S-4", description: "STUD", part: "C42516", color: "RO", angle: "-", thick: "16 GA", length: "8'-7 1/4\"", weight: "16.00" },
     ],
   };
 
@@ -55,11 +55,12 @@ const GenerateShipperOrder: React.FC = () => {
     setShippers(shippers.map(s => s.id === id ? { ...s, selected: !s.selected } : s));
   };
 
-  const addEmail = () => {
-    if (emailInput && !newShipperEmails.includes(emailInput)) {
-      setNewShipperEmails([...newShipperEmails, emailInput]);
-      setEmailInput("");
+  const handleAddShipperMail = (data: { email: string }) => {
+    if (data.email && !newShipperEmails.includes(data.email)) {
+      setNewShipperEmails([...newShipperEmails, data.email]);
     }
+    setIsAddShipperModalOpen(false);
+    setIsAddSuccessOpen(true);
   };
 
   const removeEmail = (email: string) => {
@@ -67,7 +68,6 @@ const GenerateShipperOrder: React.FC = () => {
   };
 
   const handleSendOrder = () => {
-    // Logic to send order would go here
     setIsSuccessModalOpen(true);
   };
 
@@ -119,9 +119,13 @@ const GenerateShipperOrder: React.FC = () => {
                 className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 placeholder:text-gray-400"
               />
             </div>
-            <button className="w-full sm:w-auto px-6 py-2.5 bg-[#454F5B] text-white rounded-lg text-sm font-semibold hover:bg-[#343d46] transition-colors whitespace-nowrap shadow-sm">
+            <Button 
+              variant="grayFilled" 
+              size="sm" 
+              onClick={() => setIsAddShipperModalOpen(true)}
+            >
               Add new Shipper Mail
-            </button>
+            </Button> 
           </div>
         </div>
 
@@ -174,22 +178,6 @@ const GenerateShipperOrder: React.FC = () => {
                 </button>
               </div>
             ))}
-            <div className="flex items-center gap-2">
-              <input 
-                type="email"
-                placeholder="Add email..."
-                value={emailInput}
-                onChange={(e) => setEmailInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && addEmail()}
-                className="px-4 py-2 border border-dashed border-gray-300 rounded-lg text-sm outline-none focus:border-[#1E51A4] focus:ring-1 focus:ring-[#1E51A4] w-48 bg-transparent"
-              />
-              <button 
-                onClick={addEmail}
-                className="size-9 bg-[#F4F6F8] rounded-lg flex items-center justify-center hover:bg-gray-200 transition-colors text-[#637381]"
-              >
-                <Plus size={18} />
-              </button>
-            </div>
           </div>
         </div>
       </div>
@@ -197,7 +185,7 @@ const GenerateShipperOrder: React.FC = () => {
       {/* BOM Content Section */}
       <BOMListContent bomData={bomData} />
 
-      {/* Success Modal */}
+      {/* Main Success Modal */}
       <SuccessModal 
         isOpen={isSuccessModalOpen}
         onClose={() => {
@@ -206,6 +194,22 @@ const GenerateShipperOrder: React.FC = () => {
         }}
         title="Order Sent Successfully"
         subTitle="Material Request has been sent to selected shippers."
+      />
+
+      {/* Add Shipper Mail Modal */}
+      <AddShipperMailModal 
+        isOpen={isAddShipperModalOpen}
+        onClose={() => setIsAddShipperModalOpen(false)}
+        onAdd={handleAddShipperMail}
+      />
+
+      {/* Add Email Success Modal */}
+      <SuccessModal 
+        isOpen={isAddSuccessOpen}
+        onClose={() => setIsAddSuccessOpen(false)}
+        title="Shipper Mail Added in the Order"
+        subTitle="After Shipper/vendor processes the order, they prepare the actual shipment. Then they send the shipper file."
+        isLogoBottom={false}
       />
     </div>
   );

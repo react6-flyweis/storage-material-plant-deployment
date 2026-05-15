@@ -10,6 +10,7 @@ import PlantDataGrids from "@/components/PlantDataGrids";
 import RecentShipperFilesTable from "@/components/RecentShipperFilesTable";
 import DrawingApprovalStatusTable from "@/components/DrawingApprovalStatusTable";
 import SubHeading from "@/components/common_component/SubHeading";
+import PageWrapper from "@/components/common_component/PageWrapper";
 import {
   productionMetricsByFilter,
   shipperFilesByFilter,
@@ -198,7 +199,7 @@ const filterLabels: Record<TabType, string> = {
 
 const PlantPage = () => {
   const [activeTab, setActiveTab] = useState<TabType>("today");
-  const [font, setFont] = useState("combo1");
+  const [font] = useState("combo1");
   // const navigate = useNavigate();
 
   const fontCombos: Record<string, { label: string; headline: string; headlineWeight: number; body: string }> = {
@@ -215,15 +216,15 @@ const PlantPage = () => {
   const carriers = freightCarriersByFilter[activeTab];
 
   return (
-    <div className="md:px-4 px-2 pb-10 space-y-6 pt-4 plant-page-content" style={{ fontFamily: `"${activeCombo.body}", sans-serif` }}>
+    <PageWrapper className="plant-page-content" style={{ fontFamily: `"${activeCombo.body}", sans-serif` }}>
       {/* Inject dynamic headline font override */}
-      <style>{`
+      {/* <style>{`
         .plant-page-content h1, .plant-page-content h2, .plant-page-content h3,
         .plant-page-content h4, .plant-page-content h5, .plant-page-content h6 {
           font-family: "${activeCombo.headline}", sans-serif !important;
           font-weight: ${activeCombo.headlineWeight} !important;
         }
-      `}</style>
+      `}</style> */}
       {/* Header: Title + FilterTabs */}
       <div className="flex flex-wrap items-center md:justify-between gap-4">
         <TitleSubtitle
@@ -231,7 +232,7 @@ const PlantPage = () => {
           subtitle={dashboardText.header.subtitle}
         />
         {/* Temporary Font Pair Selector */}
-        <div className="ml-auto flex flex-wrap items-center gap-2 bg-white border border-gray-200 rounded-xl px-4 py-2 shadow-sm">
+        {/* <div className="ml-auto flex flex-wrap items-center gap-2 bg-white border border-gray-200 rounded-xl px-4 py-2 shadow-sm">
           <span className="text-sm font-medium text-gray-600 whitespace-nowrap">Font Pair:</span>
           <select
             value={font}
@@ -242,7 +243,7 @@ const PlantPage = () => {
               <option key={key} value={key}>{combo.label}</option>
             ))}
           </select>
-        </div>
+        </div> */}
       </div>
       {/* Production Overview (new) */}
       <ProductionOverview
@@ -269,7 +270,7 @@ const PlantPage = () => {
         <SubHeading text="Drawing Approval Status" />
         <DrawingApprovalStatusTable data={drawingApprovalStatusByFilter[activeTab]} />
       </div>
-    </div>
+    </PageWrapper>
   );
 };
 

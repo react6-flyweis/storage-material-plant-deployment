@@ -43,14 +43,14 @@ const ProjectLifecycle: React.FC = () => {
   ];
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-8">
+    <div className="bg-white rounded-[14px] shadow-sm border border-gray-100 p-4 md:p-6 space-y-8">
       <h2 className="text-xl font-semibold text-[#212B36]">Project Lifecycle</h2>
 
       {/* Timeline */}
       <div className="relative overflow-x-auto pb-6 pt-4">
         <div className="min-w-[1200px] relative">
           {/* Connection Line */}
-          <div className="absolute top-4 left-10 right-10 h-1 bg-[#E5E7EB]" />
+          <div className="absolute top-4 left-10 right-10 h-1 bg-gradient-to-r from-blue-600 to-indigo-600" />
           <div 
             className="absolute top-4 left-10 h-1 bg-[#0043CE] transition-all duration-500" 
             style={{ width: '43%' }} // Up to step 7
@@ -65,7 +65,7 @@ const ProjectLifecycle: React.FC = () => {
               <div key={step.id} className="flex flex-col items-center w-[80px] z-10">
                 {/* Step Circle */}
                 <div 
-                  className={`size-8 rounded-full flex items-center justify-center text-xs border-2 border-[#C6C6C6] font-inter font-medium transition-all ${
+                  className={`size-8 rounded-full flex items-center justify-center text-xs border-2 border-[#C6C6C6] font-inter font-semibold transition-all ${
                     step.completed ? 'bg-[#3AB449] text-white' : 
                     step.current ? 'bg-[#446DF6] text-white' : 
                     'bg-white text-[#919EAB] border-gray-200'
@@ -97,7 +97,7 @@ const ProjectLifecycle: React.FC = () => {
       </div>
 
       {/* Current Step Details Card */}
-      <div className="bg-[#F9FAFB] rounded-2xl p-4 lg:p-6">
+      <div className="bg-[#F9FAFB] rounded-xl p-3 lg:p-6">
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 xl:gap-8">
           {/* Left: Step Info */}
           <div className="lg:col-span-1 space-y-3 lg:border-r border-gray-200 lg:pr-8">
@@ -157,7 +157,7 @@ const ProjectLifecycle: React.FC = () => {
       </div>
 
       {/* Action Buttons */}
-      <div className="flex flex-wrap items-center gap-4 pt-4">
+      <div className="flex flex-wrap items-center justify-between md:justify-start gap-4 pt-2">
         <Button
         variant="primary"
         size="md"

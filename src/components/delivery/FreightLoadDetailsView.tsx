@@ -20,6 +20,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import Button from "../common_component/Button";
 import { AwardLoadModal, AwardSuccessModal, RequestRevisionModal, RevisionSuccessModal } from "./AwardLoadModals";
 import FilterDropdown from "../common_component/FilterDropdown";
+import SubHeading from "../common_component/SubHeading";
 
 // --- Sub-components ---
 
@@ -132,7 +133,7 @@ const LoadDetailsTab = () => (
           <div className="w-10 h-10 bg-[#FFEDD4] rounded-full flex items-center justify-center text-[#FB923C]">
             <Package size={20} />
           </div>
-          <h3 className="text-lg font-semibold text-[#212B36]">Load Details</h3>
+          <SubHeading text="Load Details"/>
         </div>
         
         <div className="space-y-6">
@@ -157,7 +158,7 @@ const LoadDetailsTab = () => (
           <div className="w-10 h-10 bg-[#DBEAFE] rounded-full flex items-center justify-center text-[#3B82F6]">
             <MapPin size={20} />
           </div>
-          <h3 className="text-lg font-bold text-[#212B36]">Route Information</h3>
+          <SubHeading text="Route Information"/>
         </div>
 
         <div className="space-y-8 relative">
@@ -188,7 +189,7 @@ const LoadDetailsTab = () => (
         <div className="w-10 h-10 bg-[#DCFCE7] rounded-full flex items-center justify-center text-[#22C55E]">
           <Truck size={20} />
         </div>
-        <h3 className="text-lg font-bold text-[#212B36]">Coordination & Requirements</h3>
+        <SubHeading text="Coordination & Requirements"/>
       </div>
 
       <div className="space-y-6">

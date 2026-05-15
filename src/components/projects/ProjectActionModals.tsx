@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import CommonDropdown from "../common_component/CommonDropdown";
 import { X } from "lucide-react";
 import SubHeading from "../common_component/SubHeading";
+import Modal from "../Modal";
+import Button from "../common_component/Button";
+import CommonInput from "../common_component/CommonInput";
 
 interface ModalProps {
   isOpen: boolean;
@@ -72,55 +75,49 @@ export const AddNotesModal: React.FC<ModalProps & { onAdd: () => void }> = ({
   const [title, setTitle] = useState("Steel Investment");
   const [note, setNote] = useState("Reliable for long-distance steel transport.\nPreferred carrier for Texas routes.\nFast response time during bidding.");
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-      <div className="bg-white rounded-[24px] w-full max-w-lg p-8 shadow-2xl animate-in fade-in zoom-in duration-300">
-        <div className="flex items-center justify-between mb-8">
-          <SubHeading text="Add Notes" />
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
-            <X size={24} />
-          </button>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Add Notes"
+      width="max-w-xl"
+    >
+      <div className="space-y-6 p-1">
+        <CommonInput
+          label="Notes Title"
+          value={title}
+          onChange={setTitle}
+          placeholder="Enter note title..."
+        />
+
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-[#212B36]">Notes</label>
+          <textarea
+            rows={6}
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            placeholder="Additional notes about this project..."
+            className="w-full px-4 py-3 bg-white border-[0.7px] border-[#D1D5DC] rounded-xl text-sm text-[#637381] focus:border-[#4A5565] outline-none shadow-xs transition-all resize-none placeholder:text-[#919EAB]"
+          />
         </div>
 
-        <div className="space-y-6">
-          <div className="space-y-2">
-            <label className="text-base font-inter font-bold text-[#212B36]">Notes Title</label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-4 py-3 bg-[#F9FAFB] border border-gray-200 rounded-xl text-[#212B36] font-inter focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-base font-inter font-bold text-[#212B36]">Notes</label>
-            <textarea
-              rows={5}
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              className="w-full px-4 py-3 bg-[#F9FAFB] border border-gray-200 rounded-xl text-[#637381] font-inter focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all resize-none"
-            />
-          </div>
-
-          <div className="flex items-center justify-between gap-4 mt-12">
-            <button
-              onClick={onClose}
-              className="px-10 py-2 bg-white border border-gray-300 text-[#212B36] rounded-lg text-base font-inter font-bold hover:bg-gray-50 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={onAdd}
-              className="px-10 py-2 bg-[#7539FF] text-white rounded-lg text-base font-inter font-bold hover:opacity-90 transition-opacity shadow-md shadow-purple-500/20"
-            >
-              Add Note
-            </button>
-          </div>
+        <div className="flex items-center justify-end gap-3 pt-6 border-t border-gray-100">
+          <Button
+            variant="white"
+            onClick={onClose}
+            className="px-8"
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="gradient"
+            onClick={onAdd}
+            className="px-8"
+          >
+            Add Note
+          </Button>
         </div>
       </div>
-    </div>
+    </Modal>
   );
 };

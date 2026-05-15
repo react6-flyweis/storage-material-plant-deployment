@@ -15,17 +15,17 @@ const CustomerProfileCard: React.FC<CustomerProfileCardProps> = ({ customerData 
           <img 
             src={customerData.image} 
             alt={customerData.name} 
-            className="size-18 md:size-24 rounded-full object-cover ring-4 ring-gray-50 shadow-sm" 
+            className="size-20 lg:size-24 rounded-full object-cover ring-4 ring-gray-50 shadow-sm" 
           />
           <div className="space-y-2">
             <div className="flex items-center gap-4">
-              <h2 className="text-lg md:text-3xl font-inter font-bold text-[#212B36]">{customerData.name}</h2>
-              <span className="flex items-center gap-2 px-3 py-1 md:px-4 bg-[#DCFCE7] text-(--text-color-green) rounded-full text-xs md:text-sm font-inter font-bold tracking-wide">
-                <span className="size-2 bg-[#22C55E] rounded-full shadow-[0_0_8px_rgba(34,197,94,0.6)]" /> Active
+              <h2 className="text-lg md:text-xl lg:text-3xl font-inter font-semibold text-[#212B36]">{customerData.name}</h2>
+              <span className="flex items-center gap-2 px-3 py-1 md:px-4 bg-[#DCFCE7] text-(--text-color-green) rounded-full text-xs lg:text-sm font-inter font-semibold tracking-wide">
+                <span className="size-2 bg-[#22C55E] rounded-full shadow-xs" /> Active
               </span>
             </div>
-            <p className="text-[#656565] font-inter text-base md:text-lg font-normal">{customerData.id}</p>
-            <p className="text-[#656565] font-inter text-sm md:text-base font-normal">Joined {customerData.joinedDate}</p>
+            <p className="text-[#656565] font-inter text-base lg:text-lg font-normal">{customerData.id}</p>
+            <p className="text-[#656565] font-inter text-sm lg:text-base font-normal">Joined {customerData.joinedDate}</p>
           </div>
         </div>
 
@@ -41,19 +41,19 @@ const CustomerProfileCard: React.FC<CustomerProfileCardProps> = ({ customerData 
           <div className="flex items-start md:items-center gap-6">
             <div className="flex items-center gap-3 w-28">
               <Mail size={18} className="text-[#637381]" />
-              <span className="text-sm md:text-base text-[#637381] font-inter font-medium">Email</span>
+              <span className="text-sm lg:text-base text-[#637381] font-inter font-medium">Email</span>
             </div>
             <div className="flex items-center gap-3">
-              <span className="text-sm md:text-base font-inter text-[#446DF6] font-semibold underline underline-offset-4 decoration-1">{customerData.email}</span>
+              <span className="text-sm lg:text-base font-inter text-[#446DF6] font-medium underline underline-offset-4 decoration-1">{customerData.email}</span>
               <Copy size={16} className="text-[#919EAB] cursor-pointer hover:text-[#212B36] transition-colors" />
             </div>
           </div>
-          <div className="flex items-start md:items-center gap-6">
+          <div className="flex items-start lg:items-center gap-6">
             <div className="flex items-center gap-3 w-28 shrink-0">
               <MapPin size={18} className="text-[#637381]" />
-              <span className="text-sm md:text-base text-[#637381] font-inter font-medium">Address</span>
+              <span className="text-sm lg:text-base text-[#637381] font-inter font-medium">Address</span>
             </div>
-            <span className="text-sm md:text-base font-inter text-[#212B36] font-semibold leading-relaxed">{customerData.address}</span>
+            <span className="text-sm lg:text-base font-inter text-[#212B36] font-medium leading-relaxed">{customerData.address}</span>
           </div>
         </div>
       </div>

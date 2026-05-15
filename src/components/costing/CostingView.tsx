@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Search,
-  Filter,
   DollarSign,
   ArrowUpDown,
   TrendingUp,
@@ -46,16 +46,30 @@ const SORT_OPTIONS = [
   { label: "MBS Cost ↓", value: "mbsCost_desc" },
 ];
 
+const FILTER_BY_OPTIONS = [
+  { label: "Filter", value: "" },
+  { label: "All Items", value: "all" },
+  { label: "Steel Parts", value: "steel" },
+  { label: "Insulation", value: "insulation" },
+  { label: "Hardware", value: "hardware" },
+];
+
 const CostingView: React.FC = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
+  const [filterType, setFilterType] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPartModalOpen, setIsPartModalOpen] = useState(false);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"add" | "edit">("add");
   const [selectedPart, setSelectedPart] = useState<any>(null);
-  const [successConfig, setSuccessConfig] = useState({ title: "", subTitle: "" });
+  const [successConfig, setSuccessConfig] = useState({ 
+    title: "", 
+    subTitle: "", 
+    buttonText: "Ok",
+    isBOMSuccess: false 
+  });
 
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [selectedRows, setSelectedRows] = useState<number[]>([]);
   const [quickSort, setQuickSort] = useState("latest");
 
@@ -92,6 +106,18 @@ const CostingView: React.FC = () => {
 
   const filtered = useMemo(() => {
     let data = [...mockData];
+
+    // Category Filtering
+    if (filterType !== "all") {
+      if (filterType === "steel") {
+        data = data.filter(item => item.partName.includes("VRR") || item.partName.includes("UF"));
+      } else if (filterType === "insulation") {
+        data = data.filter(item => item.description.toLowerCase().includes("insul"));
+      } else if (filterType === "hardware") {
+        data = data.filter(item => item.partName.toLowerCase().includes("hard") || item.description === "-");
+      }
+    }
+
     if (searchTerm) {
       const q = searchTerm.toLowerCase();
       data = data.filter(
@@ -110,7 +136,7 @@ const CostingView: React.FC = () => {
       data.reverse();
     }
     return data;
-  }, [searchTerm, sortKey, sortDir, quickSort]);
+  }, [searchTerm, sortKey, sortDir, quickSort, filterType]);
 
   const allSelected = selectedRows.length === filtered.length && filtered.length > 0;
   const toggleAll = () => setSelectedRows(allSelected ? [] : filtered.map((r) => r.id));
@@ -130,10 +156,13 @@ const CostingView: React.FC = () => {
   };
 
   const onSavePart = (data: any) => {
+    console.log(data);
     setIsPartModalOpen(false);
     setSuccessConfig({
       title: "Item/Part Cost",
       subTitle: "Saved Successfully",
+      buttonText: "Ok",
+      isBOMSuccess: false
     });
     setIsSuccessModalOpen(true);
   };
@@ -143,14 +172,23 @@ const CostingView: React.FC = () => {
     setSuccessConfig({
       title: "BOM File Uploaded",
       subTitle: "",
+      buttonText: "View BOM File",
+      isBOMSuccess: true
     });
     setIsSuccessModalOpen(true);
+  };
+
+  const handleSuccessClose = () => {
+    setIsSuccessModalOpen(false);
+    if (successConfig.isBOMSuccess) {
+      navigate("/projects/view-bom/ID-2025-1047/BOM-001");
+    }
   };
 
   const thClass = "p-3 md:p-4 text-xs font-semibold text-[#364153] uppercase tracking-wider cursor-pointer select-none whitespace-nowrap";
 
   return (
-    <div className="xl:pr-2 md:px-4 px-2 md:pt-5 pb-10 space-y-6 font-inter">
+    <div className="xl:pr-2 md:px-4 px-2 pb-10 space-y-6 font-inter">
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
         <TitleSubtitle title="Item Cost List"/>
@@ -206,12 +244,12 @@ const CostingView: React.FC = () => {
           />
         </div>
         {/* Filter */}
-        <button
-          onClick={() => setIsFilterOpen(!isFilterOpen)}
-          className="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium text-[#364153] hover:bg-gray-50 transition-colors"
-        >
-          <Filter size={16} className="text-[#637381]" /> Filter
-        </button>
+        <FilterDropdown
+          activeTab={filterType}
+          onTabChange={setFilterType}
+          options={FILTER_BY_OPTIONS}
+          icon
+        />
         {/* Sort By */}
         <div className="ml-auto">
           <FilterDropdown
@@ -358,9 +396,10 @@ const CostingView: React.FC = () => {
 
       <SuccessModal
         isOpen={isSuccessModalOpen}
-        onClose={() => setIsSuccessModalOpen(false)}
+        onClose={handleSuccessClose}
         title={successConfig.title}
         subTitle={successConfig.subTitle}
+        buttonText={successConfig.buttonText}
         isLogoBottom={false}
       />
     </div>

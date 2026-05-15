@@ -28,6 +28,7 @@ const CommonStatusBadge: React.FC<CommonStatusBadgeProps> = ({
   };
 
   const getAutoIcon = (v: BadgeVariant, t: string) => {
+    if (!t) return null;
     const s = t.toLowerCase();
     if (v === "green") return <CircleCheck size={14} />;
     if (s.includes("locked")) return <CircleCheck size={12} />;

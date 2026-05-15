@@ -4,15 +4,15 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --font-sans: "Archivo", sans-serif;
+  --font-sans: "Inter", sans-serif;
   --font-inter: "Inter", sans-serif;
-  --font-archivo: "Archivo", sans-serif;
+  --font-archivo: "Inter", sans-serif;
   --font-poppins: "Poppins", sans-serif;
   --font-nunito: "Nunito Sans", sans-serif;
 }
 
 :root {
-  font-family: "Archivo", sans-serif;
+  font-family: "Inter", sans-serif;
   --primary-color: #2F93F6;
   --text-color-primary: #282828;
   --text-color-primary-blue: #1D51A4;

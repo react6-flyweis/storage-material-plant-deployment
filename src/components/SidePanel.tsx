@@ -35,12 +35,12 @@ const SidePanel: React.FC<SidePanelProps> = ({
         overflow-y-auto
         shrink-0
         ${isOpen ? "translate-x-0" : "-translate-x-[200%] md:-translate-x-full"}
-        bg-[#E5ECFF] p-3 pt-6
+        bg-[#E5ECFF] p-3 pt-6 md:pr-0
       `}
     >
       <div className="flex flex-col h-full fade-in duration-300">
         <div className="mb-2">
-          <h2 className="text-(--text-color-primary-blue) font-bold text-lg leading-tight mb-1">
+          <h2 className="text-(--text-color-primary-blue) font-semibold text-lg leading-tight mb-1">
             Plant Panel
           </h2>
           <p className="text-black text-sm font-normal">
@@ -69,7 +69,7 @@ const SidePanel: React.FC<SidePanelProps> = ({
         {/* Title */}
         {currentNav.title && !currentNav.items?.length && (
           <button
-            className={`w-full text-sm text-white rounded-lg md:py-3 py-2 font-medium shadow-sm mb-3 ${currentNav.color}`}
+            className={`w-full text-sm text-white rounded-lg md:py-3 py-2 font-medium mb-3 ${currentNav.color}`}
           >
             {currentNav.title}
           </button>

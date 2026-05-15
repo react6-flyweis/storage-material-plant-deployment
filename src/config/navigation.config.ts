@@ -8,6 +8,7 @@ import Cube from "@/assets/icon/sidebar/cubeIcon.svg";
 import ProjectManagementIcon from "@/assets/icon/sidebar/projectsIcon.svg";
 import DeliveryIcon from "@/assets/icon/sidebar/DeliveryIcon.svg";
 import CostingIcon from "@/assets/icon/sidebar/costingIcon.svg";
+import LogisticIcon from "@/assets/icon/sidebar/LogisticIcon.svg";
 
 
 export type SubNavItem = {
@@ -129,12 +130,24 @@ export const NAV_ITEMS: NavItem[] = [
   //   ],
   // },
 
-  {
+    {
     title: "Costing",
     color: "bg-[#00C950]",
     icon: CostingIcon,
     path: "/costing",
   },
+
+  {
+    title: "Logistics",
+    color: "bg-[#E04F16]",
+    icon: LogisticIcon,
+    items: [
+      { label: "Shippers", path: "/logistics/shippers" },
+      { label: "Freight Carrier", path: "/logistics/freight-carriers" },
+    ],
+  },
+
+
 
   {
     title: "Communication",

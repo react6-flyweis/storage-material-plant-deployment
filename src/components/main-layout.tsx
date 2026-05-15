@@ -99,11 +99,11 @@ export function MainLayout() {
       <div 
         className={`flex-1 min-w-0 flex flex-col h-screen transition-all duration-300 ease-in-out ${
           isSidebarOpen 
-            ? "md:ml-[304px] lg:ml-[336px]" 
+            ? "md:ml-[287px] lg:ml-[334px]" 
             : "md:ml-16 lg:ml-20"
         }`}
       >
-        <Header onMenuToggle={toggleSidebar} />
+        <Header onMenuToggle={toggleSidebar} isMenuOpen={isSidebarOpen} />
         <main className="flex-1 overflow-y-auto mt-1 xl:pb-3 xl:pr-3">
           <Outlet />
         </main>
