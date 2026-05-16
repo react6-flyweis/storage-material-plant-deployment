@@ -95,7 +95,7 @@ const PlantDataGrids: React.FC<PlantDataGridsProps> = ({
             );
           })}
         </div>
-        <button className="w-full mt-6 py-2.5 border border-[#155DFC] rounded-lg text-[#0088FF] font-semibold text-base hover:bg-blue-50 transition-colors"
+        <button className="w-full mt-6 py-2.5 border border-[#155DFC] rounded-lg text-[#0088FF] font-semibold text-sm md:text-base hover:bg-blue-50 transition-colors"
          onClick={()=>navigate("/load_planning/shipper-quotation")}>
           View All Shipper Files
         </button>
@@ -169,7 +169,7 @@ const PlantDataGrids: React.FC<PlantDataGridsProps> = ({
             );
           })}
         </div>
-        <button className="w-full mt-auto py-2.5 border border-[#155DFC] rounded-lg text-[#0088FF] font-semibold text-base hover:bg-blue-50 transition-colors"  onClick={()=>navigate("/notification")}>
+        <button className="w-full mt-auto py-2.5 border border-[#155DFC] rounded-lg text-[#0088FF] font-semibold text-sm md:text-base hover:bg-blue-50 transition-colors"  onClick={()=>navigate("/notification")}>
           View All Alerts
         </button>
       </div>
@@ -208,7 +208,7 @@ const PlantDataGrids: React.FC<PlantDataGridsProps> = ({
             );
           })}
         </div>
-        <button className="w-full mt-auto py-2.5 border border-[#155DFC] rounded-lg text-[#0088FF] font-semibold text-base hover:bg-blue-50 transition-colors">
+        <button className="w-full mt-auto py-2.5 border border-[#155DFC] rounded-lg text-[#0088FF] font-semibold text-sm md:text-base hover:bg-blue-50 transition-colors" onClick={()=>navigate("/logistics/freight-carriers")}>
           View All Carriers
         </button>
       </div>

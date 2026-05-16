@@ -199,16 +199,16 @@ const filterLabels: Record<TabType, string> = {
 
 const PlantPage = () => {
   const [activeTab, setActiveTab] = useState<TabType>("today");
-  const [font] = useState("combo1");
-  // const navigate = useNavigate();
+  // const [font] = useState("combo1");
+  // // const navigate = useNavigate();
 
-  const fontCombos: Record<string, { label: string; headline: string; headlineWeight: number; body: string }> = {
-    combo1: { label: "Inter Semibold + Inter Regular", headline: "Inter", headlineWeight: 500, body: "Inter" },
-    combo2: { label: "Poppins Bold + Nunito Sans Regular", headline: "Poppins", headlineWeight: 600, body: "Nunito Sans" },
-    combo3: { label: "Archivo Bold + Inter Regular", headline: "Archivo", headlineWeight: 600, body: "Inter" },
-  };
+  // const fontCombos: Record<string, { label: string; headline: string; headlineWeight: number; body: string }> = {
+  //   combo1: { label: "Inter Semibold + Inter Regular", headline: "Inter", headlineWeight: 500, body: "Inter" },
+  //   combo2: { label: "Poppins Bold + Nunito Sans Regular", headline: "Poppins", headlineWeight: 600, body: "Nunito Sans" },
+  //   combo3: { label: "Archivo Bold + Inter Regular", headline: "Archivo", headlineWeight: 600, body: "Inter" },
+  // };
 
-  const activeCombo = fontCombos[font];
+  // const activeCombo = fontCombos[font];
 
   const productionMetrics = productionMetricsByFilter[activeTab];
   const shipperFiles = shipperFilesByFilter[activeTab];
@@ -216,7 +216,7 @@ const PlantPage = () => {
   const carriers = freightCarriersByFilter[activeTab];
 
   return (
-    <PageWrapper className="plant-page-content" style={{ fontFamily: `"${activeCombo.body}", sans-serif` }}>
+    <PageWrapper>
       {/* Inject dynamic headline font override */}
       {/* <style>{`
         .plant-page-content h1, .plant-page-content h2, .plant-page-content h3,

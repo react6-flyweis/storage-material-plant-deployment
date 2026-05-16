@@ -124,12 +124,12 @@ export const AwardLoadModal: React.FC<AwardLoadModalProps> = ({
         </div>
 
         {/* Actions */}
-        <div className="flex md:flex-nowrap flex-wrap gap-4 pt-2">
+        <div className="flex lg:flex-nowrap flex-wrap justify-between gap-4 pt-2">
           <Button
             variant="gradientGreen"
             onClick={onConfirm}
             size="lg"
-            className="md:w-full"
+            // className="md:w-full"
           >
             <Award className="size-5 mr-2" />
             Confirm & Award Load
@@ -281,13 +281,13 @@ export const RequestRevisionModal: React.FC<RequestRevisionModalProps> = ({
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} hideHeader width="max-w-[620px]">
-      <div className="p-4 md:p-3 space-y-8 font-inter">
+      <div className="p-2 md:p-3 space-y-8 font-inter">
         {/* Header */}
         <div className="flex items-center gap-4">
-          <div className="w-10 h-10 bg-[#D08700] rounded-full flex items-center justify-center text-white shadow-lg shadow-[#D08700]/20">
-            <RefreshCcw size={22} strokeWidth={2.5} />
+          <div className="md:w-10 md:h-10 w-8 h-8 bg-[#D08700] rounded-full flex items-center justify-center text-white shadow-lg shadow-[#D08700]/20">
+            <RefreshCcw className="md:size-5 size-4" strokeWidth={2.5} />
           </div>
-          <h2 className="text-lg md:text-[25px] font-semibold text-[#212B36]">Request Revision</h2>
+          <h2 className="text-lg md:text-[22px] font-semibold text-[#212B36]">Request Revision</h2>
         </div>
 
         {/* Carrier Info Card */}
@@ -297,15 +297,15 @@ export const RequestRevisionModal: React.FC<RequestRevisionModalProps> = ({
         >
           <div className="space-y-1">
             <p className="text-sm font-medium text-[#637381]">Carrier</p>
-            <h3 className="text-lg md:text-xl font-bold text-[#212B36]">{carrier?.carrier || "QuickFreight Solutions"}</h3>
+            <h3 className="text-base md:text-xl font-semibold text-[#212B36]">{carrier?.carrier || "QuickFreight Solutions"}</h3>
             <div className="flex items-center gap-1.5 pt-1">
               <Star size={16} className="text-[#FFAB00] fill-[#FFAB00]" />
-              <span className="text-sm font-normal text-[#212B36]">{carrier?.rating || "4.8"} rating</span>
+              <span className="text-xs md:text-sm font-normal text-[#212B36]">{carrier?.rating || "4.8"} rating</span>
             </div>
           </div>
           <div className="text-right space-y-1 ml-auto">
             <p className="text-sm font-medium text-[#637381]">Current Bid Amount</p>
-            <p className="text-lg md:text-[36px] font-bold text-[#D08700] leading-none">
+            <p className="text-xl md:text-[36px] font-bold text-[#D08700] leading-none">
               {carrier?.amount || "$2,850"}
             </p>
           </div>
@@ -321,8 +321,8 @@ export const RequestRevisionModal: React.FC<RequestRevisionModalProps> = ({
         <div className="bg-[#F0F7FF] border border-[#D1E9FF] rounded-[12px] p-3 md:p-5 flex gap-4">
           <CheckCircle2 size={24} className="text-[#0052CC] shrink-0 mt-0.5" />
           <div className="space-y-1">
-            <h4 className="text-base font-bold text-[#0052CC]">Ready to Send Revision</h4>
-            <p className="text-sm text-[#0052CC] font-medium leading-relaxed">
+            <h4 className="text-sm md:text-base font-bold text-[#0052CC]">Ready to Send Revision</h4>
+            <p className="text-xs md:text-sm text-[#0052CC] font-medium leading-relaxed">
               This will send a revision request to {carrier?.carrier || "QuickFreight Solutions"} with the specified target amount and message.
             </p>
           </div>

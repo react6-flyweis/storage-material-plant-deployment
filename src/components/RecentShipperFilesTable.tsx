@@ -96,13 +96,14 @@ const RecentShipperFilesTable: React.FC<Props> = ({ data }) => {
   };
 
   return (
-    <div className="bg-white rounded-[14px] shadow-sm border border-[#F4F6F8] overflow-hidden">
+    <div className="bg-white rounded-[14px] shadow-sm border border-[#F4F6F8] overflow-hidden mt-4">
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse min-w-[1000px]">
           <thead>
             <tr className="bg-[#F7F8F9] border-b border-[#E2E4E6] text-nowrap">
               <th className="py-4 px-6 w-12">
                 <CommonCheckbox
+                 size="xs"
                   checked={
                     selectedRows.length === sortedData.length &&
                     sortedData.length > 0
@@ -151,7 +152,7 @@ const RecentShipperFilesTable: React.FC<Props> = ({ data }) => {
                   />
                 </div>
               </th>
-              <th className="py-4 px-4 text-sm  font-semibold text-black">
+              <th className="py-4 px-4 text-sm font-semibold text-black">
                 <div
                   className="flex items-center gap-1 cursor-pointer group"
                   onClick={() => handleSort("items")}
@@ -213,6 +214,7 @@ const RecentShipperFilesTable: React.FC<Props> = ({ data }) => {
               >
                 <td className="py-3 px-6">
                   <CommonCheckbox
+                   size="xs"
                     checked={selectedRows.includes(idx)}
                     onChange={(checked) => {
                       if (checked) setSelectedRows([...selectedRows, idx]);
@@ -221,10 +223,10 @@ const RecentShipperFilesTable: React.FC<Props> = ({ data }) => {
                     }}
                   />
                 </td>
-                <td className="py-3 px-4 text-[15px]  font-normal text-black">
+                <td className="py-4 px-4 text-sm text-[#637381]">
                   {item.projectName}
                 </td>
-                <td className="py-3 px-4">
+                <td className="py-4 px-4">
                   <div className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-full overflow-hidden border border-gray-100 shrink-0">
                       <img
@@ -233,27 +235,27 @@ const RecentShipperFilesTable: React.FC<Props> = ({ data }) => {
                         className="w-full h-full object-cover"
                       />
                     </div>
-                    <span className="text-sm  font-normal text-black">
+                    <span className="text-sm font-normal text-black">
                       {item.shipperName}
                     </span>
                   </div>
                 </td>
-                <td className="py-3 px-4 text-sm  text-[#637381]">
+                <td className="py-4 px-4  text-sm  text-[#637381]">
                   {item.fileName}
                 </td>
-                <td className="py-3 px-4 text-sm  text-[#637381]">
+                <td className="py-4 px-4  text-sm  text-[#637381]">
                   {item.uploadDate}
                 </td>
-                <td className="py-3 px-4 text-sm  text-black font-medium">
+                <td className="py-4 px-4  text-sm  text-black font-medium">
                   {item.items}
                 </td>
-                <td className="py-3 px-4 text-sm  text-black font-medium">
+                <td className="py-4 px-4  text-sm  text-black font-medium">
                   {item.rates}
                 </td>
-                <td className="py-3 px-4 text-sm  text-black font-medium">
+                <td className="py-4 px-4  text-sm  text-black font-medium">
                   {item.weight}
                 </td>
-                <td className="py-3 px-4">
+                <td className="py-4 px-4 ">
                   {isQuotationPage ? (
                     <div className="relative w-fit">
                       <button

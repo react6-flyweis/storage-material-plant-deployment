@@ -4,7 +4,7 @@ type Props = {
 
 const Heading = ({ text }: Props) => {
     return (
-        <h1 className="text-lg md:text-2xl font-inter font-medium text-[#111827]">{text}</h1>
+        <h1 className="text-lg md:text-xl lg:text-2xl font-semibold text-[#111827]">{text}</h1>
     );
 };
 

@@ -114,24 +114,17 @@ export const recentShipperFilesByFilter: Record<TabType, RecentShipperFile[]> = 
   today: [
     { projectId: "PRJ-001", projectName: "ABC Warehouse", shipperName: "ABC Steel", shipperAvatar: "https://i.pravatar.cc/150?u=1", fileName: "SHP-1044", uploadDate: "22 Feb 2025", items: 120, rates: "$2100", weight: "18,500 IBS", status: "File Received" },
     { projectId: "PRJ-002", projectName: "Tech Park Dev", shipperName: "Steel Works LTD", shipperAvatar: "https://i.pravatar.cc/150?u=2", fileName: "SHP-1045", uploadDate: "07 Feb 2025", items: 95, rates: "$3100", weight: "37,700 IBS", status: "Order Sent" },
-    { projectId: "PRJ-003", projectName: "Downtown Plaza", shipperName: "Metro Steel", shipperAvatar: "https://i.pravatar.cc/150?u=3", fileName: "SHP-1046", uploadDate: "30 Jan 2025", items: 50, rates: "$7100", weight: "21,400 IBS", status: "Revision Sent" },
-    { projectId: "PRJ-004", projectName: "Riverside Complex", shipperName: "ABC Steel", shipperAvatar: "https://i.pravatar.cc/150?u=4", fileName: "SHP-1047", uploadDate: "17 Jan 2025", items: 80, rates: "$12100", weight: "18,500 IBS", status: "File Received" },
-    { projectId: "PRJ-005", projectName: "Tech Park Dev", shipperName: "Steel Works LTD", shipperAvatar: "https://i.pravatar.cc/150?u=5", fileName: "SHP-1048", uploadDate: "04 Jan 2025", items: 110, rates: "$4100", weight: "37,700 IBS", status: "Order Sent" },
-    { projectId: "PRJ-006", projectName: "Downtown Plaza", shipperName: "Metro Steel", shipperAvatar: "https://i.pravatar.cc/150?u=6", fileName: "SHP-1049", uploadDate: "09 Dec 2024", items: 120, rates: "$8100", weight: "21,400 IBS", status: "Order Sent" },
+    { projectId: "PRJ-101", projectName: "Metro Cast Factory", shipperName: "Metro Steel", shipperAvatar: "https://i.pravatar.cc/150?u=3", fileName: "SHP-1050", uploadDate: "15 Mar 2025", items: 150, rates: "$4500", weight: "22,000 IBS", status: "File Received" },
+    { projectId: "PRJ-102", projectName: "Skyline Tower", shipperName: "Sky Build", shipperAvatar: "https://i.pravatar.cc/150?u=4", fileName: "SHP-1051", uploadDate: "16 Mar 2025", items: 85, rates: "$2800", weight: "15,200 IBS", status: "Order Sent" },
+    { projectId: "PRJ-103", projectName: "Industrial Zone A", shipperName: "IZ Steel", shipperAvatar: "https://i.pravatar.cc/150?u=5", fileName: "SHP-1052", uploadDate: "17 Mar 2025", items: 210, rates: "$6200", weight: "41,000 IBS", status: "Revision Sent" },
+    { projectId: "PRJ-104", projectName: "Commercial Hub", shipperName: "CH Builders", shipperAvatar: "https://i.pravatar.cc/150?u=6", fileName: "SHP-1053", uploadDate: "18 Mar 2025", items: 130, rates: "$3700", weight: "28,400 IBS", status: "File Received" },
+    { projectId: "PRJ-105", projectName: "Storage Facility C", shipperName: "Store Corp", shipperAvatar: "https://i.pravatar.cc/150?u=7", fileName: "SHP-1054", uploadDate: "19 Mar 2025", items: 75, rates: "$1900", weight: "12,600 IBS", status: "Order Sent" },
   ],
   week: [
-    { projectId: "PRJ-001", projectName: "ABC Warehouse", shipperName: "ABC Steel", shipperAvatar: "https://i.pravatar.cc/150?u=1", fileName: "SHP-1044", uploadDate: "22 Feb 2025", items: 120, rates: "$2100", weight: "18,500 IBS", status: "File Received" },
-    { projectId: "PRJ-002", projectName: "Tech Park Dev", shipperName: "Steel Works LTD", shipperAvatar: "https://i.pravatar.cc/150?u=2", fileName: "SHP-1045", uploadDate: "07 Feb 2025", items: 95, rates: "$3100", weight: "37,700 IBS", status: "Order Sent" },
     { projectId: "PRJ-003", projectName: "Downtown Plaza", shipperName: "Metro Steel", shipperAvatar: "https://i.pravatar.cc/150?u=3", fileName: "SHP-1046", uploadDate: "30 Jan 2025", items: 50, rates: "$7100", weight: "21,400 IBS", status: "Revision Sent" },
     { projectId: "PRJ-004", projectName: "Riverside Complex", shipperName: "ABC Steel", shipperAvatar: "https://i.pravatar.cc/150?u=4", fileName: "SHP-1047", uploadDate: "17 Jan 2025", items: 80, rates: "$12100", weight: "18,500 IBS", status: "File Received" },
-    { projectId: "PRJ-005", projectName: "Tech Park Dev", shipperName: "Steel Works LTD", shipperAvatar: "https://i.pravatar.cc/150?u=5", fileName: "SHP-1048", uploadDate: "04 Jan 2025", items: 110, rates: "$4100", weight: "37,700 IBS", status: "Order Sent" },
-    { projectId: "PRJ-006", projectName: "Downtown Plaza", shipperName: "Metro Steel", shipperAvatar: "https://i.pravatar.cc/150?u=6", fileName: "SHP-1049", uploadDate: "09 Dec 2024", items: 120, rates: "$8100", weight: "21,400 IBS", status: "Order Sent" },
   ],
   month: [
-    { projectId: "PRJ-001", projectName: "ABC Warehouse", shipperName: "ABC Steel", shipperAvatar: "https://i.pravatar.cc/150?u=1", fileName: "SHP-1044", uploadDate: "22 Feb 2025", items: 120, rates: "$2100", weight: "18,500 IBS", status: "File Received" },
-    { projectId: "PRJ-002", projectName: "Tech Park Dev", shipperName: "Steel Works LTD", shipperAvatar: "https://i.pravatar.cc/150?u=2", fileName: "SHP-1045", uploadDate: "07 Feb 2025", items: 95, rates: "$3100", weight: "37,700 IBS", status: "Order Sent" },
-    { projectId: "PRJ-003", projectName: "Downtown Plaza", shipperName: "Metro Steel", shipperAvatar: "https://i.pravatar.cc/150?u=3", fileName: "SHP-1046", uploadDate: "30 Jan 2025", items: 50, rates: "$7100", weight: "21,400 IBS", status: "Revision Sent" },
-    { projectId: "PRJ-004", projectName: "Riverside Complex", shipperName: "ABC Steel", shipperAvatar: "https://i.pravatar.cc/150?u=4", fileName: "SHP-1047", uploadDate: "17 Jan 2025", items: 80, rates: "$12100", weight: "18,500 IBS", status: "File Received" },
     { projectId: "PRJ-005", projectName: "Tech Park Dev", shipperName: "Steel Works LTD", shipperAvatar: "https://i.pravatar.cc/150?u=5", fileName: "SHP-1048", uploadDate: "04 Jan 2025", items: 110, rates: "$4100", weight: "37,700 IBS", status: "Order Sent" },
     { projectId: "PRJ-006", projectName: "Downtown Plaza", shipperName: "Metro Steel", shipperAvatar: "https://i.pravatar.cc/150?u=6", fileName: "SHP-1049", uploadDate: "09 Dec 2024", items: 120, rates: "$8100", weight: "21,400 IBS", status: "Order Sent" },
   ],
@@ -176,32 +169,34 @@ export interface DrawingApprovalStatus {
   fileName: string;
   sentDate: string;
   status: "Pending" | "Approved" | "Revision Sent";
+  customerId: string;
+  projectId: string;
 }
 
 export const drawingApprovalStatusByFilter: Record<TabType, DrawingApprovalStatus[]> = {
   today: [
-    { clientName: "ABC Steel", clientAvatar: "https://i.pravatar.cc/150?u=1", projectName: "ABC Warehouse", fileName: "Drawing", sentDate: "22 Feb 2025", status: "Pending" },
-    { clientName: "Steel Works LTD", clientAvatar: "https://i.pravatar.cc/150?u=2", projectName: "Tech Park Dev", fileName: "Drawing", sentDate: "07 Feb 2025", status: "Approved" },
-    { clientName: "Metro Steel", clientAvatar: "https://i.pravatar.cc/150?u=3", projectName: "Downtown Plaza", fileName: "Drawing", sentDate: "30 Jan 2025", status: "Revision Sent" },
-    { clientName: "ABC Steel", clientAvatar: "https://i.pravatar.cc/150?u=4", projectName: "Riverside Complex", fileName: "Drawing", sentDate: "17 Jan 2025", status: "Pending" },
-    { clientName: "Steel Works LTD", clientAvatar: "https://i.pravatar.cc/150?u=5", projectName: "Tech Park Dev", fileName: "Drawing", sentDate: "04 Jan 2025", status: "Approved" },
-    { clientName: "Metro Steel", clientAvatar: "https://i.pravatar.cc/150?u=6", projectName: "Downtown Plaza", fileName: "Drawing", sentDate: "09 Dec 2024", status: "Approved" },
+    { clientName: "ABC Steel", clientAvatar: "https://i.pravatar.cc/150?u=1", projectName: "ABC Warehouse", fileName: "Drawing", sentDate: "22 Feb 2025", status: "Pending", customerId: "ID-2025-1047", projectId: "PRJ-001" },
+    { clientName: "Steel Works LTD", clientAvatar: "https://i.pravatar.cc/150?u=2", projectName: "Tech Park Dev", fileName: "Drawing", sentDate: "07 Feb 2025", status: "Approved", customerId: "ID-2025-1047", projectId: "PRJ-002" },
+    { clientName: "Metro Steel", clientAvatar: "https://i.pravatar.cc/150?u=3", projectName: "Downtown Plaza", fileName: "Drawing", sentDate: "30 Jan 2025", status: "Revision Sent", customerId: "ID-2025-1047", projectId: "PRJ-003" },
+    { clientName: "ABC Steel", clientAvatar: "https://i.pravatar.cc/150?u=4", projectName: "Riverside Complex", fileName: "Drawing", sentDate: "17 Jan 2025", status: "Pending", customerId: "ID-2025-1047", projectId: "PRJ-001" },
+    { clientName: "Steel Works LTD", clientAvatar: "https://i.pravatar.cc/150?u=5", projectName: "Tech Park Dev", fileName: "Drawing", sentDate: "04 Jan 2025", status: "Approved", customerId: "ID-2025-1047", projectId: "PRJ-002" },
+    { clientName: "Metro Steel", clientAvatar: "https://i.pravatar.cc/150?u=6", projectName: "Downtown Plaza", fileName: "Drawing", sentDate: "09 Dec 2024", status: "Approved", customerId: "ID-2025-1047", projectId: "PRJ-003" },
   ],
   week: [
-    { clientName: "ABC Steel", clientAvatar: "https://i.pravatar.cc/150?u=1", projectName: "ABC Warehouse", fileName: "Drawing", sentDate: "22 Feb 2025", status: "Pending" },
-    { clientName: "Steel Works LTD", clientAvatar: "https://i.pravatar.cc/150?u=2", projectName: "Tech Park Dev", fileName: "Drawing", sentDate: "07 Feb 2025", status: "Approved" },
-    { clientName: "Metro Steel", clientAvatar: "https://i.pravatar.cc/150?u=3", projectName: "Downtown Plaza", fileName: "Drawing", sentDate: "30 Jan 2025", status: "Revision Sent" },
-    { clientName: "ABC Steel", clientAvatar: "https://i.pravatar.cc/150?u=4", projectName: "Riverside Complex", fileName: "Drawing", sentDate: "17 Jan 2025", status: "Pending" },
-    { clientName: "Steel Works LTD", clientAvatar: "https://i.pravatar.cc/150?u=5", projectName: "Tech Park Dev", fileName: "Drawing", sentDate: "04 Jan 2025", status: "Approved" },
-    { clientName: "Metro Steel", clientAvatar: "https://i.pravatar.cc/150?u=6", projectName: "Downtown Plaza", fileName: "Drawing", sentDate: "09 Dec 2024", status: "Approved" },
+    { clientName: "ABC Steel", clientAvatar: "https://i.pravatar.cc/150?u=1", projectName: "ABC Warehouse", fileName: "Drawing", sentDate: "22 Feb 2025", status: "Pending", customerId: "ID-2025-1047", projectId: "PRJ-001" },
+    { clientName: "Steel Works LTD", clientAvatar: "https://i.pravatar.cc/150?u=2", projectName: "Tech Park Dev", fileName: "Drawing", sentDate: "07 Feb 2025", status: "Approved", customerId: "ID-2025-1047", projectId: "PRJ-002" },
+    { clientName: "Metro Steel", clientAvatar: "https://i.pravatar.cc/150?u=3", projectName: "Downtown Plaza", fileName: "Drawing", sentDate: "30 Jan 2025", status: "Revision Sent", customerId: "ID-2025-1047", projectId: "PRJ-003" },
+    { clientName: "ABC Steel", clientAvatar: "https://i.pravatar.cc/150?u=4", projectName: "Riverside Complex", fileName: "Drawing", sentDate: "17 Jan 2025", status: "Pending", customerId: "ID-2025-1047", projectId: "PRJ-001" },
+    { clientName: "Steel Works LTD", clientAvatar: "https://i.pravatar.cc/150?u=5", projectName: "Tech Park Dev", fileName: "Drawing", sentDate: "04 Jan 2025", status: "Approved", customerId: "ID-2025-1047", projectId: "PRJ-002" },
+    { clientName: "Metro Steel", clientAvatar: "https://i.pravatar.cc/150?u=6", projectName: "Downtown Plaza", fileName: "Drawing", sentDate: "09 Dec 2024", status: "Approved", customerId: "ID-2025-1047", projectId: "PRJ-003" },
   ],
   month: [
-    { clientName: "ABC Steel", clientAvatar: "https://i.pravatar.cc/150?u=1", projectName: "ABC Warehouse", fileName: "Drawing", sentDate: "22 Feb 2025", status: "Pending" },
-    { clientName: "Steel Works LTD", clientAvatar: "https://i.pravatar.cc/150?u=2", projectName: "Tech Park Dev", fileName: "Drawing", sentDate: "07 Feb 2025", status: "Approved" },
-    { clientName: "Metro Steel", clientAvatar: "https://i.pravatar.cc/150?u=3", projectName: "Downtown Plaza", fileName: "Drawing", sentDate: "30 Jan 2025", status: "Revision Sent" },
-    { clientName: "ABC Steel", clientAvatar: "https://i.pravatar.cc/150?u=4", projectName: "Riverside Complex", fileName: "Drawing", sentDate: "17 Jan 2025", status: "Pending" },
-    { clientName: "Steel Works LTD", clientAvatar: "https://i.pravatar.cc/150?u=5", projectName: "Tech Park Dev", fileName: "Drawing", sentDate: "04 Jan 2025", status: "Approved" },
-    { clientName: "Metro Steel", clientAvatar: "https://i.pravatar.cc/150?u=6", projectName: "Downtown Plaza", fileName: "Drawing", sentDate: "09 Dec 2024", status: "Approved" },
+    { clientName: "ABC Steel", clientAvatar: "https://i.pravatar.cc/150?u=1", projectName: "ABC Warehouse", fileName: "Drawing", sentDate: "22 Feb 2025", status: "Pending", customerId: "ID-2025-1047", projectId: "PRJ-001" },
+    { clientName: "Steel Works LTD", clientAvatar: "https://i.pravatar.cc/150?u=2", projectName: "Tech Park Dev", fileName: "Drawing", sentDate: "07 Feb 2025", status: "Approved", customerId: "ID-2025-1047", projectId: "PRJ-002" },
+    { clientName: "Metro Steel", clientAvatar: "https://i.pravatar.cc/150?u=3", projectName: "Downtown Plaza", fileName: "Drawing", sentDate: "30 Jan 2025", status: "Revision Sent", customerId: "ID-2025-1047", projectId: "PRJ-003" },
+    { clientName: "ABC Steel", clientAvatar: "https://i.pravatar.cc/150?u=4", projectName: "Riverside Complex", fileName: "Drawing", sentDate: "17 Jan 2025", status: "Pending", customerId: "ID-2025-1047", projectId: "PRJ-001" },
+    { clientName: "Steel Works LTD", clientAvatar: "https://i.pravatar.cc/150?u=5", projectName: "Tech Park Dev", fileName: "Drawing", sentDate: "04 Jan 2025", status: "Approved", customerId: "ID-2025-1047", projectId: "PRJ-002" },
+    { clientName: "Metro Steel", clientAvatar: "https://i.pravatar.cc/150?u=6", projectName: "Downtown Plaza", fileName: "Drawing", sentDate: "09 Dec 2024", status: "Approved", customerId: "ID-2025-1047", projectId: "PRJ-003" },
   ],
 };
 

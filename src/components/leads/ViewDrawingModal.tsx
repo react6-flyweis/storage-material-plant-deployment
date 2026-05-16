@@ -2,6 +2,7 @@ import React from "react";
 import Modal from "../Modal";
 import DrawingImg from "../../assets/drawingImg.svg";
 import { ArrowDown, X } from "lucide-react";
+import { downloadFile } from "../../lib/utils";
 
 interface ViewDrawingModalProps {
   isOpen: boolean;
@@ -75,15 +76,18 @@ const ViewDrawingModal: React.FC<ViewDrawingModalProps> = ({
             <img
               src={DrawingImg}
               alt={drawing.name}
-              className="max-w-full h-auto rounded-lg shadow-sm"
+              className="max-w-full h-auto rounded-lg shadow-xs"
             />
           </div>
         </div>
 
         {/* Action Buttons */}
-        <div className="sm:py-6 py-2 mt-2 bg-white">
+        <div className="sm:py-2 py-2 mt-2 bg-white">
           <div className="flex flex-wrap items-center justify-between gap-4 mb-4 px-2 sm:px-6">
-            <button className="flex items-center gap-2 md:px-4 px-2 py-1 bg-[#9CA3AF] hover:bg-[#E2E8F0] text-white rounded-full md:text-base text-sm font-medium transition-all">
+            <button 
+              className="flex items-center gap-2 md:px-4 px-2 py-1 bg-[#9CA3AF] hover:opacity-50 text-white rounded-full md:text-base text-sm font-medium transition-all"
+              onClick={() => downloadFile(DrawingImg, `${drawing.name}.svg`)}
+            >
               <ArrowDown className="md:w-5 md:h-5 w-4 h-4" />
               Download
             </button>
@@ -94,7 +98,7 @@ const ViewDrawingModal: React.FC<ViewDrawingModalProps> = ({
                   <p className="text-black text-sm font-normal">
                     31-April-2025
                   </p>
-                  <span className="px-5 py-1.5 bg-[#DCFCE7] text-[#16A34A] rounded-full text-sm font-normal border border-[#BBF7D0]">
+                  <span className="px-5 py-1.5 bg-[#DCFCE7] text-[#16A34A] rounded-full text-sm font-normal border border-[#BBF7D0] ">
                     Approved
                   </span>
                 </div>
@@ -109,10 +113,10 @@ const ViewDrawingModal: React.FC<ViewDrawingModalProps> = ({
                 </div>
               ) : (
                 <>
-                  <button className="px-5 py-1.5 bg-[#FF9409] text-white rounded-full text-sm font-normal shadow-sm shadow-orange-100">
+                  <button className="px-5 py-1.5 bg-[#FF9409] text-white rounded-full text-sm font-normal shadow-sm shadow-orange-100 hover:opacity-50">
                     Revision Required
                   </button>
-                  <button className="px-5 py-1.5 bg-[#3AB449]  text-white rounded-full text-sm font-normal shadow-sm shadow-green-100">
+                  <button className="px-5 py-1.5 bg-[#3AB449]  text-white rounded-full text-sm font-normal shadow-sm shadow-green-100 hover:opacity-50">
                     Approve
                   </button>
                 </>

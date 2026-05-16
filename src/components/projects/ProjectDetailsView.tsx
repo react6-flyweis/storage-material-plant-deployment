@@ -13,6 +13,7 @@ import CustomerInvoicesTable from "./CustomerInvoicesTable";
 import { UploadModal, SuccessModal } from "./ProjectUploadModals";
 import { useState } from "react";
 import Button from "../common_component/Button";
+import PageWrapper from "../common_component/PageWrapper";
 
 const ProjectDetailsView = () => {
   const navigate = useNavigate();
@@ -31,7 +32,7 @@ const ProjectDetailsView = () => {
   }
 
   return (
-    <div className="xl:pr-2 md:px-4 px-2 pb-10 space-y-6">
+    <PageWrapper>
       {/* Header Section */}
       <div className="flex flex-wrap md:items-center justify-between gap-4 mt-2">
         <div className="flex items-center gap-4">
@@ -144,7 +145,7 @@ const ProjectDetailsView = () => {
         title="Drawing Uploaded & Sent to Customer"
         buttonLabel="Ok"
       />
-    </div>
+    </PageWrapper>
   );
 };
 

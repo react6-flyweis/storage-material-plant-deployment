@@ -187,14 +187,14 @@ const LogisticsView: React.FC = () => {
             placeholder="Search by vendor, contact, email, or material..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full min-w-[150px] pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all placeholder:text-gray-400"
+            className="w-full min-w-[200px] pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all placeholder:text-gray-400"
           />
         </div>
         <div className="flex flex-wrap ml-auto items-center gap-2">
-          <Button variant="grayFilled" onClick={() => setIsFilterModalOpen(true)}>
+          <Button variant="grayFilled" size="sm" onClick={() => setIsFilterModalOpen(true)}>
             <Filter size={18} /> Filter
           </Button>
-          <Button variant="gradient" onClick={handleAddVendor}>
+          <Button variant="gradient" size="sm" onClick={handleAddVendor}>
             <Plus size={18} /> Add Vendor
           </Button>
         </div>

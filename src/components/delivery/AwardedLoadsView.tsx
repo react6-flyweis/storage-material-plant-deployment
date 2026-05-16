@@ -15,6 +15,7 @@ import CommonStatusBadge from "../common_component/CommonStatusBadge";
 import { useNavigate } from "react-router-dom";
 import FreightFilterModal from "./FreightFilterModal";
 import SearchFilterBar from "../common_component/SearchFilterBar";
+import PageWrapper from "../common_component/PageWrapper";
 
 const mockAwardedLoads = [
   {
@@ -114,11 +115,11 @@ const statsData = [
 ];
 
 const StatCard = ({ title, value, icon: Icon, color, borderL }: any) => (
-  <div className={`flex-1 bg-white p-3 md:p-5 rounded-[14px] border border-l-2 md:border-l-4 ${borderL} flex flex-col justify-between font-inter min-w-[180px] md:h-32 transition-all hover:shadow-md`}>
+  <div className={`flex-1 bg-white p-3 lg:p-5 rounded-[14px] border border-l-2 md:border-l-4 ${borderL} flex flex-col justify-between font-inter min-w-[180px] md:h-32 transition-all hover:shadow-md`}>
     <div className={`${color}`}>
       <p className="text-sm font-medium text-[#4A5565] mt-1">{title}</p>
       <div className="flex justify-between items-start mt-3">
-        <p className="text-xl md:text-3xl  font-normal text-(--text-color-gray-5) leading-none mb-1">
+        <p className="text-xl md:text-2xl lg:3xl  font-normal text-(--text-color-gray-5) leading-none mb-1">
           {value}
         </p>
         {Icon && <Icon className="size-6 md:size-9" strokeWidth={2} />}
@@ -151,9 +152,9 @@ const AwardedLoadsView: React.FC = () => {
   ];
 
   return (
-    <div className="xl:pr-5 pb-5 space-y-8 mt-2 px-2 md:px-0">
+    <PageWrapper>
       {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-2 pt-3">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <TitleSubtitle
           title="Awarded Loads"
           subtitle="Track all awarded freight loads"
@@ -194,7 +195,16 @@ const AwardedLoadsView: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {mockAwardedLoads.map((item, idx) => (
+              {mockAwardedLoads
+                .filter((item) => 
+                  item.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                  item.project.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                  item.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                  item.carrier.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                  item.pickupLocation.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                  item.deliveryLocation.toLowerCase().includes(searchTerm.toLowerCase())
+                )
+                .map((item, idx) => (
                 <tr key={idx} className="hover:bg-gray-50/50 transition-colors group">
                   <td className="p-2 md:p-4">
                     <div className="font-normal text-(--text-color-gray-5) text-sm">{item.id}</div>
@@ -266,7 +276,7 @@ const AwardedLoadsView: React.FC = () => {
         onClose={() => setIsFilterModalOpen(false)} 
         onApply={(f) => { console.log(f); setIsFilterModalOpen(false); }}
       />
-    </div>
+    </PageWrapper>
   );
 };
 

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Search, Eye, ArrowDown } from "lucide-react";
+import { downloadFile } from "../../lib/utils";
 import { customersData } from "@/data/productionMockData";
 import Heading from "../common_component/Heading";
 import Button from "../common_component/Button";
@@ -47,7 +48,7 @@ const FileCard = ({
       </div>
 
       {/* Content Section */}
-      <div className="flex-1 flex items-center justify-between min-w-0">
+      <div className="flex-1 flex flex-wrap items-center justify-between min-w-0">
         <div className="min-w-0 pr-2">
           <h4 className="md:text-base text-xs text-[#0D1522] font-bold truncate leading-tight">
             {file.name}
@@ -58,8 +59,11 @@ const FileCard = ({
         </div>
 
         {/* Actions Section */}
-        <div className="flex items-center gap-3 shrink-0 mr-1">
-          <button className="p-1 hover:bg-gray-50 rounded-full transition-colors">
+        <div className="flex items-center gap-3 shrink-0 mr-1 ml-auto">
+          <button 
+            onClick={() => downloadFile(file.imageUrl || filePdf, file.name)}
+            className="p-1 hover:bg-gray-50 rounded-full transition-colors"
+          >
             <ArrowDown className="md:size-6 size-4 text-[#212B36]" />
           </button>
           <button
@@ -162,7 +166,7 @@ const ProjectDrawingsView: React.FC = () => {
   return (
     <div className="xl:pr-5 px-2 pb-10 space-y-6">
       {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mt-2">
+      <div className="flex flex-wrap md:items-center justify-between gap-4 mt-2">
         <div className="flex items-center gap-4">
         <Button
           variant="blueFilled"
@@ -177,7 +181,7 @@ const ProjectDrawingsView: React.FC = () => {
 
         <Button 
           variant="gradient"
-          size="md"
+          size="sm"
           onClick={() => setIsUploadModalOpen(true)}
         >
           Upload Drawing/Photos
@@ -185,7 +189,7 @@ const ProjectDrawingsView: React.FC = () => {
       </div>
 
       {/* Filters Bar */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="relative w-full sm:max-w-xs">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
           <input 
@@ -204,12 +208,12 @@ const ProjectDrawingsView: React.FC = () => {
       </div>
 
       {/* Main Content Card */}
-      <div className="bg-white rounded-[14px] p-4 md:p-6 shadow-sm border border-gray-100 min-h-[400px]">
+      <div className="bg-white rounded-[14px] p-4 lg:p-6 shadow-sm border border-gray-100 min-h-[400px]">
         <div className="space-y-8">
           {/* Drawings Section */}
           <div className="space-y-6">
             <SubHeading text="Attached Drawings" />
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 xl:gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 xl:gap-6 mt-5">
               {drawings
                 .filter(file => 
                   (activeStatus === "all" || file.status.toLowerCase().replace(' ', '-') === activeStatus) &&
@@ -224,7 +228,7 @@ const ProjectDrawingsView: React.FC = () => {
           {/* Photos Section */}
           <div className="space-y-6">
             <SubHeading text="Attached Building Photos" />
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 xl:gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 xl:gap-6 mt-5">
               {photos
                 .filter(file => 
                   (activeStatus === "all" || file.status.toLowerCase().replace(' ', '-') === activeStatus) &&

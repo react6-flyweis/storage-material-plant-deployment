@@ -19,6 +19,7 @@ import FilterDropdown from "../common_component/FilterDropdown";
 import CommonCheckbox from "../common_component/CommonCheckbox";
 import CommonStatusBadge from "../common_component/CommonStatusBadge";
 import { cn } from "@/lib/utils";
+import PageWrapper from "../common_component/PageWrapper";
 
 const UploadedBOMFilesView: React.FC = () => {
   const navigate = useNavigate();
@@ -184,7 +185,7 @@ const UploadedBOMFilesView: React.FC = () => {
   };
 
   return (
-    <div className="xl:pr-2 md:px-4 px-2 pb-10 space-y-6">
+    <PageWrapper>
       {/* ── Header ────────────────────────────────────────────────────── */}
       <div className="flex flex-wrap items-center justify-between gap-4 mt-2">
         <Heading text="Uploaded BOM Files" />
@@ -386,7 +387,7 @@ const UploadedBOMFilesView: React.FC = () => {
           setIsModalOpen(false);
         }}
       />
-    </div>
+    </PageWrapper>
   );
 };
 

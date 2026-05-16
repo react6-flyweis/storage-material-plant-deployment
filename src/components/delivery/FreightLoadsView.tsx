@@ -14,6 +14,8 @@ import CommonStatusBadge, { type BadgeVariant } from "../common_component/Common
 import { useNavigate } from "react-router-dom";
 import FreightFilterModal from "./FreightFilterModal";
 import SearchFilterBar from "../common_component/SearchFilterBar";
+import { downloadFile } from "../../lib/utils";
+import PageWrapper from "../common_component/PageWrapper";
 
 const mockFreightLoads = [
   {
@@ -150,7 +152,7 @@ const FreightLoadsView: React.FC = () => {
   ];
 
   return (
-    <div className="xl:pr-2 md:px-4 px-2 pb-5 space-y-8 mt-2">
+    <PageWrapper>
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
         <TitleSubtitle
@@ -158,7 +160,11 @@ const FreightLoadsView: React.FC = () => {
           subtitle="Track all awarded freight loads"
         />
         <div className="flex items-center gap-3">
-          <Button variant="gradient" size="sm">
+          <Button 
+            variant="gradient" 
+            size="sm"
+            onClick={() => downloadFile("/sample-data.csv", "freight_loads_export.csv")}
+          >
             <Download size={18} className="mr-2" /> Export
           </Button>
         </div>
@@ -194,7 +200,13 @@ const FreightLoadsView: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {mockFreightLoads.map((item, idx) => (
+              {mockFreightLoads
+                .filter((item) => 
+                  item.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                  item.project.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                  item.description.toLowerCase().includes(searchTerm.toLowerCase())
+                )
+                .map((item, idx) => (
                 <tr key={idx} className="hover:bg-gray-50/50 transition-colors group">
                   <td className="p-4">
                     <div className="font-normal text-(--text-color-gray-5) text-sm">{item.id}</div>
@@ -249,7 +261,7 @@ const FreightLoadsView: React.FC = () => {
         onClose={() => setIsFilterModalOpen(false)} 
         onApply={(f) => { console.log(f); setIsFilterModalOpen(false); }}
       />
-    </div>
+    </PageWrapper>
   );
 };
 

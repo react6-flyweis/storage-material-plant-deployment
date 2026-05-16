@@ -13,9 +13,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import SuccessModal from "./common_component/SuccessModal";
+import { downloadFile } from "../lib/utils";
 
 
 import { UserPlus, Check, CircleDollarSign, ChartSpline, ArrowUpToLine, ArrowDownToLine } from "lucide-react";
+import Button from "./common_component/Button";
+import PageWrapper from "./common_component/PageWrapper";
 const ProductionManagementView = () => {
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
@@ -60,7 +63,7 @@ console.log("status",projectValue,assignment);
       customerId: "ID-2025-1049",
       projectId: "PRJ-003",
       name: "XYZ Mall Building",
-      customer: { name: "Vijay Chadda", image: "https://i.pravatar.cc/150?u=3" },
+      customer: { name: "Vijay", image: "https://i.pravatar.cc/150?u=3" },
       buildings: 2,
       status: "Shipper File Received",
       quoteValue: "$12,500",
@@ -79,7 +82,6 @@ console.log("status",projectValue,assignment);
     },
   ];
 
-  /* ✅ FILTER LOGIC */
   const filteredLeads = useMemo(() => {
     return leadsData.filter((lead) => {
       const matchBuilding =
@@ -136,13 +138,11 @@ console.log("status",projectValue,assignment);
   ];
 
   return (
-    <div className="xl:pr-2 md:px-4 px-2 pb-10 space-y-6">
-      <div className="flex items-center justify-between flex-wrap mt-1 mb-6">
+    <PageWrapper>
         <TitleSubtitle
           title={productionManagementText.header.title}
           subtitle={productionManagementText.header.subtitle}
         />
-      </div>
 
       {/* Stats Row */}
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -160,12 +160,12 @@ console.log("status",projectValue,assignment);
       {/* Action Buttons & Filters */}
       <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 mb-6">
         <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors shadow-sm">
+          <Button variant="white" size="sm" onClick={() => setIsUploadModalOpen(true)}>
             <ArrowUpToLine size={16} /> Import CSV
-          </button>
-          <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors shadow-sm">
+          </Button>
+          <Button variant="white" size="sm" onClick={() => downloadFile("/sample-data.csv", "ProductionData.csv")}>
             <ArrowDownToLine size={16} /> Export Data
-          </button>
+          </Button>
         </div>
 
         <div className="flex flex-wrap gap-3 items-center">
@@ -190,7 +190,7 @@ console.log("status",projectValue,assignment);
               <SelectItem value="all">Select Customer</SelectItem>
               <SelectItem value="john">John Doe</SelectItem>
               <SelectItem value="rohan">Rohan Palkan</SelectItem>
-              <SelectItem value="vijay">Vijay Chadda</SelectItem>
+              <SelectItem value="vijay">Vijay</SelectItem>
             </SelectContent>
           </Select>
 
@@ -241,9 +241,9 @@ console.log("status",projectValue,assignment);
       <SuccessModal
         isOpen={isSuccessModalOpen}
         onClose={() => setIsSuccessModalOpen(false)}
-        title="Drawings Uploaded Successfully"
+        title={"Drawings Uploaded Successfully"}
       />
-    </div>
+    </PageWrapper>
   );
 };
 

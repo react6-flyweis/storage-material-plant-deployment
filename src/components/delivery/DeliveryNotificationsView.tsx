@@ -18,12 +18,15 @@ import { StatCard } from "./FreightLoadsView";
 import FreightFilterModal from "./FreightFilterModal";
 import Modal from "../Modal";
 import AutomatedNotificationSystem from "./AutomatedNotificationSystem";
+import PageWrapper from "../common_component/PageWrapper";
+import { downloadFile } from "@/lib/utils";
 
 const DeliveryNotificationsView: React.FC = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
-  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [_, setIsSuccessModalOpen] = useState(false);
+  const [isDeliveryStatusModalOpen, setIsDeliveryStatusModalOpen] = useState(false);
   const [selectedNotification, setSelectedNotification] = useState<any>(null);
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
 
@@ -153,20 +156,20 @@ const DeliveryNotificationsView: React.FC = () => {
   };
 
   return (
-    <div className="xl:pr-5 px-2 md:pt-5 pb-10 space-y-6">
+   <PageWrapper>
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <TitleSubtitle 
           title="Notification History"
           subtitle="Track all delivery notifications and reminders"
         />
-        <Button variant="gradient" size="md">
+        <Button variant="gradient" size="md" onClick={() => downloadFile("/sample-data.csv", "notifications_export.csv")}>
           Export
         </Button>
       </div>
 
       {/* Stats Section */}
-      <div className="flex flex-wrap gap-4">
+      <div className="flex flex-wrap gap-5 lg:gap-10">
         {stats.map((stat, idx) => (
           <StatCard key={idx} {...stat} />
         ))}
@@ -194,15 +197,15 @@ const DeliveryNotificationsView: React.FC = () => {
                     className="w-4 h-4 rounded border-gray-300 accent-[#155DFC] cursor-pointer"
                   />
                 </th>
-                <th className="p-2 md:p-4 text-xs font-semibold text-[#364153] uppercase tracking-wider">Notification</th>
-                <th className="p-2 md:p-4 text-xs font-semibold text-[#364153] uppercase tracking-wider">Channel</th>
-                <th className="p-2 md:p-4 text-xs font-semibold text-[#364153] uppercase tracking-wider">Delivery</th>
-                <th className="p-2 md:p-4 text-xs font-semibold text-[#364153] uppercase tracking-wider">Recipient</th>
-                <th className="p-2 md:p-4 text-xs font-semibold text-[#364153] uppercase tracking-wider">Delivery Status</th>
-                <th className="p-2 md:p-4 text-xs font-semibold text-[#364153] uppercase tracking-wider">Recipient Type</th>
-                <th className="p-2 md:p-4 text-xs font-semibold text-[#364153] uppercase tracking-wider text-center">Sent Date</th>
-                <th className="p-2 md:p-4 text-xs font-semibold text-[#364153] uppercase tracking-wider text-center">Status</th>
-                <th className="p-2 md:p-4 text-xs font-semibold text-[#364153] uppercase tracking-wider text-center">Resend</th>
+                <th className="p-2 md:p-4 text-xs font-semibold text-[#364153] uppercase tracking-wide">Notification</th>
+                <th className="p-2 md:p-4 text-xs font-semibold text-[#364153] uppercase tracking-wide">Channel</th>
+                <th className="p-2 md:p-4 text-xs font-semibold text-[#364153] uppercase tracking-wide">Delivery</th>
+                <th className="p-2 md:p-4 text-xs font-semibold text-[#364153] uppercase tracking-wide">Recipient</th>
+                <th className="p-2 md:p-4 text-xs font-semibold text-[#364153] uppercase tracking-wide">Delivery Status</th>
+                <th className="p-2 md:p-4 text-xs font-semibold text-[#364153] uppercase tracking-wide">Recipient Type</th>
+                <th className="p-2 md:p-4 text-xs font-semibold text-[#364153] uppercase tracking-wide text-center">Sent Date</th>
+                <th className="p-2 md:p-4 text-xs font-semibold text-[#364153] uppercase tracking-wide text-center">Status</th>
+                <th className="p-2 md:p-4 text-xs font-semibold text-[#364153] uppercase tracking-wide text-center">Resend</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
@@ -258,7 +261,13 @@ const DeliveryNotificationsView: React.FC = () => {
                       </div>
                     </div>
                   </td>
-                  <td className="p-2 md:p-4">
+                  <td 
+                    className="p-2 md:p-4 cursor-pointer hover:bg-gray-50 transition-colors"
+                    onClick={() => {
+                      setSelectedNotification(n);
+                      setIsDeliveryStatusModalOpen(true);
+                    }}
+                  >
                     <p className="text-sm font-medium text-[#212B36]">{n.deliveryStatus}</p>
                   </td>
                   <td className="p-2 md:p-4">
@@ -309,35 +318,35 @@ const DeliveryNotificationsView: React.FC = () => {
       />
 
       <Modal 
-        isOpen={isSuccessModalOpen} 
-        onClose={() => setIsSuccessModalOpen(false)} 
+        isOpen={isDeliveryStatusModalOpen} 
+        onClose={() => setIsDeliveryStatusModalOpen(false)} 
         width="max-w-xl" 
         hideHeader
       >
-        <div className="p-2 text-center space-y-8">
-          <div className="space-y-2">
-            <h2 className="text-2xl md:text-3xl font-medium text-[#212B36]">Delivery Scheduled</h2>
-            <p className="text-lg md:text-2xl font-normal text-[#446DF6]">
+        <div className="p-4 md:p-8 text-center space-y-10 py-12">
+          <div className="space-y-6">
+            <h2 className="text-3xl md:text-[40px] font-bold text-[#101828]">Delivery Scheduled</h2>
+            <p className="text-2xl md:text-[38px] font-medium text-[#446DF6] leading-tight px-4">
               {selectedNotification?.deliveryItem || "Primary Frame Steel"} will be delivered
             </p>
           </div>
 
-          <div className="space-y-3 py-4">
-            <p className="text-xl font-medium text-[#101828]">Date: March 25</p>
-            <p className="text-xl font-medium text-[#101828]">Time: 8:00 AM – 12:00 PM</p>
+          <div className="space-y-2">
+            <p className="text-xl md:text-2xl font-bold text-[#101828]">Date: March 25</p>
+            <p className="text-xl md:text-2xl font-bold text-[#101828]">Time: 8:00 AM – 12:00 PM</p>
           </div>
 
           <Button 
             variant="gradient" 
-            onClick={() => setIsSuccessModalOpen(false)}
-            className="mx-auto"
-            size="xl"
+            onClick={() => setIsDeliveryStatusModalOpen(false)}
+            className="mx-auto w-48 h-12 text-lg rounded-xl"
+            size="lg"
           >
             Ok
           </Button>
         </div>
       </Modal>
-    </div>
+</PageWrapper>
   );
 };
 

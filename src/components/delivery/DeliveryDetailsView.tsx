@@ -24,6 +24,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import Button from "../common_component/Button";
 import CommonInput from "../common_component/CommonInput";
 import Heading from "../common_component/Heading";
+import SuccessModal from "../common_component/SuccessModal";
 import { 
   RescheduleSuccessModal, 
   InTransitSuccessModal, 
@@ -52,7 +53,7 @@ const StatusBadge = ({ status }: { status: string }) => {
 
 const InfoRow = ({ label, value, icon: Icon, isEditing, type = "text" }: any) => (
   <div className="space-y-1">
-    <p className="text-xs md:text-sm font-medium text-[#6A7282] shrink-0 uppercase ">{label}</p>
+    <p className="text-xs md:text-sm font-medium text-[#6A7282] shrink-0 uppercase mb-2">{label}</p>
     <div className="flex items-center gap-2">
       {isEditing ? (
         <CommonInput 
@@ -80,9 +81,9 @@ const InfoBlock = ({ label, value }: { label: string; value: string }) => (
 );
 
 const Card = ({ title, children, status, className }: any) => (
-  <div className={`bg-white border border-gray-100 rounded-[14px] p-5 md:p-6 shadow-xs font-inter ${className}`}>
+  <div className={`bg-white border border-gray-100 rounded-[14px] p-4 lg:p-6 shadow-xs font-inter ${className}`}>
     <div className="flex justify-between items-center mb-6">
-      <h2 className="text-base md:text-lg font-semibold text-[#212B36]">{title}</h2>
+      <h2 className="text-base lg:text-lg font-semibold text-[#212B36]">{title}</h2>
       {status && <StatusBadge status={status} />}
     </div>
     {children}
@@ -90,7 +91,7 @@ const Card = ({ title, children, status, className }: any) => (
 );
 
 const ContactCard = ({ title, company, contact, phone, email, icon: Icon, showTruckIcon }: any) => (
-  <div className="bg-white border border-gray-100 rounded-[20px] p-6 shadow-sm space-y-4 min-h-[180px]">
+  <div className="bg-white border border-gray-100 rounded-[14px] p-4 lg:p-6 shadow-sm space-y-4 min-h-[180px]">
     <h3 className="text-base font-medium text-[#212B36]">{title}</h3>
     
     <div className="space-y-4">
@@ -162,7 +163,7 @@ const DeliveryDetailsView: React.FC = () => {
   return (
     <div className="xl:pr-5 px-2 pb-10 space-y-6">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mt-2">
+      <div className="flex flex-wrap md:items-center justify-between gap-4 mt-2">
         <div className="flex items-center gap-4">
           <ArrowLeft size={18} strokeWidth={2.5} onClick={() => navigate(-1)} /> 
           <div>
@@ -179,7 +180,6 @@ const DeliveryDetailsView: React.FC = () => {
               <Button 
                 variant="white" 
                 size="md" 
-                className="px-6 font-semibold"
                 onClick={() => setIsEditing(false)}
               >
                 Cancel
@@ -187,8 +187,10 @@ const DeliveryDetailsView: React.FC = () => {
               <Button 
                 variant="greenFilled" 
                 size="md" 
-                className="px-6 font-semibold"
-                onClick={() => setIsEditing(false)}
+                onClick={() => {
+                  setIsEditing(false);
+                  openModal("save-success");
+                }}
               >
                 <CheckCircle2 size={18} className="mr-2" /> Save Changes
               </Button>
@@ -220,7 +222,7 @@ const DeliveryDetailsView: React.FC = () => {
         {/* Left Column */}
         <div className="space-y-4">
           <Card title="Delivery Overview" status="Scheduled">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-4 lg:gap-x-8 lg:gap-y-5">
               <InfoRow
                 label="Project"
                 value="Industrial Complex A"
@@ -276,7 +278,7 @@ const DeliveryDetailsView: React.FC = () => {
             </div>
           </Card>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <ContactCard
               title="Vendor"
               company="Steel Supply Co"
@@ -467,6 +469,13 @@ const DeliveryDetailsView: React.FC = () => {
       <DeliveredSuccessModal 
         isOpen={activeModal === "delivered-success"} 
         onClose={closeModal} 
+      />
+      <SuccessModal
+        isLogoBottom={false}
+        isOpen={activeModal === "save-success"}
+        onClose={closeModal}
+        title="Delivery Save Successfully"
+        buttonText="Ok"
       />
     </div>
   );

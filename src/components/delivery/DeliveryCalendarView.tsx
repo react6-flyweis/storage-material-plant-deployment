@@ -19,6 +19,9 @@ import { type Delivery, statusConfig, DeliveryCard } from "./DeliveryComponents"
 import DailyDeliveriesModal from "./DailyDeliveriesModal";
 import RescheduleDeliveryModal from "./RescheduleDeliveryModal";
 import SuccessModal from "../common_component/SuccessModal";
+import TitleSubtitle from "../common_component/TitleSubtitle";
+import PageWrapper from "../common_component/PageWrapper";
+import DeliveryFilterModal from "./DeliveryFilterModal";
 
 // --- Mock Data ---
 const MOCK_DELIVERIES: Delivery[] = [
@@ -208,6 +211,8 @@ const DeliveryCalendarView: React.FC = () => {
   const [isRescheduleModalOpen, setIsRescheduleModalOpen] = useState(false);
   const [isMarkDeliveredModalOpen, setIsMarkDeliveredModalOpen] = useState(false);
   const [isRescheduleSuccessOpen, setIsRescheduleSuccessOpen] = useState(false);
+  const [isReminderSuccessOpen, setIsReminderSuccessOpen] = useState(false);
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [activeDeliveryId, setActiveDeliveryId] = useState<string>("");
 
   useEffect(() => {
@@ -247,6 +252,10 @@ const DeliveryCalendarView: React.FC = () => {
     setIsMarkDeliveredModalOpen(true);
   };
 
+  const handleSendReminder = (_id: string) => {
+    setIsReminderSuccessOpen(true);
+  };
+
   const renderEventContent = (eventInfo: any) => {
     const delivery = eventInfo.event.extendedProps as Delivery;
     
@@ -256,6 +265,7 @@ const DeliveryCalendarView: React.FC = () => {
           delivery={delivery} 
           onReschedule={handleReschedule}
           onMarkDelivered={handleMarkDelivered}
+          onSendReminder={handleSendReminder}
         />
       );
     } else if (activeView === "Week") {
@@ -276,15 +286,12 @@ const DeliveryCalendarView: React.FC = () => {
     : [];
 
   return (
-    <div className="xl:pr-5 pb-10 space-y-8 mt-2 px-4 md:px-0 font-inter calendar-custom">
+    <PageWrapper>
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-        <div className="space-y-1">
-          <h1 className="text-xl md:text-[26px] font-semibold text-[#212B36]">Delivery Calendar</h1>
-          <p className="text-[#637381] text-sm md:text-base">Schedule and track deliveries in calendar view</p>
-        </div>
+        <TitleSubtitle title="Delivery Calendar" subtitle="Schedule and track deliveries in calendar view"/>
         
         <div className="flex flex-wrap items-center gap-4">
-          <Button variant="blueFilled" size="sm">Filters</Button>
+          <Button variant="blueFilled" size="sm" onClick={() => setIsFilterModalOpen(true)}>Filters</Button>
           <div onClick={() => setIsDatePickerOpen(true)} className="flex items-center gap-2 h-10 px-4 bg-white border border-gray-200 rounded-lg text-sm font-medium text-[#212B36] cursor-pointer hover:border-[#1E51A4]">
             <span>{format(currentDate, "dd MMM yyyy")}</span>
             <CalendarDays size={18} className="text-[#637381]" />
@@ -303,7 +310,7 @@ const DeliveryCalendarView: React.FC = () => {
         </div>
       </div>
 
-      <div className="bg-white rounded-[14px] border border-gray-100 overflow-hidden p-4">
+      <div className="bg-white rounded-[14px] border border-gray-100 overflow-hidden p-4 calendar-custom">
         <div className="flex flex-wrap gap-4 mb-8 mt-2">
           <div className="px-5 py-2.5 bg-[#4169B830] text-[#02318C] rounded-[8px] text-sm font-normal">Today's Deliveries: 4 deliveries</div>
           <div className="px-5 py-2.5 bg-[#4169B830] text-[#02318C] rounded-[8px] text-sm font-normal flex items-center gap-2">Weather: ☀ Clear</div>
@@ -349,6 +356,15 @@ const DeliveryCalendarView: React.FC = () => {
         initialDate={currentDate}
       />
 
+      <DeliveryFilterModal 
+        isOpen={isFilterModalOpen}
+        onClose={() => setIsFilterModalOpen(false)}
+        onApply={(filters) => {
+          console.log("Filters applied:", filters);
+          setIsFilterModalOpen(false);
+        }}
+      />
+
       <DailyDeliveriesModal
         isOpen={isDailyModalOpen}
         onClose={() => setIsDailyModalOpen(false)}
@@ -356,6 +372,7 @@ const DeliveryCalendarView: React.FC = () => {
         deliveries={filteredDeliveries}
         onReschedule={handleReschedule}
         onMarkDelivered={handleMarkDelivered}
+        onSendReminder={handleSendReminder}
       />
 
       <RescheduleDeliveryModal
@@ -405,6 +422,14 @@ const DeliveryCalendarView: React.FC = () => {
         </div>
       </SuccessModal>
 
+      <SuccessModal
+        isLogoBottom={false}
+        isOpen={isReminderSuccessOpen}
+        onClose={() => setIsReminderSuccessOpen(false)}
+        title="Reminder Sent Successfully"
+        buttonText="Ok"
+      />
+
       <style>{`
         .calendar-custom .fc { font-family: 'Inter', sans-serif; border: none; }
         .calendar-custom .fc-theme-standard td, .calendar-custom .fc-theme-standard th { border: 1px solid #F4F6F8; }
@@ -412,6 +437,7 @@ const DeliveryCalendarView: React.FC = () => {
         .calendar-custom .fc-col-header-cell-cushion { font-size: 14px; font-weight: 700; color: #212B36; text-transform: uppercase; }
         .calendar-custom .fc-daygrid-day-number { font-weight: 700; color: #212B36; padding: 12px; }
         .calendar-custom .fc-event { background: transparent; border: none; padding: 0; }
+        .fc-h-event { background-color: transparent !important; border: none !important; }
         .calendar-custom .fc-daygrid-day-frame { min-height: 120px; }
         .calendar-custom .fc-day-today { background: #F4F6F8 !important; }
         .calendar-custom .fc-day-today .fc-col-header-cell-cushion { color: #2B7FFF; }
@@ -419,7 +445,7 @@ const DeliveryCalendarView: React.FC = () => {
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #E2E4E6; border-radius: 10px; }
       `}</style>
-    </div>
+    </PageWrapper>
   );
 };
 

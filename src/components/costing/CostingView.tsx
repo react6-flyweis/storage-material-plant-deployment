@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import {
   Search,
   DollarSign,
-  ArrowUpDown,
   TrendingUp,
   FileText,
   Upload,
@@ -17,6 +16,8 @@ import TitleSubtitle from "../common_component/TitleSubtitle";
 import { UploadModal } from "../projects/ProjectUploadModals";
 import SuccessModal from "../common_component/SuccessModal";
 import PartCostModal from "./PartCostModal";
+import CostingTable from "./CostingTable";
+import PageWrapper from "../common_component/PageWrapper";
 
 const mockData = [
   { id: 1, partName: "'30_VRR48'", partColour: "'--'", costUnit: "'FT'", mbsCost: 2.6, currentMarketCost: null, description: "'VRR+ Insul R10'" },
@@ -97,12 +98,6 @@ const CostingView: React.FC = () => {
     }
   };
 
-  const SortIcon = ({ col }: { col: SortKey }) => {
-    if (sortKey !== col) return <ArrowUpDown size={13} className="text-[#919EAB] ml-1 inline" />;
-    return sortDir === "asc"
-      ?  <ArrowUpDown size={13} className="text-(--text-color-blue) ml-1 inline" />
-      :  <ArrowUpDown size={13} className="text-(--text-color-blue) ml-1 inline" />;
-  };
 
   const filtered = useMemo(() => {
     let data = [...mockData];
@@ -181,14 +176,13 @@ const CostingView: React.FC = () => {
   const handleSuccessClose = () => {
     setIsSuccessModalOpen(false);
     if (successConfig.isBOMSuccess) {
-      navigate("/projects/view-bom/ID-2025-1047/BOM-001");
+      navigate("/costing/bom-details/BOM-001");
     }
   };
 
-  const thClass = "p-3 md:p-4 text-xs font-semibold text-[#364153] uppercase tracking-wider cursor-pointer select-none whitespace-nowrap";
 
   return (
-    <div className="xl:pr-2 md:px-4 px-2 pb-10 space-y-6 font-inter">
+    <PageWrapper>
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
         <TitleSubtitle title="Item Cost List"/>
@@ -264,118 +258,18 @@ const CostingView: React.FC = () => {
       {/* Table */}
       <div>
         <SubHeading text="Part Cost List"/>
-        <div className="bg-white rounded-xl border border-[#0000001A] overflow-hidden shadow-sm">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-nowrap">
-              <thead>
-                <tr className="bg-[#F9FAFB] border-b border-[#0000001A]">
-                  <th className="p-3 md:p-4">
-                    <input
-                      type="checkbox"
-                      checked={allSelected}
-                      onChange={toggleAll}
-                      className="w-4 h-4 rounded border-gray-300 accent-[#155DFC] cursor-pointer"
-                    />
-                  </th>
-                  <th
-                    className={thClass}
-                    onClick={() => handleColSort("partName")}
-                  >
-                    Part Name <SortIcon col="partName" />
-                  </th>
-                  <th
-                    className={thClass}
-                    onClick={() => handleColSort("partColour")}
-                  >
-                    Part Colour <SortIcon col="partColour" />
-                  </th>
-                  <th
-                    className={thClass}
-                    onClick={() => handleColSort("costUnit")}
-                  >
-                    Cost Unit <SortIcon col="costUnit" />
-                  </th>
-                  <th
-                    className={thClass}
-                    onClick={() => handleColSort("mbsCost")}
-                  >
-                    MBS Cost <SortIcon col="mbsCost" />
-                  </th>
-                  <th
-                    className={thClass}
-                    onClick={() => handleColSort("currentMarketCost")}
-                  >
-                    Current Market Cost <SortIcon col="currentMarketCost" />
-                  </th>
-                  <th
-                    className={thClass}
-                    onClick={() => handleColSort("description")}
-                  >
-                    Description <SortIcon col="description" />
-                  </th>
-                  <th className="p-3 md:p-4"></th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-50">
-                {filtered.map((row) => (
-                  <tr
-                    key={row.id}
-                    className={`hover:bg-gray-50/70 transition-colors ${selectedRows.includes(row.id) ? "bg-blue-50/30" : ""}`}
-                  >
-                    <td className="p-3 md:p-4">
-                      <input
-                        type="checkbox"
-                        checked={selectedRows.includes(row.id)}
-                        onChange={() => toggleRow(row.id)}
-                        className="w-4 h-4 rounded border-gray-300 accent-[#155DFC] cursor-pointer"
-                      />
-                    </td>
-                    <td className="p-3 md:p-4 text-sm font-medium text-[#212B36]">
-                      {row.partName}
-                    </td>
-                    <td className="p-3 md:p-4 text-sm text-[#637381]">
-                      {row.partColour}
-                    </td>
-                    <td className="p-3 md:p-4 text-sm text-[#637381]">
-                      {row.costUnit}
-                    </td>
-                    <td className="p-3 md:p-4 text-sm font-medium text-[#212B36]">
-                      {row.mbsCost}
-                    </td>
-                    <td className="p-3 md:p-4 text-sm text-[#637381]">
-                      {row.currentMarketCost ?? (
-                        <span className="text-[#919EAB]">-</span>
-                      )}
-                    </td>
-                    <td className="p-3 md:p-4 text-sm text-[#637381] max-w-[200px] truncate">
-                      {row.description}
-                    </td>
-                    <td className="p-3 md:p-4">
-                      <Button
-                        variant="gradient"
-                        size="sm"
-                        className="h-8 px-4 text-xs font-semibold"
-                        onClick={() => handleEdit(row)}
-                      >
-                        Edit
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-                {filtered.length === 0 && (
-                  <tr>
-                    <td
-                      colSpan={8}
-                      className="text-center py-16 text-[#919EAB] text-sm"
-                    >
-                      No parts found matching your search.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <CostingTable
+          data={filtered}
+          selectedRows={selectedRows}
+          onToggleRow={toggleRow}
+          onToggleAll={toggleAll}
+          allSelected={allSelected}
+          handleColSort={handleColSort}
+          sortKey={sortKey}
+          sortDir={sortDir}
+          onActionClick={handleEdit}
+          actionLabel="Edit"
+        />
       </div>
       <UploadModal
         isOpen={isModalOpen}
@@ -402,7 +296,7 @@ const CostingView: React.FC = () => {
         buttonText={successConfig.buttonText}
         isLogoBottom={false}
       />
-    </div>
+    </PageWrapper>
   );
 };
 

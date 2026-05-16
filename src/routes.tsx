@@ -52,6 +52,8 @@ import LogisticsView from "./components/logistics/LogisticsView";
 import VendorDetailsView from "./components/logistics/VendorDetailsView";
 import FreightCarriersView from "./components/logistics/FreightCarriersView";
 import CarrierDetailsView from "./components/logistics/CarrierDetailsView";
+import BOMFilesDetailsView from "./components/costing/BOMFilesDetailsView";
+import MissingItemCostListView from "./components/costing/MissingItemCostListView";
 
 
 export const adminRoutes: RouteObject[] = [
@@ -178,6 +180,14 @@ export const adminRoutes: RouteObject[] = [
       {
         path: "/costing",
         element: <CostingView />,
+      },
+      {
+        path: "/costing/bom-details/:id",
+        element: <BOMFilesDetailsView />,
+      },
+      {
+        path: "/costing/missing-items",
+        element: <MissingItemCostListView />,
       },
       {
         path: "/logistics/shippers",

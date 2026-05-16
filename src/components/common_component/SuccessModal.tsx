@@ -58,7 +58,8 @@ const SuccessModal: React.FC<SuccessModalProps> = ({
         <Button
           variant="gradient"
           onClick={onClose}
-          className="min-w-[120px] md:min-w-[180px] py-3 md:py-4 px-6 md:text-lg font-bold"
+          size="lg"
+          className="mt-3"
         >
           {buttonText}
         </Button>

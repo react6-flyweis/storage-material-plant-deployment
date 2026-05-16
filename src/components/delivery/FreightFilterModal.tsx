@@ -31,14 +31,79 @@ const FreightFilterModal: React.FC<FreightFilterModalProps> = ({
 
   if (!isOpen) return null;
 
-  const dropdownOptions = [
-    { label: "Option 1", value: "1" },
-    { label: "Option 2", value: "2" },
-  ];
-
   const handleFilterChange = (key: string, value: string) => {
     setFilters(prev => ({ ...prev, [key]: value }));
   };
+
+  const projectOptions = [
+    { label: "Project", value: "" },
+    { label: "Storage Facility B", value: "1" },
+    { label: "Industrial Complex A", value: "2" },
+    { label: "Warehouse Complex", value: "3" },
+  ];
+
+  const deliveryTypeOptions = [
+    { label: "Delivery Type", value: "" },
+    { label: "Flatbed", value: "1" },
+    { label: "Box Truck", value: "2" },
+    { label: "Refrigerated", value: "3" },
+  ];
+
+  const colorStatusOptions = [
+    { label: "Color by Status", value: "" },
+    { label: "Ready", value: "1" },
+    { label: "Pending", value: "2" },
+    { label: "Delayed", value: "3" },
+  ];
+
+  const vendorOptions = [
+    { label: "Vendor", value: "" },
+    { label: "ABC Steel", value: "1" },
+    { label: "Metro Steel", value: "2" },
+    { label: "Steel Works LTD", value: "3" },
+  ];
+
+  const siteLocationOptions = [
+    { label: "Site Location", value: "" },
+    { label: "Dallas, TX", value: "1" },
+    { label: "San Antonio, TX", value: "2" },
+    { label: "Houston, TX", value: "3" },
+  ];
+
+  const priorityOptions = [
+    { label: "Priority", value: "" },
+    { label: "High", value: "high" },
+    { label: "Medium", value: "medium" },
+    { label: "Low", value: "low" },
+  ];
+
+  const internalOwnerOptions = [
+    { label: "Internal Owner", value: "" },
+    { label: "John Doe", value: "1" },
+    { label: "Jane Smith", value: "2" },
+    { label: "Michael Brown", value: "3" },
+  ];
+
+  const statusOptions = [
+    { label: "Status", value: "" },
+    { label: "Awarded", value: "awarded" },
+    { label: "Requested", value: "requested" },
+    { label: "Bids Received", value: "bids_received" },
+  ];
+
+  const deliveryOptions = [
+    { label: "Delivery", value: "" },
+    { label: "Delivered", value: "delivered" },
+    { label: "In Transit", value: "in_transit" },
+    { label: "Pending", value: "pending" },
+  ];
+
+  const channelOptions = [
+    { label: "Channel", value: "" },
+    { label: "Email", value: "email" },
+    { label: "SMS", value: "sms" },
+    { label: "Voice", value: "voice" },
+  ];
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} hideHeader width="max-w-[1100px]">
@@ -62,28 +127,28 @@ const FreightFilterModal: React.FC<FreightFilterModalProps> = ({
             <CommonDropdown 
               value={filters.deliveries}
               onChange={(v) => handleFilterChange("deliveries", v)}
-              options={[{ label: "All Deliveries", value: "all" }, ...dropdownOptions]}
+              options={[{ label: "All Deliveries", value: "all" }, { label: "My Deliveries", value: "my" }, { label: "Shared Deliveries", value: "shared" }]}
               placeholder="All Deliveries"
               className="min-w-[180px]"
             />
             <CommonDropdown 
               value={filters.project}
               onChange={(v) => handleFilterChange("project", v)}
-              options={dropdownOptions}
+              options={projectOptions}
               placeholder="Project"
               className="min-w-[220px]"
             />
             <CommonDropdown 
               value={filters.deliveryType}
               onChange={(v) => handleFilterChange("deliveryType", v)}
-              options={dropdownOptions}
+              options={deliveryTypeOptions}
               placeholder="Delivery Type"
               className="min-w-[200px]"
             />
             <CommonDropdown 
               value={filters.colorStatus}
               onChange={(v) => handleFilterChange("colorStatus", v)}
-              options={dropdownOptions}
+              options={colorStatusOptions}
               placeholder="Color by Status"
               className="min-w-[220px]"
             />
@@ -94,28 +159,28 @@ const FreightFilterModal: React.FC<FreightFilterModalProps> = ({
             <CommonDropdown 
               value={filters.vendor}
               onChange={(v) => handleFilterChange("vendor", v)}
-              options={dropdownOptions}
+              options={vendorOptions}
               placeholder="Vendor"
               className="min-w-[220px]"
             />
             <CommonDropdown 
               value={filters.siteLocation}
               onChange={(v) => handleFilterChange("siteLocation", v)}
-              options={dropdownOptions}
+              options={siteLocationOptions}
               placeholder="Site Location"
               className="min-w-[220px]"
             />
             <CommonDropdown 
               value={filters.priority}
               onChange={(v) => handleFilterChange("priority", v)}
-              options={dropdownOptions}
+              options={priorityOptions}
               placeholder="Priority"
               className="min-w-[220px]"
             />
             <CommonDropdown 
               value={filters.internalOwner}
               onChange={(v) => handleFilterChange("internalOwner", v)}
-              options={dropdownOptions}
+              options={internalOwnerOptions}
               placeholder="Internal Owner"
               className="min-w-[220px]"
             />
@@ -126,21 +191,21 @@ const FreightFilterModal: React.FC<FreightFilterModalProps> = ({
             <CommonDropdown 
               value={filters.status}
               onChange={(v) => handleFilterChange("status", v)}
-              options={dropdownOptions}
+              options={statusOptions}
               placeholder="Status"
               className="min-w-[220px]"
             />
             <CommonDropdown 
               value={filters.delivery}
               onChange={(v) => handleFilterChange("delivery", v)}
-              options={dropdownOptions}
+              options={deliveryOptions}
               placeholder="Delivery"
               className="min-w-[220px]"
             />
             <CommonDropdown 
               value={filters.channel}
               onChange={(v) => handleFilterChange("channel", v)}
-              options={[{ label: "Email", value: "email" }, { label: "SMS", value: "sms" }, { label: "Voice", value: "voice" }]}
+              options={channelOptions}
               placeholder="Channel"
               className="min-w-[220px]"
             />

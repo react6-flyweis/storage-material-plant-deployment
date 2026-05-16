@@ -7,7 +7,7 @@ interface CommonCheckboxProps {
   onChange: (checked: boolean) => void;
   className?: string;
   disabled?:boolean; 
-  size?:"sm" | "md" | "lg";
+  size?:"xs"| "sm" | "md" | "lg";
 }
 
 const CommonCheckbox: React.FC<CommonCheckboxProps> = ({
@@ -20,6 +20,7 @@ const CommonCheckbox: React.FC<CommonCheckboxProps> = ({
 const sizeClass =
   size === "sm" ? "h-[16px] w-[16px] rounded-[4px]" :
   size === "md" ? "size-6 rounded-[8px]" :
+  size === "xs" ? "h-[16px] w-[16px] rounded-[5px]" :
   "size-8 rounded-[8px]";
   return (
     <button

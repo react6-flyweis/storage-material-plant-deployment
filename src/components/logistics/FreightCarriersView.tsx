@@ -10,7 +10,6 @@ import PageWrapper from "../common_component/PageWrapper";
 import CommonStatusBadge from "../common_component/CommonStatusBadge";
 import SuccessModal from "../common_component/SuccessModal";
 import FreightFilterModal from "../delivery/FreightFilterModal";
-// We might need a CarrierModal later, for now using VendorModal as placeholder or create CarrierModal
 import VendorModal from "./VendorModal"; 
 
 const mockCarriers = [
@@ -176,14 +175,14 @@ const FreightCarriersView: React.FC = () => {
             placeholder="Search by carrier name, contact, email, or phone..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full min-w-[150px] pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all placeholder:text-gray-400"
+            className="w-full min-w-[200px] pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all placeholder:text-gray-400"
           />
         </div>
         <div className="flex flex-wrap ml-auto items-center gap-2">
-          <Button variant="grayFilled" onClick={() => setIsFilterModalOpen(true)}>
+          <Button variant="grayFilled" size="sm" onClick={() => setIsFilterModalOpen(true)}>
             <Filter size={18} /> Filter
           </Button>
-          <Button variant="gradient" onClick={handleAddCarrier}>
+          <Button variant="gradient" size="sm" onClick={handleAddCarrier}>
             <Plus size={18} /> Add Carrier
           </Button>
         </div>

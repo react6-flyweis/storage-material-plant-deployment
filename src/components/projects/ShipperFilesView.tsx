@@ -17,6 +17,16 @@ import StatCard from "@/components/ui/stat-card";
 import Pagination from "@/components/Pagination";
 import Button from "../common_component/Button";
 import Heading from "../common_component/Heading";
+import FilterDropdown from "../common_component/FilterDropdown";
+
+// ─── Constants ────────────────────────────────────────────────────────────────
+const FILTER_OPTIONS = [
+  { label: "Filter", value: "" },
+  { label: "All Items", value: "all" },
+  { label: "Today", value: "today" },
+  { label: "Yesterday", value: "yesterday" },
+  { label: "Older", value: "older" },
+];
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 const ShipperFilesView: React.FC = () => {
@@ -29,16 +39,17 @@ const ShipperFilesView: React.FC = () => {
 
   // All shipper files (merge all filter buckets for this page)
   const allFiles: RecentShipperFile[] = useMemo(() => {
-    const seen = new Set<string>();
-    return [...recentShipperFilesByFilter.today].filter((f) => {
-      if (seen.has(f.fileName)) return false;
-      seen.add(f.fileName);
-      return true;
-    });
+    // Combine files from different buckets and add a category for filtering
+    const today = recentShipperFilesByFilter.today.map(f => ({ ...f, category: "today" }));
+    const yesterday = recentShipperFilesByFilter.week.map(f => ({ ...f, category: "yesterday" }));
+    const older = recentShipperFilesByFilter.month.map(f => ({ ...f, category: "older" }));
+    
+    return [...today, ...yesterday, ...older];
   }, []);
 
   // ── Search & sort state ────────────────────────────────────────────────────
   const [search, setSearch] = useState("");
+  const [filterType, setFilterType] = useState("");
   const [sortOrder, setSortOrder] = useState<"Latest" | "Oldest">("Latest");
   const [showSortMenu, setShowSortMenu] = useState(false);
 
@@ -49,6 +60,12 @@ const ShipperFilesView: React.FC = () => {
   // ── Derived data ──────────────────────────────────────────────────────────
   const filtered = useMemo(() => {
     let list = allFiles;
+
+    // Filter by type
+    if (filterType && filterType !== "all") {
+      list = list.filter(f => (f as any).category === filterType);
+    }
+
     if (search.trim()) {
       const q = search.toLowerCase();
       list = list.filter(
@@ -60,7 +77,7 @@ const ShipperFilesView: React.FC = () => {
     }
     if (sortOrder === "Oldest") list = [...list].reverse();
     return list;
-  }, [allFiles, search, sortOrder]);
+  }, [allFiles, search, sortOrder, filterType]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / rowsPerPage));
   const paginated = filtered.slice(
@@ -155,11 +172,13 @@ const ShipperFilesView: React.FC = () => {
             />
           </div>
 
-          {/* Filter button */}
-          <button className="flex items-center gap-2 px-4 py-2 border border-[#E2E8F0] rounded-[8px] text-sm font-medium text-[#212B36] bg-white hover:bg-gray-50 transition-colors">
-            <Filter size={15} className="text-[#637381]" />
-            Filter
-          </button>
+          {/* Filter Dropdown */}
+          <FilterDropdown
+            activeTab={filterType}
+            onTabChange={setFilterType}
+            options={FILTER_OPTIONS}
+            icon
+          />
         </div>
 
         {/* Sort */}
@@ -169,7 +188,7 @@ const ShipperFilesView: React.FC = () => {
             className="flex items-center gap-2 px-4 py-2 border border-[#E2E8F0] rounded-[8px] text-sm font-medium text-[#212B36] bg-white hover:bg-gray-50 transition-colors"
           >
             <Filter size={15} className="text-[#637381]" />
-            Sort by : <span className="text-[#1E51A4] font-semibold">{sortOrder}</span>
+            Sort by : <span className="text-[#1E51A4] font-medium">{sortOrder}</span>
             <ChevronDown size={15} className={`text-[#637381] transition-transform ${showSortMenu ? "rotate-180" : ""}`} />
           </button>
           {showSortMenu && (

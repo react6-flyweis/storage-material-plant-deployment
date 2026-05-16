@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Modal from "../Modal";
 import ViewDrawingModal from "./ViewDrawingModal";
 import { ArrowDown, Eye, File } from "lucide-react";
+import { downloadFile } from "../../lib/utils";
 
 interface ProjectMediaModalProps {
   isOpen: boolean;
@@ -43,7 +44,10 @@ const FileCard = ({
         </p>
       </div>
       <div className="flex items-center gap-2 shrink-0">
-        <button className="p-1.5 hover:bg-gray-50 rounded-lg text-gray-400 hover:text-blue-600 transition-colors">
+        <button 
+          onClick={() => downloadFile(file.imageUrl, file.name)}
+          className="p-1.5 hover:bg-gray-50 rounded-lg text-gray-400 hover:text-blue-600 transition-colors"
+        >
           <ArrowDown className="xl:w-6 xl:h-6 h-4 w-4 text-black" />
         </button>
         <button

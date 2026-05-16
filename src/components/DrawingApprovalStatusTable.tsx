@@ -1,6 +1,9 @@
 import React, { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import type { DrawingApprovalStatus } from "@/data/productionMockData";
 import { Eye, ArrowUpDown, CircleCheck, RotateCcw } from "lucide-react";
+import Button from "./common_component/Button";
+import CommonCheckbox from "./common_component/CommonCheckbox";
 
 interface Props {
   data: DrawingApprovalStatus[];
@@ -10,10 +13,12 @@ type SortKey = "clientName" | "sentDate";
 type SortDirection = "asc" | "desc";
 
 const DrawingApprovalStatusTable: React.FC<Props> = ({ data }) => {
+  const navigate = useNavigate();
   const [sortConfig, setSortConfig] = useState<{
     key: SortKey;
     direction: SortDirection;
   } | null>(null);
+  const [selectedRows, setSelectedRows] = useState<number[]>([]);
 
   const handleSort = (key: SortKey) => {
     let direction: SortDirection = "asc";
@@ -47,13 +52,20 @@ const DrawingApprovalStatusTable: React.FC<Props> = ({ data }) => {
   }, [data, sortConfig]);
 
   return (
-    <div className="bg-white rounded-[14px] shadow-sm border border-[#F4F6F8] overflow-hidden">
+    <div className="bg-white rounded-[14px] shadow-sm border border-[#F4F6F8] overflow-hidden mt-4">
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse min-w-[800px]">
           <thead>
             <tr className="bg-[#F7F8F9] border-b border-[#F4F6F8] text-nowrap">
               <th className="py-4 px-4 pl-6">
-                <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                <CommonCheckbox
+                size="xs"
+                  checked={selectedRows.length === sortedData.length && sortedData.length > 0}
+                  onChange={(checked) => {
+                    if (checked) setSelectedRows(sortedData.map((_, i) => i));
+                    else setSelectedRows([]);
+                  }}
+                />
               </th>
               <th className="py-4 px-4 text-sm font-semibold text-black">
                 <button 
@@ -81,17 +93,24 @@ const DrawingApprovalStatusTable: React.FC<Props> = ({ data }) => {
             {sortedData.map((item, idx) => (
               <tr key={idx} className="hover:bg-gray-50 transition-colors">
                 <td className="py-4 px-4 pl-6">
-                  <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                  <CommonCheckbox
+                   size="xs"
+                    checked={selectedRows.includes(idx)}
+                    onChange={(checked) => {
+                      if (checked) setSelectedRows([...selectedRows, idx]);
+                      else setSelectedRows(selectedRows.filter((i) => i !== idx));
+                    }}
+                  />
                 </td>
                 <td className="py-4 px-4">
                   <div className="flex items-center gap-2">
                     <img src={item.clientAvatar} alt={item.clientName} className="w-8 h-8 rounded-full object-cover" />
-                    <span className="text-sm md:text-base font-normal text-black">{item.clientName}</span>
+                    <span className="text-sm font-normal text-black">{item.clientName}</span>
                   </div>
                 </td>
-                <td className="py-4 px-4 text-sm md:text-base font-normal text-black">{item.projectName}</td>
-                <td className="py-4 px-4 text-sm md:text-base text-[#637381]">{item.fileName}</td>
-                <td className="py-4 px-4 text-sm md:text-base text-[#637381]">{item.sentDate}</td>
+                <td className="py-4 px-4 text-sm text-[#637381]">{item.projectName}</td>
+                <td className="py-4 px-4 text-sm text-[#637381]">{item.fileName}</td>
+                <td className="py-4 px-4 text-sm text-[#637381]">{item.sentDate}</td>
                 <td className="py-4 px-4">
                   <span className={`px-3 py-1 rounded-full text-xs font-normal inline-flex items-center gap-1.5 whitespace-nowrap ${
                     item.status === "Pending" ? "bg-[#FFF6D0] text-[#B78B00]" :
@@ -104,9 +123,13 @@ const DrawingApprovalStatusTable: React.FC<Props> = ({ data }) => {
                   </span>
                 </td>
                 <td className="py-4 px-4 pr-6 text-right">
-                  <button className="p-2 bg-gradient-to-r from-[#2563EB] to-[#4F46E5] text-white border border-[#FCF8EB] hover:opacity-90 transition-all h-[30px] w-fit flex items-center justify-center rounded-sm">
+                  <Button 
+                    variant="gradient" 
+                    size="sm"
+                    onClick={() => navigate(`/projects/view-drawings/${item.customerId}/${item.projectId}`)}
+                  >
                     <Eye size={18} />
-                  </button>
+                  </Button>
                 </td>
               </tr>
             ))}

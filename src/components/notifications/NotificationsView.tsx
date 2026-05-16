@@ -5,6 +5,8 @@ import GreenBellIcon from "@/assets/greenBellIcon.svg";
 import SalmonBellIcon from "@/assets/salmonBellIcon.svg";
 import StatCard from "../ui/stat-card";
 import TitleSubtitle from "../common_component/TitleSubtitle";
+import Button from "../common_component/Button";
+import PageWrapper from "../common_component/PageWrapper";
 
 interface Notification {
   id: string;
@@ -225,7 +227,7 @@ const NotificationsView = () => {
   };
 
   return (
-    <div className="xl:pr-5 px-2 md:pt-5 pb-10 space-y-6">
+   <PageWrapper>
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 mt-2">
         <TitleSubtitle
           title="Notifications"
@@ -244,37 +246,32 @@ const NotificationsView = () => {
         ))}
       </div>
       {/* Filters Header */}
-      <div className="bg-white rounded-xl shadow-sm p-4 mb-6 flex flex-col md:flex-row items-start md:items-center gap-4">
+      <div className="bg-white rounded-xl shadow-xs p-4 mb-6 flex flex-wrap items-start lg:items-center gap-4">
         <span className="text-gray-700 font-medium xl:text-lg mr-2">
           Filter by:
         </span>
         <div className="flex flex-wrap gap-2">
           {filters.map((filter) => (
-            <button
+            <Button
+            variant={filter.value === activeFilter ? "blueFilled" : "outline"}
               key={filter.value}
+              size="sm"
               onClick={() => setActiveFilter(filter.value)}
-              className={`px-6 py-2 rounded-lg xl:text-sm text-xs font-medium transition-colors
-                ${
-                  activeFilter === filter.value
-                    ? "bg-(--button-bg-primary-color) text-white shadow-md"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                }
-              `}
             >
               {filter.label}
-            </button>
+            </Button>
           ))}
         </div>
       </div>
 
       {/* Notifications List */}
-      <div className="bg-white rounded-md overflow-hidden">
+      <div className="bg-white rounded-xl overflow-hidden">
         {filteredData.length > 0 ? (
           <div className="divide-y divide-gray-100">
             {filteredData.map((notification) => (
               <div
                 key={notification.id}
-                className="p-6 flex flex-col md:flex-row gap-4 hover:bg-gray-50 transition-colors cursor-pointer group"
+                className="p-3 md:p-6 flex flex-col md:flex-row gap-4 hover:bg-gray-50 transition-colors cursor-pointer group"
               >
                 {/* Icon */}
                 {renderIcon(notification.type)}
@@ -300,7 +297,7 @@ const NotificationsView = () => {
           </div>
         )}
       </div>
-    </div>
+    </PageWrapper>
   );
 };
 

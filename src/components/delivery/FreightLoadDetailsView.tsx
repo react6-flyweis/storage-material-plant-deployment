@@ -9,7 +9,6 @@ import {
   Package, 
   MapPin, 
   Star,
-  ChevronDown,
   Pen,
   XCircle,
   Award,
@@ -21,6 +20,7 @@ import Button from "../common_component/Button";
 import { AwardLoadModal, AwardSuccessModal, RequestRevisionModal, RevisionSuccessModal } from "./AwardLoadModals";
 import FilterDropdown from "../common_component/FilterDropdown";
 import SubHeading from "../common_component/SubHeading";
+import PageWrapper from "../common_component/PageWrapper";
 
 // --- Sub-components ---
 
@@ -49,7 +49,7 @@ const BidCard = ({ rank, carrier, rating, onTime, submitted, transit, amount, no
     className={`bg-white rounded-[14px] p-4 md:p-6 border transition-all ${isAwarded ? "border-[#7BF1A8] bg-[linear-gradient(90deg,_#F0FDF4_0%,_#ECFDF5_100%)]" : "border-gray-100"}`}
   >
     <div className="flex flex-col md:flex-row gap-6">
-      <div className="flex items-start gap-4 flex-1">
+      <div className="flex items-start gap-2 md:gap-4 flex-1">
         <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold flex-shrink-0 ${isAwarded ? "bg-[#22C55E] text-white" : "bg-[#F4F6F8] text-[#919EAB]"}`}>
           #{rank}
         </div>
@@ -59,7 +59,7 @@ const BidCard = ({ rank, carrier, rating, onTime, submitted, transit, amount, no
             <div className="text-right flex flex-col items-end md:hidden">
               <p className={`text-lg md:text-[24px] font-bold leading-tight ${isAwarded ? "text-[#22C55E]" : "text-[#212B36]"}`}>{amount}</p>
               {diff && (
-                <p className={`text-[10px] font-bold uppercase ${diff === "LOWEST BID" ? "text-[#22C55E]" : "text-[#919EAB]"}`}>
+                <p className={`text-xs font-semibold uppercase ${diff === "LOWEST BID" ? "text-[#22C55E]" : "text-[#919EAB]"}`}>
                   {diff}
                 </p>
               )}
@@ -407,7 +407,7 @@ const FreightLoadDetailsView: React.FC = () => {
   ];
 
   return (
-    <div className="xl:pr-5 pb-10 space-y-8 mt-2 px-4 md:px-0 font-inter">
+    <PageWrapper>
       {/* Header Section */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         <div className="flex items-center gap-4">
@@ -497,7 +497,7 @@ const FreightLoadDetailsView: React.FC = () => {
           <div className="space-y-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div className="flex flex-wrap items-center gap-3">
-                <h2 className="text-lg md:text-xl font-bold text-[#212B36]">All Bids</h2>
+                <h2 className="text-lg md:text-xl font-semibold text-[#212B36]">All Bids</h2>
                 <div className="h-6 w-px bg-gray-200 mx-1"></div>
                 <div className="flex items-center gap-2">
                   <FilterDropdown
@@ -508,7 +508,7 @@ const FreightLoadDetailsView: React.FC = () => {
                       { label: "Low to High", value: "low" },
                       { label: "High to Low", value: "high" },
                     ]}
-                    icon={<ChevronDown size={18} className="text-[#637381]" />}
+                    icon
                   />
                 </div>
               </div>
@@ -567,7 +567,7 @@ const FreightLoadDetailsView: React.FC = () => {
         targetAmount={revisionData.targetAmount}
         message={revisionData.message}
       />
-    </div>
+    </PageWrapper>
   );
 };
 

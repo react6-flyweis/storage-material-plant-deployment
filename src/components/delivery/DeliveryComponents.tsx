@@ -76,7 +76,7 @@ export const DeliveryCard = ({
   onReschedule, 
   onMarkDelivered, 
   onViewDetails, 
-  // onSendReminder 
+  onSendReminder,
 }: DeliveryCardProps) => {
   const config = statusConfig[delivery.status];
   const navigate = useNavigate();
@@ -85,7 +85,7 @@ export const DeliveryCard = ({
     { label: "View Details", icon: Van, onClick: () => onViewDetails ? onViewDetails(delivery.id) : navigate(`/delivery/delivery-details/${delivery.id}`) },
     { label: "Reschedule Delivery", icon: CalendarSync, onClick: () => onReschedule ? onReschedule(delivery.id) : navigate(`/delivery/reschedule-delivery/${delivery.id}`) },
     { label: "Mark Delivered", icon: ClipboardCheck, onClick: () => onMarkDelivered ? onMarkDelivered(delivery.id) : navigate(`/delivery/mark-delivered/${delivery.id}`) },
-    { label: "Send Reminder Now", icon: Bell, onClick: () => null },
+    { label: "Send Reminder Now", icon: Bell, onClick: () => onSendReminder?.(delivery.id) },
   ];
 
   return (

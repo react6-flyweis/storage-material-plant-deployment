@@ -94,7 +94,7 @@ const BidCard = ({ rank, carrier, rating, onTime, submitted, transit, amount, no
 
       <div className="text-right hidden md:flex flex-col justify-start min-w-[120px]">
         <p className="text-xs font-bold text-[#919EAB] uppercase tracking-wide">Bid Amount</p>
-        <p className={`text-[32px] font-bold leading-tight ${isAwarded ? "text-[#00A76F]" : "text-[#212B36]"}`}>{amount}</p>
+        <p className={`text-lg md:text-[32px] font-bold leading-tight ${isAwarded ? "text-[#00A76F]" : "text-[#212B36]"}`}>{amount}</p>
         {diff && (
           <p className={`text-[10px] font-bold mt-1 uppercase ${diff === "LOWEST BID" ? "text-[#00A76F]" : "text-[#919EAB]"}`}>
             {diff}
@@ -158,7 +158,7 @@ const FreightRequestDetailsView: React.FC = () => {
   return (
     <div className="xl:pr-5 pb-10 space-y-8 mt-2 px-4 md:px-0 font-inter">
       {/* Header Section */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 md:gap-6">
         <div className="flex items-center gap-4">
           <button 
             onClick={() => navigate(-1)}
