@@ -158,7 +158,6 @@ const AddNewShipper: React.FC = () => {
   const [createPlantVendor, { isLoading }] = useCreatePlantVendorMutation();
 
   const {
-    register,
     control,
     handleSubmit,
     setError,
@@ -276,39 +275,8 @@ const AddNewShipper: React.FC = () => {
         )}
 
         <div className="flex flex-col">
-          {/* Carriers Information */}
           <AccordionSection title="Carriers Information">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
-              <CommonInput
-                label="Carriers Name"
-                required
-                inputClassName={
-                  errors.vendorName
-                    ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
-                    : ""
-                }
-                {...register("vendorName", { required: true })}
-              />
-              {errors.vendorName?.message && (
-                <p className="-mt-3 text-xs text-red-600">
-                  {errors.vendorName.message}
-                </p>
-              )}
-              <CommonInput
-                label="Shippers ID (Auto-generated + Editable)"
-                required
-                inputClassName={
-                  errors.vendorCode
-                    ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
-                    : ""
-                }
-                {...register("vendorCode", { required: true })}
-              />
-              {errors.vendorCode?.message && (
-                <p className="-mt-3 text-xs text-red-600">
-                  {errors.vendorCode.message}
-                </p>
-              )}
               <Controller
                 control={control}
                 name="vendorName"
@@ -317,21 +285,13 @@ const AddNewShipper: React.FC = () => {
                     <CommonInput
                       label="Carriers Name"
                       required
-                      inputClassName={
-                        errors.vendorName
-                          ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
-                          : ""
-                      }
                       value={field.value}
                       onChange={field.onChange}
                       onBlur={field.onBlur}
                       ref={field.ref}
+                      inputClassName={errors.vendorName ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500" : ""}
                     />
-                    {errors.vendorName?.message && (
-                      <p className="-mt-3 text-xs text-red-600">
-                        {errors.vendorName.message}
-                      </p>
-                    )}
+                    {errors.vendorName?.message && <p className="-mt-3 text-xs text-red-600">{errors.vendorName.message}</p>}
                   </>
                 )}
               />
@@ -344,80 +304,36 @@ const AddNewShipper: React.FC = () => {
                     <CommonInput
                       label="Shippers ID (Auto-generated + Editable)"
                       required
-                      inputClassName={
-                        errors.vendorCode
-                          ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
-                          : ""
-                      }
                       value={field.value}
                       onChange={field.onChange}
                       onBlur={field.onBlur}
                       ref={field.ref}
+                      inputClassName={errors.vendorCode ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500" : ""}
                     />
-                    {errors.vendorCode?.message && (
-                      <p className="-mt-3 text-xs text-red-600">
-                        {errors.vendorCode.message}
-                      </p>
-                    )}
+                    {errors.vendorCode?.message && <p className="-mt-3 text-xs text-red-600">{errors.vendorCode.message}</p>}
                   </>
                 )}
               />
 
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-medium text-[#212B36] flex items-center">
-                  Phone Number <span className="text-red-500 ml-1">*</span>
-                </label>
-                <Controller
-                  control={control}
-                  name="phone"
-                  render={({ field }) => (
+              <Controller
+                control={control}
+                name="phone"
+                render={({ field }) => (
+                  <div className="flex flex-col gap-2">
+                    <label className="text-sm font-medium text-[#212B36] flex items-center">
+                      Phone Number <span className="text-red-500 ml-1">*</span>
+                    </label>
                     <PhoneNumberInput
                       value={field.value}
                       onChange={field.onChange}
                       placeholder="Enter phone number"
-                      className={
-                        errors.phone
-                          ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
-                          : ""
-                      }
+                      className={errors.phone ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500" : ""}
                     />
-                  )}
-                />
-                {errors.phone?.message && (
-                  <p className="text-xs text-red-600">{errors.phone.message}</p>
+                    {errors.phone?.message && <p className="text-xs text-red-600">{errors.phone.message}</p>}
+                  </div>
                 )}
-              </div>
+              />
 
-              <CommonInput
-                label="Email Address"
-                required
-                type="email"
-                inputClassName={
-                  errors.email
-                    ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
-                    : ""
-                }
-                {...register("email", { required: true })}
-              />
-              {errors.email?.message && (
-                <p className="-mt-3 text-xs text-red-600">
-                  {errors.email.message}
-                </p>
-              )}
-              <CommonInput
-                label="Years of working with company"
-                inputClassName={
-                  errors.yearsWithCompany
-                    ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
-                    : ""
-                }
-                {...register("yearsWithCompany", { required: true })}
-              />
-              {errors.yearsWithCompany?.message && (
-                <p className="-mt-3 text-xs text-red-600">
-                  {errors.yearsWithCompany.message}
-                </p>
-              )}
               <Controller
                 control={control}
                 name="email"
@@ -427,21 +343,13 @@ const AddNewShipper: React.FC = () => {
                       label="Email Address"
                       required
                       type="email"
-                      inputClassName={
-                        errors.email
-                          ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
-                          : ""
-                      }
                       value={field.value}
                       onChange={field.onChange}
                       onBlur={field.onBlur}
                       ref={field.ref}
+                      inputClassName={errors.email ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500" : ""}
                     />
-                    {errors.email?.message && (
-                      <p className="-mt-3 text-xs text-red-600">
-                        {errors.email.message}
-                      </p>
-                    )}
+                    {errors.email?.message && <p className="-mt-3 text-xs text-red-600">{errors.email.message}</p>}
                   </>
                 )}
               />
@@ -453,21 +361,13 @@ const AddNewShipper: React.FC = () => {
                   <>
                     <CommonInput
                       label="Years of working with company"
-                      inputClassName={
-                        errors.yearsWithCompany
-                          ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
-                          : ""
-                      }
                       value={field.value}
                       onChange={field.onChange}
                       onBlur={field.onBlur}
                       ref={field.ref}
+                      inputClassName={errors.yearsWithCompany ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500" : ""}
                     />
-                    {errors.yearsWithCompany?.message && (
-                      <p className="-mt-3 text-xs text-red-600">
-                        {errors.yearsWithCompany.message}
-                      </p>
-                    )}
+                    {errors.yearsWithCompany?.message && <p className="-mt-3 text-xs text-red-600">{errors.yearsWithCompany.message}</p>}
                   </>
                 )}
               />
@@ -476,55 +376,22 @@ const AddNewShipper: React.FC = () => {
                 control={control}
                 name="serviceCategory"
                 render={({ field }) => (
-                  <CommonDropdown
-                    label="Service Category"
-                    options={serviceCategoryOptions}
-                    value={field.value}
-                    onChange={field.onChange}
-                  />
+                  <>
+                    <CommonDropdown
+                      label="Service Category"
+                      options={serviceCategoryOptions}
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
+                    {errors.serviceCategory?.message && <p className="-mt-3 text-xs text-red-600">{errors.serviceCategory.message}</p>}
+                  </>
                 )}
               />
-              {errors.serviceCategory?.message && (
-                <p className="-mt-3 text-xs text-red-600">
-                  {errors.serviceCategory.message}
-                </p>
-              )}
             </div>
           </AccordionSection>
 
-          {/* Address Information */}
           <AccordionSection title="Address Information">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
-              <CommonInput
-                label="Place Number"
-                required
-                inputClassName={
-                  errors.address?.placeNumber
-                    ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
-                    : ""
-                }
-                {...register("address.placeNumber", { required: true })}
-              />
-              {errors.address?.placeNumber?.message && (
-                <p className="-mt-3 text-xs text-red-600">
-                  {errors.address.placeNumber.message}
-                </p>
-              )}
-              <CommonInput
-                label="Street Address"
-                required
-                inputClassName={
-                  errors.address?.streetAddress
-                    ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
-                    : ""
-                }
-                {...register("address.streetAddress", { required: true })}
-              />
-              {errors.address?.streetAddress?.message && (
-                <p className="-mt-3 text-xs text-red-600">
-                  {errors.address.streetAddress.message}
-                </p>
-              )}
               <Controller
                 control={control}
                 name="address.placeNumber"
@@ -533,21 +400,13 @@ const AddNewShipper: React.FC = () => {
                     <CommonInput
                       label="Place Number"
                       required
-                      inputClassName={
-                        errors.address?.placeNumber
-                          ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
-                          : ""
-                      }
                       value={field.value}
                       onChange={field.onChange}
                       onBlur={field.onBlur}
                       ref={field.ref}
+                      inputClassName={errors.address?.placeNumber ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500" : ""}
                     />
-                    {errors.address?.placeNumber?.message && (
-                      <p className="-mt-3 text-xs text-red-600">
-                        {errors.address.placeNumber.message}
-                      </p>
-                    )}
+                    {errors.address?.placeNumber?.message && <p className="-mt-3 text-xs text-red-600">{errors.address.placeNumber.message}</p>}
                   </>
                 )}
               />
@@ -560,133 +419,93 @@ const AddNewShipper: React.FC = () => {
                     <CommonInput
                       label="Street Address"
                       required
-                      inputClassName={
-                        errors.address?.streetAddress
-                          ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
-                          : ""
-                      }
                       value={field.value}
                       onChange={field.onChange}
                       onBlur={field.onBlur}
                       ref={field.ref}
+                      inputClassName={errors.address?.streetAddress ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500" : ""}
                     />
-                    {errors.address?.streetAddress?.message && (
-                      <p className="-mt-3 text-xs text-red-600">
-                        {errors.address.streetAddress.message}
-                      </p>
-                    )}
+                    {errors.address?.streetAddress?.message && <p className="-mt-3 text-xs text-red-600">{errors.address.streetAddress.message}</p>}
                   </>
                 )}
               />
 
-              <div className="grid grid-cols-3 md:col-span-2 gap-5">
-                <CommonInput
-                  label="Landmark"
-                  required
-                  inputClassName={
-                    errors.address?.landmark
-                      ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
-                      : ""
-                  }
-                  {...register("address.landmark", { required: true })}
-                />
-                {errors.address?.landmark?.message && (
-                  <p className="-mt-3 text-xs text-red-600">
-                    {errors.address.landmark.message}
-                  </p>
+              <Controller
+                control={control}
+                name="address.landmark"
+                render={({ field }) => (
+                  <>
+                    <CommonInput
+                      label="Landmark"
+                      required
+                      value={field.value}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                      ref={field.ref}
+                      inputClassName={errors.address?.landmark ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500" : ""}
+                    />
+                    {errors.address?.landmark?.message && <p className="-mt-3 text-xs text-red-600">{errors.address.landmark.message}</p>}
+                  </>
                 )}
-                <Controller
-                  control={control}
-                  name="address.landmark"
-                  render={({ field }) => (
-                    <>
-                      <CommonInput
-                        label="Landmark"
-                        required
-                        inputClassName={
-                          errors.address?.landmark
-                            ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
-                            : ""
-                        }
-                        value={field.value}
-                        onChange={field.onChange}
-                        onBlur={field.onBlur}
-                        ref={field.ref}
-                      />
-                      {errors.address?.landmark?.message && (
-                        <p className="-mt-3 text-xs text-red-600">
-                          {errors.address.landmark.message}
-                        </p>
-                      )}
-                    </>
-                  )}
-                />
-
-                <CommonInput
-                  label="City"
-                  required
-                  inputClassName={
-                    errors.address?.city
-                      ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
-                      : ""
-                  }
-                  {...register("address.city")}
-                />
-                {errors.address?.city?.message && (
-                  <p className="-mt-3 text-xs text-red-600">
-                    {errors.address.city.message}
-                  </p>
-                )}
-
-                <CommonInput
-                  label="Postal Code"
-                  required
-                  inputClassName={
-                    errors.address?.postalCode
-                      ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
-                      : ""
-                  }
-                  {...register("address.postalCode")}
-                />
-                {errors.address?.postalCode?.message && (
-                  <p className="-mt-3 text-xs text-red-600">
-                    {errors.address.postalCode.message}
-                  </p>
-                )}
-              </div>
-
-              {/* State Dropdown */}
-              <CommonInput
-                label="State"
-                required
-                inputClassName={
-                  errors.address?.state
-                    ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
-                    : ""
-                }
-                {...register("address.state")}
               />
-              {errors.address?.state?.message && (
-                <p className="-mt-3 text-xs text-red-600">
-                  {errors.address.state.message}
-                </p>
-              )}
 
-              <CommonInput
-                label="GPS Coordinates"
-                required
-                inputClassName={
-                  errors.address?.gpsCoordinates
-                    ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
-                    : ""
-                }
-                {...register("address.gpsCoordinates", { required: true })}
+              <Controller
+                control={control}
+                name="address.city"
+                render={({ field }) => (
+                  <>
+                    <CommonInput
+                      label="City"
+                      required
+                      value={field.value}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                      ref={field.ref}
+                      inputClassName={errors.address?.city ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500" : ""}
+                    />
+                    {errors.address?.city?.message && <p className="-mt-3 text-xs text-red-600">{errors.address.city.message}</p>}
+                  </>
+                )}
               />
-              {errors.address?.gpsCoordinates?.message && (
-                <p className="-mt-3 text-xs text-red-600">
-                  {errors.address.gpsCoordinates.message}
-                </p>
-              )}
+
+              <Controller
+                control={control}
+                name="address.postalCode"
+                render={({ field }) => (
+                  <>
+                    <CommonInput
+                      label="Postal Code"
+                      required
+                      value={field.value}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                      ref={field.ref}
+                      inputClassName={errors.address?.postalCode ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500" : ""}
+                    />
+                    {errors.address?.postalCode?.message && <p className="-mt-3 text-xs text-red-600">{errors.address.postalCode.message}</p>}
+                  </>
+                )}
+              />
+
+              <Controller
+                control={control}
+                name="address.state"
+                render={({ field }) => (
+                  <>
+                    <CommonInput
+                      label="State"
+                      required
+                      value={field.value}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                      ref={field.ref}
+                      inputClassName={errors.address?.state ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500" : ""}
+                    />
+                    {errors.address?.state?.message && <p className="-mt-3 text-xs text-red-600">{errors.address.state.message}</p>}
+                  </>
+                )}
+              />
+
               <Controller
                 control={control}
                 name="address.gpsCoordinates"
@@ -695,46 +514,26 @@ const AddNewShipper: React.FC = () => {
                     <CommonInput
                       label="GPS Coordinates"
                       required
-                      inputClassName={
-                        errors.address?.gpsCoordinates
-                          ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
-                          : ""
-                      }
                       value={field.value}
                       onChange={field.onChange}
                       onBlur={field.onBlur}
                       ref={field.ref}
+                      inputClassName={errors.address?.gpsCoordinates ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500" : ""}
                     />
-                    {errors.address?.gpsCoordinates?.message && (
-                      <p className="-mt-3 text-xs text-red-600">
-                        {errors.address.gpsCoordinates.message}
-                      </p>
-                    )}
+                    {errors.address?.gpsCoordinates?.message && <p className="-mt-3 text-xs text-red-600">{errors.address.gpsCoordinates.message}</p>}
                   </>
                 )}
               />
 
-              {/* Map Preview */}
               <div className="md:col-span-2 mt-2">
                 <div className="relative w-full h-45 bg-gray-100 rounded-xl overflow-hidden border border-gray-200">
                   <div className="absolute top-4 left-4">
-                    <span className="text-base font-semibold text-gray-800">
-                      Map Preview
-                    </span>
+                    <span className="text-base font-semibold text-gray-800">Map Preview</span>
                   </div>
                   <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
                     <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center shadow-lg border-2 border-white">
                       <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white">
-                        <svg
-                          width="18"
-                          height="18"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                           <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                           <polyline points="9 22 9 12 15 12 15 22"></polyline>
                         </svg>
@@ -746,29 +545,18 @@ const AddNewShipper: React.FC = () => {
             </div>
           </AccordionSection>
 
-          {/* Upload Documents */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 mb-4">
-            <h2 className="font-semibold text-gray-800 mb-5 text-base">
-              Upload Documents
-            </h2>
+            <h2 className="font-semibold text-gray-800 mb-5 text-base">Upload Documents</h2>
             <div className="flex flex-col md:flex-row gap-6">
               <div className="flex-1 max-w-sm">
                 <div className="border border-gray-200 rounded-xl p-5 shadow-sm">
-                  <h3 className="font-semibold text-gray-800 text-sm mb-1">
-                    Upload Documents & Files
-                  </h3>
-                  <p className="text-xs text-gray-500 mb-4 line-clamp-1 text-ellipsis">
-                    Add your documents here, and you can u...
-                  </p>
+                  <h3 className="font-semibold text-gray-800 text-sm mb-1">Upload Documents & Files</h3>
+                  <p className="text-xs text-gray-500 mb-4 line-clamp-1 text-ellipsis">Add your documents here, and you can u...</p>
 
                   <div className="border border-dashed border-blue-400 rounded-lg p-6 flex flex-col items-center justify-center bg-blue-50/30 mb-3 cursor-pointer hover:bg-blue-50 transition-colors">
                     <div className="w-12 h-10 bg-blue-600 rounded flex items-center justify-center mb-3 relative">
                       <Upload className="text-white w-4 h-4" />
-                      {/* Fold corner effect */}
-                      <div
-                        className="absolute top-0 right-0 w-3 h-3 bg-blue-400 border-l border-b border-blue-500"
-                        style={{ borderBottomLeftRadius: "2px" }}
-                      ></div>
+                      <div className="absolute top-0 right-0 w-3 h-3 bg-blue-400 border-l border-b border-blue-500" style={{ borderBottomLeftRadius: "2px" }} />
                     </div>
                     <Button
                       variant="outline"
@@ -778,9 +566,7 @@ const AddNewShipper: React.FC = () => {
                     </Button>
                   </div>
 
-                  <p className="text-[11px] text-gray-400 text-center">
-                    Only support .jpg, .png and .svg and zip fi...
-                  </p>
+                  <p className="text-[11px] text-gray-400 text-center">Only support .jpg, .png and .svg and zip fi...</p>
                 </div>
               </div>
 
@@ -788,14 +574,10 @@ const AddNewShipper: React.FC = () => {
                 <div className="border border-gray-200 rounded-xl p-3 flex items-center gap-4 w-full max-w-xs justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-red-100 rounded flex items-center justify-center text-red-600 font-bold text-xs relative overflow-hidden">
-                      <div className="bg-red-500 text-white w-full h-full flex items-center justify-center">
-                        PDF
-                      </div>
+                      <div className="bg-red-500 text-white w-full h-full flex items-center justify-center">PDF</div>
                     </div>
                     <div className="flex flex-col">
-                      <span className="text-sm font-semibold text-gray-800 line-clamp-1">
-                        MeterialDocument.pdf
-                      </span>
+                      <span className="text-sm font-semibold text-gray-800 line-clamp-1">MeterialDocument.pdf</span>
                       <span className="text-xs text-gray-500">5.3MB</span>
                     </div>
                   </div>
@@ -807,44 +589,21 @@ const AddNewShipper: React.FC = () => {
             </div>
           </div>
 
-          {/* Internal Notes */}
           <AccordionSection title="Internal Notes">
             <div className="w-full">
-              <textarea
-                className={`w-full min-h-20 p-4 bg-gray-50/50 rounded-xl text-sm text-gray-700 resize-none outline-none transition-all placeholder:text-gray-400 border ${
-                  errors.internalNotes
-                    ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
-                    : "border-gray-200 focus:border-blue-400 focus:ring-1 focus:ring-blue-400"
-                }`}
-                placeholder="Add your notes here..."
-                {...register("internalNotes", { required: true })}
-              />
-              {errors.internalNotes?.message && (
-                <p className="mt-2 text-xs text-red-600">
-                  {errors.internalNotes.message}
-                </p>
-              )}
               <Controller
                 control={control}
                 name="internalNotes"
                 render={({ field }) => (
                   <>
                     <textarea
-                      className={`w-full min-h-20 p-4 bg-gray-50/50 rounded-xl text-sm text-gray-700 resize-none outline-none transition-all placeholder:text-gray-400 border ${
-                        errors.internalNotes
-                          ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
-                          : "border-gray-200 focus:border-blue-400 focus:ring-1 focus:ring-blue-400"
-                      }`}
+                      className={`w-full min-h-20 p-4 bg-gray-50/50 rounded-xl text-sm text-gray-700 resize-none outline-none transition-all placeholder:text-gray-400 border ${errors.internalNotes ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500" : "border-gray-200 focus:border-blue-400 focus:ring-1 focus:ring-blue-400"}`}
                       placeholder="Add your notes here..."
-                      value={field.value}
-                      onChange={(e) => field.onChange(e.target.value)}
+                      value={field.value ?? ""}
+                      onChange={field.onChange}
                       onBlur={field.onBlur}
                     />
-                    {errors.internalNotes?.message && (
-                      <p className="mt-2 text-xs text-red-600">
-                        {errors.internalNotes.message}
-                      </p>
-                    )}
+                    {errors.internalNotes?.message && <p className="mt-2 text-xs text-red-600">{errors.internalNotes.message}</p>}
                   </>
                 )}
               />

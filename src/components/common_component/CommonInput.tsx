@@ -1,9 +1,12 @@
 import React, { forwardRef } from "react";
 
-interface CommonInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+interface CommonInputProps extends Omit<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  "onChange"
+> {
   label: string;
   inputClassName?: string;
-  onValueChange?: (value: string) => void;
+  onChange?: (value: string) => void;
 }
 
 const CommonInput = forwardRef<HTMLInputElement, CommonInputProps>(
@@ -13,16 +16,15 @@ const CommonInput = forwardRef<HTMLInputElement, CommonInputProps>(
       className = "",
       inputClassName = "",
       required = false,
-      onValueChange,
+      onChange,
       ...props
     },
     ref,
   ) => {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       // call native onChange if present
-      props.onChange?.(e);
       // call value-based handler
-      onValueChange?.(e.target.value);
+      onChange?.(e.target.value);
     };
 
     return (
