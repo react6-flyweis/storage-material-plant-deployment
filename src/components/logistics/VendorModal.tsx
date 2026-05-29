@@ -75,7 +75,7 @@ const VendorModal: React.FC<VendorModalProps> = ({
       onClose={onClose}
       title={mode === "add" ? `Add ${entityType}` : `Edit ${entityType}`}
       width="max-w-2xl"
-      height="h-[60vh]"
+      height="max-h-[90vh]"
     >
       <div className="p-2 space-y-5">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
