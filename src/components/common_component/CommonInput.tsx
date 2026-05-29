@@ -1,12 +1,9 @@
 import React, { forwardRef } from "react";
 
-interface CommonInputProps extends Omit<
-  React.InputHTMLAttributes<HTMLInputElement>,
-  "onChange"
-> {
+interface CommonInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;
   inputClassName?: string;
-  onChange?: (value: string) => void;
+  onValueChange?: (value: string) => void;
 }
 
 const CommonInput = forwardRef<HTMLInputElement, CommonInputProps>(
@@ -16,17 +13,16 @@ const CommonInput = forwardRef<HTMLInputElement, CommonInputProps>(
       className = "",
       inputClassName = "",
       required = false,
-      onChange,
+      onValueChange,
       ...props
     },
     ref,
   ) => {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      onChange?.(e.target.value);
-      // If a native onChange was provided in props (unlikely since we omitted it), call it too
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      props?.onChange?.(e);
+      // call native onChange if present
+      props.onChange?.(e);
+      // call value-based handler
+      onValueChange?.(e.target.value);
     };
 
     return (
