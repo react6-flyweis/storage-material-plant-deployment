@@ -1,260 +1,376 @@
-import type { RouteObject } from "react-router-dom";
 import { lazy } from "react";
+import { type RouteObject } from "react-router-dom";
+
 import { NotFound } from "@/pages/not-found";
 import { MainLayout } from "@/components/main-layout";
-import EquipmentView from "./components/EquipmentView";
-import MaterialInventoryView from "./components/material_inventory_management/MaterialInventoryView";
-import ProductionManagementView from "./components/ProductionManagementView";
-import CommunicationView from "./components/communication/CommunicationView";
-import MaintenanceAndSchedulingView from "./components/maintenance_and_scheduling/MaintenanceAndSchedulingView";
-import UpcomingScheduleView from "./components/maintenance_and_scheduling/UpcomingScheduleView";
-import BreakdownCasesView from "./components/maintenance_and_scheduling/BreakdownCasesView";
-import ServiceProvidersView from "./components/maintenance_and_scheduling/ServiceProvidersView";
-import EquipmentAllocationView from "./components/equipment_allocation/EquipmentAllocationView";
-import TransferRequestsView from "./components/equipment_allocation/TransferRequestsView";
-import SettingsView from "./components/settings/SettingsView";
-import UsageTrackingView from "./components/equipment_allocation/UsageTrackingView";
-import NotificationsView from "./components/notifications/NotificationsView";
-import ProfileView from "./components/profile/ProfileView";
-import CustomerInfoView from "./components/CustomerInfoView";
-import AllProjectsView from "./components/projects/AllProjectsView";
-import ProjectDetailsView from "./components/projects/ProjectDetailsView";
-import BOMView from "./components/projects/BOMView";
-import GenerateShipperOrder from "./components/projects/GenerateShipperOrder";
-import ProjectDrawingsView from "./components/projects/ProjectDrawingsView";
-import MaterialDeliveryView from "./components/projects/MaterialDeliveryView";
-import EditDeliveryView from "./components/projects/EditDeliveryView";
-import ShipperFilesView from "./components/projects/ShipperFilesView";
-import ShipperFileDetailsView from "./components/projects/ShipperFileDetailsView";
-import MaterialRequestView from "./components/projects/MaterialRequestView";
-import UploadedBOMFilesView from "./components/projects/UploadedBOMFilesView";
-import ShipperQuotationView from "./components/projects/ShipperQuotationView";
-import OrderVerificationView from "./components/projects/OrderVerificationView";
-import StartLoadPlanningView from "./components/projects/StartLoadPlanningView";
-import ComparisonResultView from "./components/projects/ComparisonResultView";
-import LoadPlanningList from "./components/projects/LoadPlanningList";
-import PackingListView from "./components/projects/PackingListView";
-import LoadPlanDetailsView from "./components/projects/LoadPlanDetailsView";
-import PackingListDetailsView from "./components/projects/PackingListDetailsView";
-import QRLabelsView from "./components/projects/QRLabelsView";
-import FreightLoadsView from "./components/delivery/FreightLoadsView";
-import AwardedLoadsView from "./components/delivery/AwardedLoadsView";
-import FreightRequestDetailsView from "./components/delivery/FreightRequestDetailsView";
-import DeliveryDetailsView from "./components/delivery/DeliveryDetailsView";
-import FreightLoadDetailsView from "./components/delivery/FreightLoadDetailsView";
-import DeliveryCalendarView from "./components/delivery/DeliveryCalendarView";
-import AllDeliveriesView from "./components/delivery/AllDeliveriesView";
-import DeliveryNotificationsView from "./components/delivery/DeliveryNotificationsView";
-import CostingView from "./components/costing/CostingView";
+import {
+  RedirectIfAuthenticated,
+  RequireAuth,
+  RootRedirect,
+} from "@/components/route-auth";
+
+const Login = lazy(() => import("@/pages/Login"));
+const ForgotPassword = lazy(() => import("@/pages/ForgotPassword"));
+
 const Dashboard = lazy(() => import("@/pages/plantDashboard/PlantDashboard"));
-
-import LogisticsView from "./components/logistics/LogisticsView";
-import VendorDetailsView from "./components/logistics/VendorDetailsView";
-import FreightCarriersView from "./components/logistics/FreightCarriersView";
-import CarrierDetailsView from "./components/logistics/CarrierDetailsView";
-import BOMFilesDetailsView from "./components/costing/BOMFilesDetailsView";
-import MissingItemCostListView from "./components/costing/MissingItemCostListView";
-
+const EquipmentView = lazy(() => import("./components/EquipmentView"));
+const MaterialInventoryView = lazy(
+  () =>
+    import("./components/material_inventory_management/MaterialInventoryView"),
+);
+const ProductionManagementView = lazy(
+  () => import("./components/ProductionManagementView"),
+);
+const CommunicationView = lazy(
+  () => import("./components/communication/CommunicationView"),
+);
+const MaintenanceAndSchedulingView = lazy(
+  () =>
+    import("./components/maintenance_and_scheduling/MaintenanceAndSchedulingView"),
+);
+const UpcomingScheduleView = lazy(
+  () => import("./components/maintenance_and_scheduling/UpcomingScheduleView"),
+);
+const BreakdownCasesView = lazy(
+  () => import("./components/maintenance_and_scheduling/BreakdownCasesView"),
+);
+const ServiceProvidersView = lazy(
+  () => import("./components/maintenance_and_scheduling/ServiceProvidersView"),
+);
+const EquipmentAllocationView = lazy(
+  () => import("./components/equipment_allocation/EquipmentAllocationView"),
+);
+const TransferRequestsView = lazy(
+  () => import("./components/equipment_allocation/TransferRequestsView"),
+);
+const SettingsView = lazy(() => import("./components/settings/SettingsView"));
+const UsageTrackingView = lazy(
+  () => import("./components/equipment_allocation/UsageTrackingView"),
+);
+const NotificationsView = lazy(
+  () => import("./components/notifications/NotificationsView"),
+);
+const ProfileView = lazy(() => import("./components/profile/ProfileView"));
+const CustomerInfoView = lazy(() => import("./components/CustomerInfoView"));
+const AllProjectsView = lazy(
+  () => import("./components/projects/AllProjectsView"),
+);
+const ProjectDetailsView = lazy(
+  () => import("./components/projects/ProjectDetailsView"),
+);
+const BOMView = lazy(() => import("./components/projects/BOMView"));
+const GenerateShipperOrder = lazy(
+  () => import("./components/projects/GenerateShipperOrder"),
+);
+const ProjectDrawingsView = lazy(
+  () => import("./components/projects/ProjectDrawingsView"),
+);
+const MaterialDeliveryView = lazy(
+  () => import("./components/projects/MaterialDeliveryView"),
+);
+const EditDeliveryView = lazy(
+  () => import("./components/projects/EditDeliveryView"),
+);
+const ShipperFilesView = lazy(
+  () => import("./components/projects/ShipperFilesView"),
+);
+const ShipperFileDetailsView = lazy(
+  () => import("./components/projects/ShipperFileDetailsView"),
+);
+const MaterialRequestView = lazy(
+  () => import("./components/projects/MaterialRequestView"),
+);
+const UploadedBOMFilesView = lazy(
+  () => import("./components/projects/UploadedBOMFilesView"),
+);
+const ShipperQuotationView = lazy(
+  () => import("./components/projects/ShipperQuotationView"),
+);
+const OrderVerificationView = lazy(
+  () => import("./components/projects/OrderVerificationView"),
+);
+const StartLoadPlanningView = lazy(
+  () => import("./components/projects/StartLoadPlanningView"),
+);
+const ComparisonResultView = lazy(
+  () => import("./components/projects/ComparisonResultView"),
+);
+const LoadPlanningList = lazy(
+  () => import("./components/projects/LoadPlanningList"),
+);
+const PackingListView = lazy(
+  () => import("./components/projects/PackingListView"),
+);
+const LoadPlanDetailsView = lazy(
+  () => import("./components/projects/LoadPlanDetailsView"),
+);
+const PackingListDetailsView = lazy(
+  () => import("./components/projects/PackingListDetailsView"),
+);
+const QRLabelsView = lazy(() => import("./components/projects/QRLabelsView"));
+const FreightLoadsView = lazy(
+  () => import("./components/delivery/FreightLoadsView"),
+);
+const AwardedLoadsView = lazy(
+  () => import("./components/delivery/AwardedLoadsView"),
+);
+const FreightRequestDetailsView = lazy(
+  () => import("./components/delivery/FreightRequestDetailsView"),
+);
+const DeliveryDetailsView = lazy(
+  () => import("./components/delivery/DeliveryDetailsView"),
+);
+const FreightLoadDetailsView = lazy(
+  () => import("./components/delivery/FreightLoadDetailsView"),
+);
+const DeliveryCalendarView = lazy(
+  () => import("./components/delivery/DeliveryCalendarView"),
+);
+const AllDeliveriesView = lazy(
+  () => import("./components/delivery/AllDeliveriesView"),
+);
+const DeliveryNotificationsView = lazy(
+  () => import("./components/delivery/DeliveryNotificationsView"),
+);
+const CostingView = lazy(() => import("./components/costing/CostingView"));
+const LogisticsView = lazy(
+  () => import("./components/logistics/LogisticsView"),
+);
+const AddNewShipper = lazy(
+  () => import("./components/logistics/AddNewShipper"),
+);
+const VendorDetailsView = lazy(
+  () => import("./components/logistics/VendorDetailsView"),
+);
+const FreightCarriersView = lazy(
+  () => import("./components/logistics/FreightCarriersView"),
+);
+const CarrierDetailsView = lazy(
+  () => import("./components/logistics/CarrierDetailsView"),
+);
+const BOMFilesDetailsView = lazy(
+  () => import("./components/costing/BOMFilesDetailsView"),
+);
+const MissingItemCostListView = lazy(
+  () => import("./components/costing/MissingItemCostListView"),
+);
 
 export const adminRoutes: RouteObject[] = [
   {
-    path: "/",
-    element: <MainLayout />,
+    element: <RequireAuth />,
     children: [
       {
-        path: "/dashboard",
-        element: <Dashboard />,
-      },
-      {
-        path: "/equipment_management",
-        element: <EquipmentView />,
-      },
-      {
-        path: "/material_inventory_management",
-        element: <MaterialInventoryView />,
-      },
-      {
-        path: "/production_management",
-        element: <ProductionManagementView />,
-      },
-      {
-        path: "/projects",
-        element: <ProductionManagementView />,
-      },
-      {
-        path: "/projects/customerinfo/:id",
-        element: <CustomerInfoView />,
-      },
-      {
-        path: "/projects/all-projects/:id",
-        element: <AllProjectsView />,
-      },
-      {
-        path: "/projects/project-details/:customerId/:projectId",
-        element: <ProjectDetailsView />,
-      },
-      {
-        path: "/projects/view-bom/:customerId/:projectId",
-        element: <BOMView />,
-      },
-      {
-        path: "/projects/generate-shipper-order/:customerId/:projectId",
-        element: <GenerateShipperOrder />,
-      },
-      {
-        path: "/projects/view-drawings/:customerId/:projectId",
-        element: <ProjectDrawingsView />,
-      },
-      {
-        path: "/projects/material-delivery/:customerId/:projectId",
-        element: <MaterialDeliveryView />,
-      },
-      {
-        path: "/projects/material-delivery/:customerId/:projectId/edit",
-        element: <EditDeliveryView />,
-      },
-      {
-        path: "/projects/shipper-files/:customerId/:projectId",
-        element: <ShipperFilesView />,
-      },
-      {
-        path: "/projects/shipper-file-details/:customerId/:projectId/:fileName",
-        element: <ShipperFileDetailsView />,
-      },
-      {
-        path: "/projects/material-request/:customerId/:projectId",
-        element: <MaterialRequestView />,
-      },
-      {
-        path: "/load_planning/list",
-        element: <LoadPlanningList />,
-      },
-      {
-        path: "/load_planning/packing-list",
-        element: <PackingListView />,
-      },
-      {
-        path: "/load_planning/details/:id",
-        element: <LoadPlanDetailsView />,
-      },
-      {
-        path: "/load_planning/packing-list/details/:id",
-        element: <PackingListDetailsView />,
-      },
-      {
-        path: "/load_planning/qr-labels",
-        element: <QRLabelsView />,
-      },
-      {
-        path: "/delivery/freight-loads",
-        element: <FreightLoadsView />,
-      },
-      {
-        path: "/delivery/awarded-loads",
-        element: <AwardedLoadsView />,
-      },
-      {
-        path: "/delivery/freight-request/:id",
-        element: <FreightRequestDetailsView />,
-      },
-      {
-        path: "/delivery/freight-load/:id",
-        element: <FreightLoadDetailsView />,
-      },
-      {
-        path: "/delivery/delivery-details/:id",
-        element: <DeliveryDetailsView />,
-      },
-      {
-        path: "/delivery/all-deliveries",
-        element: <AllDeliveriesView />,
-      },
-      {
-        path: "/delivery/calendar",
-        element: <DeliveryCalendarView />,
-      },
-      {
-        path: "/delivery/notifications",
-        element: <DeliveryNotificationsView />,
-      },
-      {
-        path: "/costing",
-        element: <CostingView />,
-      },
-      {
-        path: "/costing/bom-details/:id",
-        element: <BOMFilesDetailsView />,
-      },
-      {
-        path: "/costing/missing-items",
-        element: <MissingItemCostListView />,
-      },
-      {
-        path: "/logistics/shippers",
-        element: <LogisticsView />,
-      },
-      {
-        path: "/logistics/vendor/:id",
-        element: <VendorDetailsView />,
-      },
-      {
-        path: "/logistics/freight-carriers",
-        element: <FreightCarriersView />,
-      },
-      {
-        path: "/logistics/carrier/:id",
-        element: <CarrierDetailsView />,
-      },
-      {
-        path: "/load_planning/uploaded-bom-files",
-        element: <UploadedBOMFilesView />,
-      },
-      {
-        path: "/load_planning/shipper-quotation",
-        element: <ShipperQuotationView />,
-      },
-      {
-        path: "/load_planning/order-verification",
-        element: <OrderVerificationView />,
-      },
-      {
-        path: "/load_planning/comparison-result",
-        element: <ComparisonResultView />,
-      },
-      {
-        path: "/load_planning/start-load-planning",
-        element: <StartLoadPlanningView />,
-      },
-      {
-        path: "/communication",
+        element: <MainLayout />,
+        children: [
+          {
+            path: "/dashboard",
+            element: <Dashboard />,
+          },
+          {
+            path: "/equipment_management",
+            element: <EquipmentView />,
+          },
+          {
+            path: "/material_inventory_management",
+            element: <MaterialInventoryView />,
+          },
+          {
+            path: "/production_management",
+            element: <ProductionManagementView />,
+          },
+          {
+            path: "/projects",
+            element: <ProductionManagementView />,
+          },
+          {
+            path: "/projects/customerinfo/:id",
+            element: <CustomerInfoView />,
+          },
+          {
+            path: "/projects/all-projects/:id",
+            element: <AllProjectsView />,
+          },
+          {
+            path: "/projects/project-details/:customerId/:projectId",
+            element: <ProjectDetailsView />,
+          },
+          {
+            path: "/projects/view-bom/:customerId/:projectId",
+            element: <BOMView />,
+          },
+          {
+            path: "/projects/generate-shipper-order/:customerId/:projectId",
+            element: <GenerateShipperOrder />,
+          },
+          {
+            path: "/projects/view-drawings/:customerId/:projectId",
+            element: <ProjectDrawingsView />,
+          },
+          {
+            path: "/projects/material-delivery/:customerId/:projectId",
+            element: <MaterialDeliveryView />,
+          },
+          {
+            path: "/projects/material-delivery/:customerId/:projectId/edit",
+            element: <EditDeliveryView />,
+          },
+          {
+            path: "/projects/shipper-files/:customerId/:projectId",
+            element: <ShipperFilesView />,
+          },
+          {
+            path: "/projects/shipper-file-details/:customerId/:projectId/:fileName",
+            element: <ShipperFileDetailsView />,
+          },
+          {
+            path: "/projects/material-request/:customerId/:projectId",
+            element: <MaterialRequestView />,
+          },
+          {
+            path: "/load_planning/list",
+            element: <LoadPlanningList />,
+          },
+          {
+            path: "/load_planning/packing-list",
+            element: <PackingListView />,
+          },
+          {
+            path: "/load_planning/details/:id",
+            element: <LoadPlanDetailsView />,
+          },
+          {
+            path: "/load_planning/packing-list/details/:id",
+            element: <PackingListDetailsView />,
+          },
+          {
+            path: "/load_planning/qr-labels",
+            element: <QRLabelsView />,
+          },
+          {
+            path: "/delivery/freight-loads",
+            element: <FreightLoadsView />,
+          },
+          {
+            path: "/delivery/awarded-loads",
+            element: <AwardedLoadsView />,
+          },
+          {
+            path: "/delivery/freight-request/:id",
+            element: <FreightRequestDetailsView />,
+          },
+          {
+            path: "/delivery/freight-load/:id",
+            element: <FreightLoadDetailsView />,
+          },
+          {
+            path: "/delivery/delivery-details/:id",
+            element: <DeliveryDetailsView />,
+          },
+          {
+            path: "/delivery/all-deliveries",
+            element: <AllDeliveriesView />,
+          },
+          {
+            path: "/delivery/calendar",
+            element: <DeliveryCalendarView />,
+          },
+          {
+            path: "/delivery/notifications",
+            element: <DeliveryNotificationsView />,
+          },
+          {
+            path: "/costing",
+            element: <CostingView />,
+          },
+          {
+            path: "/costing/bom-details/:id",
+            element: <BOMFilesDetailsView />,
+          },
+          {
+            path: "/costing/missing-items",
+            element: <MissingItemCostListView />,
+          },
+          {
+            path: "/logistics/shippers",
+            element: <LogisticsView />,
+          },
+          {
+            path: "/logistics/shippers/add",
+            element: <AddNewShipper />,
+          },
+          {
+            path: "/logistics/vendor/:id",
+            element: <VendorDetailsView />,
+          },
+          {
+            path: "/logistics/freight-carriers",
+            element: <FreightCarriersView />,
+          },
+          {
+            path: "/logistics/carrier/:id",
+            element: <CarrierDetailsView />,
+          },
+          {
+            path: "/load_planning/uploaded-bom-files",
+            element: <UploadedBOMFilesView />,
+          },
+          {
+            path: "/load_planning/shipper-quotation",
+            element: <ShipperQuotationView />,
+          },
+          {
+            path: "/load_planning/order-verification",
+            element: <OrderVerificationView />,
+          },
+          {
+            path: "/load_planning/comparison-result",
+            element: <ComparisonResultView />,
+          },
+          {
+            path: "/load_planning/start-load-planning",
+            element: <StartLoadPlanningView />,
+          },
+          {
+            path: "/communication",
 
-
-        element: <CommunicationView />,
+            element: <CommunicationView />,
+          },
+          {
+            path: "/maintenance_logs",
+            element: <MaintenanceAndSchedulingView />,
+          },
+          { path: "/upcoming_schedule", element: <UpcomingScheduleView /> },
+          { path: "/breakdown_cases", element: <BreakdownCasesView /> },
+          { path: "/service_providers", element: <ServiceProvidersView /> },
+          {
+            path: "/equipment_allocation",
+            element: <EquipmentAllocationView />,
+          },
+          { path: "/transfer_requests", element: <TransferRequestsView /> },
+          { path: "/usage_tracking", element: <UsageTrackingView /> },
+          { path: "/notification", element: <NotificationsView /> },
+          {
+            path: "settings",
+            element: <SettingsView />,
+          },
+          {
+            path: "profile",
+            element: <ProfileView />,
+          },
+          { path: "*", element: <NotFound /> },
+        ],
       },
-      {
-        path: "/maintenance_logs",
-        element: <MaintenanceAndSchedulingView />,
-      },
-      { path: "/upcoming_schedule", element: <UpcomingScheduleView /> },
-      { path: "/breakdown_cases", element: <BreakdownCasesView /> },
-      { path: "/service_providers", element: <ServiceProvidersView /> },
-      {
-        path: "/equipment_allocation",
-        element: <EquipmentAllocationView />,
-      },
-      { path: "/transfer_requests", element: <TransferRequestsView /> },
-      { path: "/usage_tracking", element: <UsageTrackingView /> },
-      { path: "/notification", element: <NotificationsView /> },
-      {
-        path: "settings",
-        element: <SettingsView />,
-      },
-      {
-        path: "profile",
-        element: <ProfileView />,
-      },
-      { path: "*", element: <NotFound /> },
     ],
   },
+  {
+    element: <RedirectIfAuthenticated />,
+    children: [
+      { path: "/login", element: <Login /> },
+      { path: "/forgot-password", element: <ForgotPassword /> },
+    ],
+  },
+  { path: "/", element: <RootRedirect /> },
   { path: "*", element: <NotFound /> },
 ];
+
+export const routes: RouteObject[] = [...adminRoutes];
