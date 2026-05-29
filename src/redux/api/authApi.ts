@@ -47,7 +47,8 @@ export const authApi = createApi({
           // Login errors are handled by the caller.
         }
       },
-      transformResponse: (response: LoginApiResponse) => response.data,
+      transformResponse: (response: LoginApiResponse) =>
+        response.data as LoginSession,
     }),
   }),
 });

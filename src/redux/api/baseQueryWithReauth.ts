@@ -72,10 +72,12 @@ export const baseQueryWithReauth: BaseQueryFn<
     return result;
   }
 
-  const refreshData = refreshResult.data as ApiResponse<{
-    accessToken: string;
-  }>;
-  const nextAccessToken = refreshData.data.accessToken;
+  const refreshData = refreshResult.data as
+    | ApiResponse<{
+        accessToken: string;
+      }>
+    | undefined;
+  const nextAccessToken = refreshData?.data?.accessToken;
 
   if (!nextAccessToken) {
     api.dispatch(logout());

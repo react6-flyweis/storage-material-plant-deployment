@@ -71,7 +71,7 @@ export const projectApi = createApi({
     >({
       query: (params) => ({
         url: "/api/plant/projects",
-        params,
+        params: params ?? undefined,
       }),
       transformResponse: (response: PlantProjectsApiResponse) =>
         response.data ?? {
