@@ -28,7 +28,9 @@ const Pagination: React.FC<PaginationProps> = ({
   getPageNumbers: propGetPageNumbers,
 }) => {
   // Calculate total pages if not explicitly provided
-  const totalPages = propTotalPages ?? (totalItems && itemsPerPage ? Math.ceil(totalItems / itemsPerPage) : 1);
+  const totalPages =
+    propTotalPages ??
+    (totalItems && itemsPerPage ? Math.ceil(totalItems / itemsPerPage) : 1);
 
   // Helper for simple mode page numbers
   const defaultGetPageNumbers = () => {
@@ -38,13 +40,16 @@ const Pagination: React.FC<PaginationProps> = ({
     }
     pages.push(1, 2, 3);
     if (currentPage > 4) pages.push("...");
-    if (currentPage > 3 && currentPage < totalPages - 2) pages.push(currentPage);
+    if (currentPage > 3 && currentPage < totalPages - 2)
+      pages.push(currentPage);
     if (currentPage < totalPages - 3) pages.push("...");
     pages.push(totalPages - 1, totalPages);
     return [...new Set(pages)];
   };
 
-  const pageNumbers = propGetPageNumbers ? propGetPageNumbers() : defaultGetPageNumbers();
+  const pageNumbers = propGetPageNumbers
+    ? propGetPageNumbers()
+    : defaultGetPageNumbers();
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-2 md:gap-4 my-6">
@@ -73,10 +78,12 @@ const Pagination: React.FC<PaginationProps> = ({
             <span>Entries</span>
           </>
         ) : (
-          totalItems !== undefined && itemsPerPage !== undefined && (
+          totalItems !== undefined &&
+          itemsPerPage !== undefined && (
             <span>
               Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
-              {Math.min(currentPage * itemsPerPage, totalItems)} of {totalItems} results
+              {Math.min(currentPage * itemsPerPage, totalItems)} of {totalItems}{" "}
+              results
             </span>
           )
         )}
@@ -112,7 +119,7 @@ const Pagination: React.FC<PaginationProps> = ({
             >
               {pg}
             </button>
-          )
+          ),
         )}
 
         <button
