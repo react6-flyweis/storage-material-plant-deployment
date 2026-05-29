@@ -23,23 +23,191 @@ import SubHeading from "../common_component/SubHeading";
 import FilterDropdown from "../common_component/FilterDropdown";
 import verify from "@/assets/icon/verify.svg";
 import pdfIcon from "@/assets/icon/pdfIcon.svg";
+import {
+  useGetPlantVendorQuery,
+  type PlantVendorDetailResponse,
+} from "@/redux/api/logisticsApi";
 
 import personPlaceholderImage from "@/assets/images/personPlaceholderImage.svg";
+
+interface VendorViewData {
+  id: string;
+  vendorId: string;
+  name: string;
+  status: string;
+  rating: number;
+  address: string;
+  email: string;
+  phone: string;
+  shop: string;
+  website: string;
+  vendorType: string;
+  serviceCategory: string;
+  yearsWorking: string;
+  metrics: {
+    totalOrders: number;
+    completedDeliveries: number;
+    activeOrders: number;
+    avgDeliveryTime: string;
+    onTimeRate: string;
+  };
+  notes: string;
+  contactRoles: Array<{ role: string; name: string; phone: string }>;
+  purchaseHistory: Array<{
+    id: string;
+    material: string;
+    quantity: string;
+    value: string;
+    status: string;
+  }>;
+  complianceDocs: Array<{
+    name: string;
+    size: string;
+    type: string;
+    expiry: string;
+  }>;
+  materialTypes: string[];
+}
+
+interface PurchaseHistoryRow {
+  id: string;
+  material: string;
+  quantity: string;
+  value: string;
+  status: string;
+}
+
+const formatCurrency = (value: number) =>
+  new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(value);
+
+const toTitleCase = (value: string) =>
+  value
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+    .join(" ");
+
+const formatAddress = (
+  address?: PlantVendorDetailResponse["vendor"]["address"],
+) => {
+  if (!address) {
+    return "";
+  }
+
+  return [
+    address.placeNumber,
+    address.streetAddress,
+    address.landmark,
+    `${address.city}, ${address.state} ${address.postalCode}`.trim(),
+  ]
+    .filter((part) => part && part.trim())
+    .join(", ");
+};
+
+const mapVendorDetail = (
+  response?: PlantVendorDetailResponse,
+): VendorViewData => {
+  const vendor = response?.vendor;
+  const stats = response?.stats;
+  const orderHistory = response?.orderHistory ?? [];
+  const totalOrders = stats?.totalOrders ?? 0;
+  const completedDeliveries = stats?.completedDeliveries ?? 0;
+
+  return {
+    id: vendor?._id || "",
+    name: vendor?.vendorName || "",
+    vendorId: vendor?.vendorCode || "",
+    status: vendor?.status ? toTitleCase(vendor.status) : "",
+    rating:
+      totalOrders > 0
+        ? Math.min(
+            5,
+            Number(((completedDeliveries / totalOrders) * 5).toFixed(1)),
+          )
+        : 0,
+    address: formatAddress(vendor?.address),
+    email: vendor?.email || "",
+    phone: vendor?.phone || "",
+    shop: vendor?.pickupLocation || "",
+    website: "",
+    vendorType: vendor?.vendorType || "",
+    serviceCategory: vendor?.serviceCategory || "",
+    yearsWorking: vendor?.yearsWithCompany
+      ? `${vendor.yearsWithCompany} Years`
+      : "",
+    metrics: {
+      totalOrders,
+      completedDeliveries,
+      activeOrders: stats?.activeOrders ?? 0,
+      avgDeliveryTime: "—",
+      onTimeRate:
+        totalOrders > 0
+          ? `${Math.round((completedDeliveries / totalOrders) * 100)}%`
+          : "—",
+    },
+    notes: vendor?.internalNotes || "",
+    contactRoles: [
+      {
+        role: "Primary Contact",
+        name: vendor?.contactName || "",
+        phone: vendor?.phone || "",
+      },
+      {
+        role: "Pickup Location",
+        name: vendor?.pickupLocation || "",
+        phone: vendor?.phone || "",
+      },
+    ].filter((contact) => contact.name || contact.phone),
+    purchaseHistory: orderHistory.map((order) => ({
+      id: order.jobId || order._id,
+      material: order.projectName,
+      quantity: "—",
+      value: formatCurrency(order.quoteValue),
+      status: order.status,
+    })),
+    complianceDocs: (vendor?.documents ?? []).map((document) => {
+      const isPdf =
+        document.name.toLowerCase().endsWith(".pdf") ||
+        document.url.toLowerCase().includes(".pdf");
+
+      return {
+        name: document.name,
+        size: "—",
+        type: isPdf ? "PDF" : "Document",
+        expiry: "—",
+      };
+    }),
+    materialTypes: vendor?.materialTypes ?? [],
+  };
+};
 
 const VendorDetailsView: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams();
-  console.log(id)
   const [currentPage, setCurrentPage] = useState(1);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [docSort, setDocSort] = useState("Docs Type");
 
   // Sorting and Pagination State
-  const [sortField, setSortField] = useState<string>("id");
+  const [sortField, setSortField] = useState<keyof PurchaseHistoryRow>("id");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  const handleSort = (field: string) => {
+  const { data: vendorResponse } = useGetPlantVendorQuery(id ?? "", {
+    skip: !id,
+  });
+  const vendorLoading = !vendorResponse && Boolean(id);
+
+  const vendorData = useMemo(
+    () => mapVendorDetail(vendorResponse),
+    [vendorResponse],
+  );
+
+  const handleSort = (field: keyof PurchaseHistoryRow) => {
     if (sortField === field) {
       setSortOrder(sortOrder === "asc" ? "desc" : "asc");
     } else {
@@ -48,113 +216,24 @@ const VendorDetailsView: React.FC = () => {
     }
   };
 
-  // Mock data for the specific vendor
-  const vendorData = {
-    id: "CI-12345",
-    name: "Robert George",
-    status: "Active",
-    rating: 4.7,
-    address: "4712 Cherry Ridge Drive Rochester, NY 14620.",
-    email: "john@example.com",
-    phone: "+1 58578 54840",
-    shop: "True Steel Materials",
-    website: "www.example.com",
-    vendorType: "Material Shipper",
-    serviceCategory: "Construction Materials",
-    yearsWorking: "3 Years",
-    metrics: {
-      totalOrders: 142,
-      completedDeliveries: 138,
-      activeOrders: 4,
-      avgDeliveryTime: "2.4 Days",
-      onTimeRate: "95%",
-    },
-    notes:
-      "Keep in mind that in order to be deductible, your employees' pay must be reasonable and necessary for conducting business to qualify for",
-    contactRoles: [
-      { role: "Sales Rep", name: "John Doe", phone: "+1 58578 54840" },
-      { role: "Dispatch", name: "Riyaz Khan", phone: "+1 58578 54840" },
-      { role: "Accounts", name: "Sir John Peds", phone: "+1 58578 54840" },
-      { role: "Warehouse Manager", name: "John Doe", phone: "+1 58578 54840" },
-    ],
-    purchaseHistory: [
-      {
-        id: "ORD00025",
-        material: "Steel Beams",
-        quantity: "20 Tons",
-        value: "$5,000",
-        status: "Delivered",
-      },
-      {
-        id: "ORD00024",
-        material: "Cement Bags",
-        quantity: "500 Units",
-        value: "$10,750",
-        status: "In Transit",
-      },
-      {
-        id: "ORD00023",
-        material: "Iron Rods",
-        quantity: "12 Tons",
-        value: "$20,000",
-        status: "Delivered",
-      },
-      {
-        id: "ORD00022",
-        material: "Cement Bags",
-        quantity: "500 Units",
-        value: "$50,000",
-        status: "Delivered",
-      },
-      {
-        id: "ORD00019",
-        material: "Iron Rods",
-        quantity: "20 Tons",
-        value: "$1,25,000",
-        status: "Delivered",
-      },
-    ],
-    complianceDocs: [
-      {
-        name: "Insurance certificate",
-        size: "6.1 MB",
-        type: "PDF",
-        expiry: "Mar 15, 2025",
-      },
-      {
-        name: "Material certifications",
-        size: "5.2 MB",
-        type: "PDF",
-        expiry: "Jan 8, 2025",
-      },
-      {
-        name: "Contracts",
-        size: "6.1 MB",
-        type: "PDF",
-        expiry: "Mar 15, 2025",
-      },
-      {
-        name: "Pricing sheets",
-        size: "6.1 MB",
-        type: "PDF",
-        expiry: "Mar 15, 2025",
-      },
-    ],
-  };
-
   const sortedHistory = useMemo(() => {
     const data = [...vendorData.purchaseHistory];
-    return data.sort((a: any, b: any) => {
-      let valA = a[sortField];
-      let valB = b[sortField];
+    return data.sort((a: PurchaseHistoryRow, b: PurchaseHistoryRow) => {
+      let valA: string | number = a[sortField];
+      let valB: string | number = b[sortField];
 
       // Handle currency/numeric values
       if (sortField === "value") {
-        valA = parseFloat(valA.replace(/[$,]/g, ""));
-        valB = parseFloat(valB.replace(/[$,]/g, ""));
+        valA = Number.parseFloat(String(valA).replace(/[$,]/g, "")) || 0;
+        valB = Number.parseFloat(String(valB).replace(/[$,]/g, "")) || 0;
       } else if (sortField === "quantity") {
-        valA = parseFloat(valA.split(" ")[0]);
-        valB = parseFloat(valB.split(" ")[0]);
+        const quantityA = String(valA).match(/\d+(\.\d+)?/);
+        const quantityB = String(valB).match(/\d+(\.\d+)?/);
+        valA = quantityA ? Number.parseFloat(quantityA[0]) : 0;
+        valB = quantityB ? Number.parseFloat(quantityB[0]) : 0;
+      } else {
+        valA = String(valA ?? "").toLowerCase();
+        valB = String(valB ?? "").toLowerCase();
       }
 
       if (valA < valB) return sortOrder === "asc" ? -1 : 1;
@@ -173,12 +252,110 @@ const VendorDetailsView: React.FC = () => {
     if (docSort === "Name") {
       return data.sort((a, b) => a.name.localeCompare(b.name));
     } else if (docSort === "Size") {
-      return data.sort((a, b) => parseFloat(a.size) - parseFloat(b.size));
+      return data.sort((a, b) => {
+        const sizeA = Number.parseFloat(a.size) || 0;
+        const sizeB = Number.parseFloat(b.size) || 0;
+        return sizeA - sizeB;
+      });
     } else if (docSort === "Docs Type") {
       return data.sort((a, b) => a.type.localeCompare(b.type));
     }
     return data;
   }, [docSort, vendorData.complianceDocs]);
+
+  if (vendorLoading) {
+    return (
+      <PageWrapper>
+        <div className="flex items-center gap-3 mb-2">
+          <button
+            disabled
+            className="p-1.5 rounded-full transition-colors shrink-0 bg-gray-100 animate-pulse"
+            aria-label="Loading back button"
+          >
+            <ArrowLeft size={20} className="text-transparent" />
+          </button>
+          <div className="h-7 w-28 rounded-full bg-gray-200 animate-pulse" />
+        </div>
+
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 space-y-6">
+            <div className="bg-[#F7F8F9] rounded-[14px] p-3 md:p-6 shadow-sm border border-gray-100">
+              <div className="flex flex-wrap gap-6 items-start justify-between mb-8">
+                <div className="flex flex-wrap items-center sm:items-start gap-2 md:gap-4 w-full">
+                  <div className="w-20 h-20 lg:w-24 lg:h-24 rounded-full bg-gray-200 animate-pulse shrink-0" />
+                  <div className="space-y-3 text-center sm:text-left flex-1 min-w-62.5">
+                    <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-3 gap-y-1 text-sm">
+                      <div className="h-4 w-24 rounded-full bg-gray-200 animate-pulse" />
+                      <div className="h-4 w-20 rounded-full bg-gray-200 animate-pulse" />
+                    </div>
+                    <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                      <div className="h-8 w-56 rounded-full bg-gray-200 animate-pulse" />
+                      <div className="ml-4 h-5 w-20 rounded-full bg-gray-200 animate-pulse" />
+                    </div>
+                    <div className="h-4 w-full max-w-md rounded-full bg-gray-200 animate-pulse" />
+                  </div>
+                  <div className="h-10 w-32 rounded-xl bg-gray-200 animate-pulse" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 bg-white p-4 rounded-xl border border-gray-100">
+                {Array.from({ length: 4 }).map((_, index) => (
+                  <div key={index} className="flex items-start gap-3">
+                    <div className="h-9 w-9 rounded-full bg-gray-200 animate-pulse shrink-0" />
+                    <div className="space-y-2 min-w-0 flex-1">
+                      <div className="h-4 w-28 rounded-full bg-gray-200 animate-pulse" />
+                      <div className="h-3 w-full rounded-full bg-gray-200 animate-pulse" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mt-8 pt-8 border-t border-gray-100">
+                {Array.from({ length: 3 }).map((_, index) => (
+                  <div key={index} className="space-y-2">
+                    <div className="h-4 w-40 rounded-full bg-gray-200 animate-pulse" />
+                    <div className="h-3 w-32 rounded-full bg-gray-200 animate-pulse" />
+                  </div>
+                ))}
+              </div>
+
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-y-6 gap-x-4 p-4 md:p-6 mt-8 bg-[#F8F9FA] rounded-[14px]">
+                {Array.from({ length: 5 }).map((_, index) => (
+                  <div key={index} className="space-y-2">
+                    <div className="h-3 w-24 rounded-full bg-gray-200 animate-pulse" />
+                    <div className="h-3 w-12 rounded-full bg-gray-200 animate-pulse" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            {Array.from({ length: 2 }).map((_, index) => (
+              <div
+                key={index}
+                className="bg-white rounded-[14px] p-3 md:p-5 shadow-sm"
+              >
+                <div className="h-6 w-28 rounded-full bg-gray-200 animate-pulse" />
+                <div className="w-full h-px bg-gray-100 my-6" />
+                <div className="space-y-4">
+                  {Array.from({ length: index === 0 ? 1 : 3 }).map(
+                    (__, itemIndex) => (
+                      <div key={itemIndex} className="space-y-2">
+                        <div className="h-4 w-32 rounded-full bg-gray-200 animate-pulse" />
+                        <div className="h-3 w-40 rounded-full bg-gray-200 animate-pulse" />
+                        <div className="h-3 w-24 rounded-full bg-gray-200 animate-pulse" />
+                      </div>
+                    ),
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </PageWrapper>
+    );
+  }
 
   return (
     <PageWrapper>
@@ -209,10 +386,10 @@ const VendorDetailsView: React.FC = () => {
                     className="w-full h-full object-cover object-center"
                   />
                 </div>
-                <div className="space-y-1.5 text-center sm:text-left flex-1 min-w-[250px]">
+                <div className="space-y-1.5 text-center sm:text-left flex-1 min-w-62.5">
                   <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-3 gap-y-1 text-sm">
                     <span className="text-[#7539FF] font-normal">
-                      {vendorData.id}
+                      {vendorData.vendorId}
                     </span>
                     <div className="flex items-center gap-2 text-[#051321]">
                       ⭐
@@ -397,9 +574,14 @@ const VendorDetailsView: React.FC = () => {
                         <CommonStatusBadge
                           text={order.status}
                           variant={
-                            order.status === "Delivered" ? "green" : "blue"
+                            order.status.toLowerCase() === "approved"
+                              ? "green"
+                              : order.status === "Delivered"
+                                ? "green"
+                                : "blue"
                           }
                           icon={
+                            order.status.toLowerCase() === "approved" ||
                             order.status === "Delivered" ? (
                               <CircleCheck size={14} />
                             ) : (
@@ -544,7 +726,7 @@ const VendorDetailsView: React.FC = () => {
         mode="edit"
         initialData={{
           ...vendorData,
-          materialTypes: ["Steel & Metal"],
+          materialTypes: vendorData.materialTypes,
         }}
         onSave={(data) => {
           console.log("Saving vendor data:", data);
