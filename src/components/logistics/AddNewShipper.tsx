@@ -1,22 +1,19 @@
 import React, { useState } from "react";
-import {
-  ArrowLeft,
-  Info,
-  ChevronDown,
-  ChevronUp,
-  Upload,
-  X,
-  Eye,
-} from "lucide-react";
+import { ArrowLeft, Eye } from "lucide-react";
+import AccordionSection from "../common_component/AccordionSection";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useNavigate } from "react-router-dom";
 import PageWrapper from "../common_component/PageWrapper";
 import Button from "../common_component/Button";
+import SuccessModal from "../common_component/SuccessModal";
 import CommonInput from "../common_component/CommonInput";
 import CommonDropdown from "../common_component/CommonDropdown";
+import CommonCheckbox from "../common_component/CommonCheckbox";
 import PhoneNumberInput from "../ui/phone-input";
+import DocumentUploadCard from "./DocumentUploadCard";
+import MapPreview from "../common_component/MapPreview";
 import { getApiErrorMessage } from "@/redux/utils/apiError";
 import {
   useCreatePlantVendorMutation,
@@ -84,12 +81,15 @@ const vendorSchema = z.object({
       .transform((value) => parseGpsCoordinates(value)!),
   }),
   vendorType: z.string().trim().min(1, "Vendor type is required."),
-  materialTypes: z.array(z.string().trim().min(1)).min(1),
+  materialTypes: z
+    .array(z.string().trim().min(1))
+    .min(1, "Material types is required."),
   documents: z
     .array(
       z.object({
         name: z.string().trim(),
         url: z.string().trim(),
+        size: z.number().optional(),
       }),
     )
     .default([]),
@@ -107,45 +107,6 @@ const getMessage = (error: unknown) => {
   return typeof error.message === "string" ? error.message : undefined;
 };
 
-const AccordionSection = ({
-  title,
-  children,
-  defaultOpen = true,
-}: {
-  title: string;
-  children: React.ReactNode;
-  defaultOpen?: boolean;
-}) => {
-  const [isOpen, setIsOpen] = useState(defaultOpen);
-
-  return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-4">
-      <button
-        className="w-full flex items-center justify-between p-4 md:p-5 bg-white hover:bg-gray-50/50 transition-colors"
-        onClick={() => setIsOpen(!isOpen)}
-        type="button"
-      >
-        <div className="flex items-center gap-3">
-          <Info className="text-emerald-500 w-5 h-5" />
-          <span className="font-semibold text-gray-800 text-sm md:text-base">
-            {title}
-          </span>
-        </div>
-        {isOpen ? (
-          <ChevronUp className="w-5 h-5 text-gray-500" />
-        ) : (
-          <ChevronDown className="w-5 h-5 text-gray-500" />
-        )}
-      </button>
-      {isOpen && (
-        <div className="p-4 md:p-5 border-t border-gray-100 bg-white">
-          {children}
-        </div>
-      )}
-    </div>
-  );
-};
-
 const serviceCategoryOptions = [
   { label: "Construction Material", value: "construction-material" },
   { label: "Heavy Equipment", value: "heavy-equipment" },
@@ -153,14 +114,34 @@ const serviceCategoryOptions = [
   { label: "Finished Goods", value: "finished-goods" },
 ];
 
+const materialTypeOptions = [
+  { label: "All Materials", value: "All Materials" },
+  { label: "Steel & Metal", value: "Steel & Metal" },
+  { label: "Concrete", value: "Concrete" },
+];
+
+const vendorTypeOptions = [
+  { label: "Material Shipper", value: "material-shipper" },
+  { label: "Steel Shipper", value: "steel-shipper" },
+  { label: "Concrete Shipper", value: "concrete-shipper" },
+  { label: "Equipment Shipper", value: "equipment-shipper" },
+];
+
 const AddNewShipper: React.FC = () => {
   const navigate = useNavigate();
   const [createPlantVendor, { isLoading }] = useCreatePlantVendorMutation();
+
+  const [isSuccessOpen, setIsSuccessOpen] = useState(false);
+  const [createdVendorName, setCreatedVendorName] = useState<string | null>(
+    null,
+  );
 
   const {
     control,
     handleSubmit,
     setError,
+    watch,
+    setValue,
     formState: { errors },
   } = useForm<VendorFormInput, unknown, VendorFormValues>({
     resolver: zodResolver(vendorSchema),
@@ -187,6 +168,8 @@ const AddNewShipper: React.FC = () => {
       internalNotes: "",
     },
   });
+
+  const documents = (watch("documents") ?? []) as VendorFormValues["documents"];
 
   const validationMessages = [
     getMessage(errors.vendorName),
@@ -233,10 +216,15 @@ const AddNewShipper: React.FC = () => {
       };
 
       await createPlantVendor(payload).unwrap();
-      navigate("/logistics/shippers");
+      setCreatedVendorName(values.vendorName);
+      setIsSuccessOpen(true);
     } catch (unknownError) {
       setError("root", { message: getApiErrorMessage(unknownError) });
     }
+  };
+
+  const onDocumentsChange = (docs: VendorFormValues["documents"]) => {
+    setValue("documents", docs, { shouldDirty: true });
   };
 
   return (
@@ -276,12 +264,12 @@ const AddNewShipper: React.FC = () => {
 
         <div className="flex flex-col">
           <AccordionSection title="Carriers Information">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <Controller
                 control={control}
                 name="vendorName"
                 render={({ field }) => (
-                  <>
+                  <div>
                     <CommonInput
                       label="Carriers Name"
                       required
@@ -289,10 +277,45 @@ const AddNewShipper: React.FC = () => {
                       onChange={field.onChange}
                       onBlur={field.onBlur}
                       ref={field.ref}
-                      inputClassName={errors.vendorName ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500" : ""}
+                      inputClassName={
+                        errors.vendorName
+                          ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                          : ""
+                      }
                     />
-                    {errors.vendorName?.message && <p className="-mt-3 text-xs text-red-600">{errors.vendorName.message}</p>}
-                  </>
+                    {errors.vendorName?.message && (
+                      <p className="mt-1 text-xs text-red-600">
+                        {errors.vendorName.message}
+                      </p>
+                    )}
+                  </div>
+                )}
+              />
+
+              <Controller
+                control={control}
+                name="contactName"
+                render={({ field }) => (
+                  <div>
+                    <CommonInput
+                      label="Contact Name"
+                      required
+                      value={field.value}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                      ref={field.ref}
+                      inputClassName={
+                        errors.contactName
+                          ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                          : ""
+                      }
+                    />
+                    {errors.contactName?.message && (
+                      <p className="mt-1 text-xs text-red-600">
+                        {errors.contactName.message}
+                      </p>
+                    )}
+                  </div>
                 )}
               />
 
@@ -300,7 +323,7 @@ const AddNewShipper: React.FC = () => {
                 control={control}
                 name="vendorCode"
                 render={({ field }) => (
-                  <>
+                  <div>
                     <CommonInput
                       label="Shippers ID (Auto-generated + Editable)"
                       required
@@ -308,13 +331,23 @@ const AddNewShipper: React.FC = () => {
                       onChange={field.onChange}
                       onBlur={field.onBlur}
                       ref={field.ref}
-                      inputClassName={errors.vendorCode ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500" : ""}
+                      inputClassName={
+                        errors.vendorCode
+                          ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                          : ""
+                      }
                     />
-                    {errors.vendorCode?.message && <p className="-mt-3 text-xs text-red-600">{errors.vendorCode.message}</p>}
-                  </>
+                    {errors.vendorCode?.message && (
+                      <p className="mt-1 text-xs text-red-600">
+                        {errors.vendorCode.message}
+                      </p>
+                    )}
+                  </div>
                 )}
               />
+            </div>
 
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
               <Controller
                 control={control}
                 name="phone"
@@ -327,9 +360,17 @@ const AddNewShipper: React.FC = () => {
                       value={field.value}
                       onChange={field.onChange}
                       placeholder="Enter phone number"
-                      className={errors.phone ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500" : ""}
+                      className={
+                        errors.phone
+                          ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                          : ""
+                      }
                     />
-                    {errors.phone?.message && <p className="text-xs text-red-600">{errors.phone.message}</p>}
+                    {errors.phone?.message && (
+                      <p className="text-xs text-red-600">
+                        {errors.phone.message}
+                      </p>
+                    )}
                   </div>
                 )}
               />
@@ -338,7 +379,7 @@ const AddNewShipper: React.FC = () => {
                 control={control}
                 name="email"
                 render={({ field }) => (
-                  <>
+                  <div>
                     <CommonInput
                       label="Email Address"
                       required
@@ -347,46 +388,90 @@ const AddNewShipper: React.FC = () => {
                       onChange={field.onChange}
                       onBlur={field.onBlur}
                       ref={field.ref}
-                      inputClassName={errors.email ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500" : ""}
+                      inputClassName={
+                        errors.email
+                          ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                          : ""
+                      }
                     />
-                    {errors.email?.message && <p className="-mt-3 text-xs text-red-600">{errors.email.message}</p>}
-                  </>
+                    {errors.email?.message && (
+                      <p className="mt-1 text-xs text-red-600">
+                        {errors.email.message}
+                      </p>
+                    )}
+                  </div>
                 )}
               />
 
-              <Controller
-                control={control}
-                name="yearsWithCompany"
-                render={({ field }) => (
-                  <>
-                    <CommonInput
-                      label="Years of working with company"
-                      value={field.value}
-                      onChange={field.onChange}
-                      onBlur={field.onBlur}
-                      ref={field.ref}
-                      inputClassName={errors.yearsWithCompany ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500" : ""}
-                    />
-                    {errors.yearsWithCompany?.message && <p className="-mt-3 text-xs text-red-600">{errors.yearsWithCompany.message}</p>}
-                  </>
-                )}
-              />
+              <div className="md:col-span-2 grid lg:grid-cols-3 gap-5">
+                <Controller
+                  control={control}
+                  name="yearsWithCompany"
+                  render={({ field }) => (
+                    <div>
+                      <CommonInput
+                        label="Years of working with company"
+                        value={field.value}
+                        onChange={field.onChange}
+                        onBlur={field.onBlur}
+                        ref={field.ref}
+                        inputClassName={
+                          errors.yearsWithCompany
+                            ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                            : ""
+                        }
+                      />
+                      {errors.yearsWithCompany?.message && (
+                        <p className="mt-1 text-xs text-red-600">
+                          {errors.yearsWithCompany.message}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                />
 
-              <Controller
-                control={control}
-                name="serviceCategory"
-                render={({ field }) => (
-                  <>
-                    <CommonDropdown
-                      label="Service Category"
-                      options={serviceCategoryOptions}
-                      value={field.value}
-                      onChange={field.onChange}
-                    />
-                    {errors.serviceCategory?.message && <p className="-mt-3 text-xs text-red-600">{errors.serviceCategory.message}</p>}
-                  </>
-                )}
-              />
+                <Controller
+                  control={control}
+                  name="serviceCategory"
+                  render={({ field }) => (
+                    <div>
+                      <CommonDropdown
+                        label="Service Category"
+                        options={serviceCategoryOptions}
+                        value={field.value}
+                        onChange={field.onChange}
+                      />
+                      {errors.serviceCategory?.message && (
+                        <p className="mt-1 text-xs text-red-600">
+                          {errors.serviceCategory.message}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                />
+
+                <Controller
+                  control={control}
+                  name="vendorType"
+                  render={({ field }) => (
+                    <div>
+                      <CommonDropdown
+                        label="Vendor Type"
+                        options={vendorTypeOptions}
+                        value={field.value}
+                        onChange={field.onChange}
+                      />
+                      {errors.vendorType?.message && (
+                        <p className="mt-1 text-xs text-red-600">
+                          {errors.vendorType.message}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                />
+              </div>
+
+              {/* Material Types moved into its own accordion below Address Information */}
             </div>
           </AccordionSection>
 
@@ -396,7 +481,7 @@ const AddNewShipper: React.FC = () => {
                 control={control}
                 name="address.placeNumber"
                 render={({ field }) => (
-                  <>
+                  <div>
                     <CommonInput
                       label="Place Number"
                       required
@@ -404,10 +489,18 @@ const AddNewShipper: React.FC = () => {
                       onChange={field.onChange}
                       onBlur={field.onBlur}
                       ref={field.ref}
-                      inputClassName={errors.address?.placeNumber ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500" : ""}
+                      inputClassName={
+                        errors.address?.placeNumber
+                          ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                          : ""
+                      }
                     />
-                    {errors.address?.placeNumber?.message && <p className="-mt-3 text-xs text-red-600">{errors.address.placeNumber.message}</p>}
-                  </>
+                    {errors.address?.placeNumber?.message && (
+                      <p className="mt-1 text-xs text-red-600">
+                        {errors.address.placeNumber.message}
+                      </p>
+                    )}
+                  </div>
                 )}
               />
 
@@ -415,7 +508,7 @@ const AddNewShipper: React.FC = () => {
                 control={control}
                 name="address.streetAddress"
                 render={({ field }) => (
-                  <>
+                  <div>
                     <CommonInput
                       label="Street Address"
                       required
@@ -423,75 +516,109 @@ const AddNewShipper: React.FC = () => {
                       onChange={field.onChange}
                       onBlur={field.onBlur}
                       ref={field.ref}
-                      inputClassName={errors.address?.streetAddress ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500" : ""}
+                      inputClassName={
+                        errors.address?.streetAddress
+                          ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                          : ""
+                      }
                     />
-                    {errors.address?.streetAddress?.message && <p className="-mt-3 text-xs text-red-600">{errors.address.streetAddress.message}</p>}
-                  </>
+                    {errors.address?.streetAddress?.message && (
+                      <p className="mt-1 text-xs text-red-600">
+                        {errors.address.streetAddress.message}
+                      </p>
+                    )}
+                  </div>
                 )}
               />
 
-              <Controller
-                control={control}
-                name="address.landmark"
-                render={({ field }) => (
-                  <>
-                    <CommonInput
-                      label="Landmark"
-                      required
-                      value={field.value}
-                      onChange={field.onChange}
-                      onBlur={field.onBlur}
-                      ref={field.ref}
-                      inputClassName={errors.address?.landmark ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500" : ""}
-                    />
-                    {errors.address?.landmark?.message && <p className="-mt-3 text-xs text-red-600">{errors.address.landmark.message}</p>}
-                  </>
-                )}
-              />
+              <div className="md:col-span-2 grid grid-cols-3 gap-6">
+                <Controller
+                  control={control}
+                  name="address.landmark"
+                  render={({ field }) => (
+                    <div>
+                      <CommonInput
+                        label="Landmark"
+                        required
+                        value={field.value}
+                        onChange={field.onChange}
+                        onBlur={field.onBlur}
+                        ref={field.ref}
+                        inputClassName={
+                          errors.address?.landmark
+                            ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                            : ""
+                        }
+                      />
+                      {errors.address?.landmark?.message && (
+                        <p className="mt-1 text-xs text-red-600">
+                          {errors.address.landmark.message}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                />
 
-              <Controller
-                control={control}
-                name="address.city"
-                render={({ field }) => (
-                  <>
-                    <CommonInput
-                      label="City"
-                      required
-                      value={field.value}
-                      onChange={field.onChange}
-                      onBlur={field.onBlur}
-                      ref={field.ref}
-                      inputClassName={errors.address?.city ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500" : ""}
-                    />
-                    {errors.address?.city?.message && <p className="-mt-3 text-xs text-red-600">{errors.address.city.message}</p>}
-                  </>
-                )}
-              />
+                <Controller
+                  control={control}
+                  name="address.city"
+                  render={({ field }) => (
+                    <div>
+                      <CommonInput
+                        label="City"
+                        required
+                        value={field.value}
+                        onChange={field.onChange}
+                        onBlur={field.onBlur}
+                        ref={field.ref}
+                        inputClassName={
+                          errors.address?.city
+                            ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                            : ""
+                        }
+                      />
+                      {errors.address?.city?.message && (
+                        <p className="mt-1 text-xs text-red-600">
+                          {errors.address.city.message}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                />
 
-              <Controller
-                control={control}
-                name="address.postalCode"
-                render={({ field }) => (
-                  <>
-                    <CommonInput
-                      label="Postal Code"
-                      required
-                      value={field.value}
-                      onChange={field.onChange}
-                      onBlur={field.onBlur}
-                      ref={field.ref}
-                      inputClassName={errors.address?.postalCode ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500" : ""}
-                    />
-                    {errors.address?.postalCode?.message && <p className="-mt-3 text-xs text-red-600">{errors.address.postalCode.message}</p>}
-                  </>
-                )}
-              />
+                <Controller
+                  control={control}
+                  name="address.postalCode"
+                  render={({ field }) => (
+                    <div>
+                      <CommonInput
+                        label="Postal Code"
+                        required
+                        value={field.value}
+                        onChange={field.onChange}
+                        onBlur={field.onBlur}
+                        ref={field.ref}
+                        inputClassName={
+                          errors.address?.postalCode
+                            ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                            : ""
+                        }
+                      />
+                      {errors.address?.postalCode?.message && (
+                        <p className="mt-1 text-xs text-red-600">
+                          {errors.address.postalCode.message}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                />
+              </div>
 
               <Controller
                 control={control}
                 name="address.state"
                 render={({ field }) => (
-                  <>
+                  <div>
                     <CommonInput
                       label="State"
                       required
@@ -499,10 +626,18 @@ const AddNewShipper: React.FC = () => {
                       onChange={field.onChange}
                       onBlur={field.onBlur}
                       ref={field.ref}
-                      inputClassName={errors.address?.state ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500" : ""}
+                      inputClassName={
+                        errors.address?.state
+                          ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                          : ""
+                      }
                     />
-                    {errors.address?.state?.message && <p className="-mt-3 text-xs text-red-600">{errors.address.state.message}</p>}
-                  </>
+                    {errors.address?.state?.message && (
+                      <p className="mt-1 text-xs text-red-600">
+                        {errors.address.state.message}
+                      </p>
+                    )}
+                  </div>
                 )}
               />
 
@@ -510,7 +645,7 @@ const AddNewShipper: React.FC = () => {
                 control={control}
                 name="address.gpsCoordinates"
                 render={({ field }) => (
-                  <>
+                  <div>
                     <CommonInput
                       label="GPS Coordinates"
                       required
@@ -518,76 +653,101 @@ const AddNewShipper: React.FC = () => {
                       onChange={field.onChange}
                       onBlur={field.onBlur}
                       ref={field.ref}
-                      inputClassName={errors.address?.gpsCoordinates ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500" : ""}
+                      inputClassName={
+                        errors.address?.gpsCoordinates
+                          ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                          : ""
+                      }
                     />
-                    {errors.address?.gpsCoordinates?.message && <p className="-mt-3 text-xs text-red-600">{errors.address.gpsCoordinates.message}</p>}
-                  </>
+                    {errors.address?.gpsCoordinates?.message && (
+                      <p className="mt-1 text-xs text-red-600">
+                        {errors.address.gpsCoordinates.message}
+                      </p>
+                    )}
+                  </div>
                 )}
               />
 
-              <div className="md:col-span-2 mt-2">
-                <div className="relative w-full h-45 bg-gray-100 rounded-xl overflow-hidden border border-gray-200">
-                  <div className="absolute top-4 left-4">
-                    <span className="text-base font-semibold text-gray-800">Map Preview</span>
-                  </div>
-                  <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
-                    <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center shadow-lg border-2 border-white">
-                      <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                          <polyline points="9 22 9 12 15 12 15 22"></polyline>
-                        </svg>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <MapPreview coordinates={watch("address.gpsCoordinates")} />
             </div>
           </AccordionSection>
 
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 mb-4">
-            <h2 className="font-semibold text-gray-800 mb-5 text-base">Upload Documents</h2>
-            <div className="flex flex-col md:flex-row gap-6">
-              <div className="flex-1 max-w-sm">
-                <div className="border border-gray-200 rounded-xl p-5 shadow-sm">
-                  <h3 className="font-semibold text-gray-800 text-sm mb-1">Upload Documents & Files</h3>
-                  <p className="text-xs text-gray-500 mb-4 line-clamp-1 text-ellipsis">Add your documents here, and you can u...</p>
+          <AccordionSection title="Material Types">
+            <div className="w-full">
+              <Controller
+                control={control}
+                name="materialTypes"
+                render={({ field }) => {
+                  const selectedTypes = field.value ?? [];
 
-                  <div className="border border-dashed border-blue-400 rounded-lg p-6 flex flex-col items-center justify-center bg-blue-50/30 mb-3 cursor-pointer hover:bg-blue-50 transition-colors">
-                    <div className="w-12 h-10 bg-blue-600 rounded flex items-center justify-center mb-3 relative">
-                      <Upload className="text-white w-4 h-4" />
-                      <div className="absolute top-0 right-0 w-3 h-3 bg-blue-400 border-l border-b border-blue-500" style={{ borderBottomLeftRadius: "2px" }} />
-                    </div>
-                    <Button
-                      variant="outline"
-                      className="border-blue-600 text-blue-600 py-1.5 px-4 text-xs font-medium rounded-full bg-white hover:bg-blue-50"
-                    >
-                      Browse files
-                    </Button>
-                  </div>
+                  return (
+                    <div className="flex flex-col gap-3">
+                      <div className="flex items-center justify-between gap-3">
+                        <label className="text-sm font-medium text-[#212B36] flex items-center">
+                          Material Types{" "}
+                          <span className="text-red-500 ml-1">*</span>
+                        </label>
+                        <span className="text-xs text-gray-500">
+                          Select one or more material types
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 rounded-xl border border-gray-200 bg-gray-50/50 p-4">
+                        {materialTypeOptions.map((option) => {
+                          const checked = selectedTypes.includes(option.value);
 
-                  <p className="text-[11px] text-gray-400 text-center">Only support .jpg, .png and .svg and zip fi...</p>
-                </div>
-              </div>
+                          return (
+                            <button
+                              key={option.value}
+                              type="button"
+                              onClick={() => {
+                                let nextValues: string[];
 
-              <div className="flex-1 flex items-start">
-                <div className="border border-gray-200 rounded-xl p-3 flex items-center gap-4 w-full max-w-xs justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-red-100 rounded flex items-center justify-center text-red-600 font-bold text-xs relative overflow-hidden">
-                      <div className="bg-red-500 text-white w-full h-full flex items-center justify-center">PDF</div>
+                                if (option.value === "All Materials") {
+                                  nextValues = checked ? [] : [option.value];
+                                } else if (checked) {
+                                  nextValues = selectedTypes.filter(
+                                    (value) => value !== option.value,
+                                  );
+                                } else {
+                                  nextValues = selectedTypes
+                                    .filter(
+                                      (value) => value !== "All Materials",
+                                    )
+                                    .concat(option.value);
+                                }
+
+                                field.onChange(nextValues);
+                              }}
+                              className="flex items-center gap-3 rounded-lg border border-gray-200 bg-white px-4 py-3 text-left transition-colors hover:border-blue-300 hover:bg-blue-50/40"
+                            >
+                              <CommonCheckbox
+                                checked={checked}
+                                onChange={() => {}}
+                                size="sm"
+                              />
+                              <span className="text-sm font-medium text-gray-800">
+                                {option.label}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                      {errors.materialTypes?.message && (
+                        <p className="-mt-1 text-xs text-red-600">
+                          {errors.materialTypes.message}
+                        </p>
+                      )}
                     </div>
-                    <div className="flex flex-col">
-                      <span className="text-sm font-semibold text-gray-800 line-clamp-1">MeterialDocument.pdf</span>
-                      <span className="text-xs text-gray-500">5.3MB</span>
-                    </div>
-                  </div>
-                  <button className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200 transition-colors">
-                    <X className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              </div>
+                  );
+                }}
+              />
             </div>
-          </div>
+          </AccordionSection>
+
+          <DocumentUploadCard
+            documents={documents || []}
+            onDocumentsChange={onDocumentsChange}
+          />
 
           <AccordionSection title="Internal Notes">
             <div className="w-full">
@@ -595,7 +755,7 @@ const AddNewShipper: React.FC = () => {
                 control={control}
                 name="internalNotes"
                 render={({ field }) => (
-                  <>
+                  <div>
                     <textarea
                       className={`w-full min-h-20 p-4 bg-gray-50/50 rounded-xl text-sm text-gray-700 resize-none outline-none transition-all placeholder:text-gray-400 border ${errors.internalNotes ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500" : "border-gray-200 focus:border-blue-400 focus:ring-1 focus:ring-blue-400"}`}
                       placeholder="Add your notes here..."
@@ -603,14 +763,29 @@ const AddNewShipper: React.FC = () => {
                       onChange={field.onChange}
                       onBlur={field.onBlur}
                     />
-                    {errors.internalNotes?.message && <p className="mt-2 text-xs text-red-600">{errors.internalNotes.message}</p>}
-                  </>
+                    {errors.internalNotes?.message && (
+                      <p className="mt-2 text-xs text-red-600">
+                        {errors.internalNotes.message}
+                      </p>
+                    )}
+                  </div>
                 )}
               />
             </div>
           </AccordionSection>
         </div>
       </form>
+      <SuccessModal
+        isOpen={isSuccessOpen}
+        onClose={() => {
+          setIsSuccessOpen(false);
+          navigate("/logistics/shippers");
+        }}
+        title="Shipper Added Successfully"
+        subTitle={createdVendorName ? `Name: ${createdVendorName}` : undefined}
+        buttonText="Ok"
+        isLogoBottom={false}
+      />
     </PageWrapper>
   );
 };
