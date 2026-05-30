@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import Pagination from "./Pagination";
 import BuildingTypeSelector from "./common_component/BuildingTypeSelector";
+import CommonStatusBadge from "./common_component/CommonStatusBadge";
 import {
   Select,
   SelectContent,
@@ -22,6 +23,10 @@ import {
 } from "@/redux/api/projectApi";
 import Button from "./common_component/Button";
 import { downloadFile } from "../lib/utils";
+import {
+  getPlantLifecycleStatusConfig,
+  PLANT_LIFECYCLE_STATUS_OPTIONS,
+} from "@/constants/plantLifecycle";
 
 export interface Lead {
   id: string; // Used for address in this context
@@ -53,19 +58,6 @@ const ProductionTable: React.FC<ProductionTableProps> = ({
   const [assignment, setAssignment] = useState<string>("all");
   const [status, setStatus] = useState<string>("all");
   const navigate = useNavigate();
-
-  const getStatusStyles = (status: string) => {
-    switch (status.toLowerCase()) {
-      case "approved":
-        return "bg-[#E7F8EE] text-(--text-color-green)";
-      case "bom ready":
-        return "bg-[#FFF7ED] text-[#B76E00]";
-      case "shipper file received":
-        return "bg-[#F2EFFF] text-[#8B5CF6]";
-      default:
-        return "bg-gray-100 text-gray-600";
-    }
-  };
 
   // If data prop provided, skip internal fetching
   const queryArgs = useMemo(
@@ -117,7 +109,10 @@ const ProductionTable: React.FC<ProductionTableProps> = ({
 
       const matchStatus =
         status === "all" ||
-        lead.status.toLowerCase().includes(status.toLowerCase());
+        lead.status
+          .toLowerCase()
+          .replace(/[\s-]+/g, "_")
+          .includes(status.toLowerCase());
 
       const matchAssignment =
         assignment === "all" ||
@@ -189,12 +184,15 @@ const ProductionTable: React.FC<ProductionTableProps> = ({
             }}
           >
             <SelectTrigger className="w-35 bg-white border border-gray-200 rounded-lg h-10 text-sm text-black">
-              <SelectValue placeholder="All Status" />
+              <SelectValue placeholder="All Lifecycle Status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="approved">Approved</SelectItem>
-              <SelectItem value="bom">BOM Ready</SelectItem>
+              <SelectItem value="all">All Lifecycle Status</SelectItem>
+              {PLANT_LIFECYCLE_STATUS_OPTIONS.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
@@ -320,11 +318,14 @@ const ProductionTable: React.FC<ProductionTableProps> = ({
                         {row.buildings}
                       </td>
                       <td className="p-2 md:p-4">
-                        <span
-                          className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-inter font-normal text-nowrap ${getStatusStyles(row.status)}`}
-                        >
-                          {row.status}
-                        </span>
+                        <CommonStatusBadge
+                          text={getPlantLifecycleStatusConfig(row.status).label}
+                          variant="gray"
+                          className={
+                            getPlantLifecycleStatusConfig(row.status)
+                              .badgeClassName
+                          }
+                        />
                       </td>
                       <td className="p-2 md:p-4 text-sm font-inter font-semibold text-black">
                         {row.quoteValue}
