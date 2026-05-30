@@ -4,6 +4,8 @@ import bellIcon from "../../assets/bellIcon.svg";
 import { useNavigate } from "react-router-dom";
 import UserIcon from "../../assets/icon/UserIcon";
 import { ChevronLeft, Search } from "lucide-react";
+import { useAppDispatch } from "../../redux/hooks";
+import { logout } from "../../redux/slices/authSlice";
 
 interface HeaderProps {
   onMenuToggle: () => void;
@@ -16,6 +18,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle, isMenuOpen }) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -34,6 +37,8 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle, isMenuOpen }) => {
   }, []);
 
   const handleSignOut = () => {
+    dispatch(logout());
+    setIsProfileOpen(false);
     navigate("/login");
   };
 
@@ -44,7 +49,9 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle, isMenuOpen }) => {
           className="text-gray-600 rounded-lg transition-colors"
           onClick={onMenuToggle}
         >
-          <ChevronLeft className={`transition-transform duration-500 ${isMenuOpen ? "rotate-0" : "rotate-180"}`} />
+          <ChevronLeft
+            className={`transition-transform duration-500 ${isMenuOpen ? "rotate-0" : "rotate-180"}`}
+          />
         </button>
 
         {/* Search Bar */}
@@ -175,7 +182,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle, isMenuOpen }) => {
           <img
             src={logo}
             alt="Logo"
-           className="xl:w-50 xl:h-12 sm:w-35 sm:h-12 w-30 h-8 object-contain"
+            className="xl:w-50 xl:h-12 sm:w-35 sm:h-12 w-30 h-8 object-contain"
           />
         </div>
       </div>
