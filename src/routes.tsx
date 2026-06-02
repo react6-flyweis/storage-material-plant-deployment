@@ -145,6 +145,9 @@ const VendorDetailsView = lazy(
 const FreightCarriersView = lazy(
   () => import("./components/logistics/FreightCarriersView"),
 );
+const AddNewFreightCourier = lazy(
+  () => import("./components/logistics/AddNewFreightCourier"),
+);
 const CarrierDetailsView = lazy(
   () => import("./components/logistics/CarrierDetailsView"),
 );
@@ -191,39 +194,39 @@ export const adminRoutes: RouteObject[] = [
             element: <AllProjectsView />,
           },
           {
-            path: "/projects/project-details/:customerId/:projectId",
+            path: "/projects/:projectId",
             element: <ProjectDetailsView />,
           },
           {
-            path: "/projects/view-bom/:customerId/:projectId",
+            path: "/projects/:projectId/view-bom",
             element: <BOMView />,
           },
           {
-            path: "/projects/generate-shipper-order/:customerId/:projectId",
+            path: "/projects/:projectId/generate-shipper-order",
             element: <GenerateShipperOrder />,
           },
           {
-            path: "/projects/view-drawings/:customerId/:projectId",
+            path: "/projects/:projectId/view-drawings",
             element: <ProjectDrawingsView />,
           },
           {
-            path: "/projects/material-delivery/:customerId/:projectId",
+            path: "/projects/:projectId/material-delivery",
             element: <MaterialDeliveryView />,
           },
           {
-            path: "/projects/material-delivery/:customerId/:projectId/edit",
+            path: "/projects/:projectId/material-delivery/edit",
             element: <EditDeliveryView />,
           },
           {
-            path: "/projects/shipper-files/:customerId/:projectId",
+            path: "/projects/:projectId/shipper-files",
             element: <ShipperFilesView />,
           },
           {
-            path: "/projects/shipper-file-details/:customerId/:projectId/:fileName",
+            path: "/projects/:projectId/shipper-file-details/:fileName",
             element: <ShipperFileDetailsView />,
           },
           {
-            path: "/projects/material-request/:customerId/:projectId",
+            path: "/projects/:projectId/material-request",
             element: <MaterialRequestView />,
           },
           {
@@ -305,6 +308,10 @@ export const adminRoutes: RouteObject[] = [
           {
             path: "/logistics/freight-carriers",
             element: <FreightCarriersView />,
+          },
+          {
+            path: "/logistics/freight-carriers/add",
+            element: <AddNewFreightCourier />,
           },
           {
             path: "/logistics/carrier/:id",
