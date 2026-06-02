@@ -1,11 +1,11 @@
 import React from "react";
-import {  
-  CircleDollarSign, 
-  Calendar, 
-  MapPin, 
-  Phone, 
-  Mail, 
-  User, 
+import {
+  CircleDollarSign,
+  Calendar,
+  MapPin,
+  Phone,
+  Mail,
+  User,
   Landmark,
   File,
   Building
@@ -19,13 +19,22 @@ interface ProjectDetailsCardProps {
   customerAddress: string;
 }
 
-const ProjectDetailsCard: React.FC<ProjectDetailsCardProps> = ({ 
-  project, 
-  customerName, 
-  customerPhone, 
-  customerEmail, 
-  customerAddress 
+const ProjectDetailsCard: React.FC<ProjectDetailsCardProps> = ({
+  project,
+  customerName,
+  customerPhone,
+  customerEmail,
+  customerAddress
 }) => {
+  const projectIdStr = project?.jobId || "N/A";
+  const projectNameStr = project?.projectName || "N/A";
+  const statusStr = project?.lifecycleStatus || "In Progress";
+  const poNumberStr = project?.poOrder?.poNumber || "Q-2025-1047";
+
+  const createdOnStr = project?.createdOn || (project?.createdAt ? new Date(project.createdAt).toLocaleDateString() : "N/A");
+  const salesPersonStr = project?.salesPerson || project?.assignedSales?.name || "N/A";
+  const contractDateStr = project?.contractDate || (project?.agreement?.uploadedAt ? new Date(project.agreement.uploadedAt).toLocaleDateString() : "N/A");
+
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
       {/* Top Section: Project Title & ID */}
@@ -36,12 +45,12 @@ const ProjectDetailsCard: React.FC<ProjectDetailsCardProps> = ({
           </div>
           <div className="space-y-1">
             <div className="flex flex-wrap items-center gap-2">
-              <h2 className="text-lg md:text-xl font-inter font-semibold text-[#212B36]">{project.id}- {project.name}</h2>
-              <span className="px-3 py-1 bg-[#E7F8EE] text-[#36A44A] rounded-full text-xs font-inter font-medium flex items-center gap-1.5 border border-[#3AB449]/20">
-               🟢 In Progress
+              <h2 className="text-lg md:text-xl font-inter font-semibold text-[#212B36]">{projectIdStr}- {projectNameStr}</h2>
+              <span className="px-3 py-1 bg-[#E7F8EE] text-[#36A44A] rounded-full text-xs font-inter font-medium flex items-center gap-1.5 border border-[#3AB449]/20 capitalize">
+                🟢 {statusStr}
               </span>
             </div>
-            <p className="text-[#637381] font-inter text-sm lg:text-base">Q-2025-1047</p>
+            <p className="text-[#637381] font-inter text-sm lg:text-base">{poNumberStr}</p>
           </div>
         </div>
       </div>
@@ -52,28 +61,28 @@ const ProjectDetailsCard: React.FC<ProjectDetailsCardProps> = ({
           <div className="text-[#637381] mt-1"><Building size={20} /></div>
           <div>
             <p className="text-sm md:text-base text-[#000000] font-inter font-medium mb-1">Building Type</p>
-            <p className="text-xs md:text-sm text-[#212B36] font-inter font-semibold">{project.buildingType || "N/A"}</p>
+            <p className="text-xs md:text-sm text-[#212B36] font-inter font-semibold">{project?.buildingType || "N/A"}</p>
           </div>
         </div>
         <div className="p-3 lg:p-6 flex items-start gap-4  last:border-r-0">
           <div className="text-[#637381] mt-1"><CircleDollarSign size={20} /></div>
           <div>
             <p className="text-sm md:text-base text-[#000000] font-inter font-medium mb-1">Quote Value</p>
-            <p className="text-xs md:text-sm text-[#212B36] font-inter font-semibold">{project.quoteValue || "N/A"}</p>
+            <p className="text-xs md:text-sm text-[#212B36] font-inter font-semibold">{project?.quoteValue || "N/A"}</p>
           </div>
         </div>
         <div className="p-3 lg:p-6 flex items-start gap-4  last:border-r-0">
           <div className="text-[#637381] mt-1"><Calendar size={20} /></div>
           <div>
             <p className="text-sm md:text-base text-[#000000] font-inter font-medium mb-1">Created On</p>
-            <p className="text-xs md:text-sm text-[#212B36] font-inter font-semibold">{project.createdOn || "N/A"}</p>
+            <p className="text-xs md:text-sm text-[#212B36] font-inter font-semibold">{createdOnStr}</p>
           </div>
         </div>
         <div className="p-3 lg:p-6 flex items-start gap-4">
           <div className="text-[#637381] mt-1"><MapPin size={20} /></div>
           <div>
             <p className="text-sm md:text-base text-[#000000] font-inter font-medium mb-1">Location</p>
-            <p className="text-xs md:text-sm text-[#212B36] font-inter font-semibold leading-relaxed">{project.location || "N/A"}</p>
+            <p className="text-xs md:text-sm text-[#212B36] font-inter font-semibold leading-relaxed">{project?.location || "N/A"}</p>
           </div>
         </div>
       </div>
@@ -105,11 +114,11 @@ const ProjectDetailsCard: React.FC<ProjectDetailsCardProps> = ({
           <h3 className="text-sm font-inter font-medium text-[#212B36]">Assignment</h3>
           <div className="bg-[#F9FAFB] p-3 md:p-4 rounded-[14px] flex items-center gap-4">
             <div className="size-10 bg-[#DCFCE7] text-[#16A34A] rounded-full flex items-center justify-center">
-              <User size={20} strokeWidth={1.5}/>
+              <User size={20} strokeWidth={1.5} />
             </div>
             <div>
               <p className="text-sm text-[#000000] font-inter">Sales Person:</p>
-              <p className="text-xs font-inter font-normal text-[#212B36]">{project.salesPerson || "N/A"}</p>
+              <p className="text-xs font-inter font-normal text-[#212B36]">{salesPersonStr}</p>
             </div>
           </div>
         </div>
@@ -119,11 +128,11 @@ const ProjectDetailsCard: React.FC<ProjectDetailsCardProps> = ({
           <h3 className="text-sm font-inter font-medium text-[#000000]">Signed Contract/Agreement</h3>
           <div className="bg-[#F9FAFB] p-3 md:p-4 rounded-[14px] flex items-center gap-4">
             <div className="size-10 bg-[#DCFCE7] text-[#16A34A] rounded-full flex items-center justify-center">
-              <File size={20}  strokeWidth={1.5}/>
+              <File size={20} strokeWidth={1.5} />
             </div>
             <div>
               <p className="text-sm font-inter font-normal text-[#000000]">Signed contact/Agreement</p>
-              <p className="text-xs text-[#637381] font-inter">Signed on: {project.contractDate || "N/A"}</p>
+              <p className="text-xs text-[#637381] font-inter">Signed on: {contractDateStr}</p>
             </div>
           </div>
         </div>
