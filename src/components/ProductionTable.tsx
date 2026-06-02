@@ -17,10 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  useGetPlantProjectsQuery,
-  type PlantProject,
-} from "@/redux/api/projectApi";
+import { useGetPlantProjectsQuery } from "@/redux/api/projectApi";
 import Button from "./common_component/Button";
 import { downloadFile } from "../lib/utils";
 import {
@@ -28,30 +25,7 @@ import {
   PLANT_LIFECYCLE_STATUS_OPTIONS,
 } from "@/constants/plantLifecycle";
 
-export interface Lead {
-  id: string; // Used for address in this context
-  customerId: string; // Used for navigation
-  projectId: string; // Used for navigation
-  name: string; // Project Name
-  customer: {
-    name: string;
-    image?: string;
-  };
-  buildings: number;
-  status: string;
-  quoteValue: string;
-  unreadMessages: number;
-}
-
-interface ProductionTableProps {
-  data?: Lead[]; // optional: if provided, table will use this instead of fetching
-  // onViewDetails?: (lead: Lead) => void;
-}
-
-const ProductionTable: React.FC<ProductionTableProps> = ({
-  data,
-  // onViewDetails,
-}) => {
+const ProductionTable = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
   const [buildingType, setBuildingType] = useState<string>("all");
@@ -74,53 +48,29 @@ const ProductionTable: React.FC<ProductionTableProps> = ({
     isFetching: isProjectsFetching,
   } = useGetPlantProjectsQuery(queryArgs);
 
-  const mapProjectToLead = (project: PlantProject): Lead => ({
-    id: project.jobId || project._id,
-    customerId: project._id,
-    projectId: project._id,
-    name: project.projectName,
-    customer: {
-      name: project.clientName,
-      image: "",
-    },
-    buildings: project.numberOfBuildings,
-    status: project.lifecycleStatus,
-    quoteValue: new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      maximumFractionDigits: 0,
-    }).format(project.quoteValue ?? 0),
-    unreadMessages: 0,
-  });
-
-  const apiLeadsData = useMemo<Lead[]>(() => {
-    return (projectsResponse?.projects ?? []).map((project) =>
-      mapProjectToLead(project),
-    );
-  }, [projectsResponse]);
+  const apiLeadsData = projectsResponse?.projects;
 
   const filteredLeads = useMemo(() => {
-    const source = data ?? apiLeadsData;
-    return source.filter((lead) => {
+    return (apiLeadsData || []).filter((lead) => {
       const matchBuilding =
         buildingType === "all" ||
-        lead.id.toLowerCase().includes(buildingType.toLowerCase()) ||
-        lead.name.toLowerCase().includes(buildingType.toLowerCase());
+        lead._id.toLowerCase().includes(buildingType.toLowerCase()) ||
+        lead.projectName.toLowerCase().includes(buildingType.toLowerCase());
 
       const matchStatus =
         status === "all" ||
-        lead.status
+        lead.lifecycleStatus
           .toLowerCase()
           .replace(/[\s-]+/g, "_")
           .includes(status.toLowerCase());
 
       const matchAssignment =
         assignment === "all" ||
-        lead.customer.name.toLowerCase().includes(assignment.toLowerCase());
+        lead.clientName.toLowerCase().includes(assignment.toLowerCase());
 
       return matchBuilding && matchStatus && matchAssignment;
     });
-  }, [apiLeadsData, data, buildingType, status, assignment]);
+  }, [apiLeadsData, buildingType, status, assignment]);
 
   const loading = isProjectsLoading || isProjectsFetching;
 
@@ -284,51 +234,60 @@ const ProductionTable: React.FC<ProductionTableProps> = ({
                       <td className="p-2 md:p-4">
                         <div className="flex flex-col">
                           <span className="font-inter font-semibold text-black text-sm">
-                            {row.name}
+                            {row.projectName}
                           </span>
                           <span className="font-inter text-xs text-[#637381] mt-0.5">
-                            {row.id}
+                            {row.jobId}
                           </span>
                         </div>
                       </td>
                       <td
                         className="p-2 md:p-4 cursor-pointer hover:bg-gray-50 transition-colors"
                         onClick={() =>
-                          navigate(`/projects/customerinfo/${row.customerId}`)
+                          navigate(
+                            `/projects/customerinfo/${row.customer?.firstName}`,
+                          )
                         }
                       >
                         <div className="flex items-center gap-2">
-                          {row.customer.image ? (
+                          {/* {row.customer?.image ? (
                             <img
                               src={row.customer.image}
                               alt={row.customer.name}
                               className="w-8 h-8 shrink-0 rounded-full object-cover"
                             />
-                          ) : (
-                            <div className="w-8 h-8 shrink-0 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
-                              {row.customer.name.charAt(0)}
-                            </div>
-                          )}
+                          ) : ( */}
+                          <div className="w-8 h-8 shrink-0 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                            {row.clientName?.charAt(0)}
+                          </div>
+                          {/* )} */}
                           <span className="font-inter text-sm text-[#637381]">
-                            {row.customer.name}
+                            {row.clientName}
                           </span>
                         </div>
                       </td>
                       <td className="p-4 text-center font-inter font-semibold text-sm text-black">
-                        {row.buildings}
+                        {row.numberOfBuildings}
                       </td>
                       <td className="p-2 md:p-4">
                         <CommonStatusBadge
-                          text={getPlantLifecycleStatusConfig(row.status).label}
+                          text={
+                            getPlantLifecycleStatusConfig(row.lifecycleStatus)
+                              .label
+                          }
                           variant="gray"
                           className={
-                            getPlantLifecycleStatusConfig(row.status)
+                            getPlantLifecycleStatusConfig(row.lifecycleStatus)
                               .badgeClassName
                           }
                         />
                       </td>
                       <td className="p-2 md:p-4 text-sm font-inter font-semibold text-black">
-                        {row.quoteValue}
+                        {new Intl.NumberFormat("en-US", {
+                          style: "currency",
+                          currency: "USD",
+                          maximumFractionDigits: 0,
+                        }).format(row.quoteValue ?? 0)}
                       </td>
                       <td className="p-2 md:p-4">
                         <button
@@ -337,20 +296,18 @@ const ProductionTable: React.FC<ProductionTableProps> = ({
                         >
                           <MessageSquare size={14} className="text-[#446DF6]" />
                           Chat
-                          {row.unreadMessages > 0 && (
+                          {/* {row.unreadMessages > 0 && (
                             <span className="absolute -top-2 -right-2 bg-[#EF4444] text-white  w-6 h-6 flex items-center justify-center rounded-full font-normal text-sm border border-white">
                               {row.unreadMessages}
                             </span>
-                          )}
+                          )} */}
                         </button>
                       </td>
                       <td className="p-4 text-center">
                         <div className="flex items-center justify-center gap-8">
                           <button
                             onClick={() => {
-                              navigate(
-                                `/projects/project-details/${row.customerId}/${row.projectId}`,
-                              );
+                              navigate(`/projects/${row._id}`);
                             }}
                             className="text-[#3C40AF] hover:opacity-80 transition-opacity"
                           >
