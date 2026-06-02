@@ -6,41 +6,101 @@ import {
 } from "./ProjectActionModals";
 import SuccessModal from "../common_component/SuccessModal";
 import Button from "../common_component/Button";
+import { 
+  PLANT_LIFECYCLE_STAGES, 
+  getPlantLifecycleStatusConfig, 
+  formatPlantLifecycleStatusLabel 
+} from "@/constants/plantLifecycle";
+import { useUpdateProjectLifecycleMutation, useAddProjectNoteMutation } from "@/redux/api/projectApi";
 
-const ProjectLifecycle: React.FC = () => {
+export interface LifecycleHistoryEntry {
+  stage: string;
+  changedAt: string;
+}
+
+interface ProjectLifecycleProps {
+  projectId: string;
+  currentStatus: string;
+  lifecycleHistory?: LifecycleHistoryEntry[];
+  startedDate?: string;
+  estimateCompletion?: string;
+  assignedPlanner?: string;
+  priority?: string;
+}
+
+const ProjectLifecycle: React.FC<ProjectLifecycleProps> = ({ 
+  projectId,
+  currentStatus, 
+  lifecycleHistory = [],
+  startedDate,
+  estimateCompletion,
+  assignedPlanner,
+  priority
+}) => {
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [isNotesModalOpen, setIsNotesModalOpen] = useState(false);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
 
-  const handleUpdateStatus = () => {
-    setIsUpdateModalOpen(false);
-    setIsSuccessModalOpen(true);
-    setSuccessMsg("Status Updated Successfully");
+  const [updateLifecycle, { isLoading: isUpdating }] = useUpdateProjectLifecycleMutation();
+  const [addNote, { isLoading: isAddingNote }] = useAddProjectNoteMutation();
+
+  const handleUpdateStatus = async (newStatus: string, note?: string) => {
+    try {
+      await updateLifecycle({
+        leadId: projectId,
+        lifecycleStatus: newStatus,
+        note: note,
+      }).unwrap();
+      setIsUpdateModalOpen(false);
+      setIsSuccessModalOpen(true);
+      setSuccessMsg("Status Updated Successfully");
+    } catch (err) {
+      console.error("Failed to update lifecycle stage:", err);
+    }
   };
 
-  const handleAddNote = () => {
-    setIsNotesModalOpen(false);
-     setIsSuccessModalOpen(true);
+  const handleAddNote = async (note: string) => {
+    try {
+      await addNote({
+        leadId: projectId,
+        note,
+      }).unwrap();
+      setIsNotesModalOpen(false);
+      setIsSuccessModalOpen(true);
       setSuccessMsg("Note Added Successfully");
+    } catch (err) {
+      console.error("Failed to add project note:", err);
+    }
   };
 
-  const steps = [
-    { id: 1, label: "Released to plant", date: "24-10-10", completed: true },
-    { id: 2, label: "Drawings Received", date: "24-10-10", completed: true },
-    { id: 3, label: "BOM Received", date: "24-10-10", completed: true },
-    { id: 4, label: "BOM Review", date: "24-10-10", completed: true },
-    { id: 5, label: "Material Check", date: "24-10-10", completed: true },
-    { id: 6, label: "Material Request", date: "24-10-10", completed: true },
-    { id: 7, label: "Production Planning", status: "Current Step", current: true },
-    { id: 8, label: "Fabrication Started", upcoming: true },
-    { id: 9, label: "Quality Inspection", upcoming: true },
-    { id: 10, label: "Packing Bundling", upcoming: true },
-    { id: 11, label: "Shipper Prepared", upcoming: true },
-    { id: 12, label: "Ready For Delivery", upcoming: true },
-    { id: 13, label: "Dispatched", upcoming: true },
-    { id: 14, label: "Delivered", upcoming: true },
-  ];
+  const activeStageConfig = getPlantLifecycleStatusConfig(currentStatus);
+  const activeStage = activeStageConfig.value;
+  const activeIndex = PLANT_LIFECYCLE_STAGES.indexOf(activeStage);
+
+  const steps = PLANT_LIFECYCLE_STAGES.map((stage, index) => {
+    const historyEntry = [...lifecycleHistory]
+      .reverse()
+      .find((h) => h.stage === stage);
+      
+    const dateStr = historyEntry?.changedAt 
+      ? new Date(historyEntry.changedAt).toLocaleDateString(undefined, { year: '2-digit', month: '2-digit', day: '2-digit' }) 
+      : "";
+
+    return {
+      id: index + 1,
+      label: formatPlantLifecycleStatusLabel(stage),
+      date: dateStr,
+      completed: index < activeIndex || (stage === "delivered" && index === activeIndex),
+      current: index === activeIndex && stage !== "delivered",
+      upcoming: index > activeIndex,
+      status: index === activeIndex ? "Current Step" : undefined,
+    };
+  });
+
+  const nextStage = activeIndex !== -1 && activeIndex < PLANT_LIFECYCLE_STAGES.length - 1
+    ? PLANT_LIFECYCLE_STAGES[activeIndex + 1]
+    : null;
 
   return (
     <div className="bg-white rounded-[14px] shadow-sm border border-gray-100 p-4 md:p-6 space-y-8">
@@ -50,14 +110,10 @@ const ProjectLifecycle: React.FC = () => {
       <div className="relative overflow-x-auto pb-6 pt-4">
         <div className="min-w-[1200px] relative">
           {/* Connection Line */}
-          <div className="absolute top-4 left-10 right-10 h-1 bg-gradient-to-r from-blue-600 to-indigo-600" />
+          <div className="absolute top-4 left-10 right-10 h-1 bg-gray-200" />
           <div 
-            className="absolute top-4 left-10 h-1 bg-[#0043CE] transition-all duration-500" 
-            style={{ width: '43%' }} // Up to step 7
-          />
-          <div 
-            className="absolute top-4 left-[46%] h-1 bg-[#446DF6] transition-all duration-500" 
-            style={{ width: '5%' }} // The active segment
+            className="absolute top-4 left-10 h-1 bg-[#3AB449] transition-all duration-500" 
+            style={{ width: `${activeIndex !== -1 ? (Math.min(activeIndex, PLANT_LIFECYCLE_STAGES.length - 1) / (PLANT_LIFECYCLE_STAGES.length - 1)) * 92 : 0}%` }}
           />
           
           <div className="relative flex justify-between">
@@ -102,10 +158,10 @@ const ProjectLifecycle: React.FC = () => {
           {/* Left: Step Info */}
           <div className="lg:col-span-1 space-y-3 lg:border-r border-gray-200 lg:pr-8">
             <h3 className="text-sm font-inter font-medium text-[#212B36]">
-              Production Planning (Step 7 of 14)
+              {activeStageConfig.label} (Step {activeIndex !== -1 ? activeIndex + 1 : 1} of {PLANT_LIFECYCLE_STAGES.length})
             </h3>
             <p className="text-xs text-[#637381] font-inter leading-relaxed">
-              Plan Production Schedule, assign resources and determine fabrication priority for this project
+              Current lifecycle milestone status of the project in production and delivery workflow.
             </p>
           </div>
 
@@ -117,7 +173,7 @@ const ProjectLifecycle: React.FC = () => {
               </div>
               <div>
                 <p className="text-sm font-inter font-medium text-[#212B36]">Planned start date</p>
-                <p className="text-xs text-[#637381] font-inter">2024-10-10</p>
+                <p className="text-xs text-[#637381] font-inter">{startedDate || "N/A"}</p>
               </div>
             </div>
             <div className="flex items-center gap-4">
@@ -126,7 +182,7 @@ const ProjectLifecycle: React.FC = () => {
               </div>
               <div>
                 <p className="text-sm font-inter font-medium text-[#212B36]">Target Completion</p>
-                <p className="text-xs text-[#637381] font-inter">2024-10-10</p>
+                <p className="text-xs text-[#637381] font-inter">{estimateCompletion || "N/A"}</p>
               </div>
             </div>
           </div>
@@ -135,13 +191,17 @@ const ProjectLifecycle: React.FC = () => {
           <div className="lg:col-span-1 space-y-4 lg:border-r border-gray-200 lg:pr-8">
             <div>
               <p className="text-sm font-inter font-medium text-[#212B36]">Assigned Planner</p>
-              <p className="text-sm text-[#637381] font-inter">Sarah Lee</p>
+              <p className="text-sm text-[#637381] font-inter">{assignedPlanner || "-"}</p>
             </div>
             <div>
               <p className="text-sm font-inter font-medium text-[#212B36] mb-2">Priority</p>
-              <span className="px-4 py-1 bg-[#FFF9E7] text-[#EAB308] border border-[#EAB308]/20 rounded-full text-xs font-inter font-normal">
-                Medium
-              </span>
+              {priority ? (
+                <span className="px-4 py-1 bg-[#FFF9E7] text-[#EAB308] border border-[#EAB308]/20 rounded-full text-xs font-inter font-normal capitalize">
+                  {priority}
+                </span>
+              ) : (
+                <p className="text-sm text-[#637381] font-inter">-</p>
+              )}
             </div>
           </div>
 
@@ -149,8 +209,12 @@ const ProjectLifecycle: React.FC = () => {
           <div className="lg:col-span-1 space-y-3">
             <h3 className="text-sm font-inter font-medium text-[#212B36]">Next Step</h3>
             <div className="space-y-1">
-              <p className="text-sm text-[#637381] font-inter">Fabrication Production Started</p>
-              <p className="text-xs text-[#5D6772] font-inter">Upcoming After completion</p>
+              <p className="text-sm text-[#637381] font-inter">
+                {nextStage ? formatPlantLifecycleStatusLabel(nextStage) : "None (Delivered)"}
+              </p>
+              <p className="text-xs text-[#5D6772] font-inter">
+                {nextStage ? "Upcoming after completion" : "Project completed"}
+              </p>
             </div>
           </div>
         </div>
@@ -178,11 +242,14 @@ const ProjectLifecycle: React.FC = () => {
         isOpen={isUpdateModalOpen}
         onClose={() => setIsUpdateModalOpen(false)}
         onUpdate={handleUpdateStatus}
+        currentStatus={currentStatus}
+        isLoading={isUpdating}
       />
       <AddNotesModal 
         isOpen={isNotesModalOpen}
         onClose={() => setIsNotesModalOpen(false)}
         onAdd={handleAddNote}
+        isLoading={isAddingNote}
       />
       <SuccessModal 
         isOpen={isSuccessModalOpen}
