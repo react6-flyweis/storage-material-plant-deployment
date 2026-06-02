@@ -1,6 +1,7 @@
 import React from "react";
 import { NAV_ITEMS } from "@/config/navigation.config";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useAppSelector } from "@/redux/hooks";
 
 interface SidePanelProps {
   isOpen: boolean;
@@ -15,6 +16,8 @@ const SidePanel: React.FC<SidePanelProps> = ({
   activeSubTab,
   onSubTabClick,
 }) => {
+  const user = useAppSelector((state) => state.auth.user);
+
   const sidePanelPaddingTop = 24;
   const headerBlockHeight = 122;
   const itemHeight = 76;
@@ -41,10 +44,10 @@ const SidePanel: React.FC<SidePanelProps> = ({
       <div className="flex flex-col h-full fade-in duration-300">
         <div className="mb-2">
           <h2 className="text-(--text-color-primary-blue) font-semibold text-lg leading-tight mb-1">
-            Plant Panel
+            {user?.name || "Plant Panel"}
           </h2>
-          <p className="text-black text-sm font-normal">
-            Plant1234@steelpro.com
+          <p className="text-black text-sm font-normal break-all">
+            {user?.email || "Plant1234@steelpro.com"}
           </p>
         </div>
 
