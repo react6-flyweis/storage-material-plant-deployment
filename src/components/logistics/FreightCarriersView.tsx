@@ -9,8 +9,7 @@ import {
   Eye,
   Edit2,
   Trash2,
-  Truck,
-  Star,
+  Truck
 } from "lucide-react";
 import TitleSubtitle from "../common_component/TitleSubtitle";
 import Button from "../common_component/Button";
@@ -148,9 +147,7 @@ const FreightCarriersView: React.FC = () => {
   const emptyState = !loading && carriers.length === 0;
 
   const handleAddCarrier = () => {
-    setModalMode("add");
-    setSelectedCarrier(null);
-    setIsCarrierModalOpen(true);
+    navigate("/logistics/freight-carriers/add");
   };
 
   const handleEditCarrier = (carrier: CarrierRow) => {
@@ -179,26 +176,6 @@ const FreightCarriersView: React.FC = () => {
     setIsSuccessModalOpen(true);
   };
 
-  const renderStars = (rating: number) => {
-    return (
-      <div className="flex items-center gap-1">
-        {[1, 2, 3, 4, 5].map((s) => (
-          <Star
-            key={s}
-            size={14}
-            className={
-              s <= Math.floor(rating)
-                ? "fill-[#FFD700] text-[#FFD700]"
-                : "fill-[#000000]"
-            }
-          />
-        ))}
-        <span className="ml-1 text-sm text-[#364153] font-normal">
-          {rating}
-        </span>
-      </div>
-    );
-  };
 
   const headers = [
     "Carrier",
@@ -208,7 +185,6 @@ const FreightCarriersView: React.FC = () => {
     "Bids",
     "Awarded",
     "Avg Bid",
-    "Rating",
     "Status",
     "Service Type",
     "Service Area",
@@ -358,21 +334,6 @@ const FreightCarriersView: React.FC = () => {
                           Average quoted amount
                         </span>
                       </div>
-                    </td>
-                    <td className="p-2 md:p-4">
-                      {renderStars(
-                        Math.min(
-                          5,
-                          Math.max(
-                            0,
-                            carrier.awardedBidCount > 0
-                              ? (carrier.awardedBidCount /
-                                  Math.max(carrier.totalBids, 1)) *
-                                  5
-                              : 0,
-                          ),
-                        ),
-                      )}
                     </td>
                     <td className="p-2 md:p-4">
                       <CommonStatusBadge
