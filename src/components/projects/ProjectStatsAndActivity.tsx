@@ -101,7 +101,7 @@ const ProjectStatsAndActivity: React.FC<ProjectStatsAndActivityProps> = ({
 
             <div className="flex items-start gap-4">
               <div className="mt-1 text-[#111827]">
-                <Calendar className="size-5 md:size-6"/>
+                <Calendar className="size-5 md:size-6" />
               </div>
               <div>
                 <p className="text-sm md:text-base font-normal text-[#111827] font-inter">
@@ -141,11 +141,11 @@ const ProjectStatsAndActivity: React.FC<ProjectStatsAndActivityProps> = ({
 
               <div className="space-y-1">
                 {activity.building && (
-                  <p className="text-base font-bold text-(--text-color-purple) font-inter">
+                  <p className="text-sm font-bold text-(--text-color-purple) font-inter">
                     {activity.building}
                   </p>
                 )}
-                <p className="text-base text-[#212B36] font-inter font-medium leading-tight">
+                <p className="text-sm text-[#212B36] font-inter font-medium leading-tight">
                   {activity.action}
                 </p>
                 <div className="flex items-center gap-2 text-[#919EAB]">
