@@ -5,12 +5,10 @@ import {
   PencilLine,
   Mail,
   Phone,
-  Globe,
   MapPin,
   CheckCircle2,
   ChevronDown,
   ArrowUpDown,
-  Link,
   Search,
 } from "lucide-react";
 import PageWrapper from "../common_component/PageWrapper";
@@ -20,73 +18,160 @@ import FilterDropdown from "../common_component/FilterDropdown";
 import Pagination from "../Pagination";
 import verify from "@/assets/icon/verify.svg";
 import pdfIcon from "@/assets/icon/pdfIcon.svg";
+import {
+  useGetPlantCarrierQuery,
+  type PlantCarrierDetailResponse,
+} from "@/redux/api/logisticsApi";
 
-const carrierData = {
-  id: "DLV-2051",
-  name: "IronHaul Logistics",
-  status: "Active",
-  rating: 4.7,
-  address: "4712 Cherry Ridge Drive Rochester, NY 14620.",
-  email: "john@example.com",
-  phone: "+1 58578 54840",
-  website: "www.example.com",
-  lastAwarded: "Mar 18, 2026",
-  serviceCategory: "Construction Material Transport",
-  avgResponseTime: "responds within 45 min",
+interface CarrierViewData {
+  id: string;
+  name: string;
+  status: string;
+  rating: number;
+  address: string;
+  email: string;
+  phone: string;
+  website: string;
+  lastAwarded: string;
+  serviceCategory: string;
+  avgResponseTime: string;
   fleet: {
-    flatbed: 18,
-    dryVan: 12,
-    refrigerated: 5,
-    heavyHaul: 4,
-    totalVehicles: 32,
-    maxCapacity: "30 Tons",
-    avgAge: "4.2 Years",
-  },
-  notes:
-    "Reliable for long-distance steel transport. Preferred carrier for Texas routes. Fast response time during bidding.",
-  assignedProjects: [
-    {
-      id: "ORD00025",
-      route: "Dallas → Austin",
-      cargo: "Steel Beams",
-      date: "Aug 12",
-      status: "Assigned",
-    },
-    {
-      id: "ORD00024",
-      route: "Houston → Dallas",
-      cargo: "Cement",
-      date: "Aug 12",
-      status: "Assigned",
-    },
-    {
-      id: "ORD00023",
-      route: "Austin → Houston",
-      cargo: "Iron Rods",
-      date: "Aug 12",
-      status: "Assigned",
-    },
-  ],
-  freightHistory: [
-    { id: "ORD00025", route: "Dallas → Austin", cargo: "Steel Beams", date: "Aug 12", status: "Delivered" },
-    { id: "ORD00024", route: "Houston → Dallas", cargo: "Cement", date: "Aug 12", status: "Delivered" },
-    { id: "ORD00023", route: "Austin → Houston", cargo: "Iron Rods", date: "Aug 12", status: "Delivered" },
-    { id: "ORD00022", route: "Houston → Dallas", cargo: "Cement", date: "Aug 12", status: "Delivered" },
-    { id: "ORD00019", route: "Dallas → Austin", cargo: "Steel Beams", date: "Aug 12", status: "Delivered" },
-    { id: "ORD00018", route: "Austin → Dallas", cargo: "Glass", date: "Aug 10", status: "Delivered" },
-    { id: "ORD00017", route: "Dallas → Houston", cargo: "Metal Plates", date: "Aug 08", status: "Delivered" },
-  ],
-  complianceDocs: [
-    { name: "Insurance certificate", size: "6.1 MB", type: "PDF", expiry: "Mar 15, 2025" },
-    { name: "Material certifications", size: "5.2 MB", type: "PDF", expiry: "Jan 8, 2025" },
-    { name: "Contracts", size: "6.1 MB", type: "PDF", expiry: "Mar 15, 2025" },
-    { name: "Pricing sheets", size: "6.1 MB", type: "PDF", expiry: "Mar 15, 2025" },
+    flatbed: number;
+    dryVan: number;
+    refrigerated: number;
+    heavyHaul: number;
+    totalVehicles: number;
+    maxCapacity: string;
+    avgAge: string;
+  };
+  notes: string;
+  assignedProjects: Array<{
+    id: string;
+    route: string;
+    cargo: string;
+    date: string;
+    status: string;
+  }>;
+  freightHistory: Array<{
+    id: string;
+    route: string;
+    cargo: string;
+    date: string;
+    status: string;
+  }>;
+  complianceDocs: Array<{
+    name: string;
+    size: string;
+    type: string;
+    expiry: string;
+  }>;
+}
+
+const toTitleCase = (value: string) =>
+  value
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+    .join(" ");
+
+const formatAddress = (
+  address?: PlantCarrierDetailResponse["carrier"]["address"],
+) => {
+  if (!address) {
+    return "";
+  }
+
+  return [
+    address.placeNumber,
+    address.streetAddress,
+    address.landmark,
+    `${address.city}, ${address.state} ${address.postalCode}`.trim(),
   ]
+    .filter((part) => part && part.trim())
+    .join(", ");
+};
+
+const mapCarrierDetail = (
+  response?: PlantCarrierDetailResponse,
+): CarrierViewData => {
+  const carrier = response?.carrier;
+  const stats = response?.stats;
+  const history = response?.freightHistory ?? [];
+
+  const fleetEquipment = carrier?.fleetEquipment ?? [];
+  const flatbed = fleetEquipment.find(e => e.equipmentName.toLowerCase().includes("flatbed"))?.quantity ?? 0;
+  const dryVan = fleetEquipment.find(e => e.equipmentName.toLowerCase().includes("dry"))?.quantity ?? 0;
+  const refrigerated = fleetEquipment.find(e => e.equipmentName.toLowerCase().includes("refrigerated") || e.equipmentName.toLowerCase().includes("reefer"))?.quantity ?? 0;
+  const heavyHaul = fleetEquipment.find(e => e.equipmentName.toLowerCase().includes("heavy") || e.equipmentName.toLowerCase().includes("haul"))?.quantity ?? 0;
+
+  const totalBids = stats?.totalBids ?? 0;
+  const bidWinRate = stats?.bidWinRate ?? 0;
+
+  const formattedHistory = history.map((item) => ({
+    id: item.deliveryNumber || item.jobId || item._id,
+    route: `${item.pickupLocation} → ${item.deliveryLocation}`,
+    cargo: item.projectName,
+    date: item.selectedAt
+      ? new Date(item.selectedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+      : item.submittedAt
+      ? new Date(item.submittedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+      : "—",
+    status: toTitleCase(item.status),
+  }));
+
+  const assignedProjects = formattedHistory.filter(
+    (h) =>
+      h.status.toLowerCase() === "selected" ||
+      h.status.toLowerCase() === "active",
+  );
+
+  const complianceDocs = (carrier?.documents ?? []).map((document) => {
+    const isPdf =
+      document.name.toLowerCase().endsWith(".pdf") ||
+      document.url.toLowerCase().includes(".pdf");
+
+    return {
+      name: document.name,
+      size: "—",
+      type: isPdf ? "PDF" : "Document",
+      expiry: "—",
+    };
+  });
+
+  return {
+    id: carrier?.carrierCode || "",
+    name: carrier?.carrierName || "",
+    status: carrier?.status ? toTitleCase(carrier.status) : "",
+    rating: totalBids > 0 ? Number(((bidWinRate / 100) * 5).toFixed(1)) : 0,
+    address: formatAddress(carrier?.address),
+    email: carrier?.email || "",
+    phone: carrier?.phone || "",
+    website: "",
+    lastAwarded: stats?.lastAwardedDate
+      ? new Date(stats.lastAwardedDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+      : "—",
+    serviceCategory: carrier?.serviceType || "",
+    avgResponseTime: stats?.avgResponseTimeHours
+      ? `responds within ${stats.avgResponseTimeHours} hrs`
+      : "—",
+    fleet: {
+      flatbed,
+      dryVan,
+      refrigerated,
+      heavyHaul,
+      totalVehicles: carrier?.fleetCapacity?.totalVehicleCount ?? 0,
+      maxCapacity: carrier?.fleetCapacity?.maximumLoadCapacity ? `${carrier.fleetCapacity.maximumLoadCapacity.toLocaleString()} lbs` : "—",
+      avgAge: carrier?.fleetCapacity?.averageFleetAge ? `${carrier.fleetCapacity.averageFleetAge} Years` : "—",
+    },
+    notes: carrier?.internalNotes || "",
+    assignedProjects,
+    freightHistory: formattedHistory,
+    complianceDocs,
+  };
 };
 
 const CarrierDetailsView: React.FC = () => {
   const { id } = useParams();
-  console.log(id)
   const navigate = useNavigate();
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -96,6 +181,16 @@ const CarrierDetailsView: React.FC = () => {
   const [complianceSort, setComplianceSort] = useState<{ key: string; direction: "asc" | "desc" } | null>(null);
   const [docSort, setDocSort] = useState("Docs Type");
   const [docSearch, setDocSearch] = useState("");
+
+  const { data: carrierResponse } = useGetPlantCarrierQuery(id ?? "", {
+    skip: !id,
+  });
+  const carrierLoading = !carrierResponse && Boolean(id);
+
+  const carrierData = useMemo(
+    () => mapCarrierDetail(carrierResponse),
+    [carrierResponse],
+  );
 
   const handleSort = (table: "assigned" | "history" | "compliance", key: string) => {
     const setters = {
@@ -121,7 +216,7 @@ const CarrierDetailsView: React.FC = () => {
       });
     }
     return items;
-  }, [assignedSort]);
+  }, [assignedSort, carrierData.assignedProjects]);
 
   const sortedHistory = useMemo(() => {
     let items = [...carrierData.freightHistory];
@@ -133,14 +228,19 @@ const CarrierDetailsView: React.FC = () => {
       });
     }
     return items;
-  }, [historySort]);
+  }, [historySort, carrierData.freightHistory]);
+
+  const paginatedHistory = useMemo(() => {
+    const startIndex = (currentPage - 1) * rowsPerPage;
+    return sortedHistory.slice(startIndex, startIndex + rowsPerPage);
+  }, [currentPage, rowsPerPage, sortedHistory]);
 
   const sortedDocs = useMemo(() => {
     let docs = [...carrierData.complianceDocs];
     if (docSearch) {
       docs = docs.filter(doc => doc.name.toLowerCase().includes(docSearch.toLowerCase()));
     }
-    
+
     // Primary sort from dropdown
     if (docSort !== "Docs Type") {
       docs.sort((a, b) => {
@@ -159,13 +259,60 @@ const CarrierDetailsView: React.FC = () => {
       });
     }
     return docs;
-  }, [docSort, docSearch, complianceSort]);
+  }, [docSort, docSearch, complianceSort, carrierData.complianceDocs]);
+
+  if (carrierLoading) {
+    return (
+      <PageWrapper>
+        <div className="flex items-center gap-3 mb-2 mt-2">
+          <button
+            disabled
+            className="p-1.5 rounded-full transition-colors shrink-0 bg-gray-100 animate-pulse"
+            aria-label="Loading back button"
+          >
+            <ArrowLeft size={20} className="text-transparent" />
+          </button>
+          <div className="h-7 w-28 rounded-full bg-gray-200 animate-pulse" />
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 space-y-6">
+            <div className="bg-[#F7F8F9] rounded-[14px] p-3 md:p-6 shadow-sm border border-gray-100">
+              <div className="flex flex-wrap gap-6 items-start justify-between mb-8">
+                <div className="space-y-3 flex-1">
+                  <div className="h-4 w-24 rounded-full bg-gray-200 animate-pulse" />
+                  <div className="h-8 w-56 rounded-full bg-gray-200 animate-pulse" />
+                  <div className="h-4 w-80 rounded-full bg-gray-200 animate-pulse" />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-5 bg-white rounded-[14px] shadow-xs mb-6">
+                <div className="h-12 rounded bg-gray-100 animate-pulse" />
+                <div className="h-12 rounded bg-gray-100 animate-pulse" />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-5 rounded-[14px] bg-white">
+                <div className="h-12 rounded bg-gray-100 animate-pulse" />
+                <div className="h-12 rounded bg-gray-100 animate-pulse" />
+                <div className="h-12 rounded bg-gray-100 animate-pulse" />
+              </div>
+            </div>
+          </div>
+          <div className="space-y-6">
+            <div className="bg-white rounded-[14px] p-6 shadow-sm">
+              <div className="h-6 w-28 rounded-full bg-gray-200 animate-pulse" />
+              <div className="w-full h-px bg-gray-100 my-6" />
+              <div className="h-20 rounded bg-gray-100 animate-pulse" />
+            </div>
+          </div>
+        </div>
+      </PageWrapper>
+    );
+  }
 
   return (
     <PageWrapper>
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-4">
         {/* Header */}
-        <div className="flex items-center gap-3 mb-2">
+        <div className="flex items-center gap-3 mt-2">
           <button
             onClick={() => navigate(-1)}
             className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
@@ -219,7 +366,7 @@ const CarrierDetailsView: React.FC = () => {
               </div>
 
               {/* Contact Info Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-3 md:p-5 bg-white rounded-[14px] shadow-xs mb-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-3 md:p-5 bg-white rounded-[14px] shadow-xs mb-6">
                 <div className="space-y-1">
                   <p className="text-xs font-semibold text-[#051321] flex items-center gap-2 uppercase tracking-wide">
                     <Mail size={14} /> Email Address
@@ -232,7 +379,7 @@ const CarrierDetailsView: React.FC = () => {
                   </p>
                   <p className="text-sm text-[#5D6772]">{carrierData.phone}</p>
                 </div>
-                <div className="space-y-1">
+                {/* <div className="space-y-1">
                   <p className="text-xs font-semibold text-[#051321] flex items-center gap-2 uppercase tracking-wide">
                     <Globe size={14} /> Website
                   </p>
@@ -242,7 +389,7 @@ const CarrierDetailsView: React.FC = () => {
                     </span>
                     <Link size={14} className="text-blue-500" />
                   </div>
-                </div>
+                </div> */}
               </div>
 
               {/* Metrics Bar */}
@@ -281,70 +428,70 @@ const CarrierDetailsView: React.FC = () => {
                   </p>
                 </div>
               </div>
-            </div>
 
-            {/* Fleet & Equipment Details */}
-            <div className="bg-white rounded-[14px] p-3 md:p-6 shadow-xs mt-6">
-              <SubHeading text="Fleet & Equipment Details" />
-              <div className="h-px bg-[#E2E4E6] my-6" />
+              {/* Fleet & Equipment Details */}
+              <div className="bg-white rounded-[14px] p-3  shadow-xs mt-6">
+                <SubHeading text="Fleet & Equipment Details" />
+                <div className="h-px bg-[#E2E4E6] my-6" />
 
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
-                {[
-                  { label: "Flatbed Trucks", value: carrierData.fleet.flatbed },
-                  { label: "Dry Vans", value: carrierData.fleet.dryVan },
-                  {
-                    label: "Refrigerated Trucks",
-                    value: carrierData.fleet.refrigerated,
-                  },
-                  {
-                    label: "Heavy Haul Trailers",
-                    value: carrierData.fleet.heavyHaul,
-                  },
-                ].map((item, i) => (
-                  <div key={i} className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <div className="size-1 bg-[#637381] rounded-full" />
-                      <p className="text-xs font-semibold text-[#051321] tracking-wide">
-                        {item.label}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+                  {[
+                    { label: "Flatbed Trucks", value: carrierData.fleet.flatbed },
+                    { label: "Dry Vans", value: carrierData.fleet.dryVan },
+                    {
+                      label: "Refrigerated Trucks",
+                      value: carrierData.fleet.refrigerated,
+                    },
+                    {
+                      label: "Heavy Haul Trailers",
+                      value: carrierData.fleet.heavyHaul,
+                    },
+                  ].map((item, i) => (
+                    <div key={i} className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <div className="size-1 bg-[#637381] rounded-full" />
+                        <p className="text-xs font-semibold text-[#051321] tracking-wide">
+                          {item.label}
+                        </p>
+                      </div>
+                      <p className="text-sm font-normal text-[#5D6772] pl-3">
+                        {item.value}
                       </p>
                     </div>
-                    <p className="text-sm font-normal text-[#5D6772] pl-3">
-                      {item.value}
-                    </p>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
 
-              <SubHeading text="Fleet Capacity" />
-              <div className="h-px bg-[#E2E4E6] my-6" />
+                <SubHeading text="Fleet Capacity" />
+                <div className="h-px bg-[#E2E4E6] my-6" />
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {[
-                  {
-                    label: "Total Vehicles",
-                    value: carrierData.fleet.totalVehicles,
-                  },
-                  {
-                    label: "Maximum Load Capacity",
-                    value: carrierData.fleet.maxCapacity,
-                  },
-                  {
-                    label: "Average Fleet Age",
-                    value: carrierData.fleet.avgAge,
-                  },
-                ].map((item, i) => (
-                  <div key={i} className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <div className="size-1 bg-[#637381] rounded-full" />
-                      <p className="text-sm font-semibold text-[#051321] tracking-wide">
-                        {item.label}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {[
+                    {
+                      label: "Total Vehicles",
+                      value: carrierData.fleet.totalVehicles,
+                    },
+                    {
+                      label: "Maximum Load Capacity",
+                      value: carrierData.fleet.maxCapacity,
+                    },
+                    {
+                      label: "Average Fleet Age",
+                      value: carrierData.fleet.avgAge,
+                    },
+                  ].map((item, i) => (
+                    <div key={i} className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <div className="size-1 bg-[#637381] rounded-full" />
+                        <p className="text-sm font-semibold text-[#051321] tracking-wide">
+                          {item.label}
+                        </p>
+                      </div>
+                      <p className="text-sm font-normal text-[#5D6772] pl-3">
+                        {item.value}
                       </p>
                     </div>
-                    <p className="text-sm font-normal text-[#5D6772] pl-3">
-                      {item.value}
-                    </p>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             </div>
 
@@ -361,7 +508,7 @@ const CarrierDetailsView: React.FC = () => {
                       <th className="px-6 py-3 text-xs font-medium text-black border-b border-[#E2E4E6]">
                         Freight ID
                       </th>
-                      <th 
+                      <th
                         className="px-6 py-3 text-xs font-medium text-black border-b border-[#E2E4E6] cursor-pointer hover:bg-gray-100 transition-colors"
                         onClick={() => handleSort("assigned", "route")}
                       >
@@ -369,7 +516,7 @@ const CarrierDetailsView: React.FC = () => {
                           Route <ArrowUpDown size={14} className={assignedSort?.key === "route" ? "text-blue-500" : "text-gray-400"} />
                         </div>
                       </th>
-                      <th 
+                      <th
                         className="px-6 py-3 text-xs font-medium text-black border-b border-[#E2E4E6] cursor-pointer hover:bg-gray-100 transition-colors"
                         onClick={() => handleSort("assigned", "cargo")}
                       >
@@ -377,7 +524,7 @@ const CarrierDetailsView: React.FC = () => {
                           Cargo <ArrowUpDown size={14} className={assignedSort?.key === "cargo" ? "text-blue-500" : "text-gray-400"} />
                         </div>
                       </th>
-                      <th 
+                      <th
                         className="px-6 py-3 text-xs font-medium text-black border-b border-[#E2E4E6] cursor-pointer hover:bg-gray-100 transition-colors"
                         onClick={() => handleSort("assigned", "date")}
                       >
@@ -428,19 +575,19 @@ const CarrierDetailsView: React.FC = () => {
                   <thead className="bg-[#F4F6F8]">
                     <tr>
                       <th className="px-6 py-3 text-xs font-medium text-black border-b border-[#E2E4E6]">Freight ID</th>
-                      <th 
+                      <th
                         className="px-6 py-3 text-xs font-medium text-black border-b border-[#E2E4E6] cursor-pointer hover:bg-gray-100 transition-colors"
                         onClick={() => handleSort("history", "route")}
                       >
                         <div className="flex items-center gap-1">Route <ArrowUpDown size={14} className={historySort?.key === "route" ? "text-blue-500" : "text-gray-400"} /></div>
                       </th>
-                      <th 
+                      <th
                         className="px-6 py-3 text-xs font-medium text-black border-b border-[#E2E4E6] cursor-pointer hover:bg-gray-100 transition-colors"
                         onClick={() => handleSort("history", "cargo")}
                       >
                         <div className="flex items-center gap-1">Cargo <ArrowUpDown size={14} className={historySort?.key === "cargo" ? "text-blue-500" : "text-gray-400"} /></div>
                       </th>
-                      <th 
+                      <th
                         className="px-6 py-3 text-xs font-medium text-black border-b border-[#E2E4E6] cursor-pointer hover:bg-gray-100 transition-colors"
                         onClick={() => handleSort("history", "date")}
                       >
@@ -450,7 +597,7 @@ const CarrierDetailsView: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#E2E4E6]">
-                    {sortedHistory.map((project, i) => (
+                    {paginatedHistory.map((project, i) => (
                       <tr key={i} className="hover:bg-gray-50/50 transition-colors">
                         <td className="px-6 py-4 text-sm text-[#006CE4] font-medium underline cursor-pointer">
                           {project.id}
@@ -469,7 +616,7 @@ const CarrierDetailsView: React.FC = () => {
                 </table>
               </div>
               <div className="mt-6">
-                <Pagination 
+                <Pagination
                   currentPage={currentPage}
                   totalItems={carrierData.freightHistory.length}
                   rowsPerPage={rowsPerPage}
@@ -519,7 +666,7 @@ const CarrierDetailsView: React.FC = () => {
                   <table className="w-full text-left border-separate border-spacing-0">
                     <thead className="bg-[#F4F6F8]">
                       <tr>
-                        <th 
+                        <th
                           className="px-6 py-3 text-xs font-medium text-black border-b border-[#E2E4E6] cursor-pointer hover:bg-gray-100 transition-colors"
                           onClick={() => handleSort("compliance", "name")}
                         >
