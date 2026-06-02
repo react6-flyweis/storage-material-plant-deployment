@@ -1,7 +1,6 @@
 import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft} from "lucide-react";
-import { customersData } from "@/data/productionMockData";
+import { ArrowLeft } from "lucide-react"
 import Heading from "../common_component/Heading";
 import pdfIcon from "@/assets/icon/dashboard/pdfIcon.svg";
 import xlxsIcon from "@/assets/icon/dashboard/xlxs.svg";
@@ -11,17 +10,19 @@ import BOMListContent from "./BOMListContent";
 
 const BOMView: React.FC = () => {
   const navigate = useNavigate();
-  const { customerId, projectId } = useParams();
+  const { projectId } = useParams();
 
-  const customer =
-    customersData[customerId || ""] || customersData["ID-2025-1047"];
-  const project =
-    customer?.projects.find((p) => p.id === projectId) || customer?.projects[0];
+
+  const project = {
+    name: "ABC Construction",
+    customerName: "John Doe",
+
+  }
 
   const bomData = {
     id: "BOM-001",
     projectName: project?.name || "ABC Construction",
-    customerName: customer?.name || "John Doe",
+    customerName: "John Doe",
     date: "01.09.26",
     jobId: "BLDG-D",
     summary: {
@@ -48,14 +49,14 @@ const BOMView: React.FC = () => {
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mt-2">
         <div className="flex items-center gap-4">
-        <Button
-          variant="blueFilled"
-          size="sm"
-          onClick={() => navigate(-1)}
-          className="flex items-center gap-2 shrink-0"
-        >
-          <ArrowLeft size={18} strokeWidth={2.5} /> Back
-        </Button>
+          <Button
+            variant="blueFilled"
+            size="sm"
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-2 shrink-0"
+          >
+            <ArrowLeft size={18} strokeWidth={2.5} /> Back
+          </Button>
           <Heading text="BOM Files Details" />
         </div>
 
@@ -71,10 +72,10 @@ const BOMView: React.FC = () => {
             <img src={pdfIcon} alt="pdf" className="w-4 h-4 mr-2" />
             Download PDF
           </Button>
-          <Button 
-            size="sm" 
+          <Button
+            size="sm"
             variant="purpleFilled"
-            onClick={() => navigate(`/projects/generate-shipper-order/${customerId}/${projectId}`)}
+            onClick={() => navigate(`/projects/${projectId}/generate-shipper-order`)}
           >
             Share with Shippers
           </Button>
