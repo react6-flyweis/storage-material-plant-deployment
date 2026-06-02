@@ -170,6 +170,107 @@ export interface PlantCarriersQueryParams {
 
 type PlantCarriersApiResponse = ApiResponse<PlantCarriersList>;
 
+export interface CreatePlantCarrierRequest {
+  carrierName: string;
+  email: string;
+  phone: string;
+  contactName: string;
+  carrierCode?: string;
+  serviceType: string;
+  serviceArea: string;
+  address: {
+    placeNumber: string;
+    streetAddress: string;
+    landmark: string;
+    city: string;
+    state: string;
+    postalCode: string;
+    gpsCoordinates: {
+      lat: number;
+      lng: number;
+    };
+  };
+  fleetEquipment?: {
+    equipmentName: string;
+    quantity: number;
+  }[];
+  fleetCapacity?: {
+    totalVehicleCount: number;
+    maximumLoadCapacity: number;
+    averageFleetAge: number;
+  };
+  documents?: {
+    name: string;
+    url: string;
+  }[];
+  internalNotes?: string;
+}
+
+export interface PlantCarrierDetail {
+  _id: string;
+  carrierCode: string;
+  carrierName: string;
+  contactName: string;
+  email: string;
+  phone: string;
+  serviceType: string;
+  serviceArea: string;
+  address?: PlantVendorAddress;
+  fleetEquipment?: {
+    equipmentName: string;
+    quantity: number;
+  }[];
+  fleetCapacity?: {
+    totalVehicleCount: number;
+    maximumLoadCapacity: number;
+    averageFleetAge: number;
+  };
+  documents?: {
+    _id: string;
+    name: string;
+    url: string;
+  }[];
+  internalNotes?: string;
+  status: string;
+  equipmentTypes?: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PlantCarrierDetailStats {
+  totalBids: number;
+  activeBids: number;
+  awardedBidCount: number;
+  bidWinRate: number;
+  avgBid: number;
+  lastAwardedDate?: string;
+  avgResponseTimeHours: number;
+  assignedProjects: number;
+}
+
+export interface PlantCarrierFreightHistoryItem {
+  _id: string;
+  deliveryNumber: string;
+  projectName: string;
+  jobId: string;
+  status: string;
+  quotedAmount: number;
+  currency: string;
+  sentAt: string;
+  submittedAt: string;
+  selectedAt?: string;
+  pickupLocation: string;
+  deliveryLocation: string;
+}
+
+export interface PlantCarrierDetailResponse {
+  carrier: PlantCarrierDetail;
+  stats: PlantCarrierDetailStats;
+  freightHistory: PlantCarrierFreightHistoryItem[];
+}
+
+type PlantCarrierDetailApiResponse = ApiResponse<PlantCarrierDetailResponse>;
+
 export const logisticsApi = createApi({
   reducerPath: "logisticsApi",
   baseQuery: baseQueryWithReauth,
@@ -177,6 +278,13 @@ export const logisticsApi = createApi({
     createPlantVendor: builder.mutation<unknown, CreatePlantVendorRequest>({
       query: (body) => ({
         url: "/api/plant/vendors",
+        method: "POST",
+        body,
+      }),
+    }),
+    createPlantCarrier: builder.mutation<unknown, CreatePlantCarrierRequest>({
+      query: (body) => ({
+        url: "/api/plant/carriers",
         method: "POST",
         body,
       }),
@@ -253,12 +361,52 @@ export const logisticsApi = createApi({
           limit: 20,
         },
     }),
+    getPlantCarrier: builder.query<PlantCarrierDetailResponse, string>({
+      query: (carrierId) => `/api/plant/carriers/${carrierId}`,
+      transformResponse: (response: PlantCarrierDetailApiResponse) =>
+        response.data ?? {
+          carrier: {
+            _id: "",
+            carrierCode: "",
+            carrierName: "",
+            contactName: "",
+            email: "",
+            phone: "",
+            serviceType: "",
+            serviceArea: "",
+            status: "",
+            createdAt: "",
+            updatedAt: "",
+            equipmentTypes: [],
+            documents: [],
+            fleetEquipment: [],
+            fleetCapacity: {
+              totalVehicleCount: 0,
+              maximumLoadCapacity: 0,
+              averageFleetAge: 0,
+            },
+          },
+          stats: {
+            totalBids: 0,
+            activeBids: 0,
+            awardedBidCount: 0,
+            bidWinRate: 0,
+            avgBid: 0,
+            avgResponseTimeHours: 0,
+            assignedProjects: 0,
+          },
+          freightHistory: [],
+        },
+    }),
   }),
 });
 
 export const {
   useCreatePlantVendorMutation,
+  useCreatePlantCarrierMutation,
   useGetPlantVendorQuery,
   useGetPlantVendorsQuery,
   useGetPlantCarriersQuery,
+  useGetPlantCarrierQuery,
 } = logisticsApi;
+
