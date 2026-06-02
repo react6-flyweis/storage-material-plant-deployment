@@ -32,7 +32,7 @@ const FreightFilterModal: React.FC<FreightFilterModalProps> = ({
   if (!isOpen) return null;
 
   const handleFilterChange = (key: string, value: string) => {
-    setFilters(prev => ({ ...prev, [key]: value }));
+    setFilters((prev) => ({ ...prev, [key]: value }));
   };
 
   const projectOptions = [
@@ -109,7 +109,9 @@ const FreightFilterModal: React.FC<FreightFilterModalProps> = ({
     <Modal isOpen={isOpen} onClose={onClose} hideHeader width="max-w-[1100px]">
       <div className="p-3 md:p-2 space-y-6 font-inter">
         {/* Header */}
-        <h2 className="text-xl md:text-3xl font-semibold text-[#212B36] text-center">Filters</h2>
+        <h2 className="text-xl md:text-3xl font-semibold text-[#212B36] text-center">
+          Filters
+        </h2>
 
         <div className="space-y-4">
           {/* Row 1: Date Range & Top Filters */}
@@ -118,34 +120,40 @@ const FreightFilterModal: React.FC<FreightFilterModalProps> = ({
               <button className="text-[#637381] hover:text-[#212B36] transition-colors">
                 <ChevronLeft size={20} />
               </button>
-              <span className="text-base md:text-lg font-semibold text-[#212B36] min-w-[140px] text-center">March 2024</span>
+              <span className="text-base md:text-lg font-semibold text-[#212B36] min-w-[140px] text-center">
+                March 2024
+              </span>
               <button className="text-[#637381] hover:text-[#212B36] transition-colors">
                 <ChevronRight size={20} />
               </button>
             </div>
 
-            <CommonDropdown 
+            <CommonDropdown
               value={filters.deliveries}
               onChange={(v) => handleFilterChange("deliveries", v)}
-              options={[{ label: "All Deliveries", value: "all" }, { label: "My Deliveries", value: "my" }, { label: "Shared Deliveries", value: "shared" }]}
+              options={[
+                { label: "All Deliveries", value: "all" },
+                { label: "My Deliveries", value: "my" },
+                { label: "Shared Deliveries", value: "shared" },
+              ]}
               placeholder="All Deliveries"
               className="min-w-[180px]"
             />
-            <CommonDropdown 
+            <CommonDropdown
               value={filters.project}
               onChange={(v) => handleFilterChange("project", v)}
               options={projectOptions}
               placeholder="Project"
               className="min-w-[220px]"
             />
-            <CommonDropdown 
+            <CommonDropdown
               value={filters.deliveryType}
               onChange={(v) => handleFilterChange("deliveryType", v)}
               options={deliveryTypeOptions}
               placeholder="Delivery Type"
               className="min-w-[200px]"
             />
-            <CommonDropdown 
+            <CommonDropdown
               value={filters.colorStatus}
               onChange={(v) => handleFilterChange("colorStatus", v)}
               options={colorStatusOptions}
@@ -156,28 +164,28 @@ const FreightFilterModal: React.FC<FreightFilterModalProps> = ({
 
           {/* Row 2: Secondary Filters */}
           <div className="flex flex-wrap items-center justify-center gap-4">
-            <CommonDropdown 
+            <CommonDropdown
               value={filters.vendor}
               onChange={(v) => handleFilterChange("vendor", v)}
               options={vendorOptions}
               placeholder="Vendor"
               className="min-w-[220px]"
             />
-            <CommonDropdown 
+            <CommonDropdown
               value={filters.siteLocation}
               onChange={(v) => handleFilterChange("siteLocation", v)}
               options={siteLocationOptions}
               placeholder="Site Location"
               className="min-w-[220px]"
             />
-            <CommonDropdown 
+            <CommonDropdown
               value={filters.priority}
               onChange={(v) => handleFilterChange("priority", v)}
               options={priorityOptions}
               placeholder="Priority"
               className="min-w-[220px]"
             />
-            <CommonDropdown 
+            <CommonDropdown
               value={filters.internalOwner}
               onChange={(v) => handleFilterChange("internalOwner", v)}
               options={internalOwnerOptions}
@@ -188,21 +196,21 @@ const FreightFilterModal: React.FC<FreightFilterModalProps> = ({
 
           {/* Row 3: Final Filters */}
           <div className="flex flex-wrap items-center justify-center gap-4">
-            <CommonDropdown 
+            <CommonDropdown
               value={filters.status}
               onChange={(v) => handleFilterChange("status", v)}
               options={statusOptions}
               placeholder="Status"
               className="min-w-[220px]"
             />
-            <CommonDropdown 
+            <CommonDropdown
               value={filters.delivery}
               onChange={(v) => handleFilterChange("delivery", v)}
               options={deliveryOptions}
               placeholder="Delivery"
               className="min-w-[220px]"
             />
-            <CommonDropdown 
+            <CommonDropdown
               value={filters.channel}
               onChange={(v) => handleFilterChange("channel", v)}
               options={channelOptions}
@@ -214,7 +222,7 @@ const FreightFilterModal: React.FC<FreightFilterModalProps> = ({
 
         {/* Action Button */}
         <div className="flex justify-center pt-4">
-          <Button 
+          <Button
             variant="gradient"
             onClick={() => onApply?.(filters)}
             size="xl"
