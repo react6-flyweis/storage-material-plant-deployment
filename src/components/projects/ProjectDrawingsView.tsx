@@ -9,7 +9,8 @@ import ViewDrawingModal from "../leads/ViewDrawingModal";
 import { UploadModal, SuccessModal } from "./ProjectUploadModals";
 import FilterDropdown from "../common_component/FilterDropdown";
 import SubHeading from "../common_component/SubHeading";
-import filePdf from "../../assets/icon/file-pdf.svg"
+import filePdf from "../../assets/icon/file-pdf.svg";
+import { useGetProjectDrawingsQuery, useGetPlantProjectDetailQuery } from "@/redux/api/projectApi";
 
 const FileCard = ({
   file,
@@ -24,7 +25,7 @@ const FileCard = ({
     {/* Floating Status Badge */}
     <div className="absolute -top-3.5 -right-2 z-20">
       <span
-        className={`px-2 md:px-4 py-1 md:py-1.5 rounded-full md:text-xs text-[10px] font-normal ${file.statusColor.replace('bg-', 'bg-').replace('text-', 'text-')}`}
+        className={`px-2 md:px-4 py-1 md:py-1.5 rounded-full md:text-xs text-[10px] font-normal ${file.statusColor}`}
         style={{ boxShadow: '0px 2px 4px rgba(0,0,0,0.05)' }}
       >
         {file.status}
@@ -35,7 +36,7 @@ const FileCard = ({
       {/* Icon/Thumbnail Section */}
       <div className="shrink-0">
         {type === "drawing" ? (
-            <img src={filePdf} alt="pdf" className="md:size-[32px] size-[24px]" />
+          <img src={filePdf} alt="pdf" className="md:size-[32px] size-[24px]" />
         ) : (
           <div className="md:size-[52px] size-[30px] rounded-lg overflow-hidden border border-gray-100">
             <img 
@@ -78,6 +79,48 @@ const FileCard = ({
   </div>
 );
 
+const mapStatus = (apiStatus: string) => {
+  const statusLower = apiStatus ? apiStatus.toLowerCase() : "";
+  if (statusLower.includes("pending")) {
+    return {
+      text: "Pending Review",
+      value: "pending-review",
+      color: "bg-[#FEFAE2] text-[#F0CC16] border-[#FEFAE2]"
+    };
+  }
+  if (statusLower.includes("approved")) {
+    return {
+      text: "Approved",
+      value: "approved",
+      color: "bg-emerald-50 text-emerald-600 border-emerald-100"
+    };
+  }
+  if (statusLower.includes("revision") || statusLower.includes("required")) {
+    return {
+      text: "Revision Required",
+      value: "revision-requested",
+      color: "bg-red-50 text-red-600 border-[#FCA5A5]"
+    };
+  }
+  if (statusLower.includes("rejected")) {
+    return {
+      text: "Rejected",
+      value: "rejected",
+      color: "bg-red-50 text-red-600 border-[#FCA5A5]"
+    };
+  }
+  return {
+    text: apiStatus || "Unknown",
+    value: statusLower,
+    color: "bg-gray-50 text-gray-600 border-gray-100"
+  };
+};
+
+const isPhotoFile = (fileName: string) => {
+  const ext = fileName ? fileName.split('.').pop()?.toLowerCase() : "";
+  return ["png", "jpg", "jpeg", "webp", "gif", "svg"].includes(ext || "");
+};
+
 const ProjectDrawingsView: React.FC = () => {
   const navigate = useNavigate();
   const { customerId, projectId } = useParams();
@@ -87,6 +130,9 @@ const ProjectDrawingsView: React.FC = () => {
 
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+
+  const { data: drawingsData, isLoading, error } = useGetProjectDrawingsQuery(projectId || "");
+  const { data: projectDetail } = useGetPlantProjectDetailQuery(projectId || "");
 
   const customer = customersData[customerId || ""] || customersData["ID-2025-1047"];
   const project = customer?.projects.find((p) => p.id === projectId) || customer?.projects[0];
@@ -106,77 +152,82 @@ const ProjectDrawingsView: React.FC = () => {
     setIsSuccessModalOpen(true);
   };
 
-  const drawings = [
-    {
-      name: "Architectural Plans.pdf",
-      size: "15.2 MB",
-      status: "Pending Review",
-      statusColor: "bg-[#FEFAE2] text-[#F0CC16] border-[#FEFAE2]",
-    },
-    {
-      name: "Structural Drawings.dwg",
-      size: "15.2 MB",
-      status: "Approved",
-      statusColor: "bg-emerald-50 text-emerald-600 border-emerald-100",
-    },
-    {
-      name: "Specifications.docx",
-      size: "15.2 MB",
-      status: "Revision Required",
-      statusColor: "bg-red-50 text-red-600 border-red-100",
-    },
-  ];
-
-  const photos = [
-    {
-      name: "Architectural Plans.pdf",
-      size: "15.2 MB",
-      status: "Pending Review",
-      statusColor: "bg-[#FEFAE2] text-[#F0CC16] border-[#FEFAE2]",
-  thumbnail: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?q=80&w=2062&auto=format&fit=crop",
-    },
-    {
-      name: "Structural Building.dwg",
-      size: "15.2 MB",
-      status: "Approved",
-      statusColor: "bg-emerald-50 text-emerald-600 border-emerald-100",
-      thumbnail: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?q=80&w=2062&auto=format&fit=crop",
-    },
-    {
-      name: "Specifications.docx",
-      size: "15.2 MB",
-      status: "Revision Required",
-      statusColor: "bg-red-50 text-red-600 border-red-100",
-  thumbnail: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?q=80&w=2062&auto=format&fit=crop",
-    },
-  ];
-
   const handleOpenDrawing = (file: any) => {
     setSelectedDrawing({
       ...file,
-      id: project?.id || "P-001",
-      location: customer?.location || "Unknown",
+      id: projectDetail?.lead?.jobId || project?.id || "P-001",
+      location: projectDetail?.lead?.location || customer?.location || "Unknown",
       uploadedBy: "Admin",
-      receivedDate: "2026-05-01",
-      imageUrl: file.thumbnail || "https://via.placeholder.com/800x600?text=Project+Drawing+Preview",
+      receivedDate: file.original?.uploadedAt ? new Date(file.original.uploadedAt).toLocaleDateString() : "2026-05-01",
+      imageUrl: file.imageUrl || "https://via.placeholder.com/800x600?text=Project+Drawing+Preview",
     });
     setIsViewDrawingOpen(true);
   };
+
+  // Flatten all drawings/photos from all buildings
+  const allDrawingsAndPhotos = (drawingsData?.buildings || []).flatMap((building) => 
+    (building.drawings || []).map((d) => {
+      const statusInfo = mapStatus(d.status);
+      return {
+        name: d.fileName,
+        size: `Version ${d.versionNumber}`,
+        status: statusInfo.text,
+        statusColor: statusInfo.color,
+        statusValue: statusInfo.value,
+        imageUrl: d.fileUrl,
+        thumbnail: d.fileUrl,
+        original: d,
+      };
+    })
+  );
+
+  const drawings = allDrawingsAndPhotos.filter((file) => !isPhotoFile(file.name));
+  const photos = allDrawingsAndPhotos.filter((file) => isPhotoFile(file.name));
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-3">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#1E51A4]"></div>
+        <p className="text-gray-500 font-inter font-medium text-sm">Loading drawings...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-10 text-center text-red-500 bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col items-center justify-center gap-4">
+        <p className="font-semibold text-lg font-inter">Error loading drawings</p>
+        <p className="text-sm text-gray-500 font-inter">
+          {"status" in error ? `Status: ${error.status}` : "Access denied or network issue"}
+        </p>
+        <Button
+          variant="blueFilled"
+          size="sm"
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-2 shrink-0 font-inter font-bold"
+        >
+          <ArrowLeft size={18} strokeWidth={2.5} /> Back
+        </Button>
+      </div>
+    );
+  }
+
+  const projectName = projectDetail?.lead?.projectName || project?.name || "Project";
 
   return (
     <div className="xl:pr-5 px-2 pb-10 space-y-6">
       {/* Header Section */}
       <div className="flex flex-wrap md:items-center justify-between gap-4 mt-2">
         <div className="flex items-center gap-4">
-        <Button
-          variant="blueFilled"
-          size="sm"
-          onClick={() => navigate(-1)}
-          className="flex items-center gap-2 shrink-0"
-        >
-          <ArrowLeft size={18} strokeWidth={2.5} /> Back
-        </Button>
-          <Heading text={`${project?.name || "Project"} - Drawings`} />
+          <Button
+            variant="blueFilled"
+            size="sm"
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-2 shrink-0"
+          >
+            <ArrowLeft size={18} strokeWidth={2.5} /> Back
+          </Button>
+          <Heading text={`${projectName} - Drawings`} />
         </div>
 
         <Button 
@@ -216,7 +267,7 @@ const ProjectDrawingsView: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 xl:gap-6 mt-5">
               {drawings
                 .filter(file => 
-                  (activeStatus === "all" || file.status.toLowerCase().replace(' ', '-') === activeStatus) &&
+                  (activeStatus === "all" || file.statusValue === activeStatus) &&
                   file.name.toLowerCase().includes(searchTerm.toLowerCase())
                 )
                 .map((file, idx) => (
@@ -231,7 +282,7 @@ const ProjectDrawingsView: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 xl:gap-6 mt-5">
               {photos
                 .filter(file => 
-                  (activeStatus === "all" || file.status.toLowerCase().replace(' ', '-') === activeStatus) &&
+                  (activeStatus === "all" || file.statusValue === activeStatus) &&
                   file.name.toLowerCase().includes(searchTerm.toLowerCase())
                 )
                 .map((file, idx) => (
@@ -269,6 +320,5 @@ const ProjectDrawingsView: React.FC = () => {
     </div>
   );
 };
-
 
 export default ProjectDrawingsView;
