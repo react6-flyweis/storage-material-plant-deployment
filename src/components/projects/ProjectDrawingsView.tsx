@@ -6,11 +6,12 @@ import { customersData } from "@/data/productionMockData";
 import Heading from "../common_component/Heading";
 import Button from "../common_component/Button";
 import ViewDrawingModal from "../leads/ViewDrawingModal";
-import { UploadModal, SuccessModal } from "./ProjectUploadModals";
+import { SuccessModal } from "./ProjectUploadModals";
 import FilterDropdown from "../common_component/FilterDropdown";
 import SubHeading from "../common_component/SubHeading";
 import filePdf from "../../assets/icon/file-pdf.svg";
 import { useGetProjectDrawingsQuery, useGetPlantProjectDetailQuery } from "@/redux/api/projectApi";
+import { UploadDrawingModal } from "./UploadDrawingModal";
 
 const FileCard = ({
   file,
@@ -39,10 +40,10 @@ const FileCard = ({
           <img src={filePdf} alt="pdf" className="md:size-[32px] size-[24px]" />
         ) : (
           <div className="md:size-[52px] size-[30px] rounded-lg overflow-hidden border border-gray-100">
-            <img 
-              src={file.thumbnail || "https://via.placeholder.com/100"} 
-              alt="preview" 
-              className="w-full h-full object-cover" 
+            <img
+              src={file.thumbnail || "https://via.placeholder.com/100"}
+              alt="preview"
+              className="w-full h-full object-cover"
             />
           </div>
         )}
@@ -61,7 +62,7 @@ const FileCard = ({
 
         {/* Actions Section */}
         <div className="flex items-center gap-3 shrink-0 mr-1 ml-auto">
-          <button 
+          <button
             onClick={() => downloadFile(file.imageUrl || filePdf, file.name)}
             className="p-1 hover:bg-gray-50 rounded-full transition-colors"
           >
@@ -147,7 +148,7 @@ const ProjectDrawingsView: React.FC = () => {
     { label: "Pending Review", value: "pending-review" },
   ];
 
-  const handleUpload = () => {
+  const onUpload = () => {
     setIsUploadModalOpen(false);
     setIsSuccessModalOpen(true);
   };
@@ -165,7 +166,7 @@ const ProjectDrawingsView: React.FC = () => {
   };
 
   // Flatten all drawings/photos from all buildings
-  const allDrawingsAndPhotos = (drawingsData?.buildings || []).flatMap((building) => 
+  const allDrawingsAndPhotos = (drawingsData?.buildings || []).flatMap((building) =>
     (building.drawings || []).map((d) => {
       const statusInfo = mapStatus(d.status);
       return {
@@ -230,7 +231,7 @@ const ProjectDrawingsView: React.FC = () => {
           <Heading text={`${projectName} - Drawings`} />
         </div>
 
-        <Button 
+        <Button
           variant="gradient"
           size="sm"
           onClick={() => setIsUploadModalOpen(true)}
@@ -243,18 +244,18 @@ const ProjectDrawingsView: React.FC = () => {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="relative w-full sm:max-w-xs">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-          <input 
-            type="text" 
+          <input
+            type="text"
             placeholder="Search"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-100"
           />
         </div>
-        <FilterDropdown 
-          activeTab={activeStatus} 
-          onTabChange={setActiveStatus} 
-          options={statusOptions} 
+        <FilterDropdown
+          activeTab={activeStatus}
+          onTabChange={setActiveStatus}
+          options={statusOptions}
         />
       </div>
 
@@ -266,7 +267,7 @@ const ProjectDrawingsView: React.FC = () => {
             <SubHeading text="Attached Drawings" />
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 xl:gap-6 mt-5">
               {drawings
-                .filter(file => 
+                .filter(file =>
                   (activeStatus === "all" || file.statusValue === activeStatus) &&
                   file.name.toLowerCase().includes(searchTerm.toLowerCase())
                 )
@@ -281,7 +282,7 @@ const ProjectDrawingsView: React.FC = () => {
             <SubHeading text="Attached Building Photos" />
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 xl:gap-6 mt-5">
               {photos
-                .filter(file => 
+                .filter(file =>
                   (activeStatus === "all" || file.statusValue === activeStatus) &&
                   file.name.toLowerCase().includes(searchTerm.toLowerCase())
                 )
@@ -301,16 +302,14 @@ const ProjectDrawingsView: React.FC = () => {
         />
       )}
 
-      <UploadModal 
+      <UploadDrawingModal
         isOpen={isUploadModalOpen}
         onClose={() => setIsUploadModalOpen(false)}
-        title="Upload Building Drawings & Photos"
-        subtitle="Add your documents here, and you can upload up to 5 files max"
-        fileLabel="Building ABC -1 Drawing"
-        onUpload={handleUpload}
+        leadId={projectId || ""}
+        onUpload={onUpload}
       />
 
-      <SuccessModal 
+      <SuccessModal
         isOpen={isSuccessModalOpen}
         onClose={() => setIsSuccessModalOpen(false)}
         title="Building Drawings & Photos Uploaded Successfully"
