@@ -67,10 +67,7 @@ export interface ProjectClient {
   firstName: string;
   lastName: string;
   email: string;
-  phone: {
-    number: string;
-    countryCode?: string;
-  } | string;
+  phone: PhoneNumber;
   address: string;
 }
 
@@ -98,50 +95,147 @@ export interface ProjectLeadNote {
   _id: string;
   content?: string;
   note?: string;
-  createdBy?: {
+  createdBy?:
+  | {
     _id: string;
     name: string;
     email: string;
     role: string;
-  } | string | null;
-  addedBy?: {
+  }
+  | string
+  | null;
+  addedBy?:
+  | {
     _id: string;
     name: string;
     email: string;
     role: string;
-  } | string | null;
+  }
+  | string
+  | null;
   createdAt?: string;
   addedAt?: string;
 }
 
 export interface ProjectActivityLogEntry {
   _id: string;
+  type: string;
+  action: string;
   displayMessage: string;
+  performedBy?: {
+    _id: string;
+    name: string;
+    email: string;
+    role: string;
+  } | null;
+  metadata?: {
+    followUpDate: string;
+    priority: string;
+    assignedTo: string;
+  };
   createdAt: string;
+}
+
+export interface PhoneNumber {
+  number: string;
+  countryCode?: string;
+}
+
+interface Customer {
+  phone: PhoneNumber;
+  _id: string;
+  customerId: string;
+  firstName: string;
+  email: string;
+  password: string;
+  passwordChangedAt: string | null;
+  photo: string | null;
+  isActive: boolean;
+  source: string;
+  company: string;
+  location: string;
+  resetOtp: string | null;
+  resetOtpExpiry: string | null;
+  resetOtpVerified: boolean;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+  lastName: string;
 }
 
 export interface ProjectLeadDoc {
   _id: string;
-  projectName: string;
-  jobId: string;
+  numDoors: number | null;
+  numWindows: number | null;
+  numInsulation: number | null;
+  chatEndedAt: string | null;
+  chatEndedBy: string | null;
+  customerId: Customer;
   buildingType: string;
-  quoteValue: number;
   location: string;
-  createdAt: string;
-  leadScoring?: {
-    score?: number;
-    requirements?: string;
-    lastScoredAt?: string | null;
-    scoreBreakdown?: any;
-    temperature?: string;
-    temperatureManual?: boolean;
+  roofStyle: string;
+  sqft: string;
+  width: number | null;
+  length: number | null;
+  height: number | null;
+  source: string;
+  jobId: string;
+  projectName: string;
+  endDate: string | null;
+  numberOfBuildings: number;
+  isTerminated: boolean;
+  terminationReason: string;
+  terminatedAt: string | null;
+  assignedSales: string;
+  assigningHistory: ProjectAssignedSales[];
+  quoteValue: number;
+  lifecycleStatus: string;
+  isQuoteReady: boolean;
+  isHandedToSales: boolean;
+  isRaisedToPO: boolean;
+  poStatus: string;
+  notes: string;
+  aiQuoteData: any;
+  aiContextSummary: string;
+  aiContextSummaryUpdatedAt: string | null;
+  leadScoring: {
+    score: number;
+    requirements: string;
+    lastScoredAt: string | null;
+    scoreBreakdown: {
+      projectSize: { points: number; reason: string };
+      budgetSignals: { points: number; reason: string };
+      timeline: { points: number; reason: string };
+      decisionMaker: { points: number; reason: string };
+      projectClarity: { points: number; reason: string };
+    };
+    temperature: string;
+    temperatureManual: boolean;
   };
+  documents: any[];
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+  lifecycleHistory: LifecycleHistoryEntry[];
+  leadNotes: ProjectLeadNote[];
+  isChatEnded: boolean;
+  projectId: string;
 }
 
 export interface PlantProjectDetail {
   lead: ProjectLeadDoc;
+  projectName: string;
+  jobId: string;
+  projectId: string;
+  buildingType: string;
+  quoteValue: number;
+  location: string;
+  createdAt: string;
   lifecycleStatus: string;
   lifecycleHistory: LifecycleHistoryEntry[];
+  numberOfBuildings: number;
+  endDate: string | null;
+  isTerminated: boolean;
   client: ProjectClient;
   assignedSales: ProjectAssignedSales | null;
   agreement: ProjectAgreement | null;
@@ -175,6 +269,50 @@ export interface ProjectDrawingsResponse {
 
 type ProjectDrawingsApiResponse = ApiResponse<ProjectDrawingsResponse>;
 
+export interface BuildingLatestDrawing {
+  versionNumber: number;
+  fileName: string;
+  fileUrl: string;
+  status: string;
+  uploadedAt: string;
+  reviewedAt?: string | null;
+  rejectionReason?: string;
+}
+
+export interface BuildingLatestBomJob {
+  bomJobId: string;
+  status: string;
+  fileName: string;
+  fileUrl: string;
+  totalItems: number;
+  matchedItems: number;
+  unmatchedItems: number;
+  isConfirmed: boolean;
+  extractionMethod: string;
+  skippedSheets: string[];
+  uploadedAt: string;
+}
+
+export interface ProjectBuilding {
+  buildingId: string;
+  buildingNumber: number;
+  status: string;
+  latestDrawing: BuildingLatestDrawing | null;
+  latestDrawingStatus: string | null;
+  drawingCount: number;
+  hasDrawing: boolean;
+  latestBomJob?: BuildingLatestBomJob | null;
+  hasBomJob?: boolean;
+  bomJobStatus?: string | null;
+}
+
+export interface ProjectBuildingsResponse {
+  leadId: string;
+  projectName: string;
+  numberOfBuildings: number;
+  buildings: ProjectBuilding[];
+}
+
 export interface Invoice {
   _id: string;
   invoiceNumber: string;
@@ -192,11 +330,25 @@ type ProjectInvoicesApiResponse = ApiResponse<ProjectInvoicesResponse>;
 export const projectApi = createApi({
   reducerPath: "projectApi",
   baseQuery: baseQueryWithReauth,
-  tagTypes: ["ProjectDetail", "ProjectDrawings", "ProjectInvoices"],
+  tagTypes: ["ProjectDetail", "ProjectDrawings", "ProjectInvoices", "ProjectBuildings", "ConsolidatedBOM"],
   endpoints: (builder) => ({
+    getProjectBuildings: builder.query<ProjectBuildingsResponse, string>({
+      query: (leadId) => `/api/plant/projects/${leadId}/buildings`,
+      providesTags: (_result, _error, leadId) => [
+        { type: "ProjectBuildings", id: leadId },
+      ],
+      transformResponse: (response: ApiResponse<ProjectBuildingsResponse>) => {
+        if (!response.data) {
+          throw new Error("No data returned from API");
+        }
+        return response.data;
+      },
+    }),
     getProjectDrawings: builder.query<ProjectDrawingsResponse, string>({
       query: (leadId) => `/api/plant/projects/${leadId}/drawings`,
-      providesTags: (_result, _error, leadId) => [{ type: "ProjectDrawings", id: leadId }],
+      providesTags: (_result, _error, leadId) => [
+        { type: "ProjectDrawings", id: leadId },
+      ],
       transformResponse: (response: ProjectDrawingsApiResponse) => {
         if (!response.data) {
           throw new Error("No data returned from API");
@@ -206,7 +358,9 @@ export const projectApi = createApi({
     }),
     getProjectInvoices: builder.query<ProjectInvoicesResponse, string>({
       query: (leadId) => `/api/plant/projects/${leadId}/invoices`,
-      providesTags: (_result, _error, leadId) => [{ type: "ProjectInvoices", id: leadId }],
+      providesTags: (_result, _error, leadId) => [
+        { type: "ProjectInvoices", id: leadId },
+      ],
       transformResponse: (response: ProjectInvoicesApiResponse) => {
         if (!response.data) {
           throw new Error("No data returned from API");
@@ -242,7 +396,9 @@ export const projectApi = createApi({
     }),
     getPlantProjectDetail: builder.query<PlantProjectDetail, string>({
       query: (leadId) => `/api/plant/projects/${leadId}/detail`,
-      providesTags: (_result, _error, leadId) => [{ type: "ProjectDetail", id: leadId }],
+      providesTags: (_result, _error, leadId) => [
+        { type: "ProjectDetail", id: leadId },
+      ],
       transformResponse: (response: PlantProjectDetailApiResponse) => {
         if (!response.data) {
           throw new Error("No data returned from API");
@@ -251,7 +407,11 @@ export const projectApi = createApi({
       },
     }),
     updateProjectLifecycle: builder.mutation<
-      { leadId: string; lifecycleStatus: string; lifecycleHistory: LifecycleHistoryEntry[] },
+      {
+        leadId: string;
+        lifecycleStatus: string;
+        lifecycleHistory: LifecycleHistoryEntry[];
+      },
       { leadId: string; lifecycleStatus: string; note?: string }
     >({
       query: ({ leadId, ...body }) => ({
@@ -259,8 +419,16 @@ export const projectApi = createApi({
         method: "PUT",
         body,
       }),
-      invalidatesTags: (_result, _error, { leadId }) => [{ type: "ProjectDetail", id: leadId }],
-      transformResponse: (response: ApiResponse<{ leadId: string; lifecycleStatus: string; lifecycleHistory: LifecycleHistoryEntry[] }>) => {
+      invalidatesTags: (_result, _error, { leadId }) => [
+        { type: "ProjectDetail", id: leadId },
+      ],
+      transformResponse: (
+        response: ApiResponse<{
+          leadId: string;
+          lifecycleStatus: string;
+          lifecycleHistory: LifecycleHistoryEntry[];
+        }>,
+      ) => {
         if (!response.data) {
           throw new Error("No data returned from API");
         }
@@ -276,8 +444,92 @@ export const projectApi = createApi({
         method: "POST",
         body: { note },
       }),
-      invalidatesTags: (_result, _error, { leadId }) => [{ type: "ProjectDetail", id: leadId }],
+      invalidatesTags: (_result, _error, { leadId }) => [
+        { type: "ProjectDetail", id: leadId },
+      ],
       transformResponse: (response: ApiResponse<{ note: ProjectLeadNote }>) => {
+        if (!response.data) {
+          throw new Error("No data returned from API");
+        }
+        return response.data;
+      },
+    }),
+
+    uploadProjectDrawings: builder.mutation<
+      DrawingUploadResponse,
+      DrawingUploadRequest
+    >({
+      query: ({ leadId, drawings }) => ({
+        url: `/api/plant/projects/${leadId}/drawings`,
+        method: "POST",
+        body: { drawings },
+      }),
+      invalidatesTags: (_result, _error, { leadId }) => [
+        { type: "ProjectBuildings", id: leadId },
+        { type: "ProjectDrawings", id: leadId },
+        { type: "ProjectDetail", id: leadId },
+      ],
+      transformResponse: (response: ApiResponse<DrawingUploadResponse>) => {
+        if (!response.data) {
+          throw new Error("No data returned from API");
+        }
+        return response.data;
+      },
+    }),
+    uploadProjectBoms: builder.mutation<
+      BomUploadResponse,
+      BomUploadRequest
+    >({
+      query: ({ leadId, bomFiles }) => ({
+        url: `/api/plant/projects/${leadId}/bom`,
+        method: "POST",
+        body: { bomFiles },
+      }),
+      invalidatesTags: (_result, _error, { leadId }) => [
+        { type: "ProjectBuildings", id: leadId },
+        { type: "ProjectDetail", id: leadId },
+      ],
+      transformResponse: (response: ApiResponse<BomUploadResponse>) => {
+        if (!response.data) {
+          throw new Error("No data returned from API");
+        }
+        return response.data;
+      },
+    }),
+    getBomJobStatus: builder.query<
+      BomJobStatusResponse,
+      string
+    >({
+      query: (jobId) => `/api/plant/bom/job/${jobId}/status`,
+      transformResponse: (response: ApiResponse<BomJobStatusResponse>) => {
+        if (!response.data) {
+          throw new Error("No data returned from API");
+        }
+        return response.data;
+      },
+    }),
+    getBomJobsStatusBatch: builder.mutation<
+      BomJobsBatchStatusResponse,
+      BomJobsBatchStatusRequest
+    >({
+      query: (body) => ({
+        url: "/api/plant/bom/jobs/status",
+        method: "POST",
+        body,
+      }),
+      transformResponse: (response: ApiResponse<BomJobsBatchStatusResponse>) => {
+        if (!response.data) {
+          throw new Error("No data returned from API");
+        }
+        return response.data;
+      },
+    }),
+    getConsolidatedBOM: builder.query<ConsolidatedBOMResponse, string>({
+      query: (leadId) => `/api/plant/projects/${leadId}/consolidated-bom`,
+      providesTags: (_result, _error, leadId) => [
+        { type: "ConsolidatedBOM", id: leadId },
+      ],
+      transformResponse: (response: ApiResponse<ConsolidatedBOMResponse>) => {
         if (!response.data) {
           throw new Error("No data returned from API");
         }
@@ -287,6 +539,130 @@ export const projectApi = createApi({
   }),
 });
 
+export interface BomUploadItem {
+  buildingId: string;
+  fileUrl: string;
+  fileName: string;
+  fileFormat?: string;
+}
+
+export interface BomUploadRequest {
+  leadId: string;
+  bomFiles: BomUploadItem[];
+}
+
+export interface BomJobInfo {
+  buildingId: string;
+  buildingNumber: number;
+  bomJobId: string;
+  status: string;
+  fileName: string;
+}
+
+export interface BomUploadResponse {
+  leadId: string;
+  jobs: BomJobInfo[];
+  message: string;
+}
+
+export interface BomJobStatusResponse {
+  jobId: string;
+  status: string;
+  buildingId: string;
+  buildingNumber: number;
+  fileName: string;
+  totalSheets?: number;
+  totalItems?: number;
+  matchedItems?: number;
+  unmatchedItems?: number;
+  frameItems?: number;
+  skippedRows?: number;
+  skippedSheets?: string[];
+  extractionMethod?: string;
+  isConfirmed?: boolean;
+  errorMessage?: string | null;
+  processingStartedAt?: string;
+  processingEndedAt?: string;
+}
+
+export interface BomJobsBatchStatusRequest {
+  jobIds: string[];
+}
+
+export interface BomJobsBatchStatusResponse {
+  jobs: Array<{
+    jobId: string;
+    status: string;
+    buildingNumber: number;
+    totalItems?: number;
+    matchedItems?: number;
+    unmatchedItems?: number;
+  }>;
+}
+
+export interface DrawingUploadItem {
+  buildingId: string;
+  fileUrl: string;
+  fileName: string;
+}
+
+export interface DrawingUploadRequest {
+  leadId: string;
+  drawings: DrawingUploadItem[];
+}
+
+export interface UploadedDrawingInfo {
+  buildingId: string;
+  buildingNumber: number;
+  drawing: {
+    versionNumber: number;
+    fileUrl: string;
+    fileName: string;
+    status: string;
+    uploadedAt: string;
+    uploadedBy: string;
+  };
+  buildingStatus: string;
+}
+
+export interface DrawingUploadResponse {
+  leadId: string;
+  uploaded: UploadedDrawingInfo[];
+  projectDrawingStatus: string;
+}
+
+export interface ConsolidatedBOMItem {
+  _id: string;
+  partCode: string;
+  partColor: string;
+  description: string;
+  category: string;
+  costUnit: string;
+  totalQty: number;
+  totalLengthFeet: number;
+  totalWeight: number;
+  totalCost: number;
+  buildings: number[];
+  markIds: string[];
+}
+
+export interface ConsolidatedBOM {
+  _id: string;
+  leadId: string;
+  status: string;
+  fileUrl?: string;
+  totalCost: number;
+  itemCount: number;
+  items: ConsolidatedBOMItem[];
+  sentToVendors: any[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ConsolidatedBOMResponse {
+  consolidatedBOM: ConsolidatedBOM;
+}
+
 export const {
   useGetProjectStatsQuery,
   useGetPlantProjectsQuery,
@@ -295,5 +671,14 @@ export const {
   useAddProjectNoteMutation,
   useGetProjectDrawingsQuery,
   useGetProjectInvoicesQuery,
+  useGetProjectBuildingsQuery,
+
+  useUploadProjectDrawingsMutation,
+  useUploadProjectBomsMutation,
+  useGetBomJobStatusQuery,
+  useGetBomJobsStatusBatchMutation,
+  useGetConsolidatedBOMQuery,
 } = projectApi;
+
+
 
