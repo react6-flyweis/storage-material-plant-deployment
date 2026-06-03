@@ -14,16 +14,20 @@ const ProjectQuickActions: React.FC<ProjectQuickActionsProps> = ({
 
   const projectId = propProjectId || paramProjectId;
 
-
-
   const actions = [
     { label: "View BOM File", path: `/projects/${projectId}/view-bom` },
     {
       label: "View Drawings & Photos",
       path: `/projects/${projectId}/view-drawings`,
     },
-    { label: "Material Delivery", path: `/projects/${projectId}/material-delivery` },
-    { label: "View Shipper Files", path: `/projects/${projectId}/view-shipper-files` },
+    {
+      label: "Material Delivery",
+      path: `/projects/${projectId}/material-delivery`,
+    },
+    {
+      label: "View Shipper Files",
+      path: `/projects/${projectId}/shipper-files`,
+    },
     {
       label: "Additional Material Request",
       path: `/projects/${projectId}/material-request`,
@@ -44,7 +48,7 @@ const ProjectQuickActions: React.FC<ProjectQuickActionsProps> = ({
           size="sm"
           key={index}
           onClick={() => handleClick(action.path)}
-        // className="px-3 md:px-6 py-1.5 md:py-3 bg-[#1E51A4] text-white rounded-[8px] text-xs md:text-sm font-inter font-semibold hover:opacity-90 transition-opacity shadow-[0_4px_10px_rgba(30,81,164,0.3)] text-nowrap"
+          // className="px-3 md:px-6 py-1.5 md:py-3 bg-[#1E51A4] text-white rounded-[8px] text-xs md:text-sm font-inter font-semibold hover:opacity-90 transition-opacity shadow-[0_4px_10px_rgba(30,81,164,0.3)] text-nowrap"
         >
           {action.label}
         </Button>
@@ -54,4 +58,3 @@ const ProjectQuickActions: React.FC<ProjectQuickActionsProps> = ({
 };
 
 export default ProjectQuickActions;
-
