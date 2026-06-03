@@ -18,6 +18,41 @@ interface CustomerInvoicesTableProps {
 }
 
 const CustomerInvoicesTable: React.FC<CustomerInvoicesTableProps> = ({ invoices }) => {
+  const invoicesList = React.useMemo(() => {
+    if (!invoices) return [];
+
+    return invoices.map((inv) => {
+      const amountVal = inv.amount;
+      const isPaid = inv.status.toLowerCase() === "paid";
+      const paidVal = isPaid ? amountVal : 0;
+      const dueVal = isPaid ? 0 : amountVal;
+
+      const formatCurrency = (val: number | string) => {
+        return new Intl.NumberFormat("en-US", {
+          style: "currency",
+          currency: "USD",
+          maximumFractionDigits: 0,
+        }).format(Number(val));
+      };
+
+      return {
+        number: inv.number,
+        dueDate: inv.dueDate
+          ? new Date(inv.dueDate).toLocaleDateString("en-GB", {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+          })
+          : "N/A",
+        amount: formatCurrency(amountVal),
+        paid: formatCurrency(paidVal),
+        dueAmount: formatCurrency(dueVal),
+        status:
+          inv.status.charAt(0).toUpperCase() + inv.status.slice(1).toLowerCase(),
+      };
+    });
+  }, [invoices]);
+
   return (
     <div className="bg-white rounded-[10px] border-[0.5px] border-[#00000029] overflow-hidden">
       <div className="p-4 md:p-5 md:pb-3 border-b border-gray-100 flex items-center justify-between bg-white">
@@ -47,7 +82,7 @@ const CustomerInvoicesTable: React.FC<CustomerInvoicesTableProps> = ({ invoices 
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-50">
-            {invoices.map((inv, idx) => (
+            {invoicesList.map((inv, idx) => (
               <tr key={idx} className="hover:bg-gray-50 transition-colors">
                 <td className="p-3 md:p-4 text-xs md:text-sm font-inter text-[#E04F16] font-normal cursor-pointer hover:underline text-nowrap">
                   {inv.number}
@@ -57,9 +92,8 @@ const CustomerInvoicesTable: React.FC<CustomerInvoicesTableProps> = ({ invoices 
                 <td className="p-3 md:p-4 text-xs md:text-sm font-inter text-[#637381] font-normal text-nowrap">{inv.paid}</td>
                 <td className="p-3 md:p-4 text-xs md:text-sm font-inter text-[#637381] font-normal">{inv.dueAmount}</td>
                 <td className="p-3 md:p-4">
-                  <span className={`px-2.5 py-1 rounded-md text-[10px] md:text-xs font-inter font-medium flex items-center gap-1.5 w-fit text-white ${
-                    inv.status === 'Paid' ? 'bg-[#3AB449]' : 'bg-[#E11D48]'
-                  }`}>
+                  <span className={`px-2.5 py-1 rounded-md text-[10px] md:text-xs font-inter font-medium flex items-center gap-1.5 w-fit text-white ${inv.status === 'Paid' ? 'bg-[#3AB449]' : 'bg-[#E11D48]'
+                    }`}>
                     <span className="size-1.5 bg-white rounded-full" />
                     {inv.status}
                   </span>
