@@ -4,6 +4,7 @@ import storage from "redux-persist/lib/storage";
 import { authApi } from "./api/authApi";
 import { logisticsApi } from "./api/logisticsApi";
 import { projectApi } from "./api/projectApi";
+import { uploadApi } from "./api/uploadApi";
 import authReducer from "./slices/authSlice";
 
 const authPersistConfig = {
@@ -20,6 +21,7 @@ export const store = configureStore({
     [authApi.reducerPath]: authApi.reducer,
     [logisticsApi.reducerPath]: logisticsApi.reducer,
     [projectApi.reducerPath]: projectApi.reducer,
+    [uploadApi.reducerPath]: uploadApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
@@ -37,6 +39,7 @@ export const store = configureStore({
       authApi.middleware,
       logisticsApi.middleware,
       projectApi.middleware,
+      uploadApi.middleware,
     ),
 });
 
