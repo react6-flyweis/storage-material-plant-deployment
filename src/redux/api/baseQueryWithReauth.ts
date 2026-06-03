@@ -8,7 +8,7 @@ import type { ApiResponse } from "./apiResponse";
 import type { RootState } from "../store";
 import { logout, updateTokens } from "../slices/authSlice";
 
-const apiBaseUrl = "http://13.201.52.212";
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "";
 
 const rawBaseQuery = fetchBaseQuery({
   baseUrl: apiBaseUrl,
@@ -74,8 +74,8 @@ export const baseQueryWithReauth: BaseQueryFn<
 
   const refreshData = refreshResult.data as
     | ApiResponse<{
-      accessToken: string;
-    }>
+        accessToken: string;
+      }>
     | undefined;
   const nextAccessToken = refreshData?.data?.accessToken;
 
