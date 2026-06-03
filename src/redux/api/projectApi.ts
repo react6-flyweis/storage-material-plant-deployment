@@ -291,6 +291,7 @@ export interface BuildingLatestBomJob {
   extractionMethod: string;
   skippedSheets: string[];
   uploadedAt: string;
+  errorMessage?: string | null;
 }
 
 export interface ProjectBuilding {

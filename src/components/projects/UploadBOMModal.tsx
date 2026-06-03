@@ -55,6 +55,7 @@ const UploadBOMModal: React.FC<UploadBOMModalProps> = ({
   const [getBomJobsStatusBatch] = useGetBomJobsStatusBatchMutation();
   const [isSuccessOpen, setIsSuccessOpen] = React.useState(false);
   const [uploadedJobIds, setUploadedJobIds] = React.useState<string[]>([]);
+  const [uploadBomError, setUploadBomError] = React.useState<string | null>(null);
 
   const { data: buildingsData, isLoading, refetch } = useGetProjectBuildingsQuery(leadId || "", {
     skip: !leadId || !isOpen,
@@ -119,6 +120,7 @@ const UploadBOMModal: React.FC<UploadBOMModalProps> = ({
   const handleUploadSuccess = async (file: File, fileUrl: string) => {
     if (uploadingBuilding) {
       try {
+        setUploadBomError(null);
         const fileFormat = file.name.split(".").pop() || "xlsx";
         const result = await uploadProjectBoms({
           leadId,
@@ -139,8 +141,11 @@ const UploadBOMModal: React.FC<UploadBOMModalProps> = ({
 
         onUpload?.(file, uploadingBuilding.buildingId, fileUrl);
         setIsSuccessOpen(true);
-      } catch (err) {
+      } catch (err: unknown) {
         console.error("Failed to register BOM in backend:", err);
+        const errorObj = err as { data?: { message?: string }; message?: string };
+        const errMsg = errorObj?.data?.message || errorObj?.message || "Failed to register BOM file in backend.";
+        setUploadBomError(errMsg);
       } finally {
         setUploadingBuilding(null);
       }
@@ -173,6 +178,16 @@ const UploadBOMModal: React.FC<UploadBOMModalProps> = ({
               <X size={20} />
             </button>
           </div>
+
+          {/* Error message banner */}
+          {uploadBomError && (
+            <div className="p-3 bg-red-50 border border-red-100 text-red-600 rounded-lg text-sm flex items-center justify-between font-inter">
+              <span>{uploadBomError}</span>
+              <button onClick={() => setUploadBomError(null)} className="text-red-400 hover:text-red-600">
+                <X size={16} />
+              </button>
+            </div>
+          )}
 
           {/* List of Buildings */}
           <div className="space-y-4">
@@ -220,6 +235,11 @@ const UploadBOMModal: React.FC<UploadBOMModalProps> = ({
                         ) : (
                           <p className="text-xs text-gray-400 font-inter">No files uploaded yet</p>
                         )}
+                        {b.latestBomJob?.errorMessage && (
+                          <p className="text-[11px] text-red-500 font-inter bg-red-50/50 p-1.5 rounded border border-red-100/50 mt-1">
+                            Error: {b.latestBomJob.errorMessage}
+                          </p>
+                        )}
                       </div>
                       <div className="shrink-0 flex items-center">
                         <Button
@@ -252,10 +272,11 @@ const UploadBOMModal: React.FC<UploadBOMModalProps> = ({
           isOpen={!!uploadingBuilding}
           onClose={() => setUploadingBuilding(null)}
           title={`Upload BOM: Building ${uploadingBuilding.buildingNumber}`}
-          subtitle="Select or drop a BOM file (.xlsx, .xls, .pdf) for this building."
+          subtitle="Select or drop a BOM file (.xlsx, .xls, .ods) for this building."
           fileLabel={`Building-${uploadingBuilding.buildingNumber}-bom`}
           folder="boms"
           onUpload={handleUploadSuccess}
+          allowedExtensions={["ods", "xls", "xlsx"]}
         />
       )}
 
