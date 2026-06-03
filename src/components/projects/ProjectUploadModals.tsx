@@ -6,6 +6,7 @@ import pdf from "@/assets/icon/pdfIcon.svg";
 import { CircleX, X } from "lucide-react";
 import SubHeading from "../common_component/SubHeading";
 import Button from "../common_component/Button";
+import { useGetPresignedUrlMutation } from "@/redux/api/uploadApi";
 
 interface UploadModalProps {
   isOpen: boolean;
@@ -13,7 +14,8 @@ interface UploadModalProps {
   title: string;
   subtitle: string;
   fileLabel: string;
-  onUpload: (file: File) => void;
+  onUpload: (file: File, fileUrl: string) => void;
+  folder?: string;
 }
 
 const UploadModal: React.FC<UploadModalProps> = ({
@@ -22,13 +24,23 @@ const UploadModal: React.FC<UploadModalProps> = ({
   title,
   subtitle,
   onUpload,
+  folder,
 }) => {
   const [selectedFile, setSelectedFile] = React.useState<File | null>(null);
+  const [getPresignedUrl, { isLoading: isGettingUrl }] =
+    useGetPresignedUrlMutation();
+  const [uploadProgress, setUploadProgress] = React.useState<number | null>(
+    null,
+  );
+  const [isUploading, setIsUploading] = React.useState(false);
+  const [uploadError, setUploadError] = React.useState<string | null>(null);
+
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setSelectedFile(e.target.files[0]);
+      setUploadError(null);
     }
   };
 
@@ -40,15 +52,77 @@ const UploadModal: React.FC<UploadModalProps> = ({
     e.preventDefault();
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       setSelectedFile(e.dataTransfer.files[0]);
+      setUploadError(null);
     }
   };
 
-  const handleUpload = () => {
-    if (selectedFile) {
-      onUpload(selectedFile);
+  const handleUpload = async () => {
+    if (!selectedFile) return;
+
+    setIsUploading(true);
+    setUploadError(null);
+    setUploadProgress(0);
+
+    try {
+      // Step 1: Get presigned URL
+      const response = await getPresignedUrl({
+        fileName: selectedFile.name,
+        fileType: selectedFile.type || "application/octet-stream",
+        folder: folder || "",
+      }).unwrap();
+
+      const { uploadUrl, fileUrl } = response;
+
+      // Step 2: Upload file to S3 via PUT
+      await new Promise<void>((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open("PUT", uploadUrl, true);
+        xhr.setRequestHeader(
+          "Content-Type",
+          selectedFile.type || "application/octet-stream",
+        );
+
+        xhr.upload.onprogress = (event) => {
+          if (event.lengthComputable) {
+            const percentComplete = Math.round(
+              (event.loaded / event.total) * 100,
+            );
+            setUploadProgress(percentComplete);
+          }
+        };
+
+        xhr.onload = () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            resolve();
+          } else {
+            reject(new Error(`S3 upload failed with status ${xhr.status}`));
+          }
+        };
+
+        xhr.onerror = () => {
+          reject(new Error("Network error during S3 upload."));
+        };
+
+        xhr.send(selectedFile);
+      });
+
+      // Step 3: Success callback
+      onUpload(selectedFile, fileUrl);
       setSelectedFile(null);
+    } catch (err: unknown) {
+      console.error("Upload error:", err);
+      const errMsg =
+        err instanceof Error
+          ? err.message
+          : "Failed to upload file. Please try again.";
+      setUploadError(errMsg);
+    } finally {
+      setIsUploading(false);
+      setUploadProgress(null);
     }
   };
+
+  const isPending = isUploading || isGettingUrl;
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} width="max-w-xl" hideHeader>
@@ -61,7 +135,8 @@ const UploadModal: React.FC<UploadModalProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="p-1 hover:bg-gray-100 rounded-full transition-colors text-[#919EAB]"
+            disabled={isPending}
+            className="p-1 hover:bg-gray-100 rounded-full transition-colors text-[#919EAB] disabled:opacity-50"
           >
             <X size={20} />
           </button>
@@ -71,7 +146,9 @@ const UploadModal: React.FC<UploadModalProps> = ({
         <div
           onDragOver={handleDragOver}
           onDrop={handleDrop}
-          className="border-2 border-dashed border-[#1849D6] rounded-lg p-6 md:p-10 flex flex-col items-center justify-center space-y-4 bg-white"
+          className={`border-2 border-dashed border-[#1849D6] rounded-lg p-6 md:p-10 flex flex-col items-center justify-center space-y-4 bg-white transition-opacity ${
+            isPending ? "opacity-50 pointer-events-none" : ""
+          }`}
         >
           <img src={upload} alt="Upload" className="size-8" />
           <p className="text-sm font-inter font-normal text-[#212B36]">
@@ -89,11 +166,13 @@ const UploadModal: React.FC<UploadModalProps> = ({
             type="file"
             ref={fileInputRef}
             onChange={handleFileChange}
+            disabled={isPending}
             className="hidden"
           />
           <Button
             variant="secondary"
             size="sm"
+            disabled={isPending}
             onClick={() => fileInputRef.current?.click()}
           >
             Browse files
@@ -116,27 +195,60 @@ const UploadModal: React.FC<UploadModalProps> = ({
                 {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB
               </p>
             </div>
-            <button
-              onClick={() => setSelectedFile(null)}
-              className="bg-gray-300 rounded-full text-gray-500 hover:text-[#FF4842] transition-colors hover:bg-gray-100"
-            >
-              <CircleX size={16} />
-            </button>
+            {!isPending && (
+              <button
+                onClick={() => setSelectedFile(null)}
+                className="bg-gray-300 rounded-full text-gray-500 hover:text-[#FF4842] transition-colors hover:bg-gray-100"
+              >
+                <CircleX size={16} />
+              </button>
+            )}
           </div>
+        )}
+
+        {/* Uploading Status / Progress Bar */}
+        {isPending && (
+          <div className="space-y-2">
+            <div className="flex justify-between text-xs text-[#637381] font-inter">
+              <span>
+                {isGettingUrl
+                  ? "Requesting upload authorization..."
+                  : "Uploading to S3..."}
+              </span>
+              {uploadProgress !== null && <span>{uploadProgress}%</span>}
+            </div>
+            <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
+              <div
+                className="bg-[#1849D6] h-full transition-all duration-300 rounded-full"
+                style={{ width: `${uploadProgress ?? 0}%` }}
+              />
+            </div>
+          </div>
+        )}
+
+        {uploadError && (
+          <p className="text-xs text-red-500 font-inter font-medium">
+            {uploadError}
+          </p>
         )}
 
         {/* Footer Buttons */}
         <div className="flex items-center justify-end gap-3 pt-2">
-          <Button variant="outline" size="sm" onClick={onClose}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onClose}
+            disabled={isPending}
+          >
             Cancel
           </Button>
           <Button
             variant="primary"
             size="sm"
             onClick={handleUpload}
-            disabled={!selectedFile}
+            disabled={!selectedFile || isPending}
           >
-            Upload
+            {isPending ? "Uploading..." : "Upload"}
           </Button>
         </div>
       </div>
@@ -174,10 +286,7 @@ const SuccessModal: React.FC<SuccessModalProps> = ({
           />
         </div>
 
-        <Button
-        variant="gradient"
-          onClick={onButtonClick || onClose}
-        >
+        <Button variant="gradient" onClick={onButtonClick || onClose}>
           {buttonLabel}
         </Button>
       </div>
