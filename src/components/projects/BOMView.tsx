@@ -8,41 +8,100 @@ import xlxsIcon from "@/assets/icon/dashboard/xlxs.svg";
 import Button from "../common_component/Button";
 import BOMListContent from "./BOMListContent";
 
+import {
+  useGetPlantProjectDetailQuery,
+  useGetConsolidatedBOMQuery,
+} from "@/redux/api/projectApi";
+
 const BOMView: React.FC = () => {
   const navigate = useNavigate();
   const { projectId } = useParams();
 
+  const {
+    data: projectDetail,
+    isLoading: isProjectLoading,
+    error: projectError,
+  } = useGetPlantProjectDetailQuery(projectId || "");
 
-  const project = {
-    name: "ABC Construction",
-    customerName: "John Doe",
+  const {
+    data: consolidatedBOMData,
+    isLoading: isBOMLoading,
+    error: bomError,
+  } = useGetConsolidatedBOMQuery(projectId || "");
 
+  if (isProjectLoading || isBOMLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-3">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#1E51A4]"></div>
+        <p className="text-gray-500 font-inter font-medium text-sm">
+          Loading BOM details...
+        </p>
+      </div>
+    );
+  }
+
+  if (bomError || projectError) {
+    const is404 = bomError && "status" in bomError && bomError.status === 404;
+    return (
+      <div className="xl:pr-5 px-2 pb-10 space-y-6">
+        <div className="flex items-center gap-4 mt-2">
+          <Button
+            variant="blueFilled"
+            size="sm"
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-2 shrink-0"
+          >
+            <ArrowLeft size={18} strokeWidth={2.5} /> Back
+          </Button>
+          <Heading text="BOM Files Details" />
+        </div>
+        <div className="p-10 text-center bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col items-center justify-center gap-4">
+          <p className="font-semibold text-lg font-inter text-[#212B36]">
+            {is404 ? "Consolidated BOM Not Generated Yet" : "Error Loading BOM Details"}
+          </p>
+          <p className="text-sm text-gray-500 font-inter max-w-md">
+            {is404
+              ? "The consolidated Bill of Materials (BOM) has not been generated for this project. Please make sure that BOM files have been uploaded and processed."
+              : "Something went wrong while retrieving the consolidated BOM. Please try again later."}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const consolidatedBOM = consolidatedBOMData?.consolidatedBOM;
+  if (!consolidatedBOM) {
+    return null;
   }
 
   const bomData = {
-    id: "BOM-001",
-    projectName: project?.name || "ABC Construction",
-    customerName: "John Doe",
-    date: "01.09.26",
-    jobId: "BLDG-D",
+    id: consolidatedBOM._id || "N/A",
+    projectName: projectDetail?.projectName || "N/A",
+    customerName: projectDetail?.client
+      ? `${projectDetail.client.firstName} ${projectDetail.client.lastName}`
+      : "N/A",
+    date: consolidatedBOM.createdAt
+      ? new Date(consolidatedBOM.createdAt).toLocaleDateString()
+      : "N/A",
+    jobId: projectDetail?.jobId || "N/A",
     summary: {
-      totalItems: 125,
-      totalWeight: "32,000 lbs",
-      totalPanelsArea: "3,300 sqm",
+      totalItems: consolidatedBOM.itemCount || 0,
+      totalWeight: `${(consolidatedBOM.items || []).reduce((acc, item) => acc + (item.totalWeight || 0), 0).toLocaleString()} lbs`,
+      totalPanelsArea: "N/A",
     },
-    items: [
-      { qty: 5, mark: "S-1", description: "STUD", part: "C42516", color: "RO", angle: "-", thick: "16 GA", length: "8'-7 1/4\"", weight: "16.00" },
-      { qty: 8, mark: "S-2", description: "STUD", part: "C42516", color: "RO", angle: "-", thick: "16 GA", length: "8'-7 1/4\"", weight: "16.00" },
-      { qty: 6, mark: "S-3", description: "STUD", part: "C42516", color: "RO", angle: "-", thick: "16 GA", length: "8'-7 1/4\"", weight: "16.00" },
-      { qty: 5, mark: "S-4", description: "STUD", part: "C42516", color: "RO", angle: "-", thick: "16 GA", length: "8'-7 1/4\"", weight: "16.00" },
-      { qty: 8, mark: "S-5", description: "STUD", part: "C42516", color: "RO", angle: "-", thick: "16 GA", length: "8'-7 1/4\"", weight: "16.00" },
-      { qty: 6, mark: "S-6", description: "STUD", part: "C42516", color: "RO", angle: "-", thick: "16 GA", length: "8'-7 1/4\"", weight: "16.00" },
-      { qty: 3, mark: "S-7", description: "STUD", part: "C42516", color: "RO", angle: "-", thick: "16 GA", length: "8'-7 1/4\"", weight: "16.00" },
-      { qty: 4, mark: "S-8", description: "STUD", part: "C42516", color: "RO", angle: "-", thick: "16 GA", length: "8'-7 1/4\"", weight: "16.00" },
-      { qty: 2, mark: "S-9", description: "STUD", part: "C42516", color: "RO", angle: "-", thick: "16 GA", length: "8'-7 1/4\"", weight: "16.00" },
-      { qty: 4, mark: "S-10", description: "STUD", part: "C42516", color: "RO", angle: "-", thick: "16 GA", length: "8'-7 1/4\"", weight: "16.00" },
-    ],
+    items: (consolidatedBOM.items || []).map((item) => ({
+      qty: item.totalQty || 0,
+      mark: item.markIds && item.markIds.length > 0 ? item.markIds.join(", ") : "-",
+      description: item.description || "-",
+      part: item.partCode || "-",
+      color: item.partColor || "-",
+      angle: "-",
+      thick: "-",
+      length: `${item.totalLengthFeet || 0} ${item.costUnit || "FT"}`,
+      weight: item.totalWeight ? item.totalWeight.toString() : "0",
+    })),
   };
+
 
   return (
     <div className="xl:pr-5 px-2 pb-10 space-y-6">
