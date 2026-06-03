@@ -16,6 +16,7 @@ interface UploadModalProps {
   fileLabel: string;
   onUpload: (file: File, fileUrl: string) => void;
   folder?: string;
+  allowedExtensions?: string[];
 }
 
 const UploadModal: React.FC<UploadModalProps> = ({
@@ -25,6 +26,7 @@ const UploadModal: React.FC<UploadModalProps> = ({
   subtitle,
   onUpload,
   folder,
+  allowedExtensions,
 }) => {
   const [selectedFile, setSelectedFile] = React.useState<File | null>(null);
   const [getPresignedUrl, { isLoading: isGettingUrl }] =
@@ -37,10 +39,30 @@ const UploadModal: React.FC<UploadModalProps> = ({
 
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
+  const validateFile = (file: File): boolean => {
+    if (allowedExtensions && allowedExtensions.length > 0) {
+      const ext = file.name.split(".").pop()?.toLowerCase();
+      if (!ext || !allowedExtensions.map((e) => e.toLowerCase().replace(/^\./, "")).includes(ext)) {
+        setUploadError(
+          `Invalid file type. Only ${allowedExtensions
+            .map((e) => `.${e.toLowerCase().replace(/^\./, "")}`)
+            .join(", ")} files are supported.`
+        );
+        return false;
+      }
+    }
+    return true;
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setSelectedFile(e.target.files[0]);
+      const file = e.target.files[0];
       setUploadError(null);
+      if (validateFile(file)) {
+        setSelectedFile(file);
+      } else {
+        setSelectedFile(null);
+      }
     }
   };
 
@@ -51,8 +73,13 @@ const UploadModal: React.FC<UploadModalProps> = ({
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      setSelectedFile(e.dataTransfer.files[0]);
+      const file = e.dataTransfer.files[0];
       setUploadError(null);
+      if (validateFile(file)) {
+        setSelectedFile(file);
+      } else {
+        setSelectedFile(null);
+      }
     }
   };
 
@@ -180,7 +207,9 @@ const UploadModal: React.FC<UploadModalProps> = ({
         </div>
 
         <p className="text-xs text-[#919EAB] font-inter">
-          Only support .jpg, .png and .svg and zip files
+          {allowedExtensions && allowedExtensions.length > 0
+            ? `Only support ${allowedExtensions.map((e) => `.${e.toLowerCase().replace(/^\./, "")}`).join(", ")} files`
+            : "Only support .jpg, .png and .svg and zip files"}
         </p>
 
         {/* File List Item */}
