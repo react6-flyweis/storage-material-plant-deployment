@@ -5,6 +5,7 @@ import { authApi } from "./api/authApi";
 import { logisticsApi } from "./api/logisticsApi";
 import { projectApi } from "./api/projectApi";
 import { uploadApi } from "./api/uploadApi";
+import { costingApi } from "./api/costingApi";
 import authReducer from "./slices/authSlice";
 
 const authPersistConfig = {
@@ -22,6 +23,7 @@ export const store = configureStore({
     [logisticsApi.reducerPath]: logisticsApi.reducer,
     [projectApi.reducerPath]: projectApi.reducer,
     [uploadApi.reducerPath]: uploadApi.reducer,
+    [costingApi.reducerPath]: costingApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
@@ -40,6 +42,7 @@ export const store = configureStore({
       logisticsApi.middleware,
       projectApi.middleware,
       uploadApi.middleware,
+      costingApi.middleware,
     ),
 });
 
