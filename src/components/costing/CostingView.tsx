@@ -18,25 +18,10 @@ import SuccessModal from "../common_component/SuccessModal";
 import PartCostModal from "./PartCostModal";
 import CostingTable from "./CostingTable";
 import PageWrapper from "../common_component/PageWrapper";
+import Pagination from "../Pagination";
+import { useGetSmdtCostListQuery } from "../../redux/api/costingApi";
 
-const mockData = [
-  { id: 1, partName: "'30_VRR48'", partColour: "'--'", costUnit: "'FT'", mbsCost: 2.6, currentMarketCost: null, description: "'VRR+ Insul R10'" },
-  { id: 2, partName: "'30_VRR72'", partColour: "'__'", costUnit: "'FT'", mbsCost: 3.9, currentMarketCost: null, description: "'VRR+ Insul R10'" },
-  { id: 3, partName: "'35_VRR48'", partColour: "'__'", costUnit: "'FT'", mbsCost: 2.9, currentMarketCost: null, description: "'VRR+ Insul R11'" },
-  { id: 4, partName: "'35_VRR72'", partColour: "'__'", costUnit: "'FT'", mbsCost: 4.4, currentMarketCost: null, description: "'VRR+ Insul R11'" },
-  { id: 5, partName: "'40_VRR48'", partColour: "'__'", costUnit: "'FT'", mbsCost: 3.3, currentMarketCost: null, description: "'VRR+ Insul R13'" },
-  { id: 6, partName: "'40_VRR72'", partColour: "'__'", costUnit: "'FT'", mbsCost: 4.9, currentMarketCost: null, description: "'VRR+ Insul R13'" },
-  { id: 7, partName: "'60_VRR48'", partColour: "'__'", costUnit: "'FT'", mbsCost: 4.2, currentMarketCost: null, description: "'VRR+ Insul R19'" },
-  { id: 8, partName: "'60_VRR72'", partColour: "'__'", costUnit: "'FT'", mbsCost: 6.3, currentMarketCost: null, description: "'VRR+ Insul R19'" },
-  { id: 9, partName: "'30_UF48 '", partColour: "'__'", costUnit: "'FT'", mbsCost: 2.6, currentMarketCost: null, description: "-" },
-  { id: 10, partName: "'30_UF72 '", partColour: "'__'", costUnit: "'FT'", mbsCost: 3.9, currentMarketCost: null, description: "'UF Insul R10 '" },
-  { id: 11, partName: "'35_UF48 '", partColour: "'__'", costUnit: "'FT'", mbsCost: 2.9, currentMarketCost: null, description: "'UF Insul R10 '" },
-  { id: 12, partName: "'35_UF72 '", partColour: "'__'", costUnit: "'FT'", mbsCost: 4.4, currentMarketCost: null, description: "'UF Insul R11 '" },
-  { id: 13, partName: "'40_UF48 '", partColour: "'__'", costUnit: "'FT'", mbsCost: 2.9, currentMarketCost: null, description: "'UF Insul R11 '" },
-  { id: 14, partName: "'40_UF72''", partColour: "'__'", costUnit: "'FT'", mbsCost: 4.4, currentMarketCost: null, description: "'UF Insul R13 '" },
-];
-
-type SortKey = "partName" | "partColour" | "costUnit" | "mbsCost" | "currentMarketCost" | "description";
+type SortKey = "partName" | "partColor" | "costUnit" | "mbsCost" | "currentMarketCost" | "description";
 
 const SORT_OPTIONS = [
   { label: "Latest", value: "latest" },
@@ -45,14 +30,6 @@ const SORT_OPTIONS = [
   { label: "Part Name Z-A", value: "partName_desc" },
   { label: "MBS Cost ↑", value: "mbsCost_asc" },
   { label: "MBS Cost ↓", value: "mbsCost_desc" },
-];
-
-const FILTER_BY_OPTIONS = [
-  { label: "Filter", value: "" },
-  { label: "All Items", value: "all" },
-  { label: "Steel Parts", value: "steel" },
-  { label: "Insulation", value: "insulation" },
-  { label: "Hardware", value: "hardware" },
 ];
 
 const CostingView: React.FC = () => {
@@ -71,8 +48,40 @@ const CostingView: React.FC = () => {
     isBOMSuccess: false 
   });
 
-  const [selectedRows, setSelectedRows] = useState<number[]>([]);
+  const [selectedRows, setSelectedRows] = useState<(string | number)[]>([]);
   const [quickSort, setQuickSort] = useState("latest");
+  
+  // Pagination State
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(50);
+
+  // Fetch SMDT Cost list from active cost version
+  const { data, isLoading } = useGetSmdtCostListQuery({
+    category: filterType || undefined,
+    search: searchTerm.trim() || undefined,
+    page,
+    limit,
+  });
+
+  const activeVersionName = data?.activeVersion?.name ?? "No Upload Yet";
+  const items = data?.items ?? [];
+  const categories = data?.categories ?? [];
+
+  // Reset selected rows when data changes
+  React.useEffect(() => {
+    setSelectedRows([]);
+  }, [data]);
+
+  // Derive filter categories options dynamically
+  const filterOptions = useMemo(() => {
+    const base = [
+      { label: "All Categories", value: "" }
+    ];
+    return [
+      ...base,
+      ...categories.map(cat => ({ label: cat, value: cat }))
+    ];
+  }, [categories]);
 
   // Derive sortKey/sortDir from the quickSort dropdown value
   const sortKey: SortKey | null = (() => {
@@ -98,29 +107,11 @@ const CostingView: React.FC = () => {
     }
   };
 
-
-  const filtered = useMemo(() => {
-    let data = [...mockData];
-
-    // Category Filtering
-    if (filterType !== "all") {
-      if (filterType === "steel") {
-        data = data.filter(item => item.partName.includes("VRR") || item.partName.includes("UF"));
-      } else if (filterType === "insulation") {
-        data = data.filter(item => item.description.toLowerCase().includes("insul"));
-      } else if (filterType === "hardware") {
-        data = data.filter(item => item.partName.toLowerCase().includes("hard") || item.description === "-");
-      }
-    }
-
-    if (searchTerm) {
-      const q = searchTerm.toLowerCase();
-      data = data.filter(
-        (r) => r.partName.toLowerCase().includes(q) || r.description.toLowerCase().includes(q)
-      );
-    }
+  // Perform client-side sorting of the fetched page items
+  const sortedAndFiltered = useMemo(() => {
+    let list = [...items];
     if (sortKey && sortDir) {
-      data.sort((a, b) => {
+      list.sort((a, b) => {
         const av = a[sortKey] ?? "";
         const bv = b[sortKey] ?? "";
         if (av < bv) return sortDir === "asc" ? -1 : 1;
@@ -128,14 +119,14 @@ const CostingView: React.FC = () => {
         return 0;
       });
     } else if (quickSort === "oldest") {
-      data.reverse();
+      list.reverse();
     }
-    return data;
-  }, [searchTerm, sortKey, sortDir, quickSort, filterType]);
+    return list;
+  }, [items, sortKey, sortDir, quickSort]);
 
-  const allSelected = selectedRows.length === filtered.length && filtered.length > 0;
-  const toggleAll = () => setSelectedRows(allSelected ? [] : filtered.map((r) => r.id));
-  const toggleRow = (id: number) =>
+  const allSelected = selectedRows.length === sortedAndFiltered.length && sortedAndFiltered.length > 0;
+  const toggleAll = () => setSelectedRows(allSelected ? [] : sortedAndFiltered.map((r) => r._id ?? r.id ?? ""));
+  const toggleRow = (id: string | number) =>
     setSelectedRows((prev) => prev.includes(id) ? prev.filter((r) => r !== id) : [...prev, id]);
 
   const handleAdd = () => {
@@ -150,8 +141,8 @@ const CostingView: React.FC = () => {
     setIsPartModalOpen(true);
   };
 
-  const onSavePart = (data: any) => {
-    console.log(data);
+  const onSavePart = (saveData: any) => {
+    console.log(saveData);
     setIsPartModalOpen(false);
     setSuccessConfig({
       title: "Item/Part Cost",
@@ -180,7 +171,6 @@ const CostingView: React.FC = () => {
     }
   };
 
-
   return (
     <PageWrapper>
       {/* Header */}
@@ -203,14 +193,14 @@ const CostingView: React.FC = () => {
       <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-4">
         <StatCard
           title="Total Item Cost"
-          value="$24,400"
-          subtitle="All parts combined"
+          value={activeVersionName}
+          subtitle="Active Cost Version"
           icon={DollarSign}
           gradient="linear-gradient(135deg, #2B7FFF 0%, #155DFC 100%)"
         />
         <StatCard
           title="Total Items"
-          value="120"
+          value={data?.total !== undefined ? String(data.total) : "0"}
           subtitle="In cost database"
           icon={TrendingUp}
           gradient="linear-gradient(135deg, #22C55E 0%, #16A34A 100%)"
@@ -233,15 +223,21 @@ const CostingView: React.FC = () => {
             type="text"
             placeholder="Search"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setPage(1);
+            }}
             className="w-full pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#155DFC]/20 transition-all placeholder:text-gray-400"
           />
         </div>
         {/* Filter */}
         <FilterDropdown
           activeTab={filterType}
-          onTabChange={setFilterType}
-          options={FILTER_BY_OPTIONS}
+          onTabChange={(tab) => {
+            setFilterType(tab);
+            setPage(1);
+          }}
+          options={filterOptions}
           icon
         />
         {/* Sort By */}
@@ -258,19 +254,42 @@ const CostingView: React.FC = () => {
       {/* Table */}
       <div>
         <SubHeading text="Part Cost List"/>
-        <CostingTable
-          data={filtered}
-          selectedRows={selectedRows}
-          onToggleRow={toggleRow}
-          onToggleAll={toggleAll}
-          allSelected={allSelected}
-          handleColSort={handleColSort}
-          sortKey={sortKey}
-          sortDir={sortDir}
-          onActionClick={handleEdit}
-          actionLabel="Edit"
-        />
+        {isLoading ? (
+          <div className="flex items-center justify-center p-12 text-sm text-[#637381]">
+            Loading cost database...
+          </div>
+        ) : (
+          <>
+            <CostingTable
+              data={sortedAndFiltered}
+              selectedRows={selectedRows}
+              onToggleRow={toggleRow}
+              onToggleAll={toggleAll}
+              allSelected={allSelected}
+              handleColSort={handleColSort}
+              sortKey={sortKey}
+              sortDir={sortDir}
+              onActionClick={handleEdit}
+              actionLabel="Edit"
+            />
+            {data && data.total > 0 && (
+              <Pagination
+                currentPage={page}
+                onPageChange={setPage}
+                totalItems={data.total}
+                itemsPerPage={limit}
+                rowsPerPage={limit}
+                onRowsPerPageChange={(newLimit) => {
+                  setLimit(newLimit);
+                  setPage(1);
+                }}
+                rowsPerPageOptions={[20, 50, 100, 200]}
+              />
+            )}
+          </>
+        )}
       </div>
+      
       <UploadModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
