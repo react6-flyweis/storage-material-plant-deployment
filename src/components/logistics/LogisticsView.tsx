@@ -4,7 +4,6 @@ import {
   Search,
   Filter,
   Plus,
-  Star,
   Mail,
   Phone,
   Store,
@@ -35,7 +34,6 @@ interface VendorRow {
   materialTypes: string[];
   extraMaterials: number;
   orders: { active: number; total: number };
-  rating: number;
   status: string;
   vendorType: string;
   pickupLocation: string;
@@ -105,13 +103,6 @@ const LogisticsView: React.FC = () => {
         active: vendor.activeOrders,
         total: vendor.totalOrders,
       },
-      rating: Math.min(
-        5,
-        Math.max(
-          3,
-          3 + (vendor.activeOrders / Math.max(vendor.totalOrders, 1)) * 2,
-        ),
-      ),
       status: vendor.status,
       vendorType: vendor.vendorType,
       pickupLocation: vendor.pickupLocation,
@@ -193,7 +184,6 @@ const LogisticsView: React.FC = () => {
     "Phone",
     "Material Types",
     "Orders",
-    "Rating",
     "Status",
     "Vendor Type",
     "Pickup Location",
@@ -344,24 +334,7 @@ const LogisticsView: React.FC = () => {
                         </span>
                       </div>
                     </td>
-                    <td className="p-2 md:p-4">
-                      <div className="flex items-center gap-1">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <Star
-                            key={star}
-                            size={14}
-                            className={
-                              star <= Math.floor(vendor.rating)
-                                ? "fill-[#FFD700] text-[#FFD700]"
-                                : "fill-[#000000]"
-                            }
-                          />
-                        ))}
-                        <span className="ml-1 text-sm text-[#364153] font-normal">
-                          {vendor.rating.toFixed(1)}
-                        </span>
-                      </div>
-                    </td>
+
                     <td className="p-2 md:p-4">
                       <CommonStatusBadge
                         text={toTitleCase(vendor.status)}
