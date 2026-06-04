@@ -222,7 +222,7 @@ export const adminRoutes: RouteObject[] = [
             element: <ShipperFilesView />,
           },
           {
-            path: "/projects/:projectId/shipper-file/:fileName",
+            path: "/projects/:projectId/shipper-files/:fileName",
             element: <ShipperFileDetailsView />,
           },
           {
