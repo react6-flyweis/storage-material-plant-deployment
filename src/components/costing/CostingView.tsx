@@ -95,7 +95,7 @@ const CostingView: React.FC = () => {
     return null;
   })();
 
-  const handleColSort = (key: SortKey) => {
+  const handleColSort = (key: string) => {
     const currentKey = sortKey;
     const currentDir = sortDir;
     if (currentKey === key) {
@@ -125,7 +125,7 @@ const CostingView: React.FC = () => {
   }, [items, sortKey, sortDir, quickSort]);
 
   const allSelected = selectedRows.length === sortedAndFiltered.length && sortedAndFiltered.length > 0;
-  const toggleAll = () => setSelectedRows(allSelected ? [] : sortedAndFiltered.map((r) => r._id ?? r.id ?? ""));
+  const toggleAll = () => setSelectedRows(allSelected ? [] : sortedAndFiltered.map((r) => r._id));
   const toggleRow = (id: string | number) =>
     setSelectedRows((prev) => prev.includes(id) ? prev.filter((r) => r !== id) : [...prev, id]);
 

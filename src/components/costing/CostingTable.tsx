@@ -9,7 +9,7 @@ interface SmdtRow {
   partColor?: string;
   partColour?: string;
   costUnit: string;
-  mbsCost: number;
+  mbsCost?: number;
   cost?: string;
   currentMarketCost: number | string | null;
   description: string;
@@ -21,7 +21,7 @@ interface CostingTableProps {
   onToggleRow: (id: string | number) => void;
   onToggleAll: () => void;
   allSelected: boolean;
-  handleColSort: (key: keyof SmdtRow) => void;
+  handleColSort: (key: string) => void;
   sortKey: string | null;
   sortDir: "asc" | "desc" | null;
   onActionClick: (row: SmdtRow) => void;

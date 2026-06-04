@@ -47,7 +47,7 @@ const MissingItemCostListView: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("");
   const [quickSort, setQuickSort] = useState("latest");
-  const [selectedRows, setSelectedRows] = useState<number[]>([]);
+  const [selectedRows, setSelectedRows] = useState<(string | number)[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPart, setSelectedPart] = useState<any>(null);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
@@ -69,7 +69,7 @@ const MissingItemCostListView: React.FC = () => {
     return null;
   })();
 
-  const handleColSort = (key: SortKey) => {
+  const handleColSort = (key: string) => {
     if (sortKey === key) {
       if (sortDir === "asc") setQuickSort(`${key}_desc`);
       else setQuickSort("latest");
@@ -114,7 +114,7 @@ const MissingItemCostListView: React.FC = () => {
 
   const allSelected = selectedRows.length === filteredData.length && filteredData.length > 0;
   const toggleAll = () => setSelectedRows(allSelected ? [] : filteredData.map((r) => r.id));
-  const toggleRow = (id: number) =>
+  const toggleRow = (id: string | number) =>
     setSelectedRows((prev) => prev.includes(id) ? prev.filter((r) => r !== id) : [...prev, id]);
 
   const handleActionClick = (row: any) => {
