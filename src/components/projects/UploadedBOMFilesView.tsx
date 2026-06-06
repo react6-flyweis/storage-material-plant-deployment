@@ -21,6 +21,21 @@ import CommonStatusBadge from "../common_component/CommonStatusBadge";
 import { cn } from "@/lib/utils";
 import PageWrapper from "../common_component/PageWrapper";
 
+import { useGetBOMProjectsQuery, type BOMProject } from "@/redux/api/projectApi";
+
+const formatDate = (dateString: string) => {
+  try {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  } catch {
+    return dateString;
+  }
+};
+
 const UploadedBOMFilesView: React.FC = () => {
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = React.useState(1);
@@ -38,83 +53,48 @@ const UploadedBOMFilesView: React.FC = () => {
     direction: null,
   });
 
+  const { data, isLoading } = useGetBOMProjectsQuery({
+    page: currentPage,
+    limit: rowsPerPage,
+  });
+
+  const projects = React.useMemo(() => data?.projects || [], [data?.projects]);
+  const total = data?.total || 0;
+
   const stats = [
     {
       title: "Total BOM Files",
-      value: "58 Files",
+      value: `${total} Files`,
       color: "bg-[#1E51A4]",
       icon: <Hammer className="text-[#1E51A4]" size={18} />,
     },
     {
       title: "Pending Upload",
-      value: "12 Files",
+      value: "N/A",
       color: "bg-[#3AB449]",
       icon: <ShieldCheck className="text-[#3AB449]" size={18} />,
     },
     {
       title: "Ready for Shipper",
-      value: "26 Files",
+      value: "N/A",
       color: "bg-[#DCC426]",
       icon: <DollarSign className="text-[#DCC426]" size={18} />,
     },
     {
       title: "Issues Detected",
-      value: "8 Files",
+      value: "N/A",
       color: "bg-[#FD8D5B]",
       icon: <BarChart3 className="text-[#FD8D5B]" size={18} />,
     },
   ];
 
-  const initialData = [
-    {
-      project: "ABC Warehouse",
-      date: "15 Jan 2025",
-      items: "125",
-      status: "Draft",
-      customerId: "ID-2025-1047",
-      projectId: "PRJ-001",
-    },
-    {
-      project: "Riya Buildings",
-      date: "22 Feb 2025",
-      items: "98",
-      status: "✅ Approved",
-      customerId: "ID-2025-1047",
-      projectId: "PRJ-002",
-    },
-    {
-      project: "Z-Tech Park",
-      date: "05 Dec 2024",
-      items: "210",
-      status: "🔒 Locked",
-      customerId: "ID-2025-1048",
-      projectId: "PRJ-003",
-    },
-    {
-      project: "Global Logistics",
-      date: "10 Mar 2025",
-      items: "150",
-      status: "Draft",
-      customerId: "ID-2025-1049",
-      projectId: "PRJ-004",
-    },
-    {
-      project: "Metro Station",
-      date: "01 Jan 2025",
-      items: "300",
-      status: "🔒 Locked",
-      customerId: "ID-2025-1050",
-      projectId: "PRJ-005",
-    },
-  ];
-
   const projectOptions = React.useMemo(() => {
-    const uniqueProjects = Array.from(new Set(initialData.map((d) => d.project)));
+    const uniqueProjects = Array.from(new Set(projects.map((d) => d.projectName)));
     return [
       { label: "All Projects", value: "all" },
       ...uniqueProjects.map((p) => ({ label: p, value: p })),
     ];
-  }, []);
+  }, [projects]);
 
   const handleSort = (key: string) => {
     let direction: "asc" | "desc" = "asc";
@@ -125,35 +105,34 @@ const UploadedBOMFilesView: React.FC = () => {
   };
 
   const filteredAndSortedData = React.useMemo(() => {
-    let data = [...initialData];
+    let list = [...projects];
 
     // Filter by search query
     if (searchQuery) {
-      data = data.filter((item) =>
-        item.project.toLowerCase().includes(searchQuery.toLowerCase())
+      list = list.filter((item) =>
+        item.projectName.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
     // Filter by project dropdown
     if (projectFilter !== "all") {
-      data = data.filter((item) => item.project === projectFilter);
+      list = list.filter((item) => item.projectName === projectFilter);
     }
 
     // Sort logic
     if (sortConfig.key) {
-      // Manual column sort
-      data.sort((a: any, b: any) => {
+      list.sort((a: any, b: any) => {
         let valA = a[sortConfig.key];
         let valB = b[sortConfig.key];
 
-        if (sortConfig.key === "date") {
+        if (sortConfig.key === "uploadDate") {
           valA = new Date(valA).getTime();
           valB = new Date(valB).getTime();
         }
 
-        if (sortConfig.key === "items") {
-          valA = parseInt(valA);
-          valB = parseInt(valB);
+        if (sortConfig.key === "itemCount") {
+          valA = parseInt(valA) || 0;
+          valB = parseInt(valB) || 0;
         }
 
         if (valA < valB) return sortConfig.direction === "asc" ? -1 : 1;
@@ -162,25 +141,26 @@ const UploadedBOMFilesView: React.FC = () => {
       });
     } else {
       // Fallback to Sort By dropdown (Latest/Oldest)
-      data.sort((a, b) => {
-        const dateA = new Date(a.date).getTime();
-        const dateB = new Date(b.date).getTime();
+      list.sort((a, b) => {
+        const dateA = new Date(a.uploadDate).getTime();
+        const dateB = new Date(b.uploadDate).getTime();
         return sortBy === "Latest" ? dateB - dateA : dateA - dateB;
       });
     }
 
-    return data;
-  }, [searchQuery, projectFilter, sortConfig, sortBy]);
+    return list;
+  }, [projects, searchQuery, projectFilter, sortConfig, sortBy]);
 
-  const handleViewBOM = (item: any) => {
-    navigate(`/projects/view-bom/${item.customerId}/${item.projectId}`);
+  const handleViewBOM = (item: BOMProject) => {
+    navigate(`/projects/${item.leadId}/view-bom`);
   };
 
   const getBadgeVariant = (status: string) => {
+    if (!status) return "gray";
     const s = status.toLowerCase();
-    if (s === "draft") return "yellow";
-    if (s.includes("approved")) return "green";
-    if (s.includes("locked")) return "green";
+    if (s === "extracted" || s === "success" || s === "approved") return "green";
+    if (s === "processing" || s === "pending") return "yellow";
+    if (s === "failed" || s === "error") return "red";
     return "blue";
   };
 
@@ -263,7 +243,7 @@ const UploadedBOMFilesView: React.FC = () => {
                 </th>
                 <th
                   className="py-3 px-4 text-sm font-archivo font-semibold text-black cursor-pointer group"
-                  onClick={() => handleSort("project")}
+                  onClick={() => handleSort("projectName")}
                 >
                   <div className="flex items-center gap-1">
                     Project
@@ -271,7 +251,7 @@ const UploadedBOMFilesView: React.FC = () => {
                       size={14}
                       className={cn(
                         "transition-colors",
-                        sortConfig.key === "project"
+                        sortConfig.key === "projectName"
                           ? "text-(--text-color-primary-blue)"
                           : "text-(--text-color-gray-4)",
                       )}
@@ -280,7 +260,7 @@ const UploadedBOMFilesView: React.FC = () => {
                 </th>
                 <th
                   className="py-3 px-4 text-sm font-archivo font-semibold text-black cursor-pointer group"
-                  onClick={() => handleSort("date")}
+                  onClick={() => handleSort("uploadDate")}
                 >
                   <div className="flex items-center gap-1">
                     Upload Date
@@ -288,7 +268,7 @@ const UploadedBOMFilesView: React.FC = () => {
                       size={14}
                       className={cn(
                         "transition-colors",
-                        sortConfig.key === "date"
+                        sortConfig.key === "uploadDate"
                           ? "text-(--text-color-primary-blue)"
                           : "text-(--text-color-gray-4)",
                       )}
@@ -297,7 +277,7 @@ const UploadedBOMFilesView: React.FC = () => {
                 </th>
                 <th
                   className="py-4 px-4 text-sm font-archivo font-semibold text-black cursor-pointer group"
-                  onClick={() => handleSort("items")}
+                  onClick={() => handleSort("itemCount")}
                 >
                   <div className="flex items-center gap-1">
                     Items
@@ -305,7 +285,7 @@ const UploadedBOMFilesView: React.FC = () => {
                       size={14}
                       className={cn(
                         "transition-colors",
-                        sortConfig.key === "items"
+                        sortConfig.key === "itemCount"
                           ? "text-(--text-color-primary-blue)"
                           : "text-(--text-color-gray-4)",
                       )}
@@ -319,47 +299,61 @@ const UploadedBOMFilesView: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#E2E4E6]">
-              {filteredAndSortedData.map((item, idx) => (
-                <tr key={idx} className="hover:bg-gray-50/50 transition-colors">
-                  <td className="py-2 px-6">
-                    <CommonCheckbox
-                      checked={selectedRows.includes(idx)}
-                      onChange={(checked) => {
-                        if (checked) setSelectedRows([...selectedRows, idx]);
-                        else
-                          setSelectedRows(
-                            selectedRows.filter((i) => i !== idx),
-                          );
-                      }}
-                    />
-                  </td>
-                  <td className="py-2 px-4 text-[15px] font-archivo font-normal text-[#637381]">
-                    {item.project}
-                  </td>
-                  <td className="py-2 px-4 text-[15px] font-inter text-[#637381]">
-                    {item.date}
-                  </td>
-                  <td className="py-2 px-4 text-[15px] font-inter font-normal text-black">
-                    {item.items}
-                  </td>
-                  <td className="py-2 px-4">
-                    <CommonStatusBadge
-                      text={item.status}
-                      variant={getBadgeVariant(item.status)}
-                      icon={<CircleCheck size={14} />}
-                    />
-                  </td>
-                  <td className="py-3 px-6 text-right">
-                    <Button
-                      variant={"gradient"}
-                      size={"sm"}
-                      onClick={() => handleViewBOM(item)}
-                    >
-                      <Eye size={18} />
-                    </Button>
+              {isLoading ? (
+                <tr>
+                  <td colSpan={6} className="text-center py-10 text-[15px] font-inter text-[#637381]">
+                    Loading BOM projects...
                   </td>
                 </tr>
-              ))}
+              ) : filteredAndSortedData.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="text-center py-10 text-[15px] font-inter text-[#637381]">
+                    No BOM projects found
+                  </td>
+                </tr>
+              ) : (
+                filteredAndSortedData.map((item, idx) => (
+                  <tr key={idx} className="hover:bg-gray-50/50 transition-colors">
+                    <td className="py-2 px-6">
+                      <CommonCheckbox
+                        checked={selectedRows.includes(idx)}
+                        onChange={(checked) => {
+                          if (checked) setSelectedRows([...selectedRows, idx]);
+                          else
+                            setSelectedRows(
+                              selectedRows.filter((i) => i !== idx),
+                            );
+                        }}
+                      />
+                    </td>
+                    <td className="py-2 px-4 text-[15px] font-archivo font-normal text-[#637381]">
+                      {item.projectName}
+                    </td>
+                    <td className="py-2 px-4 text-[15px] font-inter text-[#637381]">
+                      {formatDate(item.uploadDate)}
+                    </td>
+                    <td className="py-2 px-4 text-[15px] font-inter font-normal text-black">
+                      {item.itemCount}
+                    </td>
+                    <td className="py-2 px-4">
+                      <CommonStatusBadge
+                        text={item.fileStatus}
+                        variant={getBadgeVariant(item.fileStatus)}
+                        icon={<CircleCheck size={14} />}
+                      />
+                    </td>
+                    <td className="py-3 px-6 text-right">
+                      <Button
+                        variant={"gradient"}
+                        size={"sm"}
+                        onClick={() => handleViewBOM(item)}
+                      >
+                        <Eye size={18} />
+                      </Button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -367,14 +361,13 @@ const UploadedBOMFilesView: React.FC = () => {
 
       <Pagination
         currentPage={currentPage}
-        totalPages={15}
+        totalItems={total}
         rowsPerPage={rowsPerPage}
         onPageChange={setCurrentPage}
         onRowsPerPageChange={(rows) => {
           setRowsPerPage(rows);
           setCurrentPage(1);
         }}
-        getPageNumbers={() => [1, 2, 3, 4, "...", 15]}
       />
 
       <UploadModal
