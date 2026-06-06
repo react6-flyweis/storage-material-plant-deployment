@@ -13,6 +13,8 @@ interface CommonDropdownProps {
   onChange?: (value: string) => void;
   placeholder?: string;
   className?: string;
+  required?: boolean;
+  error?: string;
 }
 
 const CommonDropdown: React.FC<CommonDropdownProps> = ({
@@ -22,6 +24,8 @@ const CommonDropdown: React.FC<CommonDropdownProps> = ({
   onChange,
   placeholder = "Select an option",
   className = "",
+  required = false,
+  error,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -44,15 +48,18 @@ const CommonDropdown: React.FC<CommonDropdownProps> = ({
   return (
     <div className={`flex flex-col gap-2 ${className}`} ref={dropdownRef}>
       {label && (
-        <label className="text-sm font-inter font-normal text-black">
+        <label className="text-sm font-inter font-normal text-black flex items-center">
           {label}
+          {required && <span className="text-red-500 ml-1">*</span>}
         </label>
       )}
       <div className="relative">
         <button
           type="button"
           onClick={() => setIsOpen(!isOpen)}
-          className="w-full flex items-center justify-between px-2 py-2 md:px-4 md:py-3 bg-[#F7F8F9] border border-[#E2E4E6] rounded-sm text-left focus:outline-none focus:ring focus:ring-blue-500/20 transition-all"
+          className={`w-full flex items-center justify-between px-2 py-2 md:px-4 md:py-3 bg-[#F7F8F9] border rounded-sm text-left focus:outline-none focus:ring focus:ring-blue-500/20 transition-all ${
+            error ? "border-red-500" : "border-[#E2E4E6]"
+          }`}
         >
           <span
             className={`text-xs md:text-sm font-inter ${selectedOption ? "text-black" : "text-gray-400"}`}
@@ -89,6 +96,7 @@ const CommonDropdown: React.FC<CommonDropdownProps> = ({
           </div>
         )}
       </div>
+      {error && <span className="text-xs text-red-500">{error}</span>}
     </div>
   );
 };

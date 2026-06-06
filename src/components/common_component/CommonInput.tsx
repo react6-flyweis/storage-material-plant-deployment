@@ -7,6 +7,7 @@ interface CommonInputProps extends Omit<
   label: string;
   inputClassName?: string;
   onChange?: (value: string) => void;
+  error?: string;
 }
 
 const CommonInput = forwardRef<HTMLInputElement, CommonInputProps>(
@@ -17,6 +18,7 @@ const CommonInput = forwardRef<HTMLInputElement, CommonInputProps>(
       inputClassName = "",
       required = false,
       onChange,
+      error,
       ...props
     },
     ref,
@@ -31,17 +33,19 @@ const CommonInput = forwardRef<HTMLInputElement, CommonInputProps>(
       <div className={`flex flex-col gap-2  ${className}`}>
         <label className="text-sm font-medium text-[#212B36] flex items-center">
           {label}
-          {required && <span className="text-red-500">*</span>}
+          {required && <span className="text-red-500 ml-1">*</span>}
         </label>
         <input
           ref={ref}
           {...props}
           onChange={handleChange}
-          className={`w-full h-12 px-6 bg-white border-[0.7px] border-[#D1D5DC] rounded-[11px] text-sm 
+          className={`w-full h-12 px-6 bg-white border-[0.7px] rounded-[11px] text-sm 
           focus:border-[#4A5565] outline-none shadow-xs transition-all 
           placeholder:text-[#919EAB] disabled:bg-gray-50 disabled:cursor-not-allowed
+          ${error ? "border-red-500 focus:border-red-500" : "border-[#D1D5DC]"}
           ${inputClassName}`}
         />
+        {error && <span className="text-xs text-red-500">{error}</span>}
       </div>
     );
   },
