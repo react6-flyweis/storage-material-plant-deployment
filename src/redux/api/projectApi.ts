@@ -331,7 +331,7 @@ type ProjectInvoicesApiResponse = ApiResponse<ProjectInvoicesResponse>;
 export const projectApi = createApi({
   reducerPath: "projectApi",
   baseQuery: baseQueryWithReauth,
-  tagTypes: ["ProjectDetail", "ProjectDrawings", "ProjectInvoices", "ProjectBuildings", "ConsolidatedBOM"],
+  tagTypes: ["ProjectDetail", "ProjectDrawings", "ProjectInvoices", "ProjectBuildings", "ConsolidatedBOM", "BOMProjects"],
   endpoints: (builder) => ({
     getProjectBuildings: builder.query<ProjectBuildingsResponse, string>({
       query: (leadId) => `/api/plant/projects/${leadId}/buildings`,
