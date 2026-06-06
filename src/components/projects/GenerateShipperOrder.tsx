@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Search, Send, X, Truck } from "lucide-react";
-import { customersData } from "@/data/productionMockData";
 import Heading from "../common_component/Heading";
 import Button from "../common_component/Button";
 import BOMListContent from "./BOMListContent";
@@ -9,50 +8,124 @@ import BOMListContent from "./BOMListContent";
 import SuccessModal from "../common_component/SuccessModal";
 import AddShipperMailModal from "./AddShipperMailModal";
 
-const shippersMockData = [
-  { id: 1, name: "Steel Investments", rating: 4.8, serviceArea: "Texas / Oklahoma", selected: true },
-  { id: 2, name: "DBA Storage Materials", rating: 4.5, serviceArea: "Texas / Oklahoma", selected: true },
-  { id: 3, name: "Steel Investments", rating: 4.2, serviceArea: "Texas / Oklahoma", selected: false },
-  { id: 4, name: "DBA Storage Materials", rating: 4.9, serviceArea: "Texas / Oklahoma", selected: false },
-];
+import {
+  useGetPlantProjectDetailQuery,
+  useGetConsolidatedBOMQuery,
+  useSendConsolidatedBOMMutation,
+} from "@/redux/api/projectApi";
+import { useGetPlantVendorsQuery } from "@/redux/api/logisticsApi";
 
 const GenerateShipperOrder: React.FC = () => {
   const navigate = useNavigate();
-  const { customerId, projectId } = useParams();
-  const [shippers, setShippers] = useState(shippersMockData);
+  const { projectId } = useParams();
+  const {
+    data: consolidatedBOMData,
+    isLoading: isBOMLoading,
+    error: bomError,
+  } = useGetConsolidatedBOMQuery(projectId || "");
+
+  const consolidatedBOM = consolidatedBOMData?.consolidatedBOM;
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedShipperIds, setSelectedShipperIds] = useState<string[]>([]);
   const [newShipperEmails, setNewShipperEmails] = useState(["steelinvestment@gmail.com"]);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const [isAddShipperModalOpen, setIsAddShipperModalOpen] = useState(false);
   const [isAddSuccessOpen, setIsAddSuccessOpen] = useState(false);
 
-  const customer = customersData[customerId || ""] || customersData["ID-2025-1047"];
-  const project = customer?.projects.find((p) => p.id === projectId) || customer?.projects[0];
+  // Initialize selectedShipperIds from already sent vendors when data loads
+  React.useEffect(() => {
+    if (consolidatedBOM?.sentToVendors) {
+      const sentIds = consolidatedBOM.sentToVendors.map((v: { vendorId: string }) => v.vendorId);
+      setSelectedShipperIds(sentIds);
+    }
+  }, [consolidatedBOM]);
+
+  const [sendConsolidatedBOM, { isLoading: isSending }] = useSendConsolidatedBOMMutation();
+
+  const {
+    data: projectDetail,
+    isLoading: isProjectLoading,
+    error: projectError,
+  } = useGetPlantProjectDetailQuery(projectId || "");
+
+  const {
+    data: vendorsDataResponse,
+    isLoading: isVendorsLoading,
+  } = useGetPlantVendorsQuery({ search: searchTerm.trim() || undefined });
+
+  if (isProjectLoading || isBOMLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-3">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#1E51A4]"></div>
+        <p className="text-gray-500 font-inter font-medium text-sm">
+          Loading BOM details...
+        </p>
+      </div>
+    );
+  }
+
+  if (bomError || projectError) {
+    const is404 = bomError && "status" in bomError && bomError.status === 404;
+    return (
+      <div className="xl:pr-5 px-2 pb-10 space-y-6">
+        <div className="flex items-center gap-4 mt-2">
+          <Button
+            variant="blueFilled"
+            size="sm"
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-2 shrink-0"
+          >
+            <ArrowLeft size={18} strokeWidth={2.5} /> Back
+          </Button>
+          <Heading text="Generate Shipper Order" />
+        </div>
+        <div className="p-10 text-center bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col items-center justify-center gap-4">
+          <p className="font-semibold text-lg font-inter text-[#212B36]">
+            {is404 ? "Consolidated BOM Not Generated Yet" : "Error Loading BOM Details"}
+          </p>
+          <p className="text-sm text-gray-500 font-inter max-w-md">
+            {is404
+              ? "The consolidated Bill of Materials (BOM) has not been generated for this project. Please make sure that BOM files have been uploaded and processed."
+              : "Something went wrong while retrieving the consolidated BOM. Please try again later."}
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   const bomData = {
-    id: "BOM-001",
-    projectName: project?.name || "ABC Construction",
-    customerName: customer?.name || "John Doe",
-    date: "01.09.26",
-    jobId: "BLDG-D",
+    id: consolidatedBOM?._id || "N/A",
+    projectName: projectDetail?.projectName || "N/A",
+    customerName: projectDetail?.client
+      ? `${projectDetail.client.firstName} ${projectDetail.client.lastName}`
+      : "N/A",
+    date: consolidatedBOM?.createdAt
+      ? new Date(consolidatedBOM.createdAt).toLocaleDateString()
+      : "N/A",
+    jobId: projectDetail?.jobId || "N/A",
     summary: {
-      totalItems: 125,
-      totalWeight: "32,000 lbs",
-      totalPanelsArea: "3,300 sqm",
+      totalItems: consolidatedBOM?.itemCount || 0,
+      totalWeight: `${(consolidatedBOM?.items || []).reduce((acc, item) => acc + (item.totalWeight || 0), 0).toLocaleString()} lbs`,
+      totalPanelsArea: "N/A",
     },
-    items: [
-      { qty: 12, mark: "S-10", description: "STUD", part: "C42516", color: "RO", angle: "90°", thick: "16 GA", length: "10'-2\"", weight: "24.50" },
-      { qty: 5, mark: "S-1", description: "STUD", part: "C42516", color: "RO", angle: "-", thick: "16 GA", length: "8'-7 1/4\"", weight: "16.00" },
-      { qty: 25, mark: "S-5", description: "STUD", part: "C42516", color: "RO", angle: "45°", thick: "18 GA", length: "12'-0\"", weight: "42.00" },
-      { qty: 8, mark: "S-2", description: "STUD", part: "C42516", color: "RO", angle: "-", thick: "16 GA", length: "8'-7 1/4\"", weight: "16.00" },
-      { qty: 15, mark: "S-8", description: "STUD", part: "C42516", color: "RO", angle: "30°", thick: "14 GA", length: "9'-6\"", weight: "35.20" },
-      { qty: 6, mark: "S-3", description: "STUD", part: "C42516", color: "RO", angle: "-", thick: "16 GA", length: "8'-7 1/4\"", weight: "16.00" },
-      { qty: 2, mark: "S-9", description: "STUD", part: "C42516", color: "RO", angle: "90°", thick: "16 GA", length: "8'-7 1/4\"", weight: "16.00" },
-      { qty: 4, mark: "S-4", description: "STUD", part: "C42516", color: "RO", angle: "-", thick: "16 GA", length: "8'-7 1/4\"", weight: "16.00" },
-    ],
+    items: (consolidatedBOM?.items || []).map((item) => ({
+      qty: item.totalQty || 0,
+      mark: item.markIds && item.markIds.length > 0 ? item.markIds.join(", ") : "-",
+      description: item.description || "-",
+      part: item.partCode || "-",
+      color: item.partColor || "-",
+      angle: "-",
+      thick: "-",
+      length: `${item.totalLengthFeet || 0} ${item.costUnit || "FT"}`,
+      weight: item.totalWeight ? item.totalWeight.toString() : "0",
+    })),
   };
 
-  const toggleShipper = (id: number) => {
-    setShippers(shippers.map(s => s.id === id ? { ...s, selected: !s.selected } : s));
+  const toggleShipper = (id: string) => {
+    setSelectedShipperIds(prev =>
+      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+    );
   };
 
   const handleAddShipperMail = (data: { email: string }) => {
@@ -67,33 +140,45 @@ const GenerateShipperOrder: React.FC = () => {
     setNewShipperEmails(newShipperEmails.filter(e => e !== email));
   };
 
-  const handleSendOrder = () => {
-    setIsSuccessModalOpen(true);
+  const handleSendOrder = async () => {
+    if (!projectId || selectedShipperIds.length === 0) return;
+    try {
+      await sendConsolidatedBOM({
+        leadId: projectId,
+        vendorIds: selectedShipperIds,
+      }).unwrap();
+      setIsSuccessModalOpen(true);
+    } catch (err) {
+      console.error("Failed to send consolidated BOM:", err);
+    }
   };
+
+  const vendors = vendorsDataResponse?.vendors || [];
 
   return (
     <div className="xl:pr-5 px-2 pb-10 space-y-6">
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mt-2">
         <div className="flex items-center gap-4">
-        <Button
-          variant="blueFilled"
-          size="sm"
-          onClick={() => navigate(-1)}
-          className="flex items-center gap-2 shrink-0"
-        >
-          <ArrowLeft size={18} strokeWidth={2.5} /> Back
-        </Button>
+          <Button
+            variant="blueFilled"
+            size="sm"
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-2 shrink-0"
+          >
+            <ArrowLeft size={18} strokeWidth={2.5} /> Back
+          </Button>
           <Heading text="Generate Shipper Order" />
         </div>
 
-        <Button 
+        <Button
           variant="gradient"
           size="md"
           className="flex items-center gap-2"
           onClick={handleSendOrder}
+          disabled={selectedShipperIds.length === 0 || isSending}
         >
-          <Send size={18} /> Send Order
+          <Send size={18} /> {isSending ? "Sending..." : "Send Order"}
         </Button>
       </div>
 
@@ -113,56 +198,80 @@ const GenerateShipperOrder: React.FC = () => {
           <div className="flex flex-col sm:flex-row items-center gap-4 flex-1 lg:justify-end">
             <div className="relative w-full sm:max-w-md">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-              <input 
-                type="text" 
+              <input
+                type="text"
                 placeholder="Search Shippers"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 placeholder:text-gray-400"
               />
             </div>
-            <Button 
-              variant="grayFilled" 
-              size="sm" 
+            <Button
+              variant="grayFilled"
+              size="sm"
               onClick={() => setIsAddShipperModalOpen(true)}
             >
               Add new Shipper Mail
-            </Button> 
+            </Button>
           </div>
         </div>
 
         {/* Shippers Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-          {shippers.map((shipper) => (
-            <div 
-              key={shipper.id}
-              onClick={() => toggleShipper(shipper.id)}
-              className={`p-5 rounded-[12px] border-2 transition-all cursor-pointer flex flex-col gap-3 ${
-                shipper.selected ? "border-[#3AB449] bg-white" : "border-[#E2E4E6] bg-white"
-              }`}
-            >
-              <div className="flex items-start gap-3">
-                <div className={`size-5 rounded border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors ${
-                  shipper.selected ? "bg-[#3AB449] border-[#3AB449]" : "border-gray-300 bg-white"
-                }`}>
-                  {shipper.selected && (
-                    <svg viewBox="0 0 24 24" fill="none" className="size-3.5 text-white" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="20 6 9 17 4 12" />
-                    </svg>
+        {isVendorsLoading ? (
+          <div className="flex justify-center items-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#1E51A4]"></div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+            {vendors.map((shipper) => {
+              const isSelected = selectedShipperIds.includes(shipper._id);
+              const sentVendor = consolidatedBOM?.sentToVendors?.find(
+                (v: { vendorId: string; vendorName: string; sentAt: string }) => v.vendorId === shipper._id
+              );
+              return (
+                <div
+                  key={shipper._id}
+                  onClick={() => toggleShipper(shipper._id)}
+                  className={`p-5 rounded-[12px] border-2 transition-all cursor-pointer flex flex-col gap-3 relative ${isSelected ? "border-[#3AB449] bg-white" : "border-[#E2E4E6] bg-white"
+                    }`}
+                >
+                  {sentVendor && (
+                    <span className="absolute top-2 right-2 bg-blue-50 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-blue-200">
+                      Sent
+                    </span>
                   )}
-                </div>
-                <div className="space-y-1">
-                  <h4 className="font-bold text-[#212B36] text-sm md:text-base leading-tight">{shipper.name}</h4>
-                  <div className="flex items-center gap-1.5">
-                    <div className="flex items-center gap-1">
-                      <span className="text-[#FF9409] text-xs font-bold">★ {shipper.rating}</span>
-                      <span className="text-gray-300 text-xs">•</span>
+                  <div className="flex items-start gap-3">
+                    <div className={`size-5 rounded border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors ${isSelected ? "bg-[#3AB449] border-[#3AB449]" : "border-gray-300 bg-white"
+                      }`}>
+                      {isSelected && (
+                        <svg viewBox="0 0 24 24" fill="none" className="size-3.5 text-white" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                      )}
+                    </div>
+                    <div className="space-y-1 pr-8">
+                      <h4 className="font-bold text-[#212B36] text-sm md:text-base leading-tight">{shipper.vendorName}</h4>
+                      <div className="flex items-center gap-1.5">
+                        <div className="flex items-center gap-1">
+                          <span className="text-[#FF9409] text-xs font-bold">★ 5.0</span>
+                          <span className="text-gray-300 text-xs">•</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
+                  <div className="ml-8 space-y-1">
+                    <p className="text-[11px] md:text-xs text-[#637381] font-medium">Pickup: {shipper.pickupLocation || "N/A"}</p>
+                    {sentVendor && (
+                      <p className="text-[10px] text-gray-400 font-medium">
+                        Sent at: {new Date(sentVendor.sentAt).toLocaleString()}
+                      </p>
+                    )}
+                  </div>
                 </div>
-              </div>
-              <p className="text-[11px] md:text-xs text-[#637381] font-medium ml-8">Service Area: {shipper.serviceArea}</p>
-            </div>
-          ))}
-        </div>
+              );
+            })}
+          </div>
+        )}
 
         {/* New Shippers Tags */}
         <div className="space-y-4">
@@ -186,7 +295,7 @@ const GenerateShipperOrder: React.FC = () => {
       <BOMListContent bomData={bomData} />
 
       {/* Main Success Modal */}
-      <SuccessModal 
+      <SuccessModal
         isOpen={isSuccessModalOpen}
         onClose={() => {
           setIsSuccessModalOpen(false);
@@ -197,14 +306,14 @@ const GenerateShipperOrder: React.FC = () => {
       />
 
       {/* Add Shipper Mail Modal */}
-      <AddShipperMailModal 
+      <AddShipperMailModal
         isOpen={isAddShipperModalOpen}
         onClose={() => setIsAddShipperModalOpen(false)}
         onAdd={handleAddShipperMail}
       />
 
       {/* Add Email Success Modal */}
-      <SuccessModal 
+      <SuccessModal
         isOpen={isAddSuccessOpen}
         onClose={() => setIsAddSuccessOpen(false)}
         title="Shipper Mail Added in the Order"
