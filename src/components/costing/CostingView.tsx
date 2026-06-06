@@ -19,7 +19,8 @@ import PartCostModal from "./PartCostModal";
 import CostingTable from "./CostingTable";
 import PageWrapper from "../common_component/PageWrapper";
 import Pagination from "../Pagination";
-import { useGetSmdtCostListQuery } from "../../redux/api/costingApi";
+import { useGetSmdtCostListQuery } from "@/redux/api/costingApi";
+import { CATEGORY_OPTIONS } from "@/constants/costing";
 
 type SortKey = "partName" | "partColor" | "costUnit" | "mbsCost" | "currentMarketCost" | "description";
 
@@ -41,16 +42,16 @@ const CostingView: React.FC = () => {
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"add" | "edit">("add");
   const [selectedPart, setSelectedPart] = useState<any>(null);
-  const [successConfig, setSuccessConfig] = useState({ 
-    title: "", 
-    subTitle: "", 
+  const [successConfig, setSuccessConfig] = useState({
+    title: "",
+    subTitle: "",
     buttonText: "Ok",
-    isBOMSuccess: false 
+    isBOMSuccess: false
   });
 
   const [selectedRows, setSelectedRows] = useState<(string | number)[]>([]);
   const [quickSort, setQuickSort] = useState("latest");
-  
+
   // Pagination State
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(50);
@@ -63,25 +64,20 @@ const CostingView: React.FC = () => {
     limit,
   });
 
-  const activeVersionName = data?.activeVersion?.name ?? "No Upload Yet";
   const items = data?.items ?? [];
-  const categories = data?.categories ?? [];
 
   // Reset selected rows when data changes
   React.useEffect(() => {
     setSelectedRows([]);
   }, [data]);
 
-  // Derive filter categories options dynamically
+  // Use categories options from constants
   const filterOptions = useMemo(() => {
-    const base = [
-      { label: "All Categories", value: "" }
-    ];
     return [
-      ...base,
-      ...categories.map(cat => ({ label: cat, value: cat }))
+      { label: "All Categories", value: "" },
+      ...CATEGORY_OPTIONS
     ];
-  }, [categories]);
+  }, []);
 
   // Derive sortKey/sortDir from the quickSort dropdown value
   const sortKey: SortKey | null = (() => {
@@ -107,22 +103,8 @@ const CostingView: React.FC = () => {
     }
   };
 
-  // Perform client-side sorting of the fetched page items
-  const sortedAndFiltered = useMemo(() => {
-    let list = [...items];
-    if (sortKey && sortDir) {
-      list.sort((a, b) => {
-        const av = a[sortKey] ?? "";
-        const bv = b[sortKey] ?? "";
-        if (av < bv) return sortDir === "asc" ? -1 : 1;
-        if (av > bv) return sortDir === "asc" ? 1 : -1;
-        return 0;
-      });
-    } else if (quickSort === "oldest") {
-      list.reverse();
-    }
-    return list;
-  }, [items, sortKey, sortDir, quickSort]);
+  // Remove client-side sorting function, keep UI as it is
+  const sortedAndFiltered = items;
 
   const allSelected = selectedRows.length === sortedAndFiltered.length && sortedAndFiltered.length > 0;
   const toggleAll = () => setSelectedRows(allSelected ? [] : sortedAndFiltered.map((r) => r._id));
@@ -175,7 +157,7 @@ const CostingView: React.FC = () => {
     <PageWrapper>
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
-        <TitleSubtitle title="Item Cost List"/>
+        <TitleSubtitle title="Item Cost List" />
         <div className="flex flex-wrap items-center gap-2 ml-auto">
           <Button variant="white" size="sm" className="gap-2">
             <Upload size={16} /> Export
@@ -193,22 +175,19 @@ const CostingView: React.FC = () => {
       <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-4">
         <StatCard
           title="Total Item Cost"
-          value={activeVersionName}
-          subtitle="Active Cost Version"
+          value={"N/A"}
           icon={DollarSign}
           gradient="linear-gradient(135deg, #2B7FFF 0%, #155DFC 100%)"
         />
         <StatCard
           title="Total Items"
-          value={data?.total !== undefined ? String(data.total) : "0"}
-          subtitle="In cost database"
+          value={String(data?.total || 0)}
           icon={TrendingUp}
           gradient="linear-gradient(135deg, #22C55E 0%, #16A34A 100%)"
         />
         <StatCard
           title="New Added"
-          value="2"
-          subtitle="Recently added parts"
+          value={"N/A"}
           icon={FileText}
           gradient="linear-gradient(135deg, #FF6900 0%, #F54900 100%)"
         />
@@ -253,7 +232,7 @@ const CostingView: React.FC = () => {
 
       {/* Table */}
       <div>
-        <SubHeading text="Part Cost List"/>
+        <SubHeading text="Part Cost List" />
         {isLoading ? (
           <div className="flex items-center justify-center p-12 text-sm text-[#637381]">
             Loading cost database...
@@ -289,7 +268,7 @@ const CostingView: React.FC = () => {
           </>
         )}
       </div>
-      
+
       <UploadModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
