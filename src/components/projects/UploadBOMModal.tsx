@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import Modal from "../Modal";
 import pdfIcon from "@/assets/icon/pdfIcon.svg";
 import xlsxIcon from "@/assets/icon/dashboard/xlxs.svg";
@@ -9,6 +10,7 @@ import {
   useGetProjectBuildingsQuery,
   useUploadProjectBomsMutation,
   useGetBomJobsStatusBatchMutation,
+  useGenerateConsolidatedBOMMutation,
   type ProjectBuilding,
 } from "@/redux/api/projectApi";
 import { UploadModal, SuccessModal } from "./ProjectUploadModals";
@@ -20,29 +22,8 @@ interface UploadBOMModalProps {
   onUpload?: (file: File, buildingId: string, url: string) => void;
 }
 
-const mapBOMStatusBadge = (status: string | null) => {
-  if (!status) return { text: "No BOM File", classes: "bg-gray-50 text-gray-500 border border-gray-100" };
-  const lower = status.toLowerCase();
-  if (lower === "queued") {
-    return { text: "Queued", classes: "bg-amber-50 text-amber-600 border border-amber-100" };
-  }
-  if (lower === "processing") {
-    return { text: "Processing", classes: "bg-blue-50 text-blue-600 border border-blue-100" };
-  }
-  if (lower.includes("approved") || lower.includes("confirmed")) {
-    return { text: "Approved", classes: "bg-emerald-50 text-emerald-600 border border-emerald-100" };
-  }
-  if (lower.includes("locked")) {
-    return { text: "Locked", classes: "bg-gray-100 text-gray-600 border border-gray-200" };
-  }
-  if (lower.includes("reject") || lower.includes("fail") || lower.includes("issue")) {
-    return { text: "Issues Detected", classes: "bg-red-50 text-red-600 border border-red-100" };
-  }
-  if (lower.includes("pending") || lower.includes("review") || lower.includes("draft")) {
-    return { text: "Draft", classes: "bg-[#FEFAE2] text-[#E0B000] border border-[#FEFAE2]" };
-  }
-  return { text: status.replace("_", " "), classes: "bg-blue-50 text-blue-600 border border-blue-100" };
-};
+// style record for bom status
+
 
 const UploadBOMModal: React.FC<UploadBOMModalProps> = ({
   isOpen,
@@ -50,9 +31,11 @@ const UploadBOMModal: React.FC<UploadBOMModalProps> = ({
   leadId,
   onUpload,
 }) => {
+  const navigate = useNavigate();
   const [uploadingBuilding, setUploadingBuilding] = React.useState<ProjectBuilding | null>(null);
   const [uploadProjectBoms] = useUploadProjectBomsMutation();
   const [getBomJobsStatusBatch] = useGetBomJobsStatusBatchMutation();
+  const [generateConsolidatedBOM, { isLoading: isGenerating }] = useGenerateConsolidatedBOMMutation();
   const [isSuccessOpen, setIsSuccessOpen] = React.useState(false);
   const [uploadedJobIds, setUploadedJobIds] = React.useState<string[]>([]);
   const [uploadBomError, setUploadBomError] = React.useState<string | null>(null);
@@ -62,6 +45,31 @@ const UploadBOMModal: React.FC<UploadBOMModalProps> = ({
   });
 
   const buildings = React.useMemo(() => buildingsData?.buildings || [], [buildingsData]);
+
+  const canConsolidate = React.useMemo(() => {
+    if (buildings.length === 0) return false;
+    return buildings.every((b) => {
+      const isUploaded = !!b.hasBomJob;
+      const isSuccess =
+        b.bomJobStatus?.toLowerCase() === "completed";
+      return isUploaded && isSuccess;
+    });
+  }, [buildings]);
+
+  const handleConsolidate = async () => {
+    try {
+      setUploadBomError(null);
+      await generateConsolidatedBOM(leadId).unwrap();
+      onClose();
+      navigate(`/projects/${leadId}/view-bom`);
+    } catch (err: unknown) {
+      console.error("Failed to generate consolidated BOM:", err);
+      const errorObj = err as { data?: { message?: string }; message?: string };
+      const errMsg =
+        errorObj?.data?.message || errorObj?.message || "Failed to generate consolidated BOM.";
+      setUploadBomError(errMsg);
+    }
+  };
 
   React.useEffect(() => {
     if (isOpen && leadId) {
@@ -203,7 +211,8 @@ const UploadBOMModal: React.FC<UploadBOMModalProps> = ({
             ) : (
               <div className="border border-gray-100 rounded-xl overflow-hidden divide-y divide-gray-100 bg-[#F8FAFC]">
                 {buildings.map((b) => {
-                  const badge = mapBOMStatusBadge(b.bomJobStatus || b.latestBomJob?.status || null);
+                  // TODO: Add style for all stasuses
+                  const badgeStyle = "bg-gray-100"
                   const isLocked = b.bomJobStatus?.toLowerCase().includes("locked");
                   return (
                     <div key={b.buildingId} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white hover:bg-gray-50 transition-colors">
@@ -212,8 +221,8 @@ const UploadBOMModal: React.FC<UploadBOMModalProps> = ({
                           <span className="font-inter font-bold text-sm text-[#212B36]">
                             Building {b.buildingNumber}
                           </span>
-                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium font-inter ${badge.classes}`}>
-                            {badge.text}
+                          <span className={`capitalize px-2 py-0.5 rounded-full text-[10px] font-medium font-inter ${badgeStyle}`}>
+                            {b.bomJobStatus}
                           </span>
                         </div>
                         {b.latestBomJob ? (
@@ -258,9 +267,17 @@ const UploadBOMModal: React.FC<UploadBOMModalProps> = ({
               </div>
             )}
 
-            <div className="flex justify-end pt-2">
+            <div className="flex justify-end gap-3 pt-2">
               <Button variant="outline" size="sm" onClick={onClose}>
                 Close
+              </Button>
+              <Button
+                variant="primary"
+                size="sm"
+                disabled={!canConsolidate || isGenerating}
+                onClick={handleConsolidate}
+              >
+                {isGenerating ? "Consolidating..." : "Consolidate"}
               </Button>
             </div>
           </div>
