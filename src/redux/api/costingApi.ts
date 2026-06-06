@@ -70,7 +70,27 @@ export const costingApi = createApi({
         };
       },
     }),
+    addSmdtCostItem: builder.mutation<ApiResponse<SmdtItem>, Partial<SmdtItem>>({
+      query: (body) => ({
+        url: "/api/smdt",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["SmdtCostList"],
+    }),
+    updateSmdtCostItem: builder.mutation<ApiResponse<SmdtItem>, { itemId: string; body: Partial<SmdtItem> }>({
+      query: ({ itemId, body }) => ({
+        url: `/api/smdt/${itemId}`,
+        method: "PUT",
+        body,
+      }),
+      invalidatesTags: ["SmdtCostList"],
+    }),
   }),
 });
 
-export const { useGetSmdtCostListQuery } = costingApi;
+export const {
+  useGetSmdtCostListQuery,
+  useAddSmdtCostItemMutation,
+  useUpdateSmdtCostItemMutation,
+} = costingApi;
