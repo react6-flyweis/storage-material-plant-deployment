@@ -537,6 +537,77 @@ export const projectApi = createApi({
         return response.data;
       },
     }),
+    getConsolidatedBOMUrl: builder.query<ConsolidatedBOMUrlResponse, string>({
+      query: (leadId) => `/api/plant/bom/projects/${leadId}/consolidated-url`,
+      providesTags: (_result, _error, leadId) => [
+        { type: "ConsolidatedBOM", id: leadId },
+      ],
+      transformResponse: (response: ApiResponse<ConsolidatedBOMUrlResponse>) => {
+        if (!response.data) {
+          throw new Error("No data returned from API");
+        }
+        return response.data;
+      },
+    }),
+    generateConsolidatedBOM: builder.mutation<
+      { message: string; consolidatedBOM: ConsolidatedBOM },
+      string
+    >({
+      query: (leadId) => ({
+        url: `/api/plant/projects/${leadId}/consolidated-bom/generate`,
+        method: "POST",
+      }),
+      invalidatesTags: (_result, _error, leadId) => [
+        { type: "ConsolidatedBOM", id: leadId },
+        { type: "ProjectBuildings", id: leadId },
+        { type: "ProjectDetail", id: leadId },
+      ],
+      transformResponse: (
+        response: ApiResponse<{ message: string; consolidatedBOM: ConsolidatedBOM }>,
+      ) => {
+        if (!response.data) {
+          throw new Error("No data returned from API");
+        }
+        return response.data;
+      },
+    }),
+    sendConsolidatedBOM: builder.mutation<
+      { message: string },
+      { leadId: string; vendorIds: string[] }
+    >({
+      query: ({ leadId, vendorIds }) => ({
+        url: `/api/plant/projects/${leadId}/consolidated-bom/send`,
+        method: "POST",
+        body: { vendorIds },
+      }),
+      invalidatesTags: (_result, _error, { leadId }) => [
+        { type: "ConsolidatedBOM", id: leadId },
+        { type: "ProjectDetail", id: leadId },
+      ],
+      transformResponse: (response: ApiResponse<{ message: string }>) => {
+        if (!response.data) {
+          throw new Error("No data returned from API");
+        }
+        return response.data;
+      },
+    }),
+    getBOMProjects: builder.query<
+      BOMProjectsList,
+      BOMProjectsQueryParams | void
+    >({
+      query: (params) => ({
+        url: "/api/plant/bom/projects",
+        params: params ?? undefined,
+      }),
+      providesTags: ["BOMProjects"],
+      transformResponse: (response: ApiResponse<BOMProjectsList>) =>
+        response.data ?? {
+          projects: [],
+          total: 0,
+          page: 1,
+          limit: 20,
+        },
+    }),
   }),
 });
 
@@ -660,8 +731,41 @@ export interface ConsolidatedBOM {
   updatedAt: string;
 }
 
+export interface ConsolidatedBOMUrlResponse {
+  leadId: string;
+  isReady: boolean;
+  consolidatedBOMId: string;
+  status: string;
+  fileUrl: string;
+  updatedAt: string;
+}
+
 export interface ConsolidatedBOMResponse {
   consolidatedBOM: ConsolidatedBOM;
+}
+
+export interface BOMProject {
+  leadId: string;
+  projectId: string;
+  projectName: string;
+  buildingId: string;
+  buildingNumber: number;
+  uploadDate: string;
+  itemCount: number;
+  fileStatus: string;
+  bomJobId: string;
+}
+
+export interface BOMProjectsList {
+  projects: BOMProject[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+export interface BOMProjectsQueryParams {
+  page?: number;
+  limit?: number;
 }
 
 export const {
@@ -679,7 +783,8 @@ export const {
   useGetBomJobStatusQuery,
   useGetBomJobsStatusBatchMutation,
   useGetConsolidatedBOMQuery,
+  useGetConsolidatedBOMUrlQuery,
+  useGenerateConsolidatedBOMMutation,
+  useSendConsolidatedBOMMutation,
+  useGetBOMProjectsQuery,
 } = projectApi;
-
-
-
