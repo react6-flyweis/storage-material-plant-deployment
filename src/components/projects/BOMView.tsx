@@ -2,7 +2,7 @@ import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react"
 import Heading from "../common_component/Heading";
-import pdfIcon from "@/assets/icon/dashboard/pdfIcon.svg";
+// import pdfIcon from "@/assets/icon/dashboard/pdfIcon.svg";
 import xlxsIcon from "@/assets/icon/dashboard/xlxs.svg";
 
 import Button from "../common_component/Button";
@@ -11,6 +11,7 @@ import BOMListContent from "./BOMListContent";
 import {
   useGetPlantProjectDetailQuery,
   useGetConsolidatedBOMQuery,
+  useGetConsolidatedBOMUrlQuery,
 } from "@/redux/api/projectApi";
 
 const BOMView: React.FC = () => {
@@ -28,6 +29,11 @@ const BOMView: React.FC = () => {
     isLoading: isBOMLoading,
     error: bomError,
   } = useGetConsolidatedBOMQuery(projectId || "");
+
+  const {
+    data: bomUrlData,
+    isLoading: isBomUrlLoading,
+  } = useGetConsolidatedBOMUrlQuery(projectId || "");
 
   if (isProjectLoading || isBOMLoading) {
     return (
@@ -102,6 +108,11 @@ const BOMView: React.FC = () => {
     })),
   };
 
+  const handleDownload = () => {
+    if (bomUrlData?.fileUrl) {
+      window.open(bomUrlData.fileUrl, "_blank");
+    }
+  };
 
   return (
     <div className="xl:pr-5 px-2 pb-10 space-y-6">
@@ -120,10 +131,16 @@ const BOMView: React.FC = () => {
         </div>
 
         <div className="flex flex-wrap items-center gap-2 ml-auto">
-          <Button variant="white" size="sm">
+          <Button
+            variant="white"
+            size="sm"
+            onClick={handleDownload}
+            disabled={isBomUrlLoading || !bomUrlData?.fileUrl}
+          >
             <img src={xlxsIcon} alt="xlsx" className="w-4 h-4 mr-2" />
-            Download Excel
+            {isBomUrlLoading ? "Loading..." : "Download Excel"}
           </Button>
+          {/* 
           <Button
             variant="white"
             size="sm"
@@ -131,6 +148,7 @@ const BOMView: React.FC = () => {
             <img src={pdfIcon} alt="pdf" className="w-4 h-4 mr-2" />
             Download PDF
           </Button>
+          */}
           <Button
             size="sm"
             variant="purpleFilled"
