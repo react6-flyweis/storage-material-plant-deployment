@@ -43,11 +43,11 @@ export const NAV_ITEMS: NavItem[] = [
     color: "bg-[#FF8800]",
     icon: Cube,
     items: [
-      { label: "Upload BOM File", path: "/load_planning/upload-bom", isAction: true },
+      // { label: "Upload BOM File", path: "/load_planning/upload-bom", isAction: true },
       { label: "Uploaded BOM Files", path: "/load_planning/uploaded-bom-files" },
       { label: "Shipper Quotation", path: "/load_planning/shipper-quotation" },
-      { label: "Order Verification", path: "/load_planning/order-verification" },
-      { label: "Start Load Planning", path: "/load_planning/start-load-planning" },
+      // { label: "Order Verification", path: "/load_planning/order-verification" },
+      // { label: "Start Load Planning", path: "/load_planning/start-load-planning" },
       { label: "Load Planning", path: "/load_planning/list" },
       { label: "Packing List", path: "/load_planning/packing-list" },
       { label: "QR Labels", path: "/load_planning/qr-labels" },
@@ -130,7 +130,7 @@ export const NAV_ITEMS: NavItem[] = [
   //   ],
   // },
 
-    {
+  {
     title: "Costing",
     color: "bg-[#00C950]",
     icon: CostingIcon,
