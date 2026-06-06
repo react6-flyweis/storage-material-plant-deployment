@@ -5,6 +5,7 @@ import Button from "../common_component/Button";
 interface SmdtRow {
   _id?: string;
   id?: string | number;
+  category?: string;
   partName: string;
   partColor?: string;
   partColour?: string;
@@ -12,7 +13,12 @@ interface SmdtRow {
   mbsCost?: number;
   cost?: string;
   currentMarketCost: number | string | null;
+  laborCost?: number;
+  additionalCost?: number;
+  materialCost?: number;
   description: string;
+  isFrameType?: boolean | string;
+  isActive?: boolean | string;
 }
 
 interface CostingTableProps {
@@ -48,7 +54,7 @@ const CostingTable: React.FC<CostingTableProps> = ({
   isMissingView = false,
 }) => {
   const thClass = "px-3 md:px-4 py-2 md:py-2 text-xs font-semibold text-[#364153] tracking-wider cursor-pointer select-none whitespace-nowrap";
-console.log(sortDir)
+  console.log(sortDir)
 
   return (
     <div className="bg-white rounded-[14px]  border border-[#0000001A] overflow-hidden shadow-sm mt-4">
@@ -64,6 +70,11 @@ console.log(sortDir)
                     className="w-4 h-4 rounded border-gray-300 accent-[#155DFC] cursor-pointer"
                 />
               </th>
+              {!isMissingView && (
+                <th className={thClass} onClick={() => handleColSort("category")}>
+                  Category <SortIcon col="category" sortKey={sortKey} />
+                </th>
+              )}
               <th className={thClass} onClick={() => handleColSort("partName")}>
                 Part Name <SortIcon col="partName" sortKey={sortKey} />
               </th>
@@ -79,9 +90,32 @@ console.log(sortDir)
               <th className={thClass} onClick={() => handleColSort("currentMarketCost")}>
                 Current Market Cost <SortIcon col="currentMarketCost" sortKey={sortKey} />
               </th>
+              {!isMissingView && (
+                <>
+                  <th className={thClass} onClick={() => handleColSort("laborCost")}>
+                    Labor Cost <SortIcon col="laborCost" sortKey={sortKey} />
+                  </th>
+                  <th className={thClass} onClick={() => handleColSort("additionalCost")}>
+                    Additional Cost <SortIcon col="additionalCost" sortKey={sortKey} />
+                  </th>
+                  <th className={thClass} onClick={() => handleColSort("materialCost")}>
+                    Material Cost <SortIcon col="materialCost" sortKey={sortKey} />
+                  </th>
+                </>
+              )}
               <th className={thClass} onClick={() => handleColSort("description")}>
                 Description <SortIcon col="description" sortKey={sortKey} />
               </th>
+              {!isMissingView && (
+                <>
+                  <th className={thClass} onClick={() => handleColSort("isFrameType")}>
+                    Is Frame Type <SortIcon col="isFrameType" sortKey={sortKey} />
+                  </th>
+                  <th className={thClass} onClick={() => handleColSort("isActive")}>
+                    Status <SortIcon col="isActive" sortKey={sortKey} />
+                  </th>
+                </>
+              )}
               <th className="p-3 md:p-4"></th>
             </tr>
           </thead>
@@ -103,6 +137,11 @@ console.log(sortDir)
                       className="w-4 h-4 rounded border-gray-300 accent-[#155DFC] cursor-pointer"
                     />
                   </td>
+                  {!isMissingView && (
+                    <td className="p-3 md:p-4 text-sm text-[#637381]">
+                      {row.category}
+                    </td>
+                  )}
                   <td className="p-3 md:p-4 text-sm font-medium text-[#212B36]">
                     {row.partName}
                   </td>
@@ -128,9 +167,48 @@ console.log(sortDir)
                       row.currentMarketCost
                     )}
                   </td>
+                  {!isMissingView && (
+                    <>
+                      <td className="p-3 md:p-4 text-sm text-[#637381]">
+                        {row.laborCost !== undefined ? row.laborCost : "-"}
+                      </td>
+                      <td className="p-3 md:p-4 text-sm text-[#637381]">
+                        {row.additionalCost !== undefined ? row.additionalCost : "-"}
+                      </td>
+                      <td className="p-3 md:p-4 text-sm text-[#637381]">
+                        {row.materialCost !== undefined ? row.materialCost : "-"}
+                      </td>
+                    </>
+                  )}
                   <td className="p-3 md:p-4 text-sm text-[#637381] max-w-[200px] truncate">
                     {row.description}
                   </td>
+                  {!isMissingView && (
+                    <>
+                      <td className="p-3 md:p-4 text-sm text-[#637381]">
+                        {row.isFrameType ? (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                            Frame
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                            Standard
+                          </span>
+                        )}
+                      </td>
+                      <td className="p-3 md:p-4 text-sm text-[#637381]">
+                        {row.isActive ? (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            Active
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                            Inactive
+                          </span>
+                        )}
+                      </td>
+                    </>
+                  )}
                   <td className="p-3 md:p-4">
                     <Button
                       variant={"gradient"}
@@ -145,7 +223,7 @@ console.log(sortDir)
             })}
             {data.length === 0 && (
               <tr>
-                <td colSpan={8} className="text-center py-16 text-[#919EAB] text-sm">
+                <td colSpan={isMissingView ? 8 : 14} className="text-center py-16 text-[#919EAB] text-sm">
                   No parts found matching your search.
                 </td>
               </tr>
