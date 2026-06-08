@@ -36,10 +36,12 @@ const UploadModal: React.FC<UploadModalProps> = ({
   );
   const [isUploading, setIsUploading] = React.useState(false);
   const [uploadError, setUploadError] = React.useState<string | null>(null);
+  const [isDraggingActive, setIsDraggingActive] = React.useState(false);
 
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const dragCounter = React.useRef(0);
 
-  const validateFile = (file: File): boolean => {
+  const validateFile = React.useCallback((file: File): boolean => {
     if (allowedExtensions && allowedExtensions.length > 0) {
       const ext = file.name.split(".").pop()?.toLowerCase();
       if (!ext || !allowedExtensions.map((e) => e.toLowerCase().replace(/^\./, "")).includes(ext)) {
@@ -52,7 +54,7 @@ const UploadModal: React.FC<UploadModalProps> = ({
       }
     }
     return true;
-  };
+  }, [allowedExtensions]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -82,6 +84,66 @@ const UploadModal: React.FC<UploadModalProps> = ({
       }
     }
   };
+
+  React.useEffect(() => {
+    if (!isOpen) {
+      dragCounter.current = 0;
+      return;
+    }
+
+    const handleDragEnter = (e: DragEvent) => {
+      e.preventDefault();
+      if (e.dataTransfer?.types.includes("Files")) {
+        dragCounter.current++;
+        setIsDraggingActive(true);
+      }
+    };
+
+    const handleDragLeave = (e: DragEvent) => {
+      e.preventDefault();
+      if (e.dataTransfer?.types.includes("Files")) {
+        dragCounter.current--;
+        if (dragCounter.current <= 0) {
+          setIsDraggingActive(false);
+          dragCounter.current = 0;
+        }
+      }
+    };
+
+    const handleWindowDragOver = (e: DragEvent) => {
+      e.preventDefault();
+    };
+
+    const handleWindowDrop = (e: DragEvent) => {
+      e.preventDefault();
+      setIsDraggingActive(false);
+      dragCounter.current = 0;
+
+      if (isUploading || isGettingUrl) return;
+
+      if (e.dataTransfer?.files && e.dataTransfer.files[0]) {
+        const file = e.dataTransfer.files[0];
+        setUploadError(null);
+        if (validateFile(file)) {
+          setSelectedFile(file);
+        } else {
+          setSelectedFile(null);
+        }
+      }
+    };
+
+    window.addEventListener("dragenter", handleDragEnter);
+    window.addEventListener("dragleave", handleDragLeave);
+    window.addEventListener("dragover", handleWindowDragOver);
+    window.addEventListener("drop", handleWindowDrop);
+
+    return () => {
+      window.removeEventListener("dragenter", handleDragEnter);
+      window.removeEventListener("dragleave", handleDragLeave);
+      window.removeEventListener("dragover", handleWindowDragOver);
+      window.removeEventListener("drop", handleWindowDrop);
+    };
+  }, [isOpen, isUploading, isGettingUrl, validateFile]);
 
   const handleUpload = async () => {
     if (!selectedFile) return;
@@ -153,6 +215,21 @@ const UploadModal: React.FC<UploadModalProps> = ({
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} width="max-w-xl" hideHeader>
+      {isDraggingActive && (
+        <div className="fixed inset-0 z-[9999] bg-[#1849D6]/10 backdrop-blur-md flex items-center justify-center pointer-events-none">
+          <div className="absolute inset-6 border-4 border-dashed border-[#1849D6] rounded-2xl flex flex-col items-center justify-center bg-white/90 space-y-4">
+            <img src={upload} alt="Upload" className="size-16 animate-bounce" />
+            <p className="text-xl font-inter font-semibold text-[#1849D6]">
+              Drop your file anywhere to upload
+            </p>
+            <p className="text-sm text-[#637381] font-inter">
+              {allowedExtensions && allowedExtensions.length > 0
+                ? `Supporting only ${allowedExtensions.map((e) => `.${e.toLowerCase().replace(/^\./, "")}`).join(", ")} files`
+                : "Release to upload your file"}
+            </p>
+          </div>
+        </div>
+      )}
       <div className="p-1 space-y-6">
         {/* Header */}
         <div className="flex items-start justify-between">
