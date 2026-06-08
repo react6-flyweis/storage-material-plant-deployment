@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Search, Upload, ArrowLeft } from "lucide-react";
 import Button from "../common_component/Button";
 import Heading from "../common_component/Heading";
@@ -9,28 +9,11 @@ import PageWrapper from "../common_component/PageWrapper";
 import CostingTable from "./CostingTable";
 import PartCostModal from "./PartCostModal";
 import SuccessModal from "../common_component/SuccessModal";
-import { downloadFile } from "../../lib/utils";
-
-const mockMissingData = [
-  { id: 1, partName: "'30_VRR48'", partColour: "'--'", costUnit: "'FT'", cost: "Missing", currentMarketCost: "-", description: "'VRR+ Insul R10'" },
-  { id: 2, partName: "'30_VRR72'", partColour: "'--'", costUnit: "'FT'", cost: "Missing", currentMarketCost: "-", description: "'VRR+ Insul R10'" },
-  { id: 3, partName: "'35_VRR48'", partColour: "'--'", costUnit: "'FT'", cost: "Missing", currentMarketCost: "-", description: "'VRR+ Insul R11'" },
-  { id: 4, partName: "'35_VRR72'", partColour: "'--'", costUnit: "'FT'", cost: "Missing", currentMarketCost: "-", description: "'VRR+ Insul R11'" },
-  { id: 5, partName: "'40_VRR48'", partColour: "'--'", costUnit: "'FT'", cost: "Missing", currentMarketCost: "-", description: "'VRR+ Insul R13'" },
-  { id: 6, partName: "'40_VRR72'", partColour: "'--'", costUnit: "'FT'", cost: "Missing", currentMarketCost: "-", description: "'VRR+ Insul R13'" },
-  { id: 7, partName: "'60_VRR48'", partColour: "'--'", costUnit: "'FT'", cost: "Missing", currentMarketCost: "-", description: "'VRR+ Insul R19'" },
-  { id: 8, partName: "'60_VRR72'", partColour: "'--'", costUnit: "'FT'", cost: "Missing", currentMarketCost: "-", description: "'VRR+ Insul R19'" },
-  { id: 9, partName: "'30_UF48 '", partColour: "'--'", costUnit: "'FT'", cost: "Missing", currentMarketCost: "-", description: "-" },
-  { id: 10, partName: "'30_UF72 '", partColour: "'--'", costUnit: "'FT'", cost: "Missing", currentMarketCost: "-", description: "'UF Insul R10 '" },
-  { id: 11, partName: "'35_UF48 '", partColour: "'--'", costUnit: "'FT'", cost: "Missing", currentMarketCost: "-", description: "'UF Insul R10 '" },
-  { id: 12, partName: "'35_UF72 '", partColour: "'--'", costUnit: "'FT'", cost: "Missing", currentMarketCost: "-", description: "'UF Insul R11 '" },
-  { id: 13, partName: "'40_UF48 '", partColour: "'--'", costUnit: "'FT'", cost: "Missing", currentMarketCost: "-", description: "'UF Insul R11 '" },
-  { id: 14, partName: "'40_UF72''", partColour: "'--'", costUnit: "'FT'", cost: "Missing", currentMarketCost: "-", description: "'UF Insul R13 '" },
-];
+import { useGetBOMDetailsQuery } from "@/redux/api/projectApi";
 
 const SORT_OPTIONS = [
-  { label: "Latest", value: "latest" },
-  { label: "Oldest", value: "oldest" },
+  // { label: "Latest", value: "latest" },
+  // { label: "Oldest", value: "oldest" },
   { label: "Part Name A-Z", value: "partName_asc" },
   { label: "Part Name Z-A", value: "partName_desc" },
 ];
@@ -44,6 +27,7 @@ const FILTER_OPTIONS = [
 
 const MissingItemCostListView: React.FC = () => {
   const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("");
   const [quickSort, setQuickSort] = useState("latest");
@@ -57,7 +41,34 @@ const MissingItemCostListView: React.FC = () => {
     navigatePath: "",
   });
 
-  type SortKey = "partName" | "partColour" | "costUnit" | "cost" | "currentMarketCost" | "description";
+  const { data, isLoading, error } = useGetBOMDetailsQuery(
+    {
+      jobId: id || "",
+      filter: "unpriced",
+      page: 1,
+      limit: 100,
+    },
+    { skip: !id }
+  );
+
+  const bomItems = useMemo(() => {
+    if (!data?.itemsByCategory) return [];
+    return Object.values(data.itemsByCategory)
+      .flat()
+      .map((item) => ({
+        _id: item._id,
+        id: item._id,
+        partName: item.partCode,
+        partColor: item.partColor,
+        costUnit: item.costUnit || "FT",
+        cost: "Missing",
+        currentMarketCost: "-",
+        description: item.description || "",
+        category: item.category || "",
+      }));
+  }, [data]);
+
+  type SortKey = "partName" | "partColor" | "costUnit" | "cost" | "currentMarketCost" | "description";
 
   const sortKey: SortKey | null = (() => {
     if (quickSort === "partName_asc" || quickSort === "partName_desc") return "partName";
@@ -79,28 +90,33 @@ const MissingItemCostListView: React.FC = () => {
   };
 
   const filteredData = useMemo(() => {
-    let data = [...mockMissingData];
-    
+    let result = [...bomItems];
+
     // Category Filtering
     if (filterType !== "" && filterType !== "all") {
-      if (filterType === "steel") {
-        data = data.filter(item => item.partName.includes("VRR") || item.partName.includes("UF"));
-      } else if (filterType === "insulation") {
-        data = data.filter(item => item.description.toLowerCase().includes("insul"));
-      }
+      result = result.filter(item => {
+        const cat = item.category?.toLowerCase();
+        if (cat === filterType.toLowerCase()) return true;
+        if (filterType === "steel") {
+          return item.partName.includes("VRR") || item.partName.includes("UF");
+        } else if (filterType === "insulation") {
+          return item.description.toLowerCase().includes("insul");
+        }
+        return false;
+      });
     }
 
     // Search
     if (searchTerm) {
       const q = searchTerm.toLowerCase();
-      data = data.filter(
+      result = result.filter(
         (r) => r.partName.toLowerCase().includes(q) || r.description.toLowerCase().includes(q)
       );
     }
 
     // Sorting
     if (sortKey && sortDir) {
-      data.sort((a: any, b: any) => {
+      result.sort((a: any, b: any) => {
         const av = a[sortKey] ?? "";
         const bv = b[sortKey] ?? "";
         if (av < bv) return sortDir === "asc" ? -1 : 1;
@@ -109,8 +125,8 @@ const MissingItemCostListView: React.FC = () => {
       });
     }
 
-    return data;
-  }, [searchTerm, filterType, quickSort, sortKey, sortDir]);
+    return result;
+  }, [bomItems, searchTerm, filterType, sortKey, sortDir]);
 
   const allSelected = selectedRows.length === filteredData.length && filteredData.length > 0;
   const toggleAll = () => setSelectedRows(allSelected ? [] : filteredData.map((r) => r.id));
@@ -133,21 +149,58 @@ const MissingItemCostListView: React.FC = () => {
     setIsSuccessModalOpen(true);
   };
 
-  const handleSaveAndContinue = () => {
-    setSuccessConfig({
-      title: "Item/Part Cost Saved Successfully",
-      subTitle: "",
-      navigatePath: "/costing",
-    });
-    setIsSuccessModalOpen(true);
-  };
-
   const handleSuccessClose = () => {
     setIsSuccessModalOpen(false);
     if (successConfig.navigatePath) {
       navigate(successConfig.navigatePath);
     }
   };
+
+  const handleExportExcel = () => {
+    const headers = ["Part Name", "Part Colour", "Cost Unit", "Cost", "Current Market Cost", "Description"];
+    const rows = filteredData.map(row => [
+      `"${(row.partName || "").replace(/"/g, '""')}"`,
+      `"${(row.partColor || "").replace(/"/g, '""')}"`,
+      `"${(row.costUnit || "").replace(/"/g, '""')}"`,
+      `"${(row.cost || "").replace(/"/g, '""')}"`,
+      `"${(row.currentMarketCost || "").replace(/"/g, '""')}"`,
+      `"${(row.description || "").replace(/"/g, '""')}"`
+    ]);
+
+    const csvContent = "\uFEFF" + [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `BOM_${id}_missing_items_cost_list.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  if (isLoading) {
+    return (
+      <PageWrapper>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1E51A4]"></div>
+        </div>
+      </PageWrapper>
+    );
+  }
+
+  if (error) {
+    return (
+      <PageWrapper>
+        <div className="p-8 text-center bg-white rounded-[14px] border border-gray-100 space-y-4">
+          <h3 className="text-lg font-bold text-red-600">Error Loading Unmatched Items</h3>
+          <p className="text-sm text-gray-500">Could not retrieve unmatched items for BOM Job ID: {id}</p>
+          <Button variant="primary" onClick={() => navigate(-1)}>
+            Go Back
+          </Button>
+        </div>
+      </PageWrapper>
+    );
+  }
 
   return (
     <PageWrapper>
@@ -165,16 +218,13 @@ const MissingItemCostListView: React.FC = () => {
           <Heading text="Missing Item Cost List" />
         </div>
         <div className="flex items-center gap-3 ml-auto">
-          <Button 
-            variant="white" 
-            size="sm" 
+          <Button
+            variant="white"
+            size="sm"
             className="gap-2"
-            onClick={() => downloadFile("/sample-export.xlsx", "MissingItemCostList.xlsx")}
+            onClick={handleExportExcel}
           >
             <Upload size={16} /> Export
-          </Button>
-          <Button variant="purpleFilled" size="sm" onClick={handleSaveAndContinue}>
-            Save & Continue
           </Button>
         </div>
       </div>
@@ -184,7 +234,9 @@ const MissingItemCostListView: React.FC = () => {
         <SubHeading text="Missing Item in Cost List" />
         <div className="flex justify-between items-center">
           <span className="text-sm font-semibold text-[#212B36]">Missing QTY</span>
-          <span className="text-sm font-semibold text-[#212B36]">15</span>
+          <span className="text-sm font-semibold text-[#212B36]">
+            {data?.summary?.unpricedItems ?? bomItems.length}
+          </span>
         </div>
       </div>
 
