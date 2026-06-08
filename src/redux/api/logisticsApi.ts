@@ -121,16 +121,16 @@ export interface CreatePlantVendorDocument {
 export interface CreatePlantVendorRequest {
   vendorName: string;
   email: string;
-  phone: string;
-  contactName: string;
-  vendorCode: string;
-  yearsWithCompany: number;
-  serviceCategory: string;
-  vendorType: string;
-  materialTypes: string[];
-  address: CreatePlantVendorAddress;
-  documents: CreatePlantVendorDocument[];
-  internalNotes: string;
+  phone?: string;
+  contactName?: string;
+  vendorCode?: string;
+  yearsWithCompany?: number;
+  serviceCategory?: string;
+  vendorType?: string;
+  materialTypes?: string[];
+  address?: CreatePlantVendorAddress;
+  documents?: CreatePlantVendorDocument[];
+  internalNotes?: string;
 }
 
 export interface PlantCarrier {
