@@ -120,12 +120,12 @@ const materialTypeOptions = [
   { label: "Concrete", value: "Concrete" },
 ];
 
-const vendorTypeOptions = [
-  { label: "Material Shipper", value: "material-shipper" },
-  { label: "Steel Shipper", value: "steel-shipper" },
-  { label: "Concrete Shipper", value: "concrete-shipper" },
-  { label: "Equipment Shipper", value: "equipment-shipper" },
-];
+import { VENDOR_TYPES } from "@/constants/vendor";
+
+const vendorTypeOptions = VENDOR_TYPES.map((type) => ({
+  label: type.charAt(0).toUpperCase() + type.slice(1),
+  value: type,
+}));
 
 const AddNewShipper: React.FC = () => {
   const navigate = useNavigate();
