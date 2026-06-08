@@ -8,7 +8,6 @@ import Button from "../common_component/Button";
 import ViewDrawingModal from "../leads/ViewDrawingModal";
 import { SuccessModal } from "./ProjectUploadModals";
 import FilterDropdown from "../common_component/FilterDropdown";
-import SubHeading from "../common_component/SubHeading";
 import filePdf from "../../assets/icon/file-pdf.svg";
 import { useGetProjectDrawingsQuery, useGetPlantProjectDetailQuery } from "@/redux/api/projectApi";
 import { UploadDrawingModal } from "./UploadDrawingModal";
@@ -165,26 +164,6 @@ const ProjectDrawingsView: React.FC = () => {
     setIsViewDrawingOpen(true);
   };
 
-  // Flatten all drawings/photos from all buildings
-  const allDrawingsAndPhotos = (drawingsData?.buildings || []).flatMap((building) =>
-    (building.drawings || []).map((d) => {
-      const statusInfo = mapStatus(d.status);
-      return {
-        name: d.fileName,
-        size: `Version ${d.versionNumber}`,
-        status: statusInfo.text,
-        statusColor: statusInfo.color,
-        statusValue: statusInfo.value,
-        imageUrl: d.fileUrl,
-        thumbnail: d.fileUrl,
-        original: d,
-      };
-    })
-  );
-
-  const drawings = allDrawingsAndPhotos.filter((file) => !isPhotoFile(file.name));
-  const photos = allDrawingsAndPhotos.filter((file) => isPhotoFile(file.name));
-
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-3">
@@ -260,38 +239,106 @@ const ProjectDrawingsView: React.FC = () => {
       </div>
 
       {/* Main Content Card */}
-      <div className="bg-white rounded-[14px] p-4 lg:p-6 shadow-sm border border-gray-100 min-h-[400px]">
-        <div className="space-y-8">
-          {/* Drawings Section */}
-          <div className="space-y-6">
-            <SubHeading text="Attached Drawings" />
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 xl:gap-6 mt-5">
-              {drawings
-                .filter(file =>
-                  (activeStatus === "all" || file.statusValue === activeStatus) &&
-                  file.name.toLowerCase().includes(searchTerm.toLowerCase())
-                )
-                .map((file, idx) => (
-                  <FileCard key={idx} file={file} onView={handleOpenDrawing} type="drawing" />
-                ))}
-            </div>
-          </div>
+      <div className="space-y-6">
+        {(drawingsData?.buildings || []).map((building) => {
+          // Map drawings for this building
+          const mappedFiles = (building.drawings || []).map((d: any) => {
+            const statusInfo = mapStatus(d.status);
+            return {
+              name: d.fileName,
+              size: `Version ${d.versionNumber}`,
+              status: statusInfo.text,
+              statusColor: statusInfo.color,
+              statusValue: statusInfo.value,
+              imageUrl: d.fileUrl,
+              thumbnail: d.fileUrl,
+              original: d,
+            };
+          });
 
-          {/* Photos Section */}
-          <div className="space-y-6">
-            <SubHeading text="Attached Building Photos" />
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 xl:gap-6 mt-5">
-              {photos
-                .filter(file =>
-                  (activeStatus === "all" || file.statusValue === activeStatus) &&
-                  file.name.toLowerCase().includes(searchTerm.toLowerCase())
-                )
-                .map((file, idx) => (
-                  <FileCard key={idx} file={file} onView={handleOpenDrawing} type="photo" />
-                ))}
+          // Filter files based on searchTerm and activeStatus
+          const filteredFiles = mappedFiles.filter(
+            (file) =>
+              (activeStatus === "all" || file.statusValue === activeStatus) &&
+              file.name.toLowerCase().includes(searchTerm.toLowerCase())
+          );
+
+          const buildingDrawings = filteredFiles.filter((file) => !isPhotoFile(file.name));
+          const buildingPhotos = filteredFiles.filter((file) => isPhotoFile(file.name));
+
+          const hasNoDrawingsAtAll = !building.drawings || building.drawings.length === 0;
+
+          return (
+            <div
+              key={building.buildingId}
+              className="bg-white border border-gray-100 rounded-xl p-5 shadow-xs space-y-4"
+            >
+              {/* Building Header */}
+              <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+                <div className="flex items-center gap-3">
+                  <h3 className="text-lg font-bold text-[#212B36] font-inter">
+                    Building {building.buildingNumber}
+                  </h3>
+                  {!hasNoDrawingsAtAll && building.latestDrawingStatus && (
+                    <span
+                      className={`px-2 py-0.5 rounded-full text-[10px] font-medium font-inter ${mapStatus(building.latestDrawingStatus).color
+                        }`}
+                    >
+                      {mapStatus(building.latestDrawingStatus).text}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {hasNoDrawingsAtAll ? (
+                <div className="text-center py-8 text-sm text-gray-400 font-inter font-medium bg-gray-50/50 rounded-lg border border-dashed border-gray-200">
+                  No drawings or photos uploaded yet for this building.
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {/* Building Drawings */}
+                  {buildingDrawings.length > 0 && (
+                    <div className="space-y-3">
+                      <h4 className="text-xs font-semibold uppercase tracking-wider text-[#637381] font-inter">
+                        Drawings
+                      </h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 xl:gap-6">
+                        {buildingDrawings.map((file, idx) => (
+                          <FileCard key={idx} file={file} onView={handleOpenDrawing} type="drawing" />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Building Photos */}
+                  {buildingPhotos.length > 0 && (
+                    <div className="space-y-3">
+                      <h4 className="text-xs font-semibold uppercase tracking-wider text-[#637381] font-inter">
+                        Photos
+                      </h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 xl:gap-6">
+                        {buildingPhotos.map((file, idx) => (
+                          <FileCard key={idx} file={file} onView={handleOpenDrawing} type="photo" />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {filteredFiles.length === 0 && (
+                    <div className="text-center py-4 text-xs text-gray-400 font-inter">
+                      No drawings match the current filter.
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
+          );
+        })}
+        {(drawingsData?.buildings || []).length === 0 && (
+          <div className="text-center py-12 text-sm text-gray-500 font-inter bg-white rounded-xl border border-gray-100">
+            No buildings found for this project.
           </div>
-        </div>
+        )}
       </div>
 
       {selectedDrawing && (

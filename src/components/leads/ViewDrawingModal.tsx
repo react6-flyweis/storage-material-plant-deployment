@@ -1,6 +1,5 @@
 import React from "react";
 import Modal from "../Modal";
-import DrawingImg from "../../assets/drawingImg.svg";
 import { ArrowDown, X } from "lucide-react";
 import { downloadFile } from "../../lib/utils";
 
@@ -17,12 +16,16 @@ interface ViewDrawingModalProps {
     status: string;
   };
 }
-
 const ViewDrawingModal: React.FC<ViewDrawingModalProps> = ({
   isOpen,
   onClose,
   drawing,
 }) => {
+  const isImage = (fileName: string) => {
+    const ext = fileName ? fileName.split('.').pop()?.toLowerCase() : "";
+    return ["png", "jpg", "jpeg", "webp", "gif", "svg"].includes(ext || "");
+  };
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="" width="max-w-6xl">
       <div className="flex flex-col h-full max-h-[80vh]">
@@ -72,12 +75,20 @@ const ViewDrawingModal: React.FC<ViewDrawingModalProps> = ({
 
         {/* Content - Image Preview */}
         <div className="flex-1 overflow-y-auto py-4 flex items-center justify-center min-h-[300px] md:min-h-[400px]">
-          <div className="bg-white p-4 rounded-[14px] shadow-xs border border-gray-200 w-full flex items-center justify-center">
-            <img
-              src={DrawingImg}
-              alt={drawing.name}
-              className="max-w-full h-auto rounded-lg shadow-xs"
-            />
+          <div className="bg-white p-4 rounded-[14px] shadow-xs border border-gray-200 w-full h-full flex items-center justify-center min-h-[400px]">
+            {isImage(drawing.name) ? (
+              <img
+                src={drawing.imageUrl}
+                alt={drawing.name}
+                className="max-w-full max-h-[60vh] object-contain rounded-lg shadow-xs"
+              />
+            ) : (
+              <iframe
+                src={`${drawing.imageUrl}#toolbar=0`}
+                title={drawing.name}
+                className="w-full h-[60vh] rounded-lg border border-gray-100"
+              />
+            )}
           </div>
         </div>
 
@@ -86,7 +97,7 @@ const ViewDrawingModal: React.FC<ViewDrawingModalProps> = ({
           <div className="flex flex-wrap items-center justify-between gap-4 mb-4 px-2 sm:px-6">
             <button 
               className="flex items-center gap-2 md:px-4 px-2 py-1 bg-[#9CA3AF] hover:opacity-50 text-white rounded-full md:text-base text-sm font-medium transition-all"
-              onClick={() => downloadFile(DrawingImg, `${drawing.name}.svg`)}
+              onClick={() => downloadFile(drawing.imageUrl, drawing.name)}
             >
               <ArrowDown className="md:w-5 md:h-5 w-4 h-4" />
               Download
@@ -142,26 +153,7 @@ const ViewDrawingModal: React.FC<ViewDrawingModalProps> = ({
             </div>
           )}
         </div>
-
-          {/* Comment box only for Pending Review */}
-          {/* {drawing.status === "Pending Review" && (
-            <div className="flex gap-1 flex-wrap pt-6 w-full border-t border-gray-300 px-2 sm:px-6">
-              <div className="flex sm:w-4/5 w-full flex-wrap items-center gap-2 border border-gray-200 rounded-xl sm:p-2 p-1 focus-within:ring-2 focus-within:ring-blue-100 transition-all">
-                <input
-                  type="text"
-                  placeholder="Type your Comment..."
-                  className="flex-1 px-3 py-2 text-sm text-gray-600 outline-none w-full"
-                />
-                <button className="p-2 text-[#00000080] hover:text-gray-600">
-                  <Paperclip className="w-5 h-5 -rotate-5" />
-                </button>
-              </div>
-              <button className="text-[9px] ml-auto sm:text-sm font-normal bg-[linear-gradient(90deg,#2563EB_0%,#4F46E5_100%)] hover:bg-blue-700 text-white rounded-lg flex items-center md:gap-2 gap-1 md:px-6 px-3 py-3 h-auto sm:min-w-[100px]">
-                Send Comment
-              </button>
-            </div>
-          )} */}
-        </div>
+      </div>
     </Modal>
   );
 };

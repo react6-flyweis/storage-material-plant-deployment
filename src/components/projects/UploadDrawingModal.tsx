@@ -123,13 +123,29 @@ const UploadDrawingModal: React.FC<UploadDrawingModalProps> = ({
                           <span className="font-inter font-bold text-sm text-[#212B36]">
                             Building {b.buildingNumber}
                           </span>
-                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium font-inter ${badge.classes}`}>
-                            {badge.text}
-                          </span>
+                          {b.hasDrawing && (
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium font-inter ${badge.classes}`}>
+                              {badge.text}
+                            </span>
+                          )}
                         </div>
                         {b.latestDrawing ? (
-                          <div className="flex items-center gap-2 text-xs text-[#637381] font-inter truncate">
-                            <img src={pdf} alt="pdf" className="size-4 shrink-0" />
+                          <div className="flex items-center gap-2.5 text-xs text-[#637381] font-inter truncate">
+                            {(() => {
+                              const ext = b.latestDrawing.fileName ? b.latestDrawing.fileName.split('.').pop()?.toLowerCase() : "";
+                              const isImage = ["png", "jpg", "jpeg", "webp", "gif", "svg"].includes(ext || "");
+                              return isImage ? (
+                                <div className="size-8 rounded-md overflow-hidden border border-gray-100 shrink-0 bg-gray-50">
+                                  <img
+                                    src={b.latestDrawing.fileUrl}
+                                    alt="preview"
+                                    className="w-full h-full object-cover"
+                                  />
+                                </div>
+                              ) : (
+                                <img src={pdf} alt="pdf" className="size-4 shrink-0" />
+                              );
+                            })()}
                             <span className="truncate max-w-[200px] sm:max-w-xs font-medium text-[#212B36]" title={b.latestDrawing.fileName}>
                               {b.latestDrawing.fileName}
                             </span>
