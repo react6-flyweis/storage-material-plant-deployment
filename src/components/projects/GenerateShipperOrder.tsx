@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Search, Send, X, Truck } from "lucide-react";
+import { ArrowLeft, Search, Send, Truck } from "lucide-react";
 import Heading from "../common_component/Heading";
 import Button from "../common_component/Button";
 import BOMListContent from "./BOMListContent";
@@ -52,6 +52,7 @@ const GenerateShipperOrder: React.FC = () => {
   const {
     data: vendorsDataResponse,
     isLoading: isVendorsLoading,
+    refetch: refetchVendors,
   } = useGetPlantVendorsQuery({ search: searchTerm.trim() || undefined });
 
   if (isProjectLoading || isBOMLoading) {
@@ -132,13 +133,11 @@ const GenerateShipperOrder: React.FC = () => {
     if (data.email && !newShipperEmails.includes(data.email)) {
       setNewShipperEmails([...newShipperEmails, data.email]);
     }
+    refetchVendors();
     setIsAddShipperModalOpen(false);
     setIsAddSuccessOpen(true);
   };
 
-  const removeEmail = (email: string) => {
-    setNewShipperEmails(newShipperEmails.filter(e => e !== email));
-  };
 
   const handleSendOrder = async () => {
     if (!projectId || selectedShipperIds.length === 0) return;
@@ -211,7 +210,7 @@ const GenerateShipperOrder: React.FC = () => {
               size="sm"
               onClick={() => setIsAddShipperModalOpen(true)}
             >
-              Add new Shipper Mail
+              Add new Shipper
             </Button>
           </div>
         </div>
@@ -273,22 +272,6 @@ const GenerateShipperOrder: React.FC = () => {
           </div>
         )}
 
-        {/* New Shippers Tags */}
-        <div className="space-y-4">
-          <h4 className="text-sm font-bold text-[#212B36]">New Shippers</h4>
-          <div className="flex flex-wrap gap-3">
-            {newShipperEmails.map((email) => (
-              <div key={email} className="flex items-center gap-2.5 px-4 py-2 bg-[#F4F6F8] border border-gray-100 rounded-lg text-sm font-semibold text-[#212B36] shadow-sm">
-                {email}
-                <button onClick={(e) => { e.stopPropagation(); removeEmail(email); }} className="text-[#919EAB] hover:text-[#212B36] transition-colors">
-                  <div className="size-4 bg-[#919EAB]/20 rounded-full flex items-center justify-center">
-                    <X size={10} strokeWidth={3} />
-                  </div>
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
 
       {/* BOM Content Section */}

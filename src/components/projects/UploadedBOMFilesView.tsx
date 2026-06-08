@@ -152,7 +152,7 @@ const UploadedBOMFilesView: React.FC = () => {
   }, [projects, searchQuery, projectFilter, sortConfig, sortBy]);
 
   const handleViewBOM = (item: BOMProject) => {
-    navigate(`/projects/${item.leadId}/view-bom`);
+    navigate(`/costing/bom-details/${item.bomJobId}`);
   };
 
   const getBadgeVariant = (status: string) => {

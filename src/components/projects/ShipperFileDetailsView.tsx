@@ -3,29 +3,114 @@ import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Scale, FileDown } from "lucide-react";
 import Button from "../common_component/Button";
 import Heading from "../common_component/Heading";
-import { customersData } from "@/data/productionMockData";
-import QuickenSteelDocument from "./QuickenSteelDocument";
-// import QuickenLogo from "@/assets/images/QuickenLogo.svg";
+import CommonStatusBadge from "../common_component/CommonStatusBadge";
+import { useGetShipperDocumentQuery } from "@/redux/api/projectApi";
 
 const ShipperFileDetailsView: React.FC = () => {
   const navigate = useNavigate();
-  const { customerId, projectId, fileName } = useParams();
+  const { requestId } = useParams(); // fileName holds the requestId in routes
 
-  const customer = customersData[customerId || ""] || customersData["ID-2025-1047"];
-  const project =
-    customer?.projects.find((p) => p.id === projectId) || customer?.projects[0];
+  const { data: shipperDoc, isLoading, error } = useGetShipperDocumentQuery(requestId || "");
 
-  const orderItems = [
-    { qty: 5, item: "PC16RO8X", description: "16Ga CEE Purlin Red Oxide 8X3-12\"\nPunch: Custom, Piece Mark: DJ-1", length: "6'11-3/4\"", weight: 621, price: 2.0, amount: 16.00 },
-    { qty: 8, item: "PC16RO8X", description: "16Ga CEE Purlin Red Oxide 8X3-12\"\nPunch: Custom, Piece Mark: DJ-1", length: "6'11-3/4\"", weight: 621, price: 2.0, amount: 16.00 },
-    { qty: 6, item: "PC16RO8X", description: "16Ga CEE Purlin Red Oxide 8X3-12\"\nPunch: Custom, Piece Mark: DJ-1", length: "6'11-3/4\"", weight: 621, price: 2.0, amount: 16.00 },
-    { qty: 5, item: "PC16RO8X", description: "16Ga CEE Purlin Red Oxide 8X3-12\"\nPunch: Custom, Piece Mark: DJ-1", length: "6'11-3/4\"", weight: 621, price: 2.0, amount: 16.00 },
-    { qty: 8, item: "PC16RO8X", description: "16Ga CEE Purlin Red Oxide 8X3-12\"\nPunch: Custom, Piece Mark: DJ-1", length: "6'11-3/4\"", weight: 621, price: 2.0, amount: 16.00 },
-    { qty: 6, item: "PC16RO8X", description: "16Ga CEE Purlin Red Oxide 8X3-12\"\nPunch: Custom, Piece Mark: DJ-1", length: "6'11-3/4\"", weight: 621, price: 2.0, amount: 16.00 },
-    { qty: 3, item: "PC16RO8X", description: "16Ga CEE Purlin Red Oxide 8X3-12\"\nPunch: Custom, Piece Mark: DJ-1", length: "6'11-3/4\"", weight: 621, price: 2.0, amount: 16.00 },
-    { qty: 4, item: "PC16RO8X", description: "16Ga CEE Purlin Red Oxide 8X3-12\"\nPunch: Custom, Piece Mark: DJ-1", length: "6'11-3/4\"", weight: 621, price: 2.0, amount: 16.00 },
-    { qty: 2, item: "PC16RO8X", description: "16Ga CEE Purlin Red Oxide 8X3-12\"\nPunch: Custom, Piece Mark: DJ-1", length: "6'11-3/4\"", weight: 621, price: 2.0, amount: 16.00 },
-  ];
+
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return "-";
+    return new Date(dateString).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  };
+
+  const getBadgeVariant = (status: string) => {
+    switch (status) {
+      case "approved":
+      case "comparison_completed":
+        return "green";
+      case "rejected":
+      case "comparison_failed":
+        return "red";
+      case "submitted":
+      case "comparison_processing":
+        return "yellow";
+      case "sent":
+        return "blue";
+      case "resubmit_requested":
+        return "cyan";
+      default: {
+        const s = status.toLowerCase();
+        if (s.includes("received") || s.includes("pending") || s.includes("submitted")) return "yellow";
+        if (
+          s.includes("compared") ||
+          s.includes("approved") ||
+          s.includes("sent") ||
+          s.includes("revision")
+        )
+          return "green";
+        return "gray";
+      }
+    }
+  };
+
+  const getDisplayStatus = (status: string) => {
+    switch (status) {
+      case "sent":
+        return "Sent";
+      case "submitted":
+        return "File Received";
+      case "comparison_processing":
+        return "Comparison Processing";
+      case "comparison_completed":
+        return "Comparison Completed";
+      case "comparison_failed":
+        return "Comparison Failed";
+      case "approved":
+        return "Approved";
+      case "rejected":
+        return "Rejected";
+      case "resubmit_requested":
+        return "Resubmit Requested";
+      default:
+        return status;
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-3">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#1E51A4]"></div>
+        <p className="text-gray-500 font-inter font-medium text-sm">
+          Loading shipper document details...
+        </p>
+      </div>
+    );
+  }
+
+  if (error || !shipperDoc) {
+    return (
+      <div className="xl:pr-5 px-2 pb-10 space-y-6">
+        <div className="flex items-center gap-4 mt-2">
+          <Button
+            variant="blueFilled"
+            size="sm"
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-2 shrink-0"
+          >
+            <ArrowLeft size={18} strokeWidth={2.5} /> Back
+          </Button>
+          <Heading text="Shipper File Details" />
+        </div>
+        <div className="p-10 text-center bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col items-center justify-center gap-4">
+          <p className="font-semibold text-lg font-inter text-[#212B36]">
+            Error Loading Shipper Document
+          </p>
+          <p className="text-sm text-gray-500 font-inter max-w-md">
+            Something went wrong while retrieving shipper document details. Please try again later.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="xl:pr-5 px-2 pb-10 space-y-6">
@@ -47,67 +132,83 @@ const ShipperFileDetailsView: React.FC = () => {
           <Button
             variant="purpleFilled"
             size="sm"
+            onClick={() => navigate(`order-verification`)}
             className="flex items-center gap-2 font-inter font-bold"
           >
             <Scale size={18} /> Order Verification
           </Button>
-          <Button
-            variant="white"
-            size="sm"
-            className="flex items-center gap-2 border-[#E2E8F0] font-inter font-bold text-[#212B36]"
-          >
-            <FileDown size={18} /> Download PDF
-          </Button>
+          {shipperDoc.fileUrl && (
+            <Button
+              variant="white"
+              size="sm"
+              onClick={() => window.open(shipperDoc.fileUrl, "_blank")}
+              className="flex items-center gap-2 border-[#E2E8F0] font-inter font-bold text-[#212B36]"
+            >
+              <FileDown size={18} /> Download file
+            </Button>
+          )}
         </div>
       </div>
 
       {/* ── Main Content Card ─────────────────────────────────────────── */}
-      <div className="bg-white rounded-[14px] shadow-sm border border-[#F4F6F8] p-6 md:p-8 space-y-8">
-        
+      <div className="bg-white p-5 space-y-5">
+
         {/* Project Details Header */}
         <div className="bg-[#F8FAFC] rounded-[10px] p-6 border border-[#F1F5F9]">
           <h2 className="text-2xl font-inter font-bold text-[#212B36] mb-5">
-            Project: {project?.name || "ABC Warehouse Project"}
+            Project: {shipperDoc.projectName || "ABC Warehouse Project"}
           </h2>
-          <div className="flex flex-col lg:flex-row lg:items-center gap-6 lg:gap-0">
-            {/* Left Column */}
-            <div className="flex-1 space-y-4">
+          <div className="flex flex-col lg:flex-row gap-6 lg:gap-0">
+
+            <div className="space-y-3">
               <div className="flex items-center gap-3">
                 <span className="text-sm font-inter font-medium text-[#637381] w-24">Project ID:</span>
-                <span className="text-sm font-inter font-bold text-[#212B36]">{projectId || "PRJ-1025"}</span>
+                <span className="text-sm font-inter font-bold text-[#212B36]">{shipperDoc.projectId}</span>
               </div>
               <div className="flex items-center gap-3">
                 <span className="text-sm font-inter font-medium text-[#637381] w-24">Shipper:</span>
-                <span className="text-sm font-inter font-bold text-[#212B36]">SteelCorp</span>
+                <span className="text-sm font-inter font-bold text-[#212B36]">{shipperDoc.vendorName}</span>
               </div>
             </div>
 
-            {/* Vertical Separator */}
+
             <div className="hidden lg:block w-px h-16 bg-[#CBD5E1] mx-10"></div>
 
-            {/* Right Column */}
-            <div className="flex-1 space-y-4">
+
+            <div className="space-y-3">
               <div className="flex items-center gap-3">
                 <span className="text-sm font-inter font-medium text-[#637381] w-28">Shipper File:</span>
-                <span className="text-sm font-inter font-bold text-[#212B36]">{fileName || "steel_v1.xlsx"}</span>
+                <span className="text-sm font-inter font-bold text-[#212B36]">{shipperDoc.fileName}</span>
               </div>
               <div className="flex items-center gap-3">
                 <span className="text-sm font-inter font-medium text-[#637381] w-28">Upload Date:</span>
-                <span className="text-sm font-inter font-bold text-[#212B36]">Apr 22, 2026</span>
+                <span className="text-sm font-inter font-bold text-[#212B36]">{formatDate(shipperDoc.uploadedDate)}</span>
               </div>
               <div className="flex items-center gap-3">
                 <span className="text-sm font-inter font-medium text-[#637381] w-28">Status:</span>
-                <div className="flex items-center gap-1.5">
-                  <span className="text-[#FFB02E] text-base">●</span>
-                  <span className="text-sm font-inter font-bold text-[#212B36]">Pending Verification</span>
-                </div>
+                <CommonStatusBadge
+                  text={getDisplayStatus(shipperDoc.fileStatus)}
+                  variant={getBadgeVariant(shipperDoc.fileStatus)}
+                />
               </div>
             </div>
           </div>
         </div>
 
-        {/* Quicken Steel Document Section */}
-        <QuickenSteelDocument orderItems={orderItems} />
+        {/* Document Preview Section */}
+        <div className="w-full  overflow-hidden shadow-inner flex items-center justify-center">
+          {shipperDoc.fileUrl ? (
+            <iframe
+              src={`${shipperDoc.fileUrl}#toolbar=0`}
+              className="w-full h-[800px] rounded-lg border-0 bg-white"
+              title={shipperDoc.fileName}
+            />
+          ) : (
+            <div className="p-10 text-center text-gray-500 font-inter">
+              No preview URL available for this document.
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

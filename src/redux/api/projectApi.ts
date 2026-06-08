@@ -549,6 +549,42 @@ export const projectApi = createApi({
         return response.data;
       },
     }),
+    getProjectShipperFiles: builder.query<ProjectShipperFilesResponse, string>({
+      query: (leadId) => `/api/plant/projects/${leadId}/shipper-files`,
+      providesTags: (_result, _error, leadId) => [
+        { type: "ProjectDetail", id: leadId },
+      ],
+      transformResponse: (response: ApiResponse<ProjectShipperFilesResponse>) => {
+        if (!response.data) {
+          throw new Error("No data returned from API");
+        }
+        return response.data;
+      },
+    }),
+    getProjectShipperRequests: builder.query<ProjectShipperRequestsResponse, string>({
+      query: (leadId) => `/api/plant/shipper-files/projects/${leadId}/requests`,
+      providesTags: (_result, _error, leadId) => [
+        { type: "ProjectDetail", id: leadId },
+      ],
+      transformResponse: (response: ApiResponse<ProjectShipperRequestsResponse>) => {
+        if (!response.data) {
+          throw new Error("No data returned from API");
+        }
+        return response.data;
+      },
+    }),
+    getShipperDocument: builder.query<ShipperDocumentResponse, string>({
+      query: (requestId) => `/api/plant/shipper-requests/${requestId}/document`,
+      providesTags: (_result, _error, requestId) => [
+        { type: "ProjectDetail", id: requestId },
+      ],
+      transformResponse: (response: ApiResponse<ShipperDocumentResponse>) => {
+        if (!response.data) {
+          throw new Error("No data returned from API");
+        }
+        return response.data;
+      },
+    }),
     generateConsolidatedBOM: builder.mutation<
       { message: string; consolidatedBOM: ConsolidatedBOM },
       string
@@ -607,6 +643,52 @@ export const projectApi = createApi({
           page: 1,
           limit: 20,
         },
+    }),
+    getBOMDetails: builder.query<
+      BOMDetailsResponse,
+      BOMDetailsQueryParams
+    >({
+      query: ({ jobId, ...params }) => ({
+        url: `/api/plant/bom/${jobId}`,
+        params,
+      }),
+      providesTags: (_result, _error, { jobId }) => [
+        { type: "ConsolidatedBOM", id: jobId },
+      ],
+      transformResponse: (response: ApiResponse<BOMDetailsResponse>) => {
+        if (!response.data) {
+          throw new Error("No data returned from API");
+        }
+        return response.data;
+      },
+    }),
+    compareShipperRequest: builder.mutation<CompareShipperRequestResponse, string>({
+      query: (requestId) => ({
+        url: `/api/plant/shipper-requests/${requestId}/compare`,
+        method: "POST",
+      }),
+      invalidatesTags: (_result, _error, requestId) => [
+        { type: "ProjectDetail", id: requestId },
+      ],
+      transformResponse: (response: ApiResponse<CompareShipperRequestResponse>) => {
+        if (!response.data) {
+          throw new Error("No data returned from API");
+        }
+        return response.data;
+      },
+    }),
+    confirmBuildingBOM: builder.mutation<{ message: string }, string>({
+      query: (buildingId) => ({
+        url: `/api/plant/bom/buildings/${buildingId}/confirm`,
+        method: "POST",
+      }),
+      invalidatesTags: ["ConsolidatedBOM", "ProjectBuildings"],
+      transformResponse: (response: ApiResponse<{ message: string }>) => {
+        if (!response.data) {
+          throw new Error("No data returned from API");
+        }
+        return response.data;
+      },
     }),
   }),
 });
@@ -768,6 +850,153 @@ export interface BOMProjectsQueryParams {
   limit?: number;
 }
 
+export interface ShipperFileEntry {
+  _id: string;
+  vendorId: string;
+  vendorName: string;
+  status:
+    | "sent"
+    | "submitted"
+    | "comparison_processing"
+    | "comparison_completed"
+    | "comparison_failed"
+    | "approved"
+    | "rejected"
+    | "resubmit_requested";
+  submittedFileUrl: string;
+  submittedFileName: string;
+  submittedAt: string;
+  quoteValue: number;
+  sentAt: string;
+}
+
+export interface ProjectShipperFilesResponse {
+  shipperFiles: ShipperFileEntry[];
+}
+
+export interface ShipperDocumentResponse {
+  requestId: string;
+  leadId: string;
+  projectId: string;
+  projectName: string;
+  vendorId: string;
+  vendorName: string;
+  vendorCode: string;
+  fileName: string;
+  fileUrl: string;
+  uploadedDate: string;
+  rates: number;
+  fileStatus: string;
+}
+
+export interface ShipperRequestEntry {
+  requestId: string;
+  vendorId: string;
+  vendorName: string;
+  vendorCode: string;
+  fileName: string;
+  uploadedDate: string;
+  rates: number;
+  fileStatus: string;
+}
+
+export interface ProjectShipperRequestsResponse {
+  leadId: string;
+  projectId: string;
+  projectName: string;
+  shipperRequests: ShipperRequestEntry[];
+  total: number;
+}
+
+export interface CompareShipperRequestResponse {
+  requestId: string;
+  compareJobId: string;
+  status: string;
+  message: string;
+}
+
+export interface BOMItem {
+  _id: string;
+  leadId: string;
+  buildingId: string;
+  bomJobId: string;
+  smdtCostVersionId: string;
+  sourceSheetName: string;
+  category: string;
+  rowNumber: number;
+  quantity: number;
+  markId: string;
+  description: string;
+  partCode: string;
+  partCodeNormalized: string;
+  partColor: string;
+  partColorNormalized: string;
+  resolvedSmdtColor: string;
+  lengthRaw: string | null;
+  lengthFeet: number | null;
+  weight: number;
+  type: string | null;
+  gauge: string | null;
+  angle: string | null;
+  isFrameType: boolean;
+  isBuyout: boolean;
+  rawRow: string[];
+  smdtItemId: string;
+  matchStatus: string;
+  matchConfidence: string;
+  matchReason: string;
+  matchCandidates: unknown[];
+  costUnit: string;
+  smdtUnitCost: number;
+  smdtTotalCost: number;
+  isManuallyPriced: boolean;
+  manualUnitCost: number | null;
+  manualTotalCost: number | null;
+  manualPriceSavedToSMDT: boolean;
+  isPriced: boolean;
+  finalUnitCost: number;
+  finalTotalCost: number;
+  __v: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface BOMDetailsResponse {
+  bomJob: {
+    _id: string;
+    buildingId: string;
+    buildingNumber: number;
+    fileName: string;
+    status: string;
+    isConfirmed: boolean;
+    totalItems: number;
+    matchedItems: number;
+    unmatchedItems: number;
+    frameItems: number;
+    extractionMethod: string;
+    skippedSheets: string[];
+  };
+  itemsByCategory: Record<string, BOMItem[]>;
+  summary: {
+    totalItems: number;
+    pricedItems: number;
+    unpricedItems: number;
+    frameItems: number;
+    totalCost: number;
+    isFullyPriced: boolean;
+  };
+  total: number;
+  page: number;
+  limit: number;
+}
+
+export interface BOMDetailsQueryParams {
+  jobId: string;
+  filter?: "all" | "unpriced" | "frames" | "matched";
+  page?: number;
+  limit?: number;
+}
+
 export const {
   useGetProjectStatsQuery,
   useGetPlantProjectsQuery,
@@ -787,4 +1016,10 @@ export const {
   useGenerateConsolidatedBOMMutation,
   useSendConsolidatedBOMMutation,
   useGetBOMProjectsQuery,
+  useGetProjectShipperFilesQuery,
+  useGetShipperDocumentQuery,
+  useGetProjectShipperRequestsQuery,
+  useCompareShipperRequestMutation,
+  useGetBOMDetailsQuery,
+  useConfirmBuildingBOMMutation,
 } = projectApi;

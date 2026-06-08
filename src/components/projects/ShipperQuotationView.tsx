@@ -1,8 +1,7 @@
 import React, { useState, useMemo } from "react";
-import { Search, Filter} from "lucide-react";
-import { recentShipperFilesByFilter } from "@/data/productionMockData";
-import type { RecentShipperFile } from "@/data/productionMockData";
-import RecentShipperFilesTable from "@/components/RecentShipperFilesTable";
+import { Search, Filter } from "lucide-react";
+import { useGetShipperProjectsQuery } from "@/redux/api/shipperApi";
+import ShipperProjectsTable from "./ShipperProjectsTable";
 import Pagination from "@/components/Pagination";
 import FilterDropdown from "../common_component/FilterDropdown";
 import TitleSubtitle from "../common_component/TitleSubtitle";
@@ -13,38 +12,29 @@ const ShipperQuotationView: React.FC = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
 
-  // All shipper files
-  const allFiles: RecentShipperFile[] = useMemo(() => {
-    const seen = new Set<string>();
-    const merged = [
-      ...recentShipperFilesByFilter.today,
-      ...recentShipperFilesByFilter.week,
-      ...recentShipperFilesByFilter.month,
-    ];
-    return merged.filter((f) => {
-      if (seen.has(f.fileName)) return false;
-      seen.add(f.fileName);
-      return true;
-    });
-  }, []);
+  const { data, isLoading, error } = useGetShipperProjectsQuery();
 
   // Derived data
   const filtered = useMemo(() => {
-    let list = allFiles;
+    const projects = data?.projects || [];
+    let list = projects;
+
     if (search.trim()) {
       const q = search.toLowerCase();
       list = list.filter(
-        (f) =>
-          f.projectName.toLowerCase().includes(q) ||
-          f.shipperName.toLowerCase().includes(q) ||
-          f.fileName.toLowerCase().includes(q)
+        (p) =>
+          p.projectName.toLowerCase().includes(q) ||
+          p.projectId.toLowerCase().includes(q) ||
+          p.jobId.toLowerCase().includes(q)
       );
     }
+
     if (statusFilter !== "Select Status") {
-      list = list.filter((f) => f.status === statusFilter);
+      list = list.filter((p) => p.fileReceivedStatus === statusFilter);
     }
+
     return list;
-  }, [allFiles, search, statusFilter]);
+  }, [data, search, statusFilter]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / rowsPerPage));
   const paginated = filtered.slice(
@@ -52,12 +42,43 @@ const ShipperQuotationView: React.FC = () => {
     currentPage * rowsPerPage
   );
 
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-3">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#1E51A4]"></div>
+        <p className="text-gray-500 font-inter font-medium text-sm">
+          Loading projects...
+        </p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="xl:pr-2 md:px-4 px-2 pb-10 space-y-6">
+        <TitleSubtitle
+          title="Shipper Files"
+          subtitle="Manage vendor shipment files and prepare for validation"
+        />
+        <div className="p-10 text-center bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col items-center justify-center gap-4">
+          <p className="font-semibold text-lg font-inter text-[#212B36]">
+            Error Loading Projects
+          </p>
+          <p className="text-sm text-gray-500 font-inter max-w-md">
+            Something went wrong while retrieving projects. Please try again later.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="xl:pr-2 md:px-4 px-2 pb-10 space-y-6">
       {/* ── Header ────────────────────────────────────────────────────── */}
       <TitleSubtitle
-      title="Shipper Files"
-      subtitle="Manage vendor shipment files and prepare for validation"/>
+        title="Shipper Files"
+        subtitle="Manage vendor shipment files and prepare for validation"
+      />
 
       {/* ── Search / Filter / Status bar ────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 justify-between">
@@ -94,17 +115,16 @@ const ShipperQuotationView: React.FC = () => {
             onTabChange={setStatusFilter}
             options={[
               { label: "Select Status", value: "Select Status" },
-              { label: "File Received", value: "File Received" },
-              { label: "Order Sent", value: "Order Sent" },
-              { label: "Compared", value: "Compared" },
-              { label: "Revision Sent", value: "Revision Sent" },
+              { label: "Completed", value: "all" },
+              { label: "Partial", value: "partial" },
+              { label: "None", value: "none" },
             ]}
           />
         </div>
       </div>
 
       {/* ── Table ─────────────────────────────────────────────────────── */}
-      <RecentShipperFilesTable data={paginated} />
+      <ShipperProjectsTable data={paginated} />
 
       {/* ── Pagination ────────────────────────────────────────────────── */}
       <Pagination

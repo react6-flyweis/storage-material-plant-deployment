@@ -10,15 +10,16 @@ import {
   CircleDollarSign,
   ChartSpline,
 } from "lucide-react";
-import { recentShipperFilesByFilter, customersData } from "@/data/productionMockData";
-import type { RecentShipperFile } from "@/data/productionMockData";
-import RecentShipperFilesTable from "@/components/RecentShipperFilesTable";
+import ProjectShipperFilesTable from "@/components/ProjectShipperFilesTable";
 import StatCard from "@/components/ui/stat-card";
 import Pagination from "@/components/Pagination";
 import Button from "../common_component/Button";
 import Heading from "../common_component/Heading";
 import FilterDropdown from "../common_component/FilterDropdown";
-
+import {
+  useGetProjectShipperRequestsQuery,
+  type ShipperRequestEntry,
+} from "@/redux/api/projectApi";
 // ─── Constants ────────────────────────────────────────────────────────────────
 const FILTER_OPTIONS = [
   { label: "Filter", value: "" },
@@ -31,21 +32,15 @@ const FILTER_OPTIONS = [
 // ─── Main Component ───────────────────────────────────────────────────────────
 const ShipperFilesView: React.FC = () => {
   const navigate = useNavigate();
-  const { customerId, projectId } = useParams();
+  const { projectId } = useParams();
 
-  const customer = customersData[customerId || ""] || customersData["ID-2025-1047"];
-  const project =
-    customer?.projects.find((p) => p.id === projectId) || customer?.projects[0];
+  const {
+    data: shipperRequestsData,
+    isLoading,
+    error,
+  } = useGetProjectShipperRequestsQuery(projectId || "");
 
   // All shipper files (merge all filter buckets for this page)
-  const allFiles: RecentShipperFile[] = useMemo(() => {
-    // Combine files from different buckets and add a category for filtering
-    const today = recentShipperFilesByFilter.today.map(f => ({ ...f, category: "today" }));
-    const yesterday = recentShipperFilesByFilter.week.map(f => ({ ...f, category: "yesterday" }));
-    const older = recentShipperFilesByFilter.month.map(f => ({ ...f, category: "older" }));
-    
-    return [...today, ...yesterday, ...older];
-  }, []);
 
   // ── Search & sort state ────────────────────────────────────────────────────
   const [search, setSearch] = useState("");
@@ -57,22 +52,26 @@ const ShipperFilesView: React.FC = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
 
+  const allFiles = useMemo<ShipperRequestEntry[]>(() => {
+    return shipperRequestsData?.shipperRequests || [];
+  }, [shipperRequestsData]);
+
   // ── Derived data ──────────────────────────────────────────────────────────
   const filtered = useMemo(() => {
     let list = allFiles;
 
     // Filter by type
-    if (filterType && filterType !== "all") {
-      list = list.filter(f => (f as any).category === filterType);
-    }
+    // if (filterType && filterType !== "all") {
+    //   list = list.filter(f => f.category === filterType);
+    // }
 
     if (search.trim()) {
       const q = search.toLowerCase();
       list = list.filter(
         (f) =>
-          f.shipperName.toLowerCase().includes(q) ||
+          f.vendorName.toLowerCase().includes(q) ||
           f.fileName.toLowerCase().includes(q) ||
-          f.status.toLowerCase().includes(q)
+          f.fileStatus.toLowerCase().includes(q)
       );
     }
     if (sortOrder === "Oldest") list = [...list].reverse();
@@ -85,32 +84,77 @@ const ShipperFilesView: React.FC = () => {
     currentPage * rowsPerPage
   );
 
-  const stats = [
-    {
-      title: "Total Shipper Files",
-      value: "58 Files",
-      icon: <Wrench className="md:size-6 size-4 text-[#1E51A4]" />,
-      color: "bg-[#1E51A4]",
-    },
-    {
-      title: "Pending Upload",
-      value: "12 Files",
-      icon: <ShieldCheck className="md:size-6 size-4 text-[#3AB449]" />,
-      color: "bg-[#3AB449]",
-    },
-    {
-      title: "Ready for Validation",
-      value: "26 Files",
-      icon: <CircleDollarSign className="md:size-6 size-4 text-[#EAB308]" />,
-      color: "bg-[#EAB308]",
-    },
-    {
-      title: "Issues Detected",
-      value: "8 Files",
-      icon: <ChartSpline className="md:size-6 size-4 text-[#FD8D5B]" />,
-      color: "bg-[#FD8D5B]",
-    },
-  ];
+
+  const stats = useMemo(() => {
+    const total = allFiles.length;
+    const received = allFiles.filter(f => f.fileStatus === "submitted").length;
+    const sent = allFiles.filter(f => f.fileStatus === "sent" || f.fileStatus === "order sent").length;
+    const revision = allFiles.filter(f => f.fileStatus === "revision sent" || f.fileStatus === "revision").length;
+
+    return [
+      {
+        title: "Total Shipper Files",
+        value: `${total} Files`,
+        icon: <Wrench className="md:size-6 size-4 text-[#1E51A4]" />,
+        color: "bg-[#1E51A4]",
+      },
+      {
+        title: "File Received",
+        value: `${received} Files`,
+        icon: <ShieldCheck className="md:size-6 size-4 text-[#3AB449]" />,
+        color: "bg-[#3AB449]",
+      },
+      {
+        title: "Order Sent",
+        value: `${sent} Files`,
+        icon: <CircleDollarSign className="md:size-6 size-4 text-[#EAB308]" />,
+        color: "bg-[#EAB308]",
+      },
+      {
+        title: "Revision Sent",
+        value: `${revision} Files`,
+        icon: <ChartSpline className="md:size-6 size-4 text-[#FD8D5B]" />,
+        color: "bg-[#FD8D5B]",
+      },
+    ];
+  }, [allFiles]);
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-3">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#1E51A4]"></div>
+        <p className="text-gray-500 font-inter font-medium text-sm">
+          Loading shipper files...
+        </p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="xl:pr-5 px-2 pb-10 space-y-6">
+        <div className="flex items-center gap-4 mt-2">
+          <Button
+            variant="blueFilled"
+            size="sm"
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-2 shrink-0"
+          >
+            <ArrowLeft size={18} strokeWidth={2.5} /> Back
+          </Button>
+          <Heading text="Shipper Files" />
+        </div>
+        <div className="p-10 text-center bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col items-center justify-center gap-4">
+          <p className="font-semibold text-lg font-inter text-[#212B36]">
+            Error Loading Shipper Files
+          </p>
+          <p className="text-sm text-gray-500 font-inter max-w-md">
+            Something went wrong while retrieving shipper files details. Please try again later.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   // ── Pagination helpers ────────────────────────────────────────────────────
   const getPageNumbers = () => {
@@ -138,7 +182,7 @@ const ShipperFilesView: React.FC = () => {
         >
           <ArrowLeft size={18} strokeWidth={2.5} /> Back
         </Button>
-        <Heading text={`${project?.name || "Project"} - Shipper Files`} />
+        <Heading text={`${shipperRequestsData?.projectName || "Project"} - Shipper Files`} />
       </div>
 
       {/* ── Stat Cards ─────────────────────────────────────────────── */}
@@ -197,9 +241,8 @@ const ShipperFilesView: React.FC = () => {
                 <button
                   key={opt}
                   onClick={() => { setSortOrder(opt); setShowSortMenu(false); setCurrentPage(1); }}
-                  className={`w-full text-left px-4 py-2.5 text-sm transition-colors hover:bg-blue-50 ${
-                    sortOrder === opt ? "text-[#1E51A4] font-semibold bg-blue-50/50" : "text-[#212B36]"
-                  }`}
+                  className={`w-full text-left px-4 py-2.5 text-sm transition-colors hover:bg-blue-50 ${sortOrder === opt ? "text-[#1E51A4] font-semibold bg-blue-50/50" : "text-[#212B36]"
+                    }`}
                 >
                   {opt}
                 </button>
@@ -210,7 +253,7 @@ const ShipperFilesView: React.FC = () => {
       </div>
 
       {/* ── Table ─────────────────────────────────────────────────────── */}
-      <RecentShipperFilesTable data={paginated} />
+      <ProjectShipperFilesTable data={paginated} />
 
       {/* ── Pagination ────────────────────────────────────────────────── */}
       <Pagination

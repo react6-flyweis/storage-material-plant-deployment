@@ -222,8 +222,12 @@ export const adminRoutes: RouteObject[] = [
             element: <ShipperFilesView />,
           },
           {
-            path: "/projects/:projectId/shipper-files/:fileName",
+            path: "/projects/:projectId/shipper-files/:requestId",
             element: <ShipperFileDetailsView />,
+          },
+          {
+            path: "/projects/:projectId/shipper-files/:requestId/order-verification",
+            element: <OrderVerificationView />,
           },
           {
             path: "/projects/:projectId/material-request",
@@ -290,7 +294,7 @@ export const adminRoutes: RouteObject[] = [
             element: <BOMFilesDetailsView />,
           },
           {
-            path: "/costing/missing-items",
+            path: "/costing/bom-details/:id/missing-items",
             element: <MissingItemCostListView />,
           },
           {
