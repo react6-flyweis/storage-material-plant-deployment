@@ -43,9 +43,21 @@ const parseGpsCoordinates = (value: string) => {
 };
 
 const vendorSchema = z.object({
-  vendorName: z.string().trim().min(1, "Vendor name is required."),
+  vendorName: z
+    .string()
+    .trim()
+    .min(1, "Vendor name is required.")
+    .refine((val) => !/^\d+$/.test(val), {
+      message: "Vendor name cannot be numbers.",
+    }),
   vendorCode: z.string().trim().min(1, "Vendor code is required."),
-  contactName: z.string().trim().min(1, "Contact name is required."),
+  contactName: z
+    .string()
+    .trim()
+    .min(1, "Contact name is required.")
+    .refine((val) => !/^\d+$/.test(val), {
+      message: "Contact name cannot be numbers.",
+    }),
   email: z.string().trim().email("Enter a valid email address."),
   phone: z
     .string()
@@ -60,11 +72,42 @@ const vendorSchema = z.object({
 
   address: z.object({
     placeNumber: z.string().trim().min(1, "Place number is required."),
-    streetAddress: z.string().trim().min(1, "Street address is required."),
-    landmark: z.string().trim().min(1, "Landmark is required."),
-    city: z.string().trim().min(1, "City is required."),
-    state: z.string().trim().min(1, "State is required."),
-    postalCode: z.string().trim().min(1, "Postal code is required."),
+    streetAddress: z
+      .string()
+      .trim()
+      .min(1, "Street address is required.")
+      .refine((val) => !/^\d+$/.test(val), {
+        message: "Street address cannot be numbers only.",
+      }),
+    landmark: z
+      .string()
+      .trim()
+      .min(1, "Landmark is required.")
+      .refine((val) => !/^\d+$/.test(val), {
+        message: "Landmark cannot be numbers only.",
+      }),
+    city: z
+      .string()
+      .trim()
+      .min(1, "City is required.")
+      .refine((val) => !/^\d+$/.test(val), {
+        message: "City cannot be numbers only.",
+      }),
+    state: z
+      .string()
+      .trim()
+      .min(1, "State is required.")
+      .refine((val) => !/^\d+$/.test(val), {
+        message: "State cannot be numbers only.",
+      }),
+    postalCode: z.preprocess(
+      (val) => {
+        if (val === "" || val === undefined || val === null) return undefined;
+        const num = Number(val);
+        return Number.isNaN(num) ? undefined : num;
+      },
+      z.number({ message: "Postal code must be a number." }).min(1, "Postal code is required.")
+    ),
     gpsCoordinates: z
       .string()
       .trim()
@@ -144,9 +187,10 @@ const AddNewFreightCourier: React.FC = () => {
     setError,
     watch,
     setValue,
-    formState: { errors },
+    formState: { errors, isSubmitted },
   } = useForm<VendorFormInput, unknown, VendorFormValues>({
     resolver: zodResolver(vendorSchema),
+    mode: "onChange",
     defaultValues: {
       vendorName: "",
       vendorCode: "",
@@ -225,7 +269,7 @@ const AddNewFreightCourier: React.FC = () => {
           landmark: values.address.landmark,
           city: values.address.city,
           state: values.address.state,
-          postalCode: values.address.postalCode,
+          postalCode: String(values.address.postalCode),
           gpsCoordinates: values.address.gpsCoordinates,
         },
         fleetEquipment: values.fleetEquipment?.map((eq) => ({
@@ -279,7 +323,7 @@ const AddNewFreightCourier: React.FC = () => {
       </div>
 
       <form id="add-freight-courier-form" onSubmit={handleSubmit(onSubmit)}>
-        {(errors.root?.message || validationMessages.length > 0) && (
+        {isSubmitted && (errors.root?.message || validationMessages.length > 0) && (
           <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
             <div className="font-medium">Please fix the following:</div>
             <ul className="mt-2 list-disc space-y-1 pl-5">
@@ -588,7 +632,7 @@ const AddNewFreightCourier: React.FC = () => {
                   )}
                 />
 
-                <Controller
+                 <Controller
                   control={control}
                   name="address.postalCode"
                   render={({ field }) => (
@@ -596,7 +640,8 @@ const AddNewFreightCourier: React.FC = () => {
                       <CommonInput
                         label="Postal Code"
                         required
-                        value={field.value}
+                        type="number"
+                        value={field.value as string | number | undefined}
                         onChange={field.onChange}
                         onBlur={field.onBlur}
                         ref={field.ref}

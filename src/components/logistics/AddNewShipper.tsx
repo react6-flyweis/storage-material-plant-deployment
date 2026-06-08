@@ -44,9 +44,21 @@ const parseGpsCoordinates = (value: string) => {
 };
 
 const vendorSchema = z.object({
-  vendorName: z.string().trim().min(1, "Vendor name is required."),
-  vendorCode: z.string().trim().min(1, "Vendor code is required."),
-  contactName: z.string().trim().min(1, "Contact name is required."),
+  vendorName: z
+    .string()
+    .trim()
+    .min(1, "Vendor name is required.")
+    .refine((val) => !/^\d+$/.test(val), {
+      message: "Vendor name cannot be numbers.",
+    }),
+  vendorCode: z.string().trim().optional(),
+  contactName: z
+    .string()
+    .trim()
+    .min(1, "Contact name is required.")
+    .refine((val) => !/^\d+$/.test(val), {
+      message: "Contact name cannot be numbers.",
+    }),
   email: z.string().trim().email("Enter a valid email address."),
   phone: z
     .string()
@@ -55,22 +67,54 @@ const vendorSchema = z.object({
     .refine((value) => isPhoneNumber(value), {
       message: "Enter a valid phone number.",
     }),
-  yearsWithCompany: z
-    .string()
-    .trim()
-    .min(1, "Years with company is required.")
-    .refine((value) => /^\d+/.test(value), {
-      message: "Enter a valid number of years.",
-    })
-    .transform((value) => Number.parseInt(value, 10)),
+  yearsWithCompany: z.preprocess(
+    (val) => {
+      if (val === "" || val === undefined || val === null) return undefined;
+      const num = Number(val);
+      return Number.isNaN(num) ? undefined : num;
+    },
+    z.number({ message: "Enter a valid number of years." })
+      .min(1, "Years with company is required.")
+  ),
   serviceCategory: z.string().trim().min(1, "Service category is required."),
   address: z.object({
     placeNumber: z.string().trim().min(1, "Place number is required."),
-    streetAddress: z.string().trim().min(1, "Street address is required."),
-    landmark: z.string().trim().min(1, "Landmark is required."),
-    city: z.string().trim().min(1, "City is required."),
-    state: z.string().trim().min(1, "State is required."),
-    postalCode: z.string().trim().min(1, "Postal code is required."),
+    streetAddress: z
+      .string()
+      .trim()
+      .min(1, "Street address is required.")
+      .refine((val) => !/^\d+$/.test(val), {
+        message: "Street address cannot be numbers only.",
+      }),
+    landmark: z
+      .string()
+      .trim()
+      .min(1, "Landmark is required.")
+      .refine((val) => !/^\d+$/.test(val), {
+        message: "Landmark cannot be numbers only.",
+      }),
+    city: z
+      .string()
+      .trim()
+      .min(1, "City is required.")
+      .refine((val) => !/^\d+$/.test(val), {
+        message: "City cannot be numbers only.",
+      }),
+    state: z
+      .string()
+      .trim()
+      .min(1, "State is required.")
+      .refine((val) => !/^\d+$/.test(val), {
+        message: "State cannot be numbers only.",
+      }),
+    postalCode: z.preprocess(
+      (val) => {
+        if (val === "" || val === undefined || val === null) return undefined;
+        const num = Number(val);
+        return Number.isNaN(num) ? undefined : num;
+      },
+      z.number({ message: "Postal code must be a number." }).min(1, "Postal code is required.")
+    ),
     gpsCoordinates: z
       .string()
       .trim()
@@ -142,9 +186,10 @@ const AddNewShipper: React.FC = () => {
     setError,
     watch,
     setValue,
-    formState: { errors },
+    formState: { errors, isSubmitted },
   } = useForm<VendorFormInput, unknown, VendorFormValues>({
     resolver: zodResolver(vendorSchema),
+    mode: "onChange",
     defaultValues: {
       vendorName: "",
       vendorCode: "",
@@ -208,7 +253,7 @@ const AddNewShipper: React.FC = () => {
           landmark: values.address.landmark,
           city: values.address.city,
           state: values.address.state,
-          postalCode: values.address.postalCode,
+          postalCode: String(values.address.postalCode),
           gpsCoordinates: values.address.gpsCoordinates,
         },
         documents: values.documents,
@@ -250,7 +295,7 @@ const AddNewShipper: React.FC = () => {
       </div>
 
       <form id="add-shipper-form" onSubmit={handleSubmit(onSubmit)}>
-        {(errors.root?.message || validationMessages.length > 0) && (
+        {isSubmitted && (errors.root?.message || validationMessages.length > 0) && (
           <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
             <div className="font-medium">Please fix the following:</div>
             <ul className="mt-2 list-disc space-y-1 pl-5">
@@ -326,7 +371,6 @@ const AddNewShipper: React.FC = () => {
                   <div>
                     <CommonInput
                       label="Shippers ID (Auto-generated + Editable)"
-                      required
                       value={field.value}
                       onChange={field.onChange}
                       onBlur={field.onBlur}
@@ -411,7 +455,8 @@ const AddNewShipper: React.FC = () => {
                     <div>
                       <CommonInput
                         label="Years of working with company"
-                        value={field.value}
+                        type="number"
+                        value={field.value as string | number | undefined}
                         onChange={field.onChange}
                         onBlur={field.onBlur}
                         ref={field.ref}
@@ -594,7 +639,8 @@ const AddNewShipper: React.FC = () => {
                       <CommonInput
                         label="Postal Code"
                         required
-                        value={field.value}
+                        type="number"
+                        value={field.value as string | number | undefined}
                         onChange={field.onChange}
                         onBlur={field.onBlur}
                         ref={field.ref}
@@ -749,7 +795,7 @@ const AddNewShipper: React.FC = () => {
             onDocumentsChange={onDocumentsChange}
           />
 
-          <AccordionSection title="Internal Notes">
+          <AccordionSection title="Internal Notes (Optional)">
             <div className="w-full">
               <Controller
                 control={control}
