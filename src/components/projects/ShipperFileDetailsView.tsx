@@ -1,17 +1,51 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Scale, FileDown } from "lucide-react";
 import Button from "../common_component/Button";
 import Heading from "../common_component/Heading";
 import CommonStatusBadge from "../common_component/CommonStatusBadge";
-import { useGetShipperDocumentQuery } from "@/redux/api/projectApi";
+import {
+  useGetShipperDocumentQuery,
+  useApproveShipperRequestMutation,
+  useRequestResubmitShipperRequestMutation,
+} from "@/redux/api/shipperApi";
 
 const ShipperFileDetailsView: React.FC = () => {
   const navigate = useNavigate();
-  const { requestId } = useParams(); // fileName holds the requestId in routes
+  const { requestId } = useParams();
 
   const { data: shipperDoc, isLoading, error } = useGetShipperDocumentQuery(requestId || "");
 
+  const [approveRequest, { isLoading: isApproving }] = useApproveShipperRequestMutation();
+  const [requestResubmit, { isLoading: isResubmitting }] = useRequestResubmitShipperRequestMutation();
+  const [isResubmitModalOpen, setIsResubmitModalOpen] = useState(false);
+  const [resubmitNote, setResubmitNote] = useState("");
+
+  const handleApprove = async () => {
+    if (!requestId) return;
+    try {
+      await approveRequest(requestId).unwrap();
+    } catch (err) {
+      console.error("Failed to approve request:", err);
+    }
+  };
+
+  const handleResubmit = async () => {
+    if (!requestId || !resubmitNote.trim()) return;
+    try {
+      await requestResubmit({ requestId, note: resubmitNote }).unwrap();
+      setIsResubmitModalOpen(false);
+      setResubmitNote("");
+    } catch (err) {
+      console.error("Failed to request resubmit:", err);
+    }
+  };
+
+  const isComparisonCompleted = shipperDoc?.fileStatus === "comparison_completed";
+  const showVerification = shipperDoc?.fileStatus !== "comparison_completed" &&
+    shipperDoc?.fileStatus !== "approved" &&
+    shipperDoc?.fileStatus !== "rejected" &&
+    shipperDoc?.fileStatus !== "resubmit_requested";
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return "-";
@@ -129,14 +163,6 @@ const ShipperFileDetailsView: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-3">
-          <Button
-            variant="purpleFilled"
-            size="sm"
-            onClick={() => navigate(`order-verification`)}
-            className="flex items-center gap-2 font-inter font-bold"
-          >
-            <Scale size={18} /> Order Verification
-          </Button>
           {shipperDoc.fileUrl && (
             <Button
               variant="white"
@@ -147,6 +173,49 @@ const ShipperFileDetailsView: React.FC = () => {
               <FileDown size={18} /> Download file
             </Button>
           )}
+          {showVerification && (
+            <Button
+              variant="purpleFilled"
+              size="sm"
+              onClick={() => navigate(`order-verification`)}
+              className="flex items-center gap-2 font-inter font-bold"
+            >
+              <Scale size={18} /> Order Verification
+            </Button>
+          )}
+          {isComparisonCompleted && (
+            <>
+              <Button
+                variant="grayFilled"
+                size="sm"
+                onClick={() => setIsResubmitModalOpen(true)}
+                disabled={isResubmitting}
+                className="flex items-center gap-2 font-inter font-bold"
+              >
+                Request Resubmit
+              </Button>
+              <Button
+                variant="greenFilled"
+                size="sm"
+                onClick={handleApprove}
+                disabled={isApproving}
+                className="flex items-center gap-2 font-inter font-bold"
+              >
+                {isApproving ? "Approving..." : "Approve Shipment"}
+              </Button>
+            </>
+          )}
+          {shipperDoc?.fileStatus === "approved" && (
+            <Button
+              variant="purpleFilled"
+              size="sm"
+              onClick={() => navigate(`/load_planning/${requestId}/start-load-planning`)}
+              className="flex items-center gap-2 font-inter font-bold"
+            >
+              Start Load Planning
+            </Button>
+          )}
+
         </div>
       </div>
 
@@ -210,6 +279,48 @@ const ShipperFileDetailsView: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* ── Resubmit Modal ─────────────────────────────────────────── */}
+      {isResubmitModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-xl shadow-xl border border-gray-100 max-w-md w-full p-6 space-y-4">
+            <h3 className="text-lg font-bold font-inter text-[#212B36]">
+              Request Corrected Quote
+            </h3>
+            <p className="text-sm text-gray-500 font-inter">
+              Please provide a note to the vendor explaining what correction is needed.
+            </p>
+            <textarea
+              className="w-full min-h-[100px] p-3 border border-gray-200 rounded-lg text-sm font-inter focus:outline-none focus:ring-2 focus:ring-[#1E51A4] focus:border-transparent resize-none"
+              placeholder="e.g., Please correct qty mismatch on C62514."
+              value={resubmitNote}
+              onChange={(e) => setResubmitNote(e.target.value)}
+            />
+            <div className="flex justify-end gap-3">
+              <Button
+                variant="white"
+                size="sm"
+                onClick={() => {
+                  setIsResubmitModalOpen(false);
+                  setResubmitNote("");
+                }}
+                className="border-gray-200 font-medium font-inter text-[#212B36]"
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="blueFilled"
+                size="sm"
+                disabled={!resubmitNote.trim() || isResubmitting}
+                onClick={handleResubmit}
+                className="font-medium font-inter"
+              >
+                {isResubmitting ? "Sending..." : "Submit"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

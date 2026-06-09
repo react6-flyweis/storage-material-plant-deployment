@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import type { ShipperRequestEntry } from "@/redux/api/projectApi";
+import type { ShipperRequestEntry } from "@/redux/api/shipperApi";
 import { Eye, ArrowUpDown, ChevronDown } from "lucide-react";
 import CommonCheckbox from "./common_component/CommonCheckbox";
 import CommonStatusBadge from "./common_component/CommonStatusBadge";

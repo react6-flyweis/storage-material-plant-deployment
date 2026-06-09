@@ -26,7 +26,7 @@ const CommonInfoList: React.FC<CommonInfoListProps> = ({
   return (
     <div className={className}>
       {title && (
-        <h2 className="text-lg md:text-2xl lg:text-3xl font-inter font-bold text-[#212B36] mb-6">
+        <h2 className="text-lg md:text-2xl font-inter w-full font-bold text-[#212B36] mb-6">
           {title}
         </h2>
       )}

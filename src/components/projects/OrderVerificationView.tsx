@@ -7,11 +7,13 @@ import ProcessingFilesModal from "@/components/projects/ProcessingFilesModal";
 import CommonDropdown from "../common_component/CommonDropdown";
 import TitleSubtitle from "../common_component/TitleSubtitle";
 import {
-  useGetShipperDocumentQuery,
   useGetConsolidatedBOMUrlQuery,
+} from "@/redux/api/projectApi";
+import {
+  useGetShipperDocumentQuery,
   useGetProjectShipperRequestsQuery,
   useCompareShipperRequestMutation,
-} from "@/redux/api/projectApi";
+} from "@/redux/api/shipperApi";
 
 const OrderVerificationView: React.FC = () => {
   const navigate = useNavigate();

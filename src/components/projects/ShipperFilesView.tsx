@@ -19,7 +19,7 @@ import FilterDropdown from "../common_component/FilterDropdown";
 import {
   useGetProjectShipperRequestsQuery,
   type ShipperRequestEntry,
-} from "@/redux/api/projectApi";
+} from "@/redux/api/shipperApi";
 // ─── Constants ────────────────────────────────────────────────────────────────
 const FILTER_OPTIONS = [
   { label: "Filter", value: "" },
@@ -76,7 +76,7 @@ const ShipperFilesView: React.FC = () => {
     }
     if (sortOrder === "Oldest") list = [...list].reverse();
     return list;
-  }, [allFiles, search, sortOrder, filterType]);
+  }, [allFiles, search, sortOrder]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / rowsPerPage));
   const paginated = filtered.slice(
