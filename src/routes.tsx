@@ -92,6 +92,33 @@ const OrderVerificationView = lazy(
 const StartLoadPlanningView = lazy(
   () => import("./components/projects/StartLoadPlanningView"),
 );
+const ShipperUploadView = lazy(
+  () => import("./components/projects/load_planning_pages/ShipperUploadView"),
+);
+const ItemAnalysisView = lazy(
+  () => import("./components/projects/load_planning_pages/ItemAnalysisView"),
+);
+const BundlePlannerView = lazy(
+  () => import("./components/projects/load_planning_pages/BundlePlannerView"),
+);
+const EditBundleView = lazy(
+  () => import("./components/projects/load_planning_pages/EditBundleView"),
+);
+const TruckOptimizerView = lazy(
+  () => import("./components/projects/load_planning_pages/TruckOptimizerView"),
+);
+const PackingListViewPage = lazy(
+  () => import("./components/projects/load_planning_pages/PackingListViewPage"),
+);
+const QRLabelView = lazy(
+  () => import("./components/projects/load_planning_pages/QRLabelView"),
+);
+const LoadPlanReviewView = lazy(
+  () => import("./components/projects/load_planning_pages/LoadPlanReviewView"),
+);
+const FreightSelectionView = lazy(
+  () => import("./components/projects/load_planning_pages/FreightSelectionView"),
+);
 const ComparisonResultView = lazy(
   () => import("./components/projects/ComparisonResultView"),
 );
@@ -330,16 +357,52 @@ export const adminRoutes: RouteObject[] = [
             element: <ShipperQuotationView />,
           },
           {
-            path: "/load_planning/order-verification",
+            path: "/load_planning/:requestId/order-verification",
             element: <OrderVerificationView />,
           },
           {
-            path: "/load_planning/comparison-result",
+            path: "/load_planning/:requestId/comparison-result",
             element: <ComparisonResultView />,
           },
           {
-            path: "/load_planning/start-load-planning",
+            path: "/load_planning/:requestId/start-load-planning",
             element: <StartLoadPlanningView />,
+          },
+          {
+            path: "/load_planning/shipper-upload",
+            element: <ShipperUploadView />,
+          },
+          {
+            path: "/load_planning/:requestId/item-analysis",
+            element: <ItemAnalysisView />,
+          },
+          {
+            path: "/load_planning/:projectId/bundle-planner",
+            element: <BundlePlannerView />,
+          },
+          {
+            path: "/load_planning/:projectId/bundle-planner/:bundleId",
+            element: <EditBundleView />,
+          },
+          {
+            path: "/load_planning/:requestId/truck-optimizer",
+            element: <TruckOptimizerView />,
+          },
+          {
+            path: "/load_planning/:requestId/packing-list",
+            element: <PackingListViewPage />,
+          },
+          {
+            path: "/load_planning/:requestId/qr-label",
+            element: <QRLabelView />,
+          },
+          {
+            path: "/load_planning/:requestId/load-plan-review",
+            element: <LoadPlanReviewView />,
+          },
+          {
+            path: "/load_planning/:requestId/freight-selection",
+            element: <FreightSelectionView />,
           },
           {
             path: "/communication",

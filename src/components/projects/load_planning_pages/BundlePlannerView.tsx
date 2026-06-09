@@ -1,0 +1,381 @@
+import React, { useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { Download, QrCode } from "lucide-react";
+import LoadPlanningHeader, { type HeaderAction } from "./LoadPlanningHeader";
+// import Button from "../../common_component/Button";
+import CommonInfoList from "../../common_component/CommonInfoList";
+import { useGetBundlePlanQuery } from "@/redux/api/shipperApi";
+import { useGetPlantProjectDetailQuery } from "@/redux/api/projectApi";
+import QRCodeDataModal from "../QRCodeDataModal";
+
+
+interface QRData {
+  id: string;
+  loadId: string | number;
+  parts: string;
+  weight: string;
+  length: string;
+}
+
+const BundlePlannerView: React.FC = () => {
+  const { projectId } = useParams<{ projectId: string }>();
+  const navigate = useNavigate();
+
+  const [isQRModalOpen, setIsQRModalOpen] = useState(false);
+  const [selectedBundleData, setSelectedBundleData] = useState<QRData | null>(null);
+
+  const { data: bundlePlanData, isLoading, isError, error } = useGetBundlePlanQuery(projectId || "");
+  const { data: projectDetail } = useGetPlantProjectDetailQuery(projectId || "");
+
+  const actions: HeaderAction[] = [
+    {
+      label: "Export Bundle Plan",
+      variant: "white",
+      className: "border-[#E2E4E6] text-[#212B36] font-bold text-sm px-5",
+      icon: <Download size={18} className="mr-2" />,
+      onClick: () => { },
+    },
+    {
+      label: "Proceed to Truckload Optimization",
+      variant: "purpleFilled",
+      className: "px-8 py-2.5 font-bold",
+      onClick: () => {
+        if (projectId) {
+          navigate(`/load_planning/${projectId}/truck-optimizer`);
+        }
+      },
+    },
+  ];
+
+  // const weightRanges = [
+  //   { label: "0-3000 lbs", min: 0, max: 3000 },
+  //   { label: "3000-5000 lbs", min: 3000, max: 5000 },
+  //   { label: "5000-6000 lbs", min: 5000, max: 6000 },
+  //   { label: "6000+ lbs", min: 6000, max: Infinity },
+  // ];
+
+
+
+  if (isLoading || !bundlePlanData) {
+    return (
+      <div className="min-h-screen">
+        <LoadPlanningHeader
+          currentStepIndex={2}
+          requestId={projectId || ""}
+          title="Bundle / Pallet Planner"
+          description="Group items into optimized bundles or pallets for efficient truck loading and site unloading."
+          actions={actions}
+        />
+        <div className="flex flex-col items-center justify-center min-h-[400px] gap-3 bg-white rounded-xl border border-gray-100 p-5 shadow-sm m-6">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#1E51A4]"></div>
+          <p className="text-gray-500 font-inter font-medium text-sm">
+            Loading bundle plan details...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+
+  const { bundlePlan, bundles, summary } = bundlePlanData;
+
+
+
+  // const weightDistribution = weightRanges.map((range) => {
+  //   const count = bundles.filter(
+  //     (b) => b.totalWeight >= range.min && b.totalWeight < range.max
+  //   ).length;
+  //   return { range: range.label, count: count.toString() };
+  // });
+
+  // Dynamically calculate profile distribution
+  const profileCounts: Record<string, number> = {};
+  bundles.forEach((b) => {
+    const profile = b.bundleType || "Other";
+    profileCounts[profile] = (profileCounts[profile] || 0) + 1;
+  });
+
+  // const profileDistribution = Object.entries(profileCounts).map(([profile, count]) => ({
+  //   profile: profile.charAt(0).toUpperCase() + profile.slice(1),
+  //   count: count.toString(),
+  // }));
+
+  const avgWeight = summary.totalBundles > 0 ? Math.round(summary.totalWeight / summary.totalBundles) : 0;
+
+
+
+  if (isError || !bundlePlanData) {
+    const errorObj = error as { data?: { message?: string }; message?: string };
+    const errorMsg = errorObj?.data?.message || errorObj?.message || "Failed to load bundle plan. Please ensure a bundle plan has been generated.";
+    return (
+      <div className="min-h-screen">
+        <LoadPlanningHeader
+          currentStepIndex={2}
+          requestId={projectId || ""}
+          title="Bundle / Pallet Planner"
+          description="Group items into optimized bundles or pallets for efficient truck loading and site unloading."
+          actions={actions}
+        />
+        <div className="flex flex-col items-center justify-center min-h-[400px] gap-3 bg-white rounded-xl border border-gray-100 p-5 shadow-sm m-6">
+          <p className="text-red-500 font-inter font-bold text-lg">Error loading bundle plan</p>
+          <p className="text-gray-500 font-inter text-sm max-w-md text-center">
+            {errorMsg}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+
+
+  return (
+    <div className="min-h-screen">
+      <LoadPlanningHeader
+        currentStepIndex={2}
+        requestId={projectId || ""}
+        title="Bundle / Pallet Planner"
+        description="Group items into optimized bundles or pallets for efficient truck loading and site unloading."
+        actions={actions}
+      />
+      <div className="p-6 pt-0">
+        <div className="space-y-8 bg-white rounded-xl border border-gray-100 shadow-sm p-4 md:p-8">
+
+          {/* Project header */}
+          <div className="bg-[#F8F9FB] rounded-xl p-4 border border-gray-100">
+            <CommonInfoList
+              title={`Project: ${projectDetail?.projectName || "N/A"} | Upload ID: ${bundlePlan.planNumber}`}
+              items={[
+                { label: "Project ID", value: projectDetail?.projectId || "" },
+                { label: "Upload Id", value: bundlePlan.planNumber },
+                { label: "Shipper Refrence", value: bundlePlan.shipperRequestId },
+                { label: "Vendor", value: bundlePlan.generatedBy },
+              ]}
+            />
+          </div>
+
+          {/* summary and optimizatioin */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <div>
+              <h3 className="text-lg font-inter font-bold text-black mb-6">
+                Summary KPI'S
+              </h3>
+              <div className="space-y-4 max-w-md">
+                {[
+                  { label: "Total Bundles", value: summary.totalBundles.toString() },
+                  { label: "Average Bundle Weight", value: `${avgWeight} lbs` },
+                  { label: "Total Planned Weight", value: `${summary.totalWeight} lbs` },
+                  {
+                    label: "Bundle Issues",
+                    value: summary.warnings.length > 0 ? `${summary.warnings.length} Warnings` : "No Warnings",
+                    color: summary.warnings.length > 0 ? "text-amber-600" : "text-green-600",
+                  },
+                ].map((kpi) => (
+                  <div
+                    key={kpi.label}
+                    className="flex justify-between items-center text-sm"
+                  >
+                    <span className="font-inter font-bold text-[#637381]">
+                      {kpi.label}
+                    </span>
+                    <span
+                      className={`font-inter font-bold ${kpi.color || "text-black"}`}
+                    >
+                      {kpi.value}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div>
+              <h3 className="text-lg font-inter font-bold text-black mb-6">
+                Optimization Control
+              </h3>
+              <div className="space-y-4 max-w-md">
+                {[
+                  { label: "Target Bundle Weight", value: "5000 lbs" },
+                  { label: "Maximum Bundle Weight", value: "6000 lbs" },
+                  { label: "Length Tolerance", value: "±6 in" },
+                  { label: "Group by Profile", value: "Enabled" },
+                ].map((ctrl) => (
+                  <div
+                    key={ctrl.label}
+                    className="flex justify-between items-center text-sm"
+                  >
+                    <span className="font-inter font-bold text-[#637381]">
+                      {ctrl.label}
+                    </span>
+                    <span className="font-inter font-bold text-black">
+                      {ctrl.value}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* actions */}
+          {/* <div className="flex justify-end gap-3 pt-4">
+            <Button
+              // variant="white"
+              className="bg-[#637381] text-white border-none font-bold px-6 py-2.5 rounded-lg hover:bg-[#454F5B]"
+            >
+              Reset Bundles
+            </Button>
+            <Button
+              // variant="white"
+              className="bg-[#919EAB] text-white border-none font-bold px-6 py-2.5 rounded-lg hover:bg-[#637381]"
+            >
+              Merge Bundles
+            </Button>
+          </div> */}
+
+          <div className="space-y-4 pt-4">
+            <h3 className="text-lg font-inter font-bold text-black">
+              Bundle Data
+            </h3>
+            <div className="overflow-x-auto rounded border border-gray-100">
+              <table className="w-full text-left border-collapse min-w-[800px] font-inter">
+                <thead>
+                  <tr className="bg-[#212B36] text-white text-xs font-bold uppercase tracking-wider">
+                    <th className="py-4 px-6 w-12">#</th>
+                    <th className="py-4 px-6">Bundle ID</th>
+                    <th className="py-4 px-6">Profile</th>
+                    <th className="py-4 px-6">Items</th>
+                    <th className="py-4 px-6">Length</th>
+                    <th className="py-4 px-6">Unit Weight</th>
+                    <th className="py-4 px-6">Status</th>
+                    <th className="py-4 px-6"></th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-50 text-sm">
+                  {bundles.map((bundle, idx) => (
+                    <tr
+                      key={bundle._id}
+                      className="hover:bg-[#F8F9FB] transition-colors group"
+                    >
+                      <td className="py-5 px-6 font-bold text-[#637381]">
+                        {bundle.loadSequence || idx + 1}
+                      </td>
+                      <td className="py-5 px-6 font-bold text-black">
+                        {bundle.bundleNo}
+                      </td>
+                      <td className="py-5 px-6 font-bold text-[#637381] capitalize">
+                        {bundle.bundleType}
+                      </td>
+                      <td className="py-5 px-6 font-bold text-[#637381]">
+                        {bundle.itemCount} items
+                      </td>
+                      <td className="py-5 px-6 font-bold text-[#637381]">
+                        {bundle.maxLengthFeet} ft
+                      </td>
+                      <td className="py-5 px-6 font-bold text-[#637381]">
+                        {bundle.totalWeight} lbs
+                      </td>
+                      <td className="py-5 px-6 text-sm">
+                        <span className="font-bold text-[#637381] capitalize">
+                          {bundle.status || "Draft"}
+                        </span>
+                      </td>
+                      <td className="py-3 px-6 text-sm text-right">
+                        <div className="flex items-center justify-end gap-3">
+                          <button
+                            onClick={() => {
+                              if (projectId) {
+                                navigate(`/load_planning/${projectId}/bundle-planner/${bundle._id}`);
+                              }
+                            }}
+                            className="bg-[#8E8E93] text-white  whitespace-nowrap font-semibold text-sm px-4 py-2 rounded-lg hover:opacity-90 transition-opacity cursor-pointer"
+                          >
+                            Edit Bundle
+                          </button>
+                          <button
+                            onClick={() => {
+                              setSelectedBundleData({
+                                id: bundle.bundleNo,
+                                loadId: bundle.loadSequence || "LOAD-001",
+                                parts: bundle.bundleType,
+                                weight: `${bundle.totalWeight} lbs`,
+                                length: `${bundle.maxLengthFeet} ft`,
+                              });
+                              setIsQRModalOpen(true);
+                            }}
+                            className="bg-[#1677ff] text-white whitespace-nowrap  font-semibold text-sm px-4 py-2 rounded-lg hover:opacity-90 transition-opacity flex items-center gap-1.5 cursor-pointer"
+                          >
+                            <QrCode size={16} />
+                            View QR
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                  {bundles.length === 0 && (
+                    <tr>
+                      <td colSpan={8} className="py-10 text-center text-gray-500 font-medium font-inter">
+                        No bundle items planned.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <QRCodeDataModal
+            isOpen={isQRModalOpen}
+            onClose={() => setIsQRModalOpen(false)}
+            data={selectedBundleData}
+          />
+
+          {/* <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 pt-8 border-t border-gray-100">
+            <div>
+              <h3 className="text-lg font-inter font-bold text-black mb-6">
+                Weight Distribution Summary
+              </h3>
+              <div className="space-y-4 max-w-sm">
+                {weightDistribution.map((item) => (
+                  <div
+                    key={item.range}
+                    className="flex justify-between items-center text-sm"
+                  >
+                    <span className="font-inter font-bold text-black">
+                      {item.range}
+                    </span>
+                    <span className="font-inter font-bold text-black">
+                      {item.count}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div>
+              <h3 className="text-lg font-inter font-bold text-black mb-6">
+                Profile Distribution
+              </h3>
+              <div className="space-y-4 max-w-sm">
+                {profileDistribution.map((item) => (
+                  <div
+                    key={item.profile}
+                    className="flex justify-between items-center text-sm"
+                  >
+                    <span className="font-inter font-bold text-black">
+                      {item.profile}
+                    </span>
+                    <span className="font-inter font-bold text-black">
+                      {item.count}
+                    </span>
+                  </div>
+                ))}
+                {profileDistribution.length === 0 && (
+                  <p className="text-sm font-inter text-gray-500">No profile data available</p>
+                )}
+              </div>
+            </div>
+          </div> */}
+        </div>
+
+      </div>
+    </div>
+  );
+};
+
+export default BundlePlannerView;
