@@ -549,42 +549,7 @@ export const projectApi = createApi({
         return response.data;
       },
     }),
-    getProjectShipperFiles: builder.query<ProjectShipperFilesResponse, string>({
-      query: (leadId) => `/api/plant/projects/${leadId}/shipper-files`,
-      providesTags: (_result, _error, leadId) => [
-        { type: "ProjectDetail", id: leadId },
-      ],
-      transformResponse: (response: ApiResponse<ProjectShipperFilesResponse>) => {
-        if (!response.data) {
-          throw new Error("No data returned from API");
-        }
-        return response.data;
-      },
-    }),
-    getProjectShipperRequests: builder.query<ProjectShipperRequestsResponse, string>({
-      query: (leadId) => `/api/plant/shipper-files/projects/${leadId}/requests`,
-      providesTags: (_result, _error, leadId) => [
-        { type: "ProjectDetail", id: leadId },
-      ],
-      transformResponse: (response: ApiResponse<ProjectShipperRequestsResponse>) => {
-        if (!response.data) {
-          throw new Error("No data returned from API");
-        }
-        return response.data;
-      },
-    }),
-    getShipperDocument: builder.query<ShipperDocumentResponse, string>({
-      query: (requestId) => `/api/plant/shipper-requests/${requestId}/document`,
-      providesTags: (_result, _error, requestId) => [
-        { type: "ProjectDetail", id: requestId },
-      ],
-      transformResponse: (response: ApiResponse<ShipperDocumentResponse>) => {
-        if (!response.data) {
-          throw new Error("No data returned from API");
-        }
-        return response.data;
-      },
-    }),
+
     generateConsolidatedBOM: builder.mutation<
       { message: string; consolidatedBOM: ConsolidatedBOM },
       string
@@ -662,21 +627,7 @@ export const projectApi = createApi({
         return response.data;
       },
     }),
-    compareShipperRequest: builder.mutation<CompareShipperRequestResponse, string>({
-      query: (requestId) => ({
-        url: `/api/plant/shipper-requests/${requestId}/compare`,
-        method: "POST",
-      }),
-      invalidatesTags: (_result, _error, requestId) => [
-        { type: "ProjectDetail", id: requestId },
-      ],
-      transformResponse: (response: ApiResponse<CompareShipperRequestResponse>) => {
-        if (!response.data) {
-          throw new Error("No data returned from API");
-        }
-        return response.data;
-      },
-    }),
+
     confirmBuildingBOM: builder.mutation<{ message: string }, string>({
       query: (buildingId) => ({
         url: `/api/plant/bom/buildings/${buildingId}/confirm`,
@@ -850,70 +801,7 @@ export interface BOMProjectsQueryParams {
   limit?: number;
 }
 
-export interface ShipperFileEntry {
-  _id: string;
-  vendorId: string;
-  vendorName: string;
-  status:
-    | "sent"
-    | "submitted"
-    | "comparison_processing"
-    | "comparison_completed"
-    | "comparison_failed"
-    | "approved"
-    | "rejected"
-    | "resubmit_requested";
-  submittedFileUrl: string;
-  submittedFileName: string;
-  submittedAt: string;
-  quoteValue: number;
-  sentAt: string;
-}
 
-export interface ProjectShipperFilesResponse {
-  shipperFiles: ShipperFileEntry[];
-}
-
-export interface ShipperDocumentResponse {
-  requestId: string;
-  leadId: string;
-  projectId: string;
-  projectName: string;
-  vendorId: string;
-  vendorName: string;
-  vendorCode: string;
-  fileName: string;
-  fileUrl: string;
-  uploadedDate: string;
-  rates: number;
-  fileStatus: string;
-}
-
-export interface ShipperRequestEntry {
-  requestId: string;
-  vendorId: string;
-  vendorName: string;
-  vendorCode: string;
-  fileName: string;
-  uploadedDate: string;
-  rates: number;
-  fileStatus: string;
-}
-
-export interface ProjectShipperRequestsResponse {
-  leadId: string;
-  projectId: string;
-  projectName: string;
-  shipperRequests: ShipperRequestEntry[];
-  total: number;
-}
-
-export interface CompareShipperRequestResponse {
-  requestId: string;
-  compareJobId: string;
-  status: string;
-  message: string;
-}
 
 export interface BOMItem {
   _id: string;
@@ -1016,10 +904,6 @@ export const {
   useGenerateConsolidatedBOMMutation,
   useSendConsolidatedBOMMutation,
   useGetBOMProjectsQuery,
-  useGetProjectShipperFilesQuery,
-  useGetShipperDocumentQuery,
-  useGetProjectShipperRequestsQuery,
-  useCompareShipperRequestMutation,
   useGetBOMDetailsQuery,
   useConfirmBuildingBOMMutation,
 } = projectApi;
