@@ -3,17 +3,65 @@ import Modal from "../Modal";
 import Button from "../common_component/Button";
 import GmailLogo from "../../assets/images/gmailLogo.svg";
 
+export interface FreightFormData {
+  loadDescription: string;
+  weight: number;
+  weightUnit?: string;
+  dimensionsInput?: string;
+  metalType: string;
+  packageCount?: number;
+  loadingEquipment?: string[];
+  bidDeadline: string;
+  pickupLocation: string;
+  deliveryLocation: string;
+  pickupDate: string;
+  pickupTime?: string;
+  deliveryDate: string;
+  deliveryTime?: string;
+  receivingPoc: string;
+  pickupContactPhone: string;
+  specialRequirements?: string;
+  additionalNotes?: string;
+  documentUrl?: string;
+}
+
 interface FreightReviewModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: () => void;
+  formData: FreightFormData | null;
+  projectName?: string;
+  isSubmitting?: boolean;
 }
 
 const FreightReviewModal: React.FC<FreightReviewModalProps> = ({
   isOpen,
   onClose,
   onSubmit,
+  formData,
+  projectName = "ABC Logistics Warehouse",
+  isSubmitting = false,
 }) => {
+  const formatTime = (time?: string) => {
+    if (!time) return "";
+    return ` at ${time}`;
+  };
+
+  const formatDate = (dateStr?: string) => {
+    if (!dateStr) return "";
+    try {
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime())) return dateStr;
+      return date.toLocaleDateString("en-US", {
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+      });
+    } catch {
+      return dateStr;
+    }
+  };
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} width="max-w-3xl" title="Email">
       <div className="p-1 font-inter text-[#212B36]">
@@ -25,28 +73,26 @@ const FreightReviewModal: React.FC<FreightReviewModalProps> = ({
             className="w-14 h-10 md:w-22 md:h-14 object-cover"
           />
           <h2 className="text-base md:text-2xl font-semibold leading-tight">
-            Freight Request – PRJ-1025 | Pickup & Delivery Details
+            Freight Request – {projectName} | Pickup & Delivery Details
           </h2>
         </div>
 
         <div className="space-y-4">
           <div className="space-y-1">
             <p>
-              <span className="font-bold text-base md:text-lg">Project:</span> ABC Logistics Warehouse
+              <span className="font-bold text-base md:text-lg">Project:</span> {projectName}
             </p>
             <p>
-              <span className="font-bold text-base md:text-lg">Delivery Company:</span> QuickFrieght
-              Solutions
+              <span className="font-bold text-base md:text-lg">Pickup Date:</span> {formatDate(formData?.pickupDate)}{formatTime(formData?.pickupTime)}
             </p>
             <p>
-              <span className="font-bold text-base md:text-lg">Date:</span> 04/04/2024 at 14:00
+              <span className="font-bold text-base md:text-lg">Delivery Date:</span> {formatDate(formData?.deliveryDate)}{formatTime(formData?.deliveryTime)}
             </p>
             <p>
-              <span className="font-bold text-base md:text-lg">POC:</span> John Site Manager
+              <span className="font-bold text-base md:text-lg">POC:</span> {formData?.receivingPoc || "N/A"}
             </p>
             <p>
-              <span className="font-bold text-base md:text-lg">Location:</span> Construction Site,
-              Austin, TX
+              <span className="font-bold text-base md:text-lg">Delivery Location:</span> {formData?.deliveryLocation || "N/A"}
             </p>
           </div>
 
@@ -56,30 +102,36 @@ const FreightReviewModal: React.FC<FreightReviewModalProps> = ({
             <div className="space-y-1">
               <h3 className="font-bold text-base md:text-xl">Load Details:</h3>
               <ul className="list-disc list-inside space-y-1 pl-2 text-sm md:text-lg">
-                <li>Total Weight: 32,000 kg</li>
-                <li>Bundles: 18</li>
-                <li>Material: Steel & Panels</li>
-                <li>Vehicle Type: Flatbed (preferred)</li>
+                <li>Total Weight: {formData?.weight ? `${formData.weight.toLocaleString()} ${formData.weightUnit || "Lbs"}` : "N/A"}</li>
+                <li>Bundles: {formData?.packageCount || "N/A"}</li>
+                <li>Material: {formData?.metalType || "N/A"}</li>
+                <li>Equipment: {formData?.loadingEquipment?.join(", ") || "Crane"}</li>
               </ul>
             </div>
             <div className="space-y-1">
-              <h3 className="font-bold text-base md:text-xl">Schedule:</h3>
+              <h3 className="font-bold text-base md:text-xl">Site Details:</h3>
               <ul className="list-disc list-inside space-y-1 pl-2 text-sm md:text-lg">
-                <li>Pickup Date: May 10, 2026</li>
-                <li>Delivery Date: May 12, 2026</li>
+                <li>Pickup: {formData?.pickupLocation || "N/A"}</li>
+                <li>Deadline: {formData?.bidDeadline ? formatDate(formData.bidDeadline) + formatTime(formData.bidDeadline.split("T")[1]?.slice(0, 5)) : "N/A"}</li>
               </ul>
             </div>
           </div>
 
           <div className="h-px bg-[#E2E4E6]" />
 
-          <div className="space-y-1">
-            <h3 className="font-bold text-base md:text-xl">Site Requirements:</h3>
-            <ul className="list-disc list-inside space-y-1 pl-2 text-sm md:text-lg">
-              <li>Crane required for unloading</li>
-              <li>Advance notice before arrival</li>
-            </ul>
-          </div>
+          {formData?.specialRequirements && (
+            <div className="space-y-1">
+              <h3 className="font-bold text-base md:text-xl">Site Requirements:</h3>
+              <p className="text-sm md:text-lg pl-2">{formData.specialRequirements}</p>
+            </div>
+          )}
+
+          {formData?.additionalNotes && (
+            <div className="space-y-1">
+              <h3 className="font-bold text-base md:text-xl">Additional Notes:</h3>
+              <p className="text-sm md:text-lg pl-2">{formData.additionalNotes}</p>
+            </div>
+          )}
         </div>
 
         <div className="flex justify-center mt-6 mb-4">
@@ -87,8 +139,9 @@ const FreightReviewModal: React.FC<FreightReviewModalProps> = ({
             variant="gradient"
             size="lg"
             onClick={onSubmit}
+            disabled={isSubmitting}
           >
-            Submit your quote to Carriers
+            {isSubmitting ? "Submitting..." : "Submit your quote to Carriers"}
           </Button>
         </div>
       </div>
