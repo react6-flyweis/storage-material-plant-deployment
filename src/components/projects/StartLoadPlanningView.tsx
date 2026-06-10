@@ -1,15 +1,14 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 const StartLoadPlanningView: React.FC = () => {
-  const { requestId } = useParams<{ requestId: string }>();
-  const navigate = useNavigate();
+  const { projectId } = useParams<{ projectId: string }>();
+  const navigate = useNavigate()
 
-  useEffect(() => {
-    if (requestId) {
-      navigate(`/load_planning/${requestId}/item-analysis`, { replace: true });
-    }
-  }, [requestId, navigate]);
+  if (projectId) {
+    navigate(`/load_planning/${projectId}`)
+  }
+
 
   return (
     <div className="flex items-center justify-center min-h-[400px]">
