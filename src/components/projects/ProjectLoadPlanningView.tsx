@@ -12,7 +12,8 @@ const ProjectLoadPlanningView: React.FC = () => {
   });
 
   useEffect(() => {
-    if (!projectId || isLoading || isError || !stateData) return;
+    if (!projectId) return;
+    // if (!projectId || isLoading || isError || !stateData) return;
 
     // Check if we are at the root level of load planning
     const isRootPath =
