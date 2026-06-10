@@ -34,20 +34,20 @@ const ProjectLoadPlanningView: React.FC = () => {
       //   // Step 3: Bundle plan confirmed, proceed to Truckload Optimization
       //   navigate(`/load_planning/${projectId}/truck-optimizer`, { replace: true });
     }
-  }
+    // }
   }, [projectId, stateData, isLoading, isError, location.pathname, navigate]);
 
-if (isLoading) {
-  return (
-    <div className="flex items-center justify-center min-h-[400px]">
-      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#1E51A4]" />
-    </div>
-  );
-}
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#1E51A4]" />
+      </div>
+    );
+  }
 
-// If there's an error loading the state, we can still render the children (or an error message)
-// Rendering the children allows the user to try and navigate manually
-return <Outlet />;
+  // If there's an error loading the state, we can still render the children (or an error message)
+  // Rendering the children allows the user to try and navigate manually
+  return <Outlet />;
 };
 
 export default ProjectLoadPlanningView;
