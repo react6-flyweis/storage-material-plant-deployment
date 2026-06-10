@@ -231,13 +231,13 @@ const Step0ShipperUpload: React.FC = () => {
 };
 
 const ShipperUploadView: React.FC = () => {
-  const { requestId } = useParams<{ requestId: string }>();
+  const { projectId } = useParams<{ projectId: string }>();
 
   return (
     <div className="min-h-screen">
       <LoadPlanningHeader
         currentStepIndex={0}
-        requestId={requestId || ""}
+        requestId={projectId || ""}
         title="Shipper Upload"
         description="Upload material lists and generate optimized loads"
         actions={[]}
