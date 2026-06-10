@@ -378,8 +378,227 @@ export const shipperApi = createApi({
         return response.data;
       },
     }),
+    confirmBundlePlan: builder.mutation<ConfirmBundlePlanResponse, string>({
+      query: (bundlePlanId) => ({
+        url: `/api/plant/bundle-plans/${bundlePlanId}/confirm`,
+        method: "POST",
+      }),
+      invalidatesTags: () => [{ type: "BundlePlan" }],
+      transformResponse: (response: ApiResponse<ConfirmBundlePlanResponse>) => {
+        if (!response.data) {
+          throw new Error("No data returned from API");
+        }
+        return response.data;
+      },
+    }),
+    generatePackingListPlan: builder.mutation<GeneratePackingListPlanResponse, string>({
+      query: (bundlePlanId) => ({
+        url: `/api/plant/bundle-plans/${bundlePlanId}/packing-list-plan/generate`,
+        method: "POST",
+      }),
+      invalidatesTags: () => [{ type: "BundlePlan" }],
+      transformResponse: (response: ApiResponse<GeneratePackingListPlanResponse>) => {
+        if (!response.data) {
+          throw new Error("No data returned from API");
+        }
+        return response.data;
+      },
+    }),
+    getLoadPlanningState: builder.query<LoadPlanningStateResponse, string>({
+      query: (projectId) => `/api/plant/projects/${projectId}/load-planning`,
+      providesTags: (_result, _error, projectId) => [
+        { type: "BundlePlan", id: projectId },
+      ],
+      transformResponse: (response: ApiResponse<LoadPlanningStateResponse>) => {
+        if (!response.data) {
+          throw new Error("No data returned from API");
+        }
+        return response.data;
+      },
+    }),
+    getTruckPlan: builder.query<TruckPlanResponse, string>({
+      query: (projectId) => `/api/plant/projects/${projectId}/load-planning/truck-plan`,
+      providesTags: (_result, _error, projectId) => [
+        { type: "BundlePlan", id: projectId },
+      ],
+      transformResponse: (response: ApiResponse<TruckPlanResponse>) => {
+        if (!response.data) {
+          throw new Error("No data returned from API");
+        }
+        return response.data;
+      },
+    }),
+    confirmTruckPlan: builder.mutation<ConfirmTruckPlanResponse, string>({
+      query: (projectId) => ({
+        url: `/api/plant/projects/${projectId}/load-planning/truck-plan/confirm`,
+        method: "POST",
+      }),
+      invalidatesTags: () => [{ type: "BundlePlan" }],
+      transformResponse: (response: ApiResponse<ConfirmTruckPlanResponse>) => {
+        if (!response.data) {
+          throw new Error("No data returned from API");
+        }
+        return response.data;
+      },
+    }),
+    getFreightAutofill: builder.query<FreightAutofillResponse, string>({
+      query: (projectId) => `/api/plant/projects/${projectId}/freight-autofill`,
+      transformResponse: (response: ApiResponse<FreightAutofillResponse>) => {
+        if (!response.data) {
+          throw new Error("No data returned from API");
+        }
+        return response.data;
+      },
+    }),
   }),
 });
+
+export interface FreightAutofillResponse {
+  loadDescription: string;
+  weight: number;
+  dimensions: {
+    lengthFeet: number;
+    widthFeet: number;
+    heightFeet: number;
+  };
+  metalType: string;
+  packageCount: number;
+}
+
+export interface ConfirmTruckPlanResponse {
+  packingListPlanId: string;
+  status: string;
+  confirmedAt: string;
+  summary: {
+    totalWeight: number;
+    totalBundles: number;
+    truckSummary: {
+      semi53Count: number;
+      hotshot40Count: number;
+      totalTrucks: number;
+      [key: string]: number;
+    };
+  };
+}
+
+export interface TruckPlanResponse {
+  packingListPlan: {
+    _id: string;
+    status: string;
+    totalPackingLists: number;
+    totalBundles: number;
+    totalWeight: number;
+  };
+  packingLists: PackingListEntry[];
+  summary: {
+    totalWeight: number;
+    totalBundles: number;
+    totalPackingLists: number;
+    truckSummary: {
+      semi53Count: number;
+      hotshot40Count: number;
+      totalTrucks: number;
+      [key: string]: number;
+    };
+    warnings: string[];
+  };
+}
+
+export interface LoadPlanningStateResponse {
+  project: {
+    _id: string;
+    projectId: string;
+    projectName: string;
+  };
+  bundlePlan: {
+    _id: string;
+    status: string;
+    planNumber: string;
+  } | null;
+  bundles: BundleItem[];
+  bundleSummary: {
+    totalBundles: number;
+    totalWeight: number;
+    maxLengthFeet: number;
+    warnings: string[];
+  } | null;
+  packingListPlan: {
+    _id: string;
+    status: string;
+    planNumber: string;
+  } | null;
+  packingLists: PackingListEntry[];
+}
+
+export interface ConfirmBundlePlanResponse {
+  bundlePlanId: string;
+  status: string;
+  confirmedAt: string;
+  summary: {
+    totalVendorLines: number;
+    exactCount: number;
+    unassignedCount: number;
+    overAssignedCount: number;
+    canConfirm: boolean;
+  };
+}
+
+export interface PackingListPlanDetail {
+  _id: string;
+  planNumber: string;
+  status: string;
+  totalPackingLists: number;
+  totalBundles: number;
+  totalWeight: number;
+  maxLengthFeet: number;
+  truckSummary: {
+    semi53Count: number;
+    hotshot40Count: number;
+    totalTrucks: number;
+  };
+  missingWeightBundleCount: number;
+  hasWeightWarning: boolean;
+  warnings: string[];
+}
+
+export interface PackingListEntry {
+  _id: string;
+  packingListNo: string;
+  truckNo: string;
+  truckType: string;
+  truckLabel: string;
+  maxTruckWeight: number;
+  hardMaxTruckWeight: number;
+  maxTruckLengthFeet: number;
+  totalWeight: number;
+  maxLengthFeet: number;
+  totalBundles: number;
+  totalItems: number;
+  bundleIds: string[];
+  loadLayout: {
+    bottomLayerBundleIds: string[];
+    middleLayerBundleIds: string[];
+    topLayerBundleIds: string[];
+    loadingNotes: string;
+  };
+  hasWeightWarning: boolean;
+  warnings: string[];
+  status: string;
+}
+
+export interface TruckConfigEntry {
+  truckType: string;
+  label: string;
+  maxWeight: number;
+  hardMaxWeight: number;
+  maxLengthFeet: number;
+}
+
+export interface GeneratePackingListPlanResponse {
+  packingListPlan: PackingListPlanDetail;
+  packingLists: PackingListEntry[];
+  truckConfig: Record<string, TruckConfigEntry>;
+}
 
 export const {
   useGetShipperProjectsQuery,
@@ -392,5 +611,12 @@ export const {
   useGenerateBundlePlanMutation,
   useGetBundlePlanQuery,
   useGetBundleDetailsQuery,
+  useConfirmBundlePlanMutation,
+  useGeneratePackingListPlanMutation,
+  useGetLoadPlanningStateQuery,
+  useGetTruckPlanQuery,
+  useConfirmTruckPlanMutation,
+  useGetFreightAutofillQuery,
 } = shipperApi;
+
 
