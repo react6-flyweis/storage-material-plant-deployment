@@ -2,21 +2,39 @@ import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import LoadPlanningHeader from "./LoadPlanningHeader";
 import Button from "@/components/common_component/Button";
-import { useGetShipperDocumentQuery, useGenerateBundlePlanMutation } from "@/redux/api/shipperApi";
+import {
+  useGetShipperDocumentQuery,
+  useGenerateBundlePlanMutation,
+  useGetProjectShipperRequestsQuery,
+} from "@/redux/api/shipperApi";
 import CommonInfoList from "@/components/common_component/CommonInfoList";
 
 const Step1ItemAnalysis: React.FC = () => {
-  const { requestId } = useParams<{ requestId: string }>();
+  const { projectId } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
-  const { data: shipperDoc, isLoading } = useGetShipperDocumentQuery(requestId || "");
-  const [generateBundlePlan, { isLoading: isGenerating }] = useGenerateBundlePlanMutation();
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
+  const { data: shipperRequestsData, isLoading: isLoadingRequests } =
+    useGetProjectShipperRequestsQuery(projectId || "");
+
+  const approvedRequest = shipperRequestsData?.shipperRequests?.find(
+    (req) => req.fileStatus === "approved"
+  );
+
+  const { data: shipperDoc, isLoading: isLoadingDoc } = useGetShipperDocumentQuery(
+    approvedRequest?.requestId || "",
+    { skip: !approvedRequest?.requestId }
+  );
+
+  const [generateBundlePlan, { isLoading: isGenerating }] = useGenerateBundlePlanMutation();
+
+  const isLoading = isLoadingRequests || (!!approvedRequest && isLoadingDoc);
+
   const handleAutoOptimize = async () => {
-    if (!requestId) return;
+    if (!approvedRequest?.requestId) return;
     setErrorMsg(null);
     try {
-      await generateBundlePlan(requestId).unwrap();
+      await generateBundlePlan(approvedRequest.requestId).unwrap();
       if (shipperDoc?.leadId) {
         navigate(`/load_planning/${shipperDoc.leadId}/bundle-planner`);
       }
@@ -53,12 +71,32 @@ const Step1ItemAnalysis: React.FC = () => {
     }
   };
 
-  if (isLoading || !shipperDoc) {
+  if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-3 bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#1E51A4]"></div>
         <p className="text-gray-500 font-inter font-medium text-sm">
           Loading shipper document details...
+        </p>
+      </div>
+    );
+  }
+
+  if (!approvedRequest) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-3 bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
+        <p className="text-red-500 font-inter font-medium text-sm">
+          No approved shipper request found for this project.
+        </p>
+      </div>
+    );
+  }
+
+  if (!shipperDoc) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-3 bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
+        <p className="text-gray-500 font-inter font-medium text-sm">
+          Failed to load shipper document details.
         </p>
       </div>
     );
@@ -125,13 +163,13 @@ const Step1ItemAnalysis: React.FC = () => {
 };
 
 const ItemAnalysisView: React.FC = () => {
-  const { requestId } = useParams<{ requestId: string }>();
+  const { projectId } = useParams<{ projectId: string }>();
 
   return (
     <div className="min-h-screen">
       <LoadPlanningHeader
         currentStepIndex={1}
-        requestId={requestId || ""}
+        requestId={projectId || ""}
         title="Item Analysis"
         description="Analyze the material list for accuracy and identify any missing or incompatible items."
         actions={[]}
