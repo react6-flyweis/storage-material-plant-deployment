@@ -6,23 +6,34 @@ import Button from "../../common_component/Button";
 import CommonInfoList from "../../common_component/CommonInfoList";
 import SubHeading from "../../common_component/SubHeading";
 import PackingListModal from "../PackingListModal";
+import { useGetTruckPlanQuery, useGetLoadPlanningStateQuery } from "@/redux/api/shipperApi";
+import type { TruckPlanResponse, LoadPlanningStateResponse, PackingListEntry } from "@/redux/api/shipperApi";
 
 interface Step4PackingListProps {
-  onViewPackingList: () => void;
+  onViewPackingList: (packingList: PackingListEntry) => void;
+  truckPlan: TruckPlanResponse;
+  stateData?: LoadPlanningStateResponse;
 }
 
 const Step4PackingList: React.FC<Step4PackingListProps> = ({
   onViewPackingList,
+  truckPlan,
+  stateData,
 }) => {
+  const projectName = stateData?.project?.projectName || "N/A";
+  const planNumber = stateData?.bundlePlan?.planNumber || "N/A";
+  const totalBundles = stateData?.bundleSummary?.totalBundles ?? truckPlan.summary.totalBundles ?? 0;
+  const totalWeight = stateData?.bundleSummary?.totalWeight ?? truckPlan.summary.totalWeight ?? 0;
+
   return (
     <div className="space-y-8 bg-white rounded-[14px] border border-gray-100 shadow-sm p-4 md:p-8">
       <CommonInfoList
-        title="Project: Riverside Complex | Truckloads: 2"
+        title={`Project: ${projectName} | Truckloads: ${truckPlan.summary.totalPackingLists}`}
         items={[
-          { label: "Project", value: "Riverside Complex" },
-          { label: "Upload ID", value: "UPL-001" },
-          { label: "Bundles Created", value: "5" },
-          { label: "Total Weight", value: "18500 IBS" },
+          { label: "Project", value: projectName },
+          { label: "Upload ID", value: planNumber },
+          { label: "Bundles Created", value: totalBundles.toString() },
+          { label: "Total Weight", value: `${totalWeight.toLocaleString()} LBS` },
         ]}
         labelWidth="min-w-[160px]"
       />
@@ -33,20 +44,24 @@ const Step4PackingList: React.FC<Step4PackingListProps> = ({
             <span className="font-inter font-semibold text-[#212B36]">
               Truck Loads
             </span>
-            <span className="font-inter font-bold text-[#212B36]">2</span>
+            <span className="font-inter font-bold text-[#212B36]">
+              {truckPlan.summary.totalPackingLists}
+            </span>
           </div>
           <div className="flex justify-between items-center text-sm">
             <span className="font-inter font-semibold text-[#212B36]">
               Total Bundles
             </span>
-            <span className="font-inter font-bold text-[#212B36]">4</span>
+            <span className="font-inter font-bold text-[#212B36]">
+              {truckPlan.summary.totalBundles}
+            </span>
           </div>
           <div className="flex justify-between items-center text-sm">
             <span className="font-inter font-semibold text-[#212B36]">
               Total Weight
             </span>
             <span className="font-inter font-bold text-[#212B36]">
-              18500 IBS
+              {truckPlan.summary.totalWeight.toLocaleString()} LBS
             </span>
           </div>
           <div className="flex justify-between items-center text-sm">
@@ -54,7 +69,7 @@ const Step4PackingList: React.FC<Step4PackingListProps> = ({
               Packing List Generated
             </span>
             <span className="font-inter font-semibold text-[#212B36]">
-              2
+              {truckPlan.packingLists.length}
             </span>
           </div>
         </div>
@@ -79,51 +94,32 @@ const Step4PackingList: React.FC<Step4PackingListProps> = ({
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 text-sm">
-              {[
-                {
-                  id: "LOAD-001",
-                  num: 1,
-                  truck: "TX-2141",
-                  bundles: 3,
-                  weight: "36000 IBS",
-                  destination: "Riverside Site A",
-                  status: "Ready",
-                },
-                {
-                  id: "LOAD-002",
-                  num: 2,
-                  truck: "TX-4712",
-                  bundles: 2,
-                  weight: "45500 IBS",
-                  destination: "Riverside Site A",
-                  status: "Ready",
-                },
-              ].map((row) => (
+              {truckPlan.packingLists.map((row, index) => (
                 <tr
-                  key={row.id}
+                  key={row._id}
                   className="hover:bg-gray-50/50 transition-colors font-inter"
                 >
-                  <td className="py-6 px-6 font-normal">{row.num}</td>
+                  <td className="py-6 px-6 font-normal">{index + 1}</td>
                   <td className="py-6 px-6 font-normal text-(--text-color-gray-4)">
-                    {row.id}
+                    {row.packingListNo}
                   </td>
                   <td className="py-6 px-6 font-normal text-(--text-color-gray-4)">
-                    {row.truck}
+                    {row.truckLabel || row.truckType || row.truckNo || "N/A"}
                   </td>
                   <td className="py-6 px-6 font-normal text-(--text-color-gray-4)">
-                    {row.bundles}
+                    {row.totalBundles}
                   </td>
                   <td className="py-6 px-6 font-normal text-(--text-color-gray-4)">
                     <div className="leading-tight">
-                      <div>{row.weight.split(" ")[0]}</div>
-                      <div>{row.weight.split(" ")[1]}</div>
+                      <div>{row.totalWeight.toLocaleString()}</div>
+                      <div>LBS</div>
                     </div>
                   </td>
                   <td className="py-6 px-6 font-normal text-(--text-color-gray-4)">
-                    {row.destination}
+                    {projectName} Site A
                   </td>
-                  <td className="py-6 px-6 font-normal text-(--text-color-gray-4)">
-                    {row.status}
+                  <td className="py-6 px-6 font-normal text-(--text-color-gray-4) capitalize">
+                    {row.status || "Ready"}
                   </td>
                   <td className="py-6 px-6">
                     <div className="flex items-center justify-center gap-3">
@@ -134,7 +130,7 @@ const Step4PackingList: React.FC<Step4PackingListProps> = ({
                         variant="grayFilled"
                         size="sm"
                         className="px-6"
-                        onClick={onViewPackingList}
+                        onClick={() => onViewPackingList(row)}
                       >
                         View
                       </Button>
@@ -142,6 +138,13 @@ const Step4PackingList: React.FC<Step4PackingListProps> = ({
                   </td>
                 </tr>
               ))}
+              {truckPlan.packingLists.length === 0 && (
+                <tr>
+                  <td colSpan={8} className="py-8 text-center text-gray-500">
+                    No packing lists available.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
@@ -151,9 +154,18 @@ const Step4PackingList: React.FC<Step4PackingListProps> = ({
 };
 
 const PackingListViewPage: React.FC = () => {
-  const { requestId } = useParams<{ requestId: string }>();
+  const { projectId } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
   const [isPackingListModalOpen, setIsPackingListModalOpen] = useState(false);
+  const [selectedPackingList, setSelectedPackingList] = useState<PackingListEntry | null>(null);
+
+  const { data: truckPlan, isLoading: isTruckPlanLoading, isError: isTruckPlanError, error: truckPlanError } = useGetTruckPlanQuery(projectId || "", {
+    skip: !projectId,
+  });
+
+  const { data: stateData, isLoading: isStateLoading } = useGetLoadPlanningStateQuery(projectId || "", {
+    skip: !projectId,
+  });
 
   const actions: HeaderAction[] = [
     {
@@ -161,28 +173,85 @@ const PackingListViewPage: React.FC = () => {
       variant: "purpleFilled",
       className: "px-8 py-2.5 font-bold",
       onClick: () => {
-        if (requestId) {
-          navigate(`/load_planning/${requestId}/qr-label`);
+        if (projectId) {
+          navigate(`/load_planning/${projectId}/qr-label`);
         }
       },
     },
   ];
 
+  if (isTruckPlanLoading || isStateLoading) {
+    return (
+      <div className="min-h-screen">
+        <LoadPlanningHeader
+          currentStepIndex={4}
+          requestId={projectId || ""}
+          title="Packing List"
+          description="Generate and manage packing lists for truckloads and bundles."
+          actions={[]}
+        />
+        <div className="p-6 pt-0">
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#1E51A4]" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (isTruckPlanError || !truckPlan) {
+    return (
+      <div className="min-h-screen">
+        <LoadPlanningHeader
+          currentStepIndex={4}
+          requestId={projectId || ""}
+          title="Packing List"
+          description="Generate and manage packing lists for truckloads and bundles."
+          actions={[]}
+        />
+        <div className="p-6">
+          <div className="flex flex-col items-center justify-center min-h-[400px] gap-3 bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
+            <p className="text-red-500 font-inter font-bold text-lg">Error loading packing list data</p>
+            <p className="text-gray-500 font-inter text-sm max-w-md text-center">
+              {((truckPlanError as { data?: { message?: string }; message?: string })?.data?.message ||
+                (truckPlanError as { data?: { message?: string }; message?: string })?.message ||
+                "Failed to load truck plan. Please try again.")}
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen">
       <LoadPlanningHeader
         currentStepIndex={4}
-        requestId={requestId || ""}
+        requestId={projectId || ""}
         title="Packing List"
         description="Generate and manage packing lists for truckloads and bundles."
         actions={actions}
       />
       <div className="p-6">
-        <Step4PackingList onViewPackingList={() => setIsPackingListModalOpen(true)} />
+        <Step4PackingList
+          onViewPackingList={(row) => {
+            setSelectedPackingList(row);
+            setIsPackingListModalOpen(true);
+          }}
+          truckPlan={truckPlan}
+          stateData={stateData}
+        />
       </div>
       <PackingListModal
         isOpen={isPackingListModalOpen}
-        onClose={() => setIsPackingListModalOpen(false)}
+        onClose={() => {
+          setIsPackingListModalOpen(false);
+          setSelectedPackingList(null);
+        }}
+        packingList={selectedPackingList}
+        bundles={stateData?.bundles}
+        projectName={stateData?.project?.projectName}
+        planNumber={stateData?.bundlePlan?.planNumber}
       />
     </div>
   );
