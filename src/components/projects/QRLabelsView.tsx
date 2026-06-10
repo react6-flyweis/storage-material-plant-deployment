@@ -12,9 +12,18 @@ import TitleSubtitle from "../common_component/TitleSubtitle";
 import FilterDropdown from "../common_component/FilterDropdown";
 import Pagination from "../Pagination";
 import CommonCheckbox from "../common_component/CommonCheckbox";
-import QRCodeDataModal from "./QRCodeDataModal";
+import QRCodeDataModal, { type QRModalData } from "./QRCodeDataModal";
 
-const mockQRLabels = [
+interface QRLabelItem {
+  id: string;
+  loadId: string;
+  parts: string;
+  weight: string;
+  length: string;
+  status: string;
+}
+
+const mockQRLabels: QRLabelItem[] = [
   { id: "BND-101", loadId: "LOAD-101", parts: "STL-4135", weight: "18,500 IBS", length: "20 ft", status: "Printed" },
   { id: "BND-102", loadId: "LOAD-102", parts: "STL-4135", weight: "37,700 IBS", length: "20 ft", status: "Generated" },
   { id: "BND-103", loadId: "LOAD-103", parts: "STL-4135", weight: "21,400 IBS", length: "17 ft", status: "Printed" },
@@ -38,11 +47,20 @@ const QRLabelsView: React.FC = () => {
   const [activeProject, setActiveProject] = useState("all");
   const [activeSort, setActiveSort] = useState("latest");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedLabel, setSelectedLabel] = useState<any>(null);
+  const [selectedLabel, setSelectedLabel] = useState<QRModalData | null>(null);
   const [sortConfig, setSortConfig] = useState<{ key: SortKey; order: SortOrder }>({ key: null, order: "asc" });
 
-  const handleViewDetails = (item: any) => {
-    setSelectedLabel(item);
+  const handleViewDetails = (item: QRLabelItem) => {
+    const selectedProjOption = projectOptions.find(p => p.value === activeProject);
+    const projName = selectedProjOption && selectedProjOption.value !== "all"
+      ? selectedProjOption.label
+      : "RiversideComplex";
+
+    setSelectedLabel({
+      ...item,
+      projectName: projName,
+      shipperRef: "SHP-1044",
+    });
     setIsModalOpen(true);
   };
 
@@ -73,12 +91,13 @@ const QRLabelsView: React.FC = () => {
     // Sort
     if (sortConfig.key) {
       result.sort((a, b) => {
-        let valA: any = a[sortConfig.key!];
-        let valB: any = b[sortConfig.key!];
+        const sortKey = sortConfig.key!;
+        let valA: string | number = a[sortKey];
+        let valB: string | number = b[sortKey];
 
-        if (sortConfig.key === "weight" || sortConfig.key === "length") {
-          valA = parseValue(valA);
-          valB = parseValue(valB);
+        if (sortKey === "weight" || sortKey === "length") {
+          valA = parseValue(valA as string);
+          valB = parseValue(valB as string);
         }
 
         if (valA < valB) return sortConfig.order === "asc" ? -1 : 1;
