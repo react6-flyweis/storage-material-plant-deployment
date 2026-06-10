@@ -1,29 +1,40 @@
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Download } from "lucide-react";
+import { QrCode } from "lucide-react";
 import LoadPlanningHeader, { type HeaderAction } from "./LoadPlanningHeader";
 import Button from "../../common_component/Button";
 import CommonInfoList from "../../common_component/CommonInfoList";
 import SubHeading from "../../common_component/SubHeading";
 import PackingListModal from "../PackingListModal";
+import { useGetTruckPlanQuery, useGetLoadPlanningStateQuery } from "@/redux/api/shipperApi";
+import type { TruckPlanResponse, LoadPlanningStateResponse, PackingListEntry } from "@/redux/api/shipperApi";
 
 interface Step5QRLabelProps {
-  onViewLabel: () => void;
+  onViewLabel: (packingList: PackingListEntry) => void;
+  truckPlan: TruckPlanResponse;
+  stateData?: LoadPlanningStateResponse;
 }
 
 const Step5QRLabel: React.FC<Step5QRLabelProps> = ({
   onViewLabel,
+  truckPlan,
+  stateData,
 }) => {
+  const projectName = stateData?.project?.projectName || "N/A";
+  const planNumber = stateData?.bundlePlan?.planNumber || "N/A";
+  const totalBundles = stateData?.bundleSummary?.totalBundles ?? truckPlan.summary.totalBundles ?? 0;
+  const totalWeight = stateData?.bundleSummary?.totalWeight ?? truckPlan.summary.totalWeight ?? 0;
+
   return (
     <div className="space-y-8 bg-white rounded-xl border border-gray-100 shadow-sm p-4 md:p-8">
       {/* Project Header Card */}
       <CommonInfoList
-        title="Project: Riverside Complex | Shipper Ref: SHP-1044"
+        title={`Project: ${projectName} | Shipper Ref: ${planNumber}`}
         items={[
-          { label: "Project", value: "Riverside Complex" },
-          { label: "Upload ID", value: "UPL-001" },
-          { label: "Bundles Created", value: "5" },
-          { label: "Total Weight", value: "18500 IBS" },
+          { label: "Project", value: projectName },
+          { label: "Upload ID", value: planNumber },
+          { label: "Bundles Created", value: totalBundles.toString() },
+          { label: "Total Weight", value: `${totalWeight.toLocaleString()} LBS` },
         ]}
         labelWidth="min-w-[160px]"
       />
@@ -33,10 +44,10 @@ const Step5QRLabel: React.FC<Step5QRLabelProps> = ({
         <SubHeading text="Summary Card" />
         <div className="max-w-md space-y-4">
           {[
-            { label: "Total Bundles", value: "4" },
-            { label: "Labels Generated", value: "4" },
-            { label: "Labels Printed", value: "3" },
-            { label: "Pending Labels", value: "1" },
+            { label: "Total Bundles", value: totalBundles.toString() },
+            { label: "Labels Generated", value: totalBundles.toString() },
+            { label: "Labels Printed", value: totalBundles.toString() },
+            { label: "Pending Labels", value: "0" },
           ].map((item) => (
             <div key={item.label} className="flex justify-between items-center text-sm md:text-base">
               <span className="font-inter font-semibold text-[#212B36]">
@@ -52,55 +63,59 @@ const Step5QRLabel: React.FC<Step5QRLabelProps> = ({
 
       <div className="h-px bg-gray-100 my-8" />
 
-      {/* Bundle Label List Table */}
+      {/* Truck List Table */}
       <div className="space-y-4">
-        <SubHeading text="Bundle Label List" />
+        <SubHeading text="Truck List" />
         <div className="overflow-x-auto rounded-lg border border-[#E2E4E6]">
           <table className="w-full text-left border-collapse min-w-[900px] font-inter">
             <thead>
               <tr className="bg-[#212B36] text-white text-xs font-semibold tracking-wider">
                 <th className="py-4 px-6 w-16">#</th>
-                <th className="py-4 px-6">Bundle ID</th>
                 <th className="py-4 px-6">Load ID</th>
-                <th className="py-4 px-6">Parts</th>
-                <th className="py-4 px-6">Length</th>
+                <th className="py-4 px-6">Truck</th>
+                <th className="py-4 px-6">Bundles</th>
                 <th className="py-4 px-6">Weight</th>
+                <th className="py-4 px-6">Destination</th>
                 <th className="py-4 px-6">Status</th>
                 <th className="py-4 px-6 text-center">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 text-sm">
-              {[
-                { num: 1, id: "BND-001", load: "LOAD-001", parts: "STL-B12", length: "20 ft", weight: "3600 IBS", status: "Generated" },
-                { num: 2, id: "BND-002", load: "LOAD-002", parts: "STL-B12", length: "12 ft", weight: "2400 IBS", status: "Generated" },
-                { num: 3, id: "BND-003", load: "LOAD-003", parts: "STL-A03", length: "15 ft", weight: "4500 IBS", status: "Generated" },
-                { num: 4, id: "BND-004", load: "LOAD-004", parts: "STL-B12", length: "20 ft", weight: "2700 IBS", status: "Generated" },
-              ].map((row) => (
-                <tr key={row.id} className="hover:bg-gray-50/50 transition-colors">
-                  <td className="py-6 px-6 font-normal text-gray-400">{row.num}</td>
-                  <td className="py-6 px-6 font-bold text-[#212B36]">{row.id}</td>
-                  <td className="py-6 px-6 font-normal text-[#212B36]">{row.load}</td>
-                  <td className="py-6 px-6 font-normal text-[#637381]">{row.parts}</td>
-                  <td className="py-6 px-6 font-normal text-[#637381]">{row.length}</td>
-                  <td className="py-6 px-6 font-normal text-[#637381]">{row.weight}</td>
-                  <td className="py-6 px-6 font-normal text-[#637381]">{row.status}</td>
+              {truckPlan.packingLists.map((row, index) => (
+                <tr key={row._id} className="hover:bg-gray-50/50 transition-colors">
+                  <td className="py-6 px-6 font-normal text-gray-400">{index + 1}</td>
+                  <td className="py-6 px-6 font-bold text-[#212B36]">{row.packingListNo}</td>
+                  <td className="py-6 px-6 font-normal text-[#212B36]">
+                    {row.truckLabel || row.truckType || row.truckNo || "N/A"}
+                  </td>
+                  <td className="py-6 px-6 font-normal text-[#637381]">{row.totalBundles}</td>
+                  <td className="py-6 px-6 font-normal text-[#637381]">
+                    {row.totalWeight.toLocaleString()} LBS
+                  </td>
+                  <td className="py-6 px-6 font-normal text-[#637381]">{projectName} Site A</td>
+                  <td className="py-6 px-6 font-normal text-[#637381] capitalize">{row.status || "Ready"}</td>
                   <td className="py-6 px-6">
-                    <div className="flex items-center justify-center gap-3">
-                      <Button variant="grayFilled" size="sm" className="p-2 min-w-0">
-                        <Download size={18} className="text-white" />
-                      </Button>
+                    <div className="flex items-center justify-center">
                       <Button
-                        variant="grayFilled"
+                        variant="blueFilled"
                         size="sm"
-                        className="px-6 text-[#637381] font-bold"
-                        onClick={onViewLabel}
+                        className="whitespace-nowrap bg-[#1E51A4] border-[#1E51A4] text-white hover:opacity-90 font-bold flex items-center gap-2 rounded-lg"
+                        onClick={() => onViewLabel(row)}
                       >
-                        View
+                        <QrCode />
+                        <span>View QR</span>
                       </Button>
                     </div>
                   </td>
                 </tr>
               ))}
+              {truckPlan.packingLists.length === 0 && (
+                <tr>
+                  <td colSpan={8} className="py-8 text-center text-gray-500">
+                    No truck loads available.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
@@ -110,9 +125,18 @@ const Step5QRLabel: React.FC<Step5QRLabelProps> = ({
 };
 
 const QRLabelView: React.FC = () => {
-  const { requestId } = useParams<{ requestId: string }>();
+  const { projectId } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
   const [isPackingListModalOpen, setIsPackingListModalOpen] = useState(false);
+  const [selectedPackingList, setSelectedPackingList] = useState<PackingListEntry | null>(null);
+
+  const { data: truckPlan, isLoading: isTruckPlanLoading, isError: isTruckPlanError, error: truckPlanError } = useGetTruckPlanQuery(projectId || "", {
+    skip: !projectId,
+  });
+
+  const { data: stateData, isLoading: isStateLoading } = useGetLoadPlanningStateQuery(projectId || "", {
+    skip: !projectId,
+  });
 
   const actions: HeaderAction[] = [
     {
@@ -120,31 +144,90 @@ const QRLabelView: React.FC = () => {
       variant: "purpleFilled",
       className: "px-8 py-2.5 font-bold",
       onClick: () => {
-        if (requestId) {
-          navigate(`/load_planning/${requestId}/load-plan-review`);
+        if (projectId) {
+          navigate(`/load_planning/${projectId}/load-plan-review`);
         }
       },
     },
   ];
 
+  if (isTruckPlanLoading || isStateLoading) {
+    return (
+      <div className="min-h-screen">
+        <LoadPlanningHeader
+          currentStepIndex={5}
+          requestId={projectId || ""}
+          title="QR Label Generator"
+          description="Generate and print QR labels for bundles and pallets to enable scanning and tracking."
+          actions={[]}
+        />
+        <div className="p-6 pt-0">
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#1E51A4]" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (isTruckPlanError || !truckPlan) {
+    return (
+      <div className="min-h-screen">
+        <LoadPlanningHeader
+          currentStepIndex={5}
+          requestId={projectId || ""}
+          title="QR Label Generator"
+          description="Generate and print QR labels for bundles and pallets to enable scanning and tracking."
+          actions={[]}
+        />
+        <div className="p-6">
+          <div className="flex flex-col items-center justify-center min-h-[400px] gap-3 bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
+            <p className="text-red-500 font-inter font-bold text-lg">Error loading QR label data</p>
+            <p className="text-gray-500 font-inter text-sm max-w-md text-center">
+              {((truckPlanError as { data?: { message?: string }; message?: string })?.data?.message ||
+                (truckPlanError as { data?: { message?: string }; message?: string })?.message ||
+                "Failed to load truck plan. Please try again.")}
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen">
       <LoadPlanningHeader
         currentStepIndex={5}
-        requestId={requestId || ""}
+        requestId={projectId || ""}
         title="QR Label Generator"
         description="Generate and print QR labels for bundles and pallets to enable scanning and tracking."
         actions={actions}
       />
-      <div className="p-6">
-        <Step5QRLabel onViewLabel={() => setIsPackingListModalOpen(true)} />
+      <div className="p-6 pt-0">
+        <Step5QRLabel
+          onViewLabel={(packingList) => {
+            setSelectedPackingList(packingList);
+            setIsPackingListModalOpen(true);
+          }}
+          truckPlan={truckPlan}
+          stateData={stateData}
+        />
       </div>
       <PackingListModal
+        showQr={true}
         isOpen={isPackingListModalOpen}
-        onClose={() => setIsPackingListModalOpen(false)}
+        onClose={() => {
+          setIsPackingListModalOpen(false);
+          setSelectedPackingList(null);
+        }}
+        packingList={selectedPackingList}
+        bundles={stateData?.bundles}
+        projectName={stateData?.project?.projectName}
+        planNumber={stateData?.bundlePlan?.planNumber}
       />
     </div>
   );
 };
 
 export default QRLabelView;
+
