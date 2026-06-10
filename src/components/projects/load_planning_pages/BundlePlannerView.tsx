@@ -4,10 +4,13 @@ import { Download, QrCode } from "lucide-react";
 import LoadPlanningHeader, { type HeaderAction } from "./LoadPlanningHeader";
 // import Button from "../../common_component/Button";
 import CommonInfoList from "../../common_component/CommonInfoList";
-import { useGetBundlePlanQuery } from "@/redux/api/shipperApi";
+import {
+  useGetBundlePlanQuery,
+  useConfirmBundlePlanMutation,
+  useGeneratePackingListPlanMutation,
+} from "@/redux/api/shipperApi";
 import { useGetPlantProjectDetailQuery } from "@/redux/api/projectApi";
 import QRCodeDataModal from "../QRCodeDataModal";
-
 
 interface QRData {
   id: string;
@@ -15,6 +18,8 @@ interface QRData {
   parts: string;
   weight: string;
   length: string;
+  projectName?: string;
+  shipperRef?: string;
 }
 
 const BundlePlannerView: React.FC = () => {
@@ -24,8 +29,46 @@ const BundlePlannerView: React.FC = () => {
   const [isQRModalOpen, setIsQRModalOpen] = useState(false);
   const [selectedBundleData, setSelectedBundleData] = useState<QRData | null>(null);
 
+  const [apiError, setApiError] = useState<string | null>(null);
+
   const { data: bundlePlanData, isLoading, isError, error } = useGetBundlePlanQuery(projectId || "");
   const { data: projectDetail } = useGetPlantProjectDetailQuery(projectId || "");
+
+  const [confirmBundlePlan, { isLoading: isConfirming }] = useConfirmBundlePlanMutation();
+  const [generatePackingListPlan, { isLoading: isGeneratingPackingList }] = useGeneratePackingListPlanMutation();
+
+  const bundlePlan = bundlePlanData?.bundlePlan;
+  const isConfirmed = !!bundlePlan?.confirmedAt || !!bundlePlan?.confirmedBy || bundlePlan?.status === "confirmed";
+
+  const handleConfirm = async () => {
+    if (!bundlePlan?._id) return;
+    setApiError(null);
+    try {
+      await confirmBundlePlan(bundlePlan._id).unwrap();
+
+    } catch (err: unknown) {
+      console.error("Failed to confirm bundle plan:", err);
+      const errObj = err as { data?: { message?: string }; message?: string };
+      const errMsg = errObj?.data?.message || errObj?.message || "Failed to confirm bundle plan.";
+      setApiError(errMsg);
+    }
+  };
+
+  const handleProceed = async () => {
+    if (!bundlePlan?._id) return;
+    try {
+      const genRes = await generatePackingListPlan(bundlePlan._id).unwrap();
+      if (genRes?.packingListPlan?._id) {
+        navigate(`/load_planning/${projectId}/truck-optimizer`);
+      } else {
+        throw new Error("No packing list plan ID returned from API");
+      }
+    } catch (err: unknown) {
+      console.error("Failed to generate/retrieve packing list plan:", err);
+      const errObj = err as { data?: { message?: string }; message?: string };
+      setApiError(errObj?.data?.message || errObj?.message || "Failed to retrieve packing list plan ID.");
+    }
+  };
 
   const actions: HeaderAction[] = [
     {
@@ -35,15 +78,23 @@ const BundlePlannerView: React.FC = () => {
       icon: <Download size={18} className="mr-2" />,
       onClick: () => { },
     },
+    ...(!isConfirmed
+      ? [
+        {
+          label: isConfirming || isGeneratingPackingList ? "Confirming..." : "Confirm Bundle Plan",
+          variant: "purpleFilled" as const,
+          className: `px-6 py-2.5 font-bold ${(isConfirming || isGeneratingPackingList) ? "opacity-75 cursor-not-allowed" : ""}`,
+          disabled: isConfirming || isGeneratingPackingList,
+          onClick: handleConfirm,
+        },
+      ]
+      : []),
     {
       label: "Proceed to Truckload Optimization",
       variant: "purpleFilled",
       className: "px-8 py-2.5 font-bold",
-      onClick: () => {
-        if (projectId) {
-          navigate(`/load_planning/${projectId}/truck-optimizer`);
-        }
-      },
+      disabled: !isConfirmed || isGeneratingPackingList,
+      onClick: handleProceed,
     },
   ];
 
@@ -77,7 +128,7 @@ const BundlePlannerView: React.FC = () => {
   }
 
 
-  const { bundlePlan, bundles, summary } = bundlePlanData;
+  const { bundlePlan: bpDetails, bundles, summary } = bundlePlanData;
 
 
 
@@ -130,6 +181,12 @@ const BundlePlannerView: React.FC = () => {
 
   return (
     <div className="min-h-screen">
+      {apiError && (
+        <div className="mx-6 mt-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm font-medium">
+          {apiError}
+        </div>
+      )}
+
       <LoadPlanningHeader
         currentStepIndex={2}
         requestId={projectId || ""}
@@ -143,12 +200,12 @@ const BundlePlannerView: React.FC = () => {
           {/* Project header */}
           <div className="bg-[#F8F9FB] rounded-xl p-4 border border-gray-100">
             <CommonInfoList
-              title={`Project: ${projectDetail?.projectName || "N/A"} | Upload ID: ${bundlePlan.planNumber}`}
+              title={`Project: ${projectDetail?.projectName || "N/A"} | Upload ID: ${bpDetails.planNumber}`}
               items={[
                 { label: "Project ID", value: projectDetail?.projectId || "" },
-                { label: "Upload Id", value: bundlePlan.planNumber },
-                { label: "Shipper Refrence", value: bundlePlan.shipperRequestId },
-                { label: "Vendor", value: bundlePlan.generatedBy },
+                { label: "Upload Id", value: bpDetails.planNumber },
+                { label: "Shipper Refrence", value: bpDetails.shipperRequestId },
+                { label: "Vendor", value: bpDetails.generatedBy },
               ]}
             />
           </div>
@@ -296,6 +353,8 @@ const BundlePlannerView: React.FC = () => {
                                 parts: bundle.bundleType,
                                 weight: `${bundle.totalWeight} lbs`,
                                 length: `${bundle.maxLengthFeet} ft`,
+                                projectName: projectDetail?.projectName || "N/A",
+                                shipperRef: bpDetails?.shipperRequestId || "N/A",
                               });
                               setIsQRModalOpen(true);
                             }}
@@ -325,6 +384,8 @@ const BundlePlannerView: React.FC = () => {
             onClose={() => setIsQRModalOpen(false)}
             data={selectedBundleData}
           />
+
+
 
           {/* <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 pt-8 border-t border-gray-100">
             <div>
