@@ -206,6 +206,92 @@ export interface CreatePlantCarrierRequest {
   internalNotes?: string;
 }
 
+export interface CreatePlantDeliveryRequest {
+  leadId: string;
+  description: string;
+  loadDescription: string;
+  weight: number;
+  dimensions: {
+    lengthFeet: number;
+    widthFeet: number;
+    heightFeet: number;
+  };
+  metalType: string;
+  packageCount: number;
+  loadingEquipment: string[];
+  bidDeadline: string;
+  documentUrl?: string;
+  pickupLocation: string;
+  pickupLocationData?: {
+    address: string;
+    coordinates: {
+      lat: number;
+      lng: number;
+    };
+  };
+  deliveryLocation: string;
+  deliveryLocationData?: {
+    address: string;
+    coordinates: {
+      lat: number;
+      lng: number;
+    };
+  };
+  timings?: string;
+  pickupDate: string;
+  pickupTime?: string;
+  deliveryDate: string;
+  deliveryTime?: string;
+  receivingPoc: string;
+  pickupContactPhone: string;
+  specialRequirements?: string;
+  additionalNotes?: string;
+  status?: string;
+  selectedCarrierBidId?: string | null;
+}
+
+export interface SendFreightBidsRequest {
+  projectId: string;
+  carrierIds: string[];
+  bidDeadline: string;
+}
+
+export interface FreightBidRangeItem {
+  bidId: string;
+  amount: number;
+  carrierId: string;
+  carrierName: string;
+}
+
+export interface FreightBidItem {
+  bidId: string;
+  carrierId: string;
+  carrierName: string;
+  submittedAt: string;
+  carrierNote: string;
+  bidAmount: number;
+  status: string;
+  isLowest?: boolean;
+}
+
+export interface FreightBidsResponse {
+  requestId: string;
+  projectName: string;
+  status: string;
+  stats: {
+    totalBids: number;
+    awardedBid: number | null;
+    averageBid: number;
+    potentialSavings: number | null;
+  };
+  bidRange: {
+    lowestBid: FreightBidRangeItem;
+    highestBid: FreightBidRangeItem;
+  };
+  sort: "low_to_high" | "high_to_low";
+  bids: FreightBidItem[];
+}
+
 export interface PlantCarrierDetail {
   _id: string;
   carrierCode: string;
@@ -398,6 +484,50 @@ export const logisticsApi = createApi({
           freightHistory: [],
         },
     }),
+    createPlantDelivery: builder.mutation<unknown, CreatePlantDeliveryRequest>({
+      query: (body) => ({
+        url: "/api/plant/deliveries",
+        method: "POST",
+        body,
+      }),
+    }),
+    sendFreightBids: builder.mutation<unknown, SendFreightBidsRequest>({
+      query: ({ projectId, ...body }) => ({
+        url: `/api/plant/projects/${projectId}/freight/send-bids`,
+        method: "POST",
+        body,
+      }),
+    }),
+    getProjectFreightBids: builder.query<
+      FreightBidsResponse,
+      { projectId: string; sort?: "low_to_high" | "high_to_low" }
+    >({
+      query: ({ projectId, sort }) => ({
+        url: `/api/plant/projects/${projectId}/freight/bids`,
+        params: sort ? { sort } : undefined,
+      }),
+      transformResponse: (response: ApiResponse<FreightBidsResponse>) => {
+        if (!response.data) {
+          throw new Error("No data returned from API");
+        }
+        return response.data;
+      },
+    }),
+    getDeliveryFreightBids: builder.query<
+      FreightBidsResponse,
+      { deliveryId: string; sort?: "low_to_high" | "high_to_low" }
+    >({
+      query: ({ deliveryId, sort }) => ({
+        url: `/api/plant/deliveries/${deliveryId}/bids`,
+        params: sort ? { sort } : undefined,
+      }),
+      transformResponse: (response: ApiResponse<FreightBidsResponse>) => {
+        if (!response.data) {
+          throw new Error("No data returned from API");
+        }
+        return response.data;
+      },
+    }),
   }),
 });
 
@@ -408,5 +538,9 @@ export const {
   useGetPlantVendorsQuery,
   useGetPlantCarriersQuery,
   useGetPlantCarrierQuery,
+  useCreatePlantDeliveryMutation,
+  useSendFreightBidsMutation,
+  useGetProjectFreightBidsQuery,
+  useGetDeliveryFreightBidsQuery,
 } = logisticsApi;
 
