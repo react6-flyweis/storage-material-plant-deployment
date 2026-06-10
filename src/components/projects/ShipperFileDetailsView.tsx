@@ -209,7 +209,7 @@ const ShipperFileDetailsView: React.FC = () => {
             <Button
               variant="purpleFilled"
               size="sm"
-              onClick={() => navigate(`/load_planning/${requestId}/start-load-planning`)}
+              onClick={() => navigate(`/load_planning/${shipperDoc.leadId}`)}
               className="flex items-center gap-2 font-inter font-bold"
             >
               Start Load Planning
