@@ -1,174 +1,391 @@
-import React from "react";
+import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Download } from "lucide-react";
 import LoadPlanningHeader, { type HeaderAction } from "./LoadPlanningHeader";
-import Button from "../../common_component/Button";
 import SubHeading from "../../common_component/SubHeading";
+import { useGetTruckPlanQuery, useConfirmTruckPlanMutation, useGetBundlePlanQuery } from "@/redux/api/shipperApi";
+import { useGetPlantProjectDetailQuery } from "@/redux/api/projectApi";
+import CommonInfoList from "@/components/common_component/CommonInfoList";
 
-const Step3TruckOptimizer: React.FC = () => {
-  return (
-    <div className="space-y-8 bg-white rounded-xl border border-gray-100 shadow-sm p-4 md:p-8">
-      <div className="space-y-4">
-        <SubHeading text="Truckload Table" />
-        <div className="overflow-x-auto rounded-sm border border-[#E2E4E6]">
-          <table className="w-full text-left border-collapse min-w-[900px] font-inter">
-            <thead>
-              <tr className="bg-[#212B36] text-white text-xs font-semibold tracking-wider">
-                <th className="py-4 px-6 w-16">#</th>
-                <th className="py-4 px-6">Load ID</th>
-                <th className="py-4 px-6">Bundle</th>
-                <th className="py-4 px-6">Total Weight</th>
-                <th className="py-4 px-6">Utilization</th>
-                <th className="py-4 px-6">Status</th>
-                <th className="py-4 px-6 text-center"></th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100 text-sm">
-              {[
-                {
-                  id: "LOAD-001",
-                  num: 1,
-                  bundles: "BND-001\nBND-002",
-                  weight: "36000 IBS",
-                  util: "80%",
-                  status: "Ready",
-                },
-                {
-                  id: "LOAD-002",
-                  num: 2,
-                  bundles: "BND-003\nBND-004",
-                  weight: "44500 IBS",
-                  util: "99%",
-                  status: "Ready",
-                },
-              ].map((row) => (
-                <tr
-                  key={row.id}
-                  className="hover:bg-gray-50/50 transition-colors"
-                >
-                  <td className="py-6 px-6 font-normal text-gray-400">
-                    {row.num}
-                  </td>
-                  <td className="py-6 px-6 font-normal text-[#212B36]">
-                    {row.id}
-                  </td>
-                  <td className="py-6 px-6 font-normal text-[#637381] whitespace-pre-line leading-relaxed">
-                    {row.bundles}
-                  </td>
-                  <td className="py-6 px-6 font-normal text-[#919EAB]">
-                    {row.weight}
-                  </td>
-                  <td className="py-6 px-6 font-normal text-[#637381]">
-                    {row.util}
-                  </td>
-                  <td className="py-6 px-6 font-normal text-[#637381]">
-                    {row.status}
-                  </td>
-                  <td className="py-6 px-6 text-center">
-                    <Button variant="grayFilled" size="sm">
-                      Lock Truck
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div className="space-y-6 pt-4">
-        {[
-          { id: "LOAD-001", weight: "36000 IBS", cost: "$4500" },
-          { id: "LOAD-002", weight: "44500 IBS", cost: "$5200" },
-        ].map((item, idx) => (
-          <div key={idx} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="space-y-2">
-              <label className="text-sm font-inter font-semibold text-black">
-                Load ID
-              </label>
-              <input
-                type="text"
-                readOnly
-                value={item.id}
-                className="w-full px-4 py-3 bg-[#F9FAFB] border border-[#E2E4E6] rounded-lg text-sm font-inter text-gray-600 focus:outline-none"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-inter font-semibold text-black">
-                Weight
-              </label>
-              <input
-                type="text"
-                readOnly
-                value={item.weight}
-                className="w-full px-4 py-3 bg-[#F9FAFB] border border-[#E2E4E6] rounded-lg text-sm font-inter text-gray-600 focus:outline-none"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-inter font-semibold text-black">
-                Estimate Cost
-              </label>
-              <input
-                type="text"
-                readOnly
-                value={item.cost}
-                className="w-full px-4 py-3 bg-[#F9FAFB] border border-[#E2E4E6] rounded-lg text-sm font-inter text-black font-bold focus:outline-none"
-              />
-            </div>
-          </div>
-        ))}
-
-        <div className="max-w-xs space-y-2">
-          <label className="text-sm font-inter font-semibold text-black">
-            Total Estimate Freight
-          </label>
-          <input
-            type="text"
-            readOnly
-            value="$9700"
-            className="w-full px-4 py-3 bg-[#F9FAFB] border border-[#E2E4E6] rounded-lg text-sm font-inter text-black font-bold focus:outline-none"
-          />
-        </div>
-      </div>
-    </div>
-  );
-};
 
 const TruckOptimizerView: React.FC = () => {
-  const { requestId } = useParams<{ requestId: string }>();
+  const { projectId } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
+
+  const { data, isLoading, isError, error } = useGetTruckPlanQuery(projectId || "");
+  const [confirmTruckPlan, { isLoading: isConfirming }] = useConfirmTruckPlanMutation();
+  const [apiError, setApiError] = useState<string | null>(null);
+
+  const { data: projectDetail } = useGetPlantProjectDetailQuery(projectId || "");
+  const { data: bundlePlanData } = useGetBundlePlanQuery(projectId || "", {
+    skip: !projectId,
+  });
+
+  const bpDetails = bundlePlanData?.bundlePlan;
+
+  const isConfirmed = data?.packingListPlan?.status === "confirmed";
+
+  const handleConfirm = async () => {
+    if (!projectId) return;
+    setApiError(null);
+    try {
+      await confirmTruckPlan(projectId).unwrap();
+      navigate(`/load_planning/${projectId}/packing-list`);
+    } catch (err: unknown) {
+      console.error("Failed to confirm truck plan:", err);
+      const errObj = err as { data?: { message?: string }; message?: string };
+      const errMsg = errObj?.data?.message || errObj?.message || "Failed to confirm truck plan.";
+      setApiError(errMsg);
+    }
+  };
 
   const actions: HeaderAction[] = [
     {
-      label: "Export Load Plan",
-      variant: "white",
-      className: "border-[#E2E4E6] text-[#212B36] font-bold text-sm px-5",
-      icon: <Download size={18} className="mr-2" />,
-      onClick: () => {},
-    },
-    {
-      label: "Generate Packing List",
+      label: isConfirming ? "Confirming..." : "Generate Packing List",
       variant: "purpleFilled",
-      className: "px-8 py-2.5 font-bold",
-      onClick: () => {
-        if (requestId) {
-          navigate(`/load_planning/${requestId}/packing-list`);
-        }
-      },
+      className: `px-8 py-2.5 font-bold ${isConfirming ? "opacity-75 cursor-not-allowed" : ""}`,
+      disabled: isConfirming,
+      onClick: isConfirmed ? () => navigate(`/load_planning/${projectId}/packing-list`) : handleConfirm,
     },
   ];
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen">
+        <LoadPlanningHeader
+          currentStepIndex={3}
+          requestId={projectId || ""}
+          title="Truckload Optimizer"
+          description="Optimize bundle assignments into truckloads to maximize utilization and prepare shipments for dispatch."
+          actions={[]}
+        />
+        <div className="p-6 pt-0">
+          <div className="space-y-8 bg-white rounded-xl border border-gray-100 shadow-sm p-4 md:p-8 animate-pulse">
+            {/* Summary cards skeleton */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+              <div className="space-y-4">
+                <div className="h-5 bg-gray-200 rounded w-1/2"></div>
+                <div className="space-y-3">
+                  {[1, 2, 3, 4].map((i) => (
+                    <div key={i} className="flex justify-between items-center">
+                      <div className="h-4 bg-gray-200 rounded w-1/3"></div>
+                      <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="space-y-4">
+                <div className="h-5 bg-gray-200 rounded w-1/2"></div>
+                <div className="space-y-3">
+                  {[1, 2, 3, 4].map((i) => (
+                    <div key={i} className="flex justify-between items-center">
+                      <div className="h-4 bg-gray-200 rounded w-1/3"></div>
+                      <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Table skeleton */}
+            <div className="space-y-4">
+              <div className="h-5 bg-gray-200 rounded w-1/4"></div>
+              <div className="border border-gray-200 rounded-sm overflow-hidden">
+                <div className="bg-gray-50 h-10 border-b border-gray-200"></div>
+                <div className="divide-y divide-gray-100">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="h-16 flex items-center justify-between px-6">
+                      <div className="h-4 bg-gray-200 rounded w-12"></div>
+                      <div className="h-4 bg-gray-200 rounded w-24"></div>
+                      <div className="h-4 bg-gray-200 rounded w-16"></div>
+                      <div className="h-4 bg-gray-200 rounded w-20"></div>
+                      <div className="h-4 bg-gray-200 rounded w-16"></div>
+                      <div className="h-4 bg-gray-200 rounded w-16"></div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Details inputs skeleton */}
+            <div className="space-y-6 pt-4 border-t border-gray-100">
+              {[1, 2].map((i) => (
+                <div key={i} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  {[1, 2, 3].map((j) => (
+                    <div key={j} className="space-y-2">
+                      <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+                      <div className="h-12 bg-gray-100 border border-gray-200 rounded-lg w-full"></div>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (isError || !data) {
+    return (
+      <div className="min-h-screen">
+        <LoadPlanningHeader
+          currentStepIndex={3}
+          requestId={projectId || ""}
+          title="Truckload Optimizer"
+          description="Optimize bundle assignments into truckloads to maximize utilization and prepare shipments for dispatch."
+          actions={actions}
+        />
+        <div className="p-6 pt-0">
+          <div className="flex flex-col items-center justify-center min-h-[400px] gap-3 bg-white rounded-xl border border-gray-100 p-5 shadow-sm animate-fade-in">
+            <p className="text-red-500 font-inter font-bold text-lg">Error loading truck plan</p>
+            <p className="text-gray-500 font-inter text-sm max-w-md text-center">
+              {((error as { data?: { message?: string }; message?: string })?.data?.message ||
+                (error as { data?: { message?: string }; message?: string })?.message ||
+                "Failed to load truck plan. Please try again.")}
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const { packingLists } = data;
+
+  const totalBundles = data.summary?.totalBundles ?? data.packingListPlan?.totalBundles ?? 0;
+  const plannedTruckLoads = data.summary?.totalPackingLists ?? data.packingListPlan?.totalPackingLists ?? packingLists.length;
+  const totalWeight = data.summary?.totalWeight ?? data.packingListPlan?.totalWeight ?? 0;
+
+  const validPackingLists = packingLists.filter(p => p.maxTruckWeight > 0);
+  const averageLoadUtilization = validPackingLists.length
+    ? Math.round(
+      validPackingLists.reduce(
+        (sum, row) => sum + (row.totalWeight / row.maxTruckWeight) * 100,
+        0
+      ) / validPackingLists.length
+    )
+    : 0;
+
+  const optimizationSummary = [
+    { label: "Total Bundles", value: totalBundles.toString() },
+    { label: "Planned Truck Loads", value: plannedTruckLoads.toString() },
+    { label: "Total Weight", value: `${totalWeight.toLocaleString()} LBS` },
+    { label: "Average Load Utilization", value: `${averageLoadUtilization}%` },
+  ];
+
+  const uniqueTruckConfigs = packingLists.reduce<Array<{ truckType: string; truckLabel: string; maxWeight: number; maxLength: number }>>((acc, current) => {
+    if (current.truckType && !acc.some(item => item.truckType === current.truckType)) {
+      acc.push({
+        truckType: current.truckType,
+        truckLabel: current.truckLabel || current.truckType,
+        maxWeight: current.maxTruckWeight,
+        maxLength: current.maxTruckLengthFeet,
+      });
+    }
+    return acc;
+  }, []);
+
+  const truckConfig = uniqueTruckConfigs.length > 0
+    ? uniqueTruckConfigs.flatMap((config) => [
+      { label: `${config.truckLabel} Max Weight`, value: `${config.maxWeight.toLocaleString()} LBS` },
+      { label: `${config.truckLabel} Max Length`, value: `${config.maxLength} FT` },
+    ])
+    : [
+      { label: "Max Truck Weight", value: "N/A" },
+      { label: "Max Truck Length", value: "N/A" },
+    ];
+
+  const getEstimatedCost = (truckType?: string) => {
+    return truckType ? 0 : 0;
+  };
+
+  const totalEstimateFreight = packingLists.reduce(
+    (sum) => sum + getEstimatedCost(),
+    0
+  );
+
+
   return (
     <div className="min-h-screen">
+      {apiError && (
+        <div className="mx-6 mt-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm font-medium">
+          {apiError}
+        </div>
+      )}
       <LoadPlanningHeader
         currentStepIndex={3}
-        requestId={requestId || ""}
+        requestId={projectId || ""}
         title="Truckload Optimizer"
         description="Optimize bundle assignments into truckloads to maximize utilization and prepare shipments for dispatch."
         actions={actions}
       />
-      <div className="p-6">
-        <Step3TruckOptimizer />
+      <div className="p-6 pt-0">
+        {data && (
+          <div className="space-y-8 bg-white rounded-xl border border-gray-100 shadow-sm p-4 md:p-8">
+
+            {/* Project header */}
+            <div className="bg-[#F8F9FB] rounded-xl p-4 border border-gray-100">
+              <CommonInfoList
+                title={`Project: ${projectDetail?.projectName || "N/A"} | Upload ID: ${bpDetails?.planNumber || "-"}`}
+                items={[
+                  { label: "Project ID", value: projectDetail?.projectId || "" },
+                  { label: "Upload Id", value: bpDetails?.planNumber || "" },
+                  { label: "Shipper Refrence", value: bpDetails?.shipperRequestId || "" },
+                  { label: "Vendor", value: bpDetails?.generatedBy || "" },
+                ]}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-10">
+              {/* Optimization Summary Card */}
+              <div className="space-y-4 max-w-lg">
+                <SubHeading text="Optimization Summary Card" />
+                <div className="space-y-3">
+                  {optimizationSummary.map((item, idx) => (
+                    <div
+                      key={idx}
+                      className="flex justify-between items-center text-sm md:text-base font-inter"
+                    >
+                      <span className="text-(--text-color-gray-4) font-medium">
+                        {item.label}
+                      </span>
+                      <span className="text-[#212B36] font-normal">{item.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="space-y-4 max-w-lg">
+                <SubHeading text="Truck Configuration Settings" />
+                <div className="space-y-3">
+                  {truckConfig.map((item, idx) => (
+                    <div
+                      key={idx}
+                      className="flex justify-between items-center text-sm md:text-base font-inter"
+                    >
+                      <span className="text-(--text-color-gray-4) font-medium">
+                        {item.label}
+                      </span>
+                      <span className="text-[#212B36] font-normal">{item.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="space-y-4">
+              <SubHeading text="Truckload Table" />
+              <div className="overflow-x-auto rounded-sm border border-[#E2E4E6]">
+                <table className="w-full text-left border-collapse min-w-[900px] font-inter">
+                  <thead>
+                    <tr className="bg-[#212B36] text-white text-xs font-semibold tracking-wider">
+                      <th className="py-4 px-6 w-16">#</th>
+                      <th className="py-4 px-6">Load ID</th>
+                      <th className="py-4 px-6">Bundle</th>
+                      <th className="py-4 px-6">Total Weight</th>
+                      <th className="py-4 px-6">Utilization</th>
+                      <th className="py-4 px-6">Status</th>
+                      <th className="py-4 px-6 text-center"></th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100 text-sm">
+                    {packingLists.map((row, idx) => {
+                      const utilVal = row.maxTruckWeight
+                        ? Math.round((row.totalWeight / row.maxTruckWeight) * 100)
+                        : 0;
+                      return (
+                        <tr
+                          key={row._id}
+                          className="hover:bg-gray-50/50 transition-colors"
+                        >
+                          <td className="py-6 px-6 font-normal text-gray-400">
+                            {idx + 1}
+                          </td>
+                          <td className="py-6 px-6 font-normal text-[#212B36]">
+                            {row.packingListNo}
+                          </td>
+                          <td className="py-6 px-6 font-normal text-[#637381] whitespace-pre-line leading-relaxed">
+                            {row.totalBundles || (row.bundleIds ? row.bundleIds.length : 0)}
+                          </td>
+                          <td className="py-6 px-6 font-normal text-[#919EAB]">
+                            {row.totalWeight} LBS
+                          </td>
+                          <td className="py-6 px-6 font-normal text-[#637381]">
+                            {utilVal > 0 ? `${utilVal}%` : "N/A"}
+                          </td>
+                          <td className="py-6 px-6 font-normal text-[#637381] capitalize">
+                            {row.status || "Ready"}
+                          </td>
+                          {/* <td className="py-6 px-6 text-center">
+                      <Button variant="grayFilled" size="sm">
+                        Lock Truck
+                      </Button>
+                    </td> */}
+                        </tr>
+                      );
+                    })}
+                    {packingLists.length === 0 && (
+                      <tr>
+                        <td colSpan={7} className="py-8 text-center text-gray-500 font-inter">
+                          No truckloads planned.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div className="space-y-6 pt-4">
+              {packingLists.map((item, idx) => (
+                <div key={item._id || idx} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-sm font-inter font-semibold text-black">
+                      Load ID
+                    </label>
+                    <input
+                      type="text"
+                      readOnly
+                      value={item.packingListNo}
+                      className="w-full px-4 py-3 bg-[#F9FAFB] border border-[#E2E4E6] rounded-lg text-sm font-inter text-gray-600 focus:outline-none"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-inter font-semibold text-black">
+                      Weight
+                    </label>
+                    <input
+                      type="text"
+                      readOnly
+                      value={`${item.totalWeight} LBS`}
+                      className="w-full px-4 py-3 bg-[#F9FAFB] border border-[#E2E4E6] rounded-lg text-sm font-inter text-gray-600 focus:outline-none"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-inter font-semibold text-black">
+                      Estimate Cost
+                    </label>
+                    <input
+                      type="text"
+                      readOnly
+                      value={`$${getEstimatedCost(item.truckType)}`}
+                      className="w-full px-4 py-3 bg-[#F9FAFB] border border-[#E2E4E6] rounded-lg text-sm font-inter text-black font-bold focus:outline-none"
+                    />
+                  </div>
+                </div>
+              ))}
+
+              <div className="max-w-xs space-y-2">
+                <label className="text-sm font-inter font-semibold text-black">
+                  Total Estimate Freight
+                </label>
+                <input
+                  type="text"
+                  readOnly
+                  value={`$${totalEstimateFreight}`}
+                  className="w-full px-4 py-3 bg-[#F9FAFB] border border-[#E2E4E6] rounded-lg text-sm font-inter text-black font-bold focus:outline-none"
+                />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
