@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Check, ChevronUp, ChevronDown } from "lucide-react";
-import { useGetBundlePlanQuery, useGetBundleDetailsQuery } from "@/redux/api/shipperApi";
+import { useGetBundlePlanQuery, useGetBundleDetailsQuery, useEditBundleMutation } from "@/redux/api/shipperApi";
 
 interface TableItem {
   id: string;
@@ -10,10 +10,9 @@ interface TableItem {
   description: string;
   length: string;
   weight: number;
-  unitPrice: number;
 }
 
-type SortField = "qty" | "item" | "length" | "unitPrice" | "amount";
+type SortField = "qty" | "item" | "length";
 type SortOrder = "asc" | "desc";
 
 const EditBundleView: React.FC = () => {
@@ -29,6 +28,8 @@ const EditBundleView: React.FC = () => {
     skip: !bundleId,
   });
 
+  const [editBundle, { isLoading: isSaving }] = useEditBundleMutation();
+
   const matchingBundle = useMemo(() => {
     if (!bundlePlanData || !bundlePlanData.bundles) return null;
     return bundlePlanData.bundles.find((b) => b.bundleNo === bundleId || b._id === bundleId);
@@ -38,13 +39,6 @@ const EditBundleView: React.FC = () => {
   const items = useMemo<TableItem[]>(() => {
     if (!bundleDetails || !bundleDetails.items) return [];
     return bundleDetails.items.map((item) => {
-      const snapshot = item.sourceLineSnapshot || {};
-      const unitPrice =
-        (snapshot.unitPrice as number) ??
-        (snapshot.rate as number) ??
-        (snapshot.price as number) ??
-        0;
-
       return {
         id: item._id,
         qty: item.qty,
@@ -52,19 +46,40 @@ const EditBundleView: React.FC = () => {
         description: item.description || "",
         length: `${item.lengthFeet} ft`,
         weight: item.weight,
-        unitPrice,
       };
     });
   }, [bundleDetails]);
 
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [itemQuantities, setItemQuantities] = useState<Record<string, number>>({});
+  const [lastItems, setLastItems] = useState<TableItem[]>([]);
 
-  // Automatically select all loaded items initially
-  React.useEffect(() => {
-    if (items.length > 0) {
-      setSelectedIds(new Set(items.map((item) => item.id)));
-    }
-  }, [items]);
+  // Metadata States
+  const [bundleType, setBundleType] = useState<string>("");
+  const [title, setTitle] = useState<string>("");
+  const [loadSequence, setLoadSequence] = useState<number | null>(null);
+  const [handlingInstruction, setHandlingInstruction] = useState<string>("");
+  const [notes, setNotes] = useState<string>("");
+  const [lastBundleDetails, setLastBundleDetails] = useState<any>(null);
+
+  if (items !== lastItems) {
+    setLastItems(items);
+    setSelectedIds(new Set(items.map((item) => item.id)));
+    const initialQuants: Record<string, number> = {};
+    items.forEach((item) => {
+      initialQuants[item.id] = item.qty;
+    });
+    setItemQuantities(initialQuants);
+  }
+
+  if (bundleDetails && bundleDetails !== lastBundleDetails) {
+    setLastBundleDetails(bundleDetails);
+    setBundleType(bundleDetails.bundle?.bundleType || "");
+    setTitle(bundleDetails.bundle?.title || "");
+    setLoadSequence(bundleDetails.bundle?.loadSequence ?? null);
+    setHandlingInstruction(bundleDetails.bundle?.handlingInstruction || "");
+    setNotes(bundleDetails.bundle?.notes || "");
+  }
 
   // Sorting state
   const [sortField, setSortField] = useState<SortField | null>(null);
@@ -91,12 +106,19 @@ const EditBundleView: React.FC = () => {
     }
   };
 
-  // Dynamic calculations based on checked items
+  const handleQtyChange = (id: string, val: number) => {
+    setItemQuantities((prev) => ({
+      ...prev,
+      [id]: Math.max(0, val),
+    }));
+  };
+
+  // Dynamic calculations based on checked items & current quantities
   const totalWeight = useMemo(() => {
     return items
       .filter((item) => selectedIds.has(item.id))
-      .reduce((sum, item) => sum + item.weight * item.qty, 0);
-  }, [items, selectedIds]);
+      .reduce((sum, item) => sum + item.weight * (itemQuantities[item.id] ?? item.qty), 0);
+  }, [items, selectedIds, itemQuantities]);
 
   const itemsNameStr = useMemo(() => {
     const active = items.filter((item) => selectedIds.has(item.id));
@@ -127,20 +149,14 @@ const EditBundleView: React.FC = () => {
       let valB: string | number = "";
 
       if (sortField === "qty") {
-        valA = a.qty;
-        valB = b.qty;
+        valA = itemQuantities[a.id] ?? a.qty;
+        valB = itemQuantities[b.id] ?? b.qty;
       } else if (sortField === "item") {
         valA = a.item;
         valB = b.item;
       } else if (sortField === "length") {
         valA = a.length;
         valB = b.length;
-      } else if (sortField === "unitPrice") {
-        valA = a.unitPrice;
-        valB = b.unitPrice;
-      } else if (sortField === "amount") {
-        valA = a.qty * a.unitPrice;
-        valB = b.qty * b.unitPrice;
       }
 
       if (typeof valA === "number" && typeof valB === "number") {
@@ -151,14 +167,46 @@ const EditBundleView: React.FC = () => {
           : String(valB).localeCompare(String(valA));
       }
     });
-  }, [items, sortField, sortOrder]);
+  }, [items, sortField, sortOrder, itemQuantities]);
 
-  const handleSave = () => {
-    setToastMessage("Bundle saved successfully!");
-    setTimeout(() => {
-      setToastMessage(null);
-      navigate(`/load_planning/${projectId}/bundle-planner`);
-    }, 1500);
+  const handleSave = async () => {
+    try {
+      const payloadItems = items
+        .filter((item) => selectedIds.has(item.id))
+        .map((item) => {
+          const originalItem = bundleDetails?.items.find((i) => i._id === item.id);
+          return {
+            _id: item.id,
+            vendorQuoteLineId: originalItem?.vendorQuoteLineId || "",
+            qty: itemQuantities[item.id] ?? item.qty,
+          };
+        });
+
+      await editBundle({
+        bundleId: bundleId || "",
+        body: {
+          items: payloadItems,
+          bundleType,
+          title,
+          loadSequence,
+          handlingInstruction,
+          notes,
+        },
+      }).unwrap();
+
+      setToastMessage("Bundle saved successfully!");
+      setTimeout(() => {
+        setToastMessage(null);
+        navigate(`/load_planning/${projectId}/bundle-planner`);
+      }, 1500);
+    } catch (err: any) {
+      console.error("Failed to edit bundle:", err);
+      const errMsg = err?.data?.message || err?.message || "Failed to save bundle";
+      setToastMessage(`Error: ${errMsg}`);
+      setTimeout(() => {
+        setToastMessage(null);
+      }, 3000);
+    }
   };
 
   if (isLoading) {
@@ -191,7 +239,9 @@ const EditBundleView: React.FC = () => {
     <div className="min-h-screen p-6 font-inter relative">
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed top-6 right-6 z-50 bg-[#10B981] text-white font-semibold px-6 py-3.5 rounded-xl shadow-lg flex items-center gap-2 animate-bounce">
+        <div className={`fixed top-6 right-6 z-50 text-white font-semibold px-6 py-3.5 rounded-xl shadow-lg flex items-center gap-2 animate-bounce ${
+          toastMessage.includes("Error:") ? "bg-red-500" : "bg-[#10B981]"
+        }`}>
           <Check size={18} strokeWidth={3} />
           {toastMessage}
         </div>
@@ -209,20 +259,22 @@ const EditBundleView: React.FC = () => {
           <div>
             <h1 className="text-2xl font-bold text-[#212B36]">Edit Bundle</h1>
             <p className="text-sm text-[#637381] mt-1">
-              Select Items which you want to create a bundle
+              Select Items and edit details to update the bundle
             </p>
           </div>
         </div>
         <button
           onClick={handleSave}
-          className="bg-[#6E38F7] hover:bg-[#5D2EE0] text-white font-bold text-sm px-6 py-2.5 rounded-lg transition-colors shadow-sm"
+          disabled={isSaving}
+          className="bg-[#6E38F7] hover:bg-[#5D2EE0] disabled:bg-gray-400 text-white font-bold text-sm px-6 py-2.5 rounded-lg transition-colors shadow-sm"
         >
-          Save Bundle
+          {isSaving ? "Saving..." : "Save Bundle"}
         </button>
       </div>
 
       {/* Main card */}
       <div className="bg-white rounded-xl border border-[#E2E4E6] p-6 shadow-sm space-y-8">
+        
         {/* Top Info Table Card */}
         <div className="overflow-x-auto rounded-lg border border-[#E2E4E6]">
           <table className="w-full text-left border-collapse min-w-[700px]">
@@ -244,7 +296,7 @@ const EditBundleView: React.FC = () => {
                   {bundleDetails?.bundle?.bundleNo || matchingBundle?.bundleNo || bundleId || "BND-001"}
                 </td>
                 <td className="py-6 px-6 text-[#637381] capitalize">
-                  {bundleDetails?.bundle?.bundleType || matchingBundle?.bundleType || "Beam"}
+                  {bundleType || "Beam"}
                 </td>
                 <td className="py-6 px-6 text-[#637381]">{itemsNameStr}</td>
                 <td className="py-6 px-6 text-[#637381]">
@@ -270,6 +322,55 @@ const EditBundleView: React.FC = () => {
           </table>
         </div>
 
+        {/* Metadata Inputs */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-4 border-t border-[#E2E4E6]">
+          <div>
+            <label className="block text-xs font-bold text-[#637381] uppercase tracking-wider mb-2">Bundle Type / Profile</label>
+            <input
+              type="text"
+              value={bundleType}
+              onChange={(e) => setBundleType(e.target.value)}
+              className="w-full px-3.5 py-2 border border-[#E2E4E6] rounded-lg text-sm text-[#212B36] font-semibold focus:ring-1 focus:ring-[#6E38F7] outline-none"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-[#637381] uppercase tracking-wider mb-2">Title</label>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="w-full px-3.5 py-2 border border-[#E2E4E6] rounded-lg text-sm text-[#212B36] font-semibold focus:ring-1 focus:ring-[#6E38F7] outline-none"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-[#637381] uppercase tracking-wider mb-2">Load Sequence</label>
+            <input
+              type="number"
+              value={loadSequence === null ? "" : loadSequence}
+              onChange={(e) => setLoadSequence(e.target.value === "" ? null : parseInt(e.target.value))}
+              className="w-full px-3.5 py-2 border border-[#E2E4E6] rounded-lg text-sm text-[#212B36] font-semibold focus:ring-1 focus:ring-[#6E38F7] outline-none"
+            />
+          </div>
+          <div className="md:col-span-2 lg:col-span-3">
+            <label className="block text-xs font-bold text-[#637381] uppercase tracking-wider mb-2">Handling Instructions</label>
+            <textarea
+              value={handlingInstruction}
+              onChange={(e) => setHandlingInstruction(e.target.value)}
+              rows={2}
+              className="w-full px-3.5 py-2 border border-[#E2E4E6] rounded-lg text-sm text-[#212B36] font-semibold focus:ring-1 focus:ring-[#6E38F7] outline-none resize-none"
+            />
+          </div>
+          <div className="md:col-span-2 lg:col-span-3">
+            <label className="block text-xs font-bold text-[#637381] uppercase tracking-wider mb-2">Notes</label>
+            <textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              rows={2}
+              className="w-full px-3.5 py-2 border border-[#E2E4E6] rounded-lg text-sm text-[#212B36] font-semibold focus:ring-1 focus:ring-[#6E38F7] outline-none resize-none"
+            />
+          </div>
+        </div>
+
         {/* Bottom Items Selection Table */}
         <div className="overflow-x-auto rounded-lg border border-[#E2E4E6]">
           <table className="w-full text-left border-collapse min-w-[800px]">
@@ -285,7 +386,7 @@ const EditBundleView: React.FC = () => {
                     />
                   </div>
                 </th>
-                <th className="py-4 px-6 w-24">
+                <th className="py-4 px-6 w-32">
                   <button
                     onClick={() => handleSort("qty")}
                     className="flex items-center gap-1.5 hover:text-[#6E38F7] font-bold"
@@ -323,35 +424,12 @@ const EditBundleView: React.FC = () => {
                   </button>
                 </th>
                 <th className="py-4 px-6 w-28">Weight</th>
-                <th className="py-4 px-6 w-32">
-                  <button
-                    onClick={() => handleSort("unitPrice")}
-                    className="flex items-center gap-1.5 hover:text-[#6E38F7] font-bold"
-                  >
-                    Unit Price
-                    <span className="flex flex-col text-[8px] leading-[6px]">
-                      <ChevronUp size={8} className={sortField === "unitPrice" && sortOrder === "asc" ? "text-[#6E38F7]" : "text-gray-400"} />
-                      <ChevronDown size={8} className={sortField === "unitPrice" && sortOrder === "desc" ? "text-[#6E38F7]" : "text-gray-400"} />
-                    </span>
-                  </button>
-                </th>
-                <th className="py-4 px-6 w-32">
-                  <button
-                    onClick={() => handleSort("amount")}
-                    className="flex items-center gap-1.5 hover:text-[#6E38F7] font-bold"
-                  >
-                    Amount
-                    <span className="flex flex-col text-[8px] leading-[6px]">
-                      <ChevronUp size={8} className={sortField === "amount" && sortOrder === "asc" ? "text-[#6E38F7]" : "text-gray-400"} />
-                      <ChevronDown size={8} className={sortField === "amount" && sortOrder === "desc" ? "text-[#6E38F7]" : "text-gray-400"} />
-                    </span>
-                  </button>
-                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#E2E4E6] text-sm text-[#212B36]">
               {sortedItems.map((item) => {
                 const isSelected = selectedIds.has(item.id);
+                const currentQty = itemQuantities[item.id] ?? item.qty;
                 return (
                   <tr
                     key={item.id}
@@ -368,19 +446,22 @@ const EditBundleView: React.FC = () => {
                         />
                       </div>
                     </td>
-                    <td className="py-4 px-6 font-semibold">{item.qty}</td>
+                    <td className="py-3 px-6">
+                      <input
+                        type="number"
+                        min={0}
+                        value={currentQty}
+                        onChange={(e) => handleQtyChange(item.id, parseInt(e.target.value) || 0)}
+                        disabled={!isSelected}
+                        className="w-20 px-2 py-1 border border-[#E2E4E6] rounded text-[#212B36] font-semibold focus:ring-1 focus:ring-[#6E38F7] outline-none disabled:opacity-50"
+                      />
+                    </td>
                     <td className="py-4 px-6 font-semibold">{item.item}</td>
                     <td className="py-4 px-6 text-[#637381] font-medium max-w-xs md:max-w-sm whitespace-normal">
                       {item.description}
                     </td>
                     <td className="py-4 px-6 font-medium text-[#212B36]">{item.length}</td>
                     <td className="py-4 px-6 text-[#637381] font-medium">{item.weight}</td>
-                    <td className="py-4 px-6 text-[#637381] font-medium">
-                      ${item.unitPrice.toFixed(1)}
-                    </td>
-                    <td className="py-4 px-6 font-semibold">
-                      ${(item.qty * item.unitPrice).toFixed(2)}
-                    </td>
                   </tr>
                 );
               })}
