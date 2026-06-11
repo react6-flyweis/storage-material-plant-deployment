@@ -227,6 +227,32 @@ export interface GetBundleDetailsResponse {
   items: BundleItemDetail[];
 }
 
+export interface EditBundleBody {
+  items?: Array<{
+    _id: string;
+    vendorQuoteLineId?: string;
+    qty: number;
+  }>;
+  bundleType?: string;
+  title?: string;
+  stacking?: StackingConfig;
+  loadSequence?: number | null;
+  handlingInstruction?: string;
+  notes?: string;
+}
+
+export interface EditBundleResponse {
+  bundle: BundleDetail;
+  items: BundleItemDetail[];
+  bundlePlanSummary: {
+    totalBundles: number;
+    totalWeight: number;
+    maxLengthFeet: number;
+    warnings: string[];
+  };
+}
+
+
 
 
 export const shipperApi = createApi({
@@ -450,6 +476,35 @@ export const shipperApi = createApi({
         return response.data;
       },
     }),
+    getPackingListPlan: builder.query<GetPackingListPlanResponse, string>({
+      query: (packingListPlanId) => `/api/plant/packing-list-plans/${packingListPlanId}`,
+      providesTags: (_result, _error, packingListPlanId) => [
+        { type: "BundlePlan", id: packingListPlanId },
+      ],
+      transformResponse: (response: ApiResponse<GetPackingListPlanResponse>) => {
+        if (!response.data) {
+          throw new Error("No data returned from API");
+        }
+        return response.data;
+      },
+    }),
+    editBundle: builder.mutation<EditBundleResponse, { bundleId: string; body: EditBundleBody }>({
+      query: ({ bundleId, body }) => ({
+        url: `/api/plant/bundles/${bundleId}`,
+        method: "PUT",
+        body,
+      }),
+      invalidatesTags: (_result, _error, { bundleId }) => [
+        { type: "BundlePlan", id: bundleId },
+        { type: "BundlePlan" },
+      ],
+      transformResponse: (response: ApiResponse<EditBundleResponse>) => {
+        if (!response.data) {
+          throw new Error("No data returned from API");
+        }
+        return response.data;
+      },
+    }),
   }),
 });
 
@@ -600,6 +655,23 @@ export interface GeneratePackingListPlanResponse {
   truckConfig: Record<string, TruckConfigEntry>;
 }
 
+export interface GetPackingListPlanResponse {
+  packingListPlan: PackingListPlanDetail & {
+    project?: {
+      _id: string;
+      projectId: string;
+      projectName: string;
+    };
+    bundlePlan?: {
+      _id: string;
+      planNumber: string;
+      status: string;
+    } | null;
+  };
+  packingLists: PackingListEntry[];
+  bundles: BundleItem[];
+}
+
 export const {
   useGetShipperProjectsQuery,
   useGetProjectShipperFilesQuery,
@@ -617,6 +689,6 @@ export const {
   useGetTruckPlanQuery,
   useConfirmTruckPlanMutation,
   useGetFreightAutofillQuery,
+  useGetPackingListPlanQuery,
+  useEditBundleMutation,
 } = shipperApi;
-
-
