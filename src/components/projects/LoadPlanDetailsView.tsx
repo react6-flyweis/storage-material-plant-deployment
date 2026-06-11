@@ -3,45 +3,106 @@ import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import SubHeading from "../common_component/SubHeading";
 import PackingListTable, { type TableColumn } from "../common_component/PackingListTable";
+import { useGetLoadPlanningStateQuery } from "@/redux/api/shipperApi";
 
 const LoadPlanDetailsView: React.FC = () => {
   const navigate = useNavigate();
-  const { id } = useParams();
-  console.log(id)
-  const loadSummary = {
-    totalBundles: 4,
-    totalLoads: 2,
-    totalWeight: "18500 IBS",
-    estimatedFreight: "$9700",
-  };
+  const { id } = useParams<{ id: string }>();
 
-  const truckloadSummary = [
-    { id: 1, loadId: "LOAD-001", bundle: 2, weight: "36000 IBS", destination: "Riverside Site A", completed: true },
-    { id: 2, loadId: "LOAD-002", bundle: 2, weight: "44500 IBS", destination: "Riverside Site A", completed: true },
-  ];
+  const {
+    data: stateData,
+    isLoading,
+    isError,
+    error,
+  } = useGetLoadPlanningStateQuery(id || "", {
+    skip: !id,
+  });
 
-  const truckLoadData = [
-    { id: 1, bundleId: "BND-001", parts: "STL-B12", weight: "3600 IBS", packingList: true, qrLabels: true, assigned: true },
-    { id: 2, bundleId: "BND-002", parts: "STL-B12", weight: "2400 IBS", packingList: true, qrLabels: true, assigned: true },
-    { id: 3, bundleId: "BND-003", parts: "STL-A03", weight: "4500 IBS", packingList: true, qrLabels: true, assigned: true },
-    { id: 4, bundleId: "BND-004", parts: "STL-B12", weight: "2700 IBS", packingList: true, qrLabels: true, assigned: true },
-  ];
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#1E51A4]" />
+      </div>
+    );
+  }
+
+  if (isError || !stateData) {
+    return (
+      <div className="p-6">
+        <div className="flex flex-col items-center justify-center min-h-[400px] gap-3 bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
+          <p className="text-red-500 font-inter font-bold text-lg">Error loading load plan data</p>
+          <p className="text-gray-500 font-inter text-sm max-w-md text-center">
+            {((error as { data?: { message?: string }; message?: string })?.data?.message ||
+              (error as { data?: { message?: string }; message?: string })?.message ||
+              "Failed to load truck plan. Please try again.")}
+          </p>
+          <button
+            onClick={() => navigate(-1)}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-sm font-semibold"
+          >
+            Go Back
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const projectName = stateData.project?.projectName || "N/A";
+  const planNumber = stateData.bundlePlan?.planNumber || "N/A";
+  const packingLists = stateData.packingLists || [];
+  const bundles = stateData.bundles || [];
+  const bundleSummary = stateData.bundleSummary;
 
   const summaryColumns: TableColumn[] = [
-    { header: "Load ID", key: "loadId", render: (item) => <span className="font-semibold text-[#212B36]">{item.loadId}</span> },
-    { header: "Bundle", key: "bundle", render: (item) => <span className="font-semibold text-[#212B36]">{item.bundle}</span> },
-    { header: "Total Weight", key: "weight", render: (item) => <span className="text-(--text-color-gray-4) font-normal">{item.weight}</span> },
-    { header: "Destination", key: "destination", render: (item) => <span className="text-(--text-color-gray-4) font-normal">{item.destination}</span> },
-    { header: "", key: "completed", align: "center", width: "w-20 lg:w-80", render: (item) => item.completed && "✔" },
+    {
+      header: "Load ID",
+      key: "loadId",
+      render: (item) => <span className="font-semibold text-[#212B36]">{item.packingListNo}</span>,
+    },
+    {
+      header: "Bundle",
+      key: "bundle",
+      render: (item) => <span className="font-semibold text-[#212B36]">{item.totalBundles}</span>,
+    },
+    {
+      header: "Total Weight",
+      key: "weight",
+      render: (item) => <span className="text-(--text-color-gray-4) font-normal">{item.totalWeight.toLocaleString()} LBS</span>,
+    },
+    {
+      header: "Destination",
+      key: "destination",
+      render: () => <span className="text-(--text-color-gray-4) font-normal">{projectName} Site A</span>,
+    },
+    {
+      header: "",
+      key: "completed",
+      align: "center",
+      width: "w-20 lg:w-80",
+      render: (item) =>
+        (item.status === "confirmed" || item.status === "Ready" || item.status === "ready") && "✔",
+    },
   ];
 
   const detailColumns: TableColumn[] = [
-    { header: "Bundle ID", key: "bundleId", render: (item) => <span className="font-bold text-[#212B36]">{item.bundleId}</span> },
-    { header: "Parts", key: "parts", render: (item) => <span className="text-(--text-color-gray-4) font-medium">{item.parts}</span> },
-    { header: "Weight", key: "weight", render: (item) => <span className="text-(--text-color-gray-4) font-medium">{item.weight}</span> },
-    { header: "Packing List Genrated", key: "packingList", align: "center", render: (item) => item.packingList && "✔" },
-    { header: "QR Labels Generated", key: "qrLabels", align: "center", render: (item) => item.qrLabels && "✔" },
-    { header: "Bundles Assigned to Truck", key: "assigned", align: "center", render: (item) => item.assigned && "✔" },
+    {
+      header: "Bundle ID",
+      key: "bundleId",
+      render: (item) => <span className="font-bold text-[#212B36]">{item.bundleNo}</span>,
+    },
+    {
+      header: "Parts",
+      key: "parts",
+      render: (item) => <span className="text-(--text-color-gray-4) font-medium">{item.bundleType || item.title || "-"}</span>,
+    },
+    {
+      header: "Weight",
+      key: "weight",
+      render: (item) => <span className="text-(--text-color-gray-4) font-medium">{item.totalWeight.toLocaleString()} LBS</span>,
+    },
+    { header: "Packing List Generated", key: "packingList", align: "center", render: () => "✔" },
+    { header: "QR Labels Generated", key: "qrLabels", align: "center", render: () => "✔" },
+    { header: "Bundles Assigned to Truck", key: "assigned", align: "center", render: () => "✔" },
   ];
 
   return (
@@ -62,7 +123,7 @@ const LoadPlanDetailsView: React.FC = () => {
         {/* Project Header */}
         <div className="bg-[#F8F9FA] rounded-lg p-3 md:p-6 border border-[#E2E4E6]">
           <h1 className="text-lg md:text-2xl font-inter font-bold text-[#212B36]">
-            Project: Riverside Complex | Shipper Ref: SHP-1044
+            Project: {projectName} | Shipper Ref: {planNumber}
           </h1>
         </div>
 
@@ -72,19 +133,25 @@ const LoadPlanDetailsView: React.FC = () => {
           <div className="space-y-3 text-sm md:text-base">
             <div className="flex justify-between items-center">
               <span className="text-(--text-color-gray-4) font-inter font-medium">Total Bundles</span>
-              <span className="text-[#212B36] font-inter font-normal">{loadSummary.totalBundles}</span>
+              <span className="text-[#212B36] font-inter font-normal">
+                {bundleSummary?.totalBundles ?? 0}
+              </span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-(--text-color-gray-4) font-inter font-medium">Total Loads</span>
-              <span className="text-[#212B36] font-inter font-normal">{loadSummary.totalLoads}</span>
+              <span className="text-[#212B36] font-inter font-normal">
+                {packingLists.length}
+              </span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-(--text-color-gray-4) font-inter font-medium">Total Weight</span>
-              <span className="text-[#212B36] font-inter font-normal">{loadSummary.totalWeight}</span>
+              <span className="text-[#212B36] font-inter font-normal">
+                {(bundleSummary?.totalWeight ?? 0).toLocaleString()} LBS
+              </span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-(--text-color-gray-4) font-inter font-medium">Estimated Freight Request</span>
-              <span className="text-[#212B36] font-inter font-normal">{loadSummary.estimatedFreight}</span>
+              <span className="text-[#212B36] font-inter font-normal">-</span>
             </div>
           </div>
         </div>
@@ -92,20 +159,22 @@ const LoadPlanDetailsView: React.FC = () => {
         {/* Truckload Summary */}
         <div className="space-y-4">
           <SubHeading text="Truckload Summary" />
-          <PackingListTable columns={summaryColumns} data={truckloadSummary} />
+          <PackingListTable columns={summaryColumns} data={packingLists} />
         </div>
 
-        {/* Truck Load 1 */}
-        <div className="space-y-4">
-          <SubHeading text="Truck Load 1" />
-          <PackingListTable columns={detailColumns} data={truckLoadData} />
-        </div>
+        {/* Individual Truck Loads Details */}
+        {packingLists.map((packingList) => {
+          const packingListBundles = bundles.filter((b) =>
+            packingList.bundleIds.includes(b._id)
+          );
 
-        {/* Truck Load 2 */}
-        <div className="space-y-4">
-          <SubHeading text="Truck Load 2" />
-          <PackingListTable columns={detailColumns} data={truckLoadData} />
-        </div>
+          return (
+            <div key={packingList._id} className="space-y-4">
+              <SubHeading text={`Truck Load - ${packingList.truckLabel || packingList.truckType || packingList.packingListNo}`} />
+              <PackingListTable columns={detailColumns} data={packingListBundles} />
+            </div>
+          );
+        })}
       </div>
     </div>
   );
