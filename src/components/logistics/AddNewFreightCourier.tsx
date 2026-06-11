@@ -50,7 +50,7 @@ const vendorSchema = z.object({
     .refine((val) => !/^\d+$/.test(val), {
       message: "Vendor name cannot be numbers.",
     }),
-  vendorCode: z.string().trim().min(1, "Vendor code is required."),
+  vendorCode: z.string().trim().optional().or(z.literal("")),
   contactName: z
     .string()
     .trim()
@@ -210,13 +210,13 @@ const AddNewFreightCourier: React.FC = () => {
       serviceArea: "",
       materialTypes: ["All Materials"],
       fleetEquipment: [
-        { equipment: "Flatbed trucks", quantity: 5 },
-        { equipment: "Dry Vans", quantity: 5 },
+        // { equipment: "Flatbed trucks", quantity: 5 },
+        // { equipment: "Dry Vans", quantity: 5 },
       ],
       fleetCapacity: {
-        totalVehicles: 32,
-        maxLoadCapacity: "800000 lbs",
-        avgFleetAge: 4.2,
+        totalVehicles: 0,
+        maxLoadCapacity: "0 lbs",
+        avgFleetAge: 0,
       },
       documents: [],
       internalNotes: "",
@@ -399,7 +399,6 @@ const AddNewFreightCourier: React.FC = () => {
                   <div>
                     <CommonInput
                       label="Courier ID (Auto-generated + Editable)"
-                      required
                       value={field.value}
                       onChange={field.onChange}
                       onBlur={field.onBlur}
@@ -632,7 +631,7 @@ const AddNewFreightCourier: React.FC = () => {
                   )}
                 />
 
-                 <Controller
+                <Controller
                   control={control}
                   name="address.postalCode"
                   render={({ field }) => (
