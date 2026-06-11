@@ -97,6 +97,7 @@ interface Step7FreightSelectionProps {
   onOpenReview: (values: FreightFormData, carrierIds: string[]) => void;
   onSaveDraft: (values: FreightFormData) => void;
   onCancel: () => void;
+  deliveryId?: string | null;
 }
 
 const Step7FreightSelection: React.FC<Step7FreightSelectionProps> = ({
@@ -104,6 +105,7 @@ const Step7FreightSelection: React.FC<Step7FreightSelectionProps> = ({
   onOpenReview,
   onSaveDraft,
   onCancel,
+  deliveryId,
 }) => {
   const { projectId } = useParams<{ projectId: string }>();
   const { data: autofillData, isLoading } = useGetFreightAutofillQuery(projectId || "");
@@ -890,7 +892,7 @@ const Step7FreightSelection: React.FC<Step7FreightSelectionProps> = ({
             variant="blueFilled"
             onClick={handleSubmit(handleSendToCarriers)}
             className="w-full"
-            disabled={selectedCarrierIds.length === 0}
+            disabled={selectedCarrierIds.length === 0 || !deliveryId}
           >
             <Send size={18} className="mr-3" />
             Send to {selectedCarrierIds.length} Carriers
@@ -930,6 +932,7 @@ const FreightSelectionView: React.FC = () => {
   const [selectedCarriersCount, setSelectedCarriersCount] = useState(0);
   const [pendingFormData, setPendingFormData] = useState<FreightFormData | null>(null);
   const [pendingCarrierIds, setPendingCarrierIds] = useState<string[]>([]);
+  const [deliveryId, setDeliveryId] = useState<string | null>(null);
 
   const handleCancel = () => {
     if (projectId) {
@@ -978,7 +981,15 @@ const FreightSelectionView: React.FC = () => {
         additionalNotes: values.additionalNotes || undefined,
         status: "draft",
       };
-      await createPlantDelivery(payload).unwrap();
+      const res = (await createPlantDelivery(payload).unwrap()) as {
+        deliveryId?: string;
+        _id?: string;
+        data?: { _id?: string; deliveryId?: string };
+      };
+      const dId = res?.deliveryId || res?._id || res?.data?._id || res?.data?.deliveryId;
+      if (dId) {
+        setDeliveryId(dId);
+      }
       setIsDraftSuccessModalOpen(true);
     } catch (err) {
       console.error("Failed to save draft:", err);
@@ -1051,6 +1062,7 @@ const FreightSelectionView: React.FC = () => {
           onOpenReview={handleOpenReview}
           onSaveDraft={handleSaveDraft}
           onCancel={handleCancel}
+          deliveryId={deliveryId}
         />
       </div>
       <CarrierFilterModal
