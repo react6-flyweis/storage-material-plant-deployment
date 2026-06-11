@@ -13,12 +13,16 @@ import {
   ChevronDown,
   History,
   Pen,
+  Star,
+  Award,
+  RotateCw,
+  XCircle,
 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import Button from "../common_component/Button";
-import { AwardLoadModal, AwardSuccessModal } from "./AwardLoadModals";
+import { AwardLoadModal, AwardSuccessModal, RequestRevisionModal, RevisionSuccessModal } from "./AwardLoadModals";
 import FilterDropdown from "../common_component/FilterDropdown";
-import { useGetProjectFreightBidsQuery } from "@/redux/api/logisticsApi";
+import { useGetProjectFreightBidsQuery, useSelectFreightBidMutation } from "@/redux/api/logisticsApi";
 
 // --- Sub-components ---
 
@@ -42,68 +46,165 @@ export const StatCard = ({ title, value, subtitle, icon: Icon, gradient }: any) 
   </div>
 );
 
-const BidCard = ({ rank, carrier, submitted, transit, amount, notes, isAwarded, diff, onAward }: any) => (
-  <div
-    className={`bg-white rounded-[14px] p-2 md:p-6 border transition-all ${isAwarded ? "border-[#00A76F]/30 ring-1 ring-[#00A76F]/20" : "border-gray-100"}`}
-  >
-    <div className="flex flex-col md:flex-row gap-6">
-      <div className="flex items-start gap-4 flex-1">
-        <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold flex-shrink-0 ${isAwarded ? "bg-[#00A76F] text-white" : "bg-[#F4F6F8] text-[#919EAB]"}`}>
-          #{rank}
-        </div>
-        <div className="space-y-3 flex-1">
-          <div className="flex justify-between items-start">
+const BidCard = ({
+  bidId,
+  rank,
+  carrier,
+  rating,
+  onTime,
+  submitted,
+  transit,
+  amount,
+  notes,
+  isAwarded,
+  diff,
+  status,
+  onAward,
+  onRequestRevision,
+}: any) => {
+  const isSent = status === "sent";
+  return (
+    <div
+      className={`rounded-[14px] p-4 md:p-6 border transition-all ${
+        rank === 1
+          ? "bg-[#EAFBF3] border-[#00C271]/40 shadow-sm"
+          : isAwarded
+          ? "bg-white border-[#00A76F]/30 ring-1 ring-[#00A76F]/20"
+          : "bg-white border-gray-100 shadow-sm hover:shadow-md"
+      }`}
+    >
+      <div className="flex flex-col md:flex-row gap-4 md:gap-6 justify-between">
+        <div className="flex items-start gap-4 flex-1">
+          <div
+            className={`rounded-full flex items-center justify-center font-bold flex-shrink-0 transition-all ${
+              rank === 1
+                ? "w-12 h-12 bg-[#00A76F] text-white shadow-[0_4px_12px_rgba(0,167,111,0.25)] text-base md:text-lg"
+                : isAwarded
+                ? "w-10 h-10 bg-[#00A76F] text-white"
+                : "w-10 h-10 bg-[#F4F6F8] text-[#919EAB]"
+            }`}
+          >
+            #{rank}
+          </div>
+          <div className="space-y-1">
             <h4 className="text-lg font-bold text-[#212B36]">{carrier}</h4>
-            <div className="text-right flex flex-col items-end md:hidden">
-              <p className={`text-[24px] font-bold leading-tight ${isAwarded ? "text-[#00A76F]" : "text-[#212B36]"}`}>{amount}</p>
-              {diff && (
-                <p className={`text-[10px] font-bold uppercase ${diff === "LOWEST BID" ? "text-[#00A76F]" : "text-[#919EAB]"}`}>
-                  {diff}
-                </p>
-              )}
+            <div className="flex flex-wrap items-center gap-x-2 md:gap-x-2.5 gap-y-1 text-xs md:text-sm text-[#637381]">
+              <div className="flex items-center gap-1">
+                <Star size={14} className="text-amber-500 fill-amber-500" />
+                <span className="font-bold text-[#212B36]">{rating}</span>
+              </div>
+              <span className="text-[#919EAB]">•</span>
+              <span>On-time delivery {onTime}</span>
+              <span className="text-[#919EAB]">•</span>
+              <span>Submitted {submitted}</span>
+              <span className="text-[#919EAB]">•</span>
+              <span>Transit Time: {transit}</span>
             </div>
           </div>
+        </div>
 
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-[#637381]">
-            <span>Submitted: {submitted}</span>
-            <span>• Transit Time: {transit}</span>
-          </div>
-
-          {notes && (
-            <div className="mt-4 p-4 bg-white rounded-xl border border-gray-50 max-w-3xl">
-              <p className="text-xs font-medium text-[#212B36] mb-1">Carrier Notes:</p>
-              <p className="text-sm text-[#637381] font-normal">{notes}</p>
-            </div>
-          )}
-
-          {isAwarded && (
-            <div className="mt-4">
-              <button
-                onClick={() => onAward({ carrier, amount })}
-                className="inline-flex items-center gap-2 bg-[#00A76F] text-white px-4 py-2 rounded-[8px] text-sm font-bold shadow-sm hover:bg-[#008F5E] transition-all"
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M19 21l-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"></path>
-                </svg>
-                Awarded Load
-              </button>
-            </div>
+        <div className="text-right hidden md:flex flex-col justify-start min-w-[140px]">
+          <p className="text-xs font-bold text-[#919EAB] uppercase tracking-wide">
+            Bid Amount
+          </p>
+          <p
+            className={`text-lg md:text-[32px] font-extrabold leading-none my-1.5 ${
+              rank === 1 || isAwarded ? "text-[#00A76F]" : "text-[#212B36]"
+            }`}
+          >
+            {amount}
+          </p>
+          {diff && (
+            <p
+              className={`text-[10px] md:text-xs font-bold tracking-wide uppercase ${
+                rank === 1 ? "text-[#00A76F]" : "text-[#637381]"
+              }`}
+            >
+              {diff}
+            </p>
           )}
         </div>
       </div>
 
-      <div className="text-right hidden md:flex flex-col justify-start min-w-[120px]">
-        <p className="text-xs font-bold text-[#919EAB] uppercase tracking-wide">Bid Amount</p>
-        <p className={`text-lg md:text-[32px] font-bold leading-tight ${isAwarded ? "text-[#00A76F]" : "text-[#212B36]"}`}>{amount}</p>
-        {diff && (
-          <p className={`text-[10px] font-bold mt-1 uppercase ${diff === "LOWEST BID" ? "text-[#00A76F]" : "text-[#919EAB]"}`}>
-            {diff}
+      {/* Mobile Price display */}
+      <div className="flex md:hidden justify-between items-center mt-3 pt-3 border-t border-gray-100">
+        <p className="text-xs font-bold text-[#919EAB] uppercase tracking-wide">
+          Bid Amount
+        </p>
+        <div className="text-right">
+          <p
+            className={`text-2xl font-extrabold leading-tight ${
+              rank === 1 || isAwarded ? "text-[#00A76F]" : "text-[#212B36]"
+            }`}
+          >
+            {amount}
           </p>
-        )}
+          {diff && (
+            <p
+              className={`text-[10px] font-bold tracking-wide uppercase mt-0.5 ${
+                rank === 1 ? "text-[#00A76F]" : "text-[#637381]"
+              }`}
+            >
+              {diff}
+            </p>
+          )}
+        </div>
       </div>
+
+      {/* Carrier Notes */}
+      {!isSent && (
+        <div
+          className={`mt-4 p-4 rounded-[12px] md:ml-16 transition-all ${
+            rank === 1
+              ? "bg-white border border-[#00C271]/10 shadow-[0_2px_8px_rgba(0,0,0,0.02)]"
+              : "bg-[#F4F6F8]"
+          }`}
+        >
+          <p className="text-sm font-bold text-[#454F5B]">Carrier Notes:</p>
+          <p className="text-sm text-[#637381] font-normal mt-1">{notes || "—"}</p>
+        </div>
+      )}
+
+      {/* Action Buttons */}
+      {!isSent && (
+        <div className="flex flex-wrap gap-3 mt-5 md:ml-16">
+          {isAwarded ? (
+            <span className="inline-flex items-center gap-2 bg-[#00A76F] text-white px-4 py-2.5 rounded-[8px] text-sm font-bold shadow-sm">
+              <Award size={16} strokeWidth={2.5} />
+              Awarded Load
+            </span>
+          ) : (
+            <>
+              <button
+                onClick={() => onAward({ bidId, carrier, rating, amount })}
+                className="flex items-center gap-2 bg-[#00A76F] hover:bg-[#008F5E] text-white px-4 py-2.5 rounded-[8px] text-sm font-bold shadow-sm transition-all"
+              >
+                <Award size={16} strokeWidth={2.5} />
+                Award Load
+              </button>
+              <button
+                onClick={() => onRequestRevision({ carrier, rating, amount })}
+                className="flex items-center gap-2 bg-[#FF6900] hover:bg-[#e05c00] text-white px-4 py-2.5 rounded-[8px] text-sm font-bold shadow-sm transition-all"
+              >
+                <RotateCw size={16} strokeWidth={2.5} />
+                Request Revision
+              </button>
+              <button
+                onClick={() => {
+                  console.log("Decline bid from:", carrier);
+                }}
+                className="flex items-center gap-2 bg-white border border-gray-200 hover:bg-gray-50 text-[#FF5630] px-4 py-2.5 rounded-[8px] text-sm font-bold shadow-sm transition-all"
+              >
+                <XCircle size={16} strokeWidth={2.5} />
+                Decline
+              </button>
+            </>
+          )}
+        </div>
+      )}
     </div>
-  </div>
-);
+  );
+};
 
 const DetailItem = ({ label, value, highlight }: any) => (
   <div className="space-y-1">
@@ -120,8 +221,15 @@ const FreightRequestDetailsView: React.FC = () => {
   const [activeTab, setActiveTab] = useState("Bid Comparison");
   const [isAwardModalOpen, setIsAwardModalOpen] = useState(false);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [isRevisionModalOpen, setIsRevisionModalOpen] = useState(false);
+  const [isRevisionSuccessOpen, setIsRevisionSuccessOpen] = useState(false);
   const [selectedCarrier, setSelectedCarrier] = useState<any>(null);
+  const [revisionData, setRevisionData] = useState<any>({ targetAmount: "", message: "" });
   const [sortBy, setSortBy] = useState("low");
+  const [awardedDeliveryId, setAwardedDeliveryId] = useState<string>("");
+  const [selectError, setSelectError] = useState<string>("");
+
+  const [selectFreightBid, { isLoading: isSelectingBid }] = useSelectFreightBidMutation();
 
   const sortParam = sortBy === "low" ? "low_to_high" : "high_to_low";
   const { data: bidsResponse, isLoading, error } = useGetProjectFreightBidsQuery(
@@ -131,24 +239,53 @@ const FreightRequestDetailsView: React.FC = () => {
 
   const handleAwardClick = (carrierData: any) => {
     setSelectedCarrier(carrierData);
+    setSelectError("");
     setIsAwardModalOpen(true);
   };
 
-  const handleConfirmAward = () => {
-    setIsAwardModalOpen(false);
-    setIsSuccessModalOpen(true);
+  const handleRevisionClick = (carrierData: any) => {
+    setSelectedCarrier(carrierData);
+    setIsRevisionModalOpen(true);
+  };
+
+  const handleConfirmAward = async () => {
+    if (!selectedCarrier?.bidId) {
+      setSelectError("Invalid bid selection.");
+      return;
+    }
+    setSelectError("");
+    try {
+      const response = await selectFreightBid(selectedCarrier.bidId).unwrap();
+      setAwardedDeliveryId(response.deliveryId);
+      setIsAwardModalOpen(false);
+      setIsSuccessModalOpen(true);
+    } catch (err: any) {
+      // Safely extract error message complying with error handling guidelines
+      const errMsg = err?.data?.message || err?.message || "Failed to award bid. Please try again.";
+      setSelectError(errMsg);
+    }
+  };
+
+  const handleConfirmRevision = (data: any) => {
+    setRevisionData(data);
+    setIsRevisionModalOpen(false);
+    setIsRevisionSuccessOpen(true);
   };
 
   const handleSuccessOk = () => {
     setIsSuccessModalOpen(false);
-    navigate(`/delivery/delivery-details/DEL-0997`);
+    if (awardedDeliveryId) {
+      navigate(`/delivery/delivery-details/${awardedDeliveryId}`);
+    } else {
+      navigate(`/delivery/delivery-details/DEL-0997`);
+    }
   };
 
   const tabs = [
     `Bid Comparison (${bidsResponse?.bids?.length ?? 0})`,
     "Request Details",
-    "Communication Log",
-    "Carrier Messages",
+    // "Communication Log",
+    // "Carrier Messages",
   ];
 
   const lowestBidAmount = bidsResponse?.bidRange?.lowestBid?.amount ?? 0;
@@ -158,17 +295,18 @@ const FreightRequestDetailsView: React.FC = () => {
     let diffText = "";
     if (!isSent) {
       if (bid.isLowest) {
-        diffText = "LOWEST BID";
+        diffText = "Lowest Bid";
       } else if (lowestBidAmount > 0 && bid.bidAmount > lowestBidAmount) {
         const diffVal = bid.bidAmount - lowestBidAmount;
-        diffText = `+$${diffVal.toLocaleString()} MORE`;
+        diffText = `+$${diffVal.toLocaleString()} more`;
       }
     }
 
     return {
+      bidId: bid.bidId,
       rank: idx + 1,
       carrier: bid.carrierName,
-      rating: 4.8,
+      rating: bid.carrierName === "National Haulers Inc." ? 4.5 : 4.8,
       onTime: "89%",
       submitted: bid.submittedAt ? new Date(bid.submittedAt).toLocaleDateString() : "Pending",
       transit: isSent ? "—" : "1 day",
@@ -176,6 +314,7 @@ const FreightRequestDetailsView: React.FC = () => {
       notes: bid.carrierNote,
       isAwarded: bid.status === "awarded",
       diff: diffText,
+      status: bid.status,
     };
   });
 
@@ -280,8 +419,8 @@ const FreightRequestDetailsView: React.FC = () => {
                   key={tab}
                   onClick={() => setActiveTab(tab)}
                   className={`pb-4 text-sm font-bold transition-all relative ${activeTab.includes(tab.split(" (")[0])
-                      ? "text-[#1E51A4] after:absolute after:bottom-0 after:left-0 after:w-full after:h-[2px] after:bg-[#1E51A4]"
-                      : "text-[#637381] hover:text-[#212B36]"
+                    ? "text-[#1E51A4] after:absolute after:bottom-0 after:left-0 after:w-full after:h-[2px] after:bg-[#1E51A4]"
+                    : "text-[#637381] hover:text-[#212B36]"
                     }`}
                 >
                   {tab}
@@ -328,6 +467,8 @@ const FreightRequestDetailsView: React.FC = () => {
                       key={idx}
                       {...bid}
                       onAward={handleAwardClick}
+                      onRequestRevision={handleRevisionClick}
+
                     />
                   ))}
                 </div>
@@ -506,6 +647,8 @@ const FreightRequestDetailsView: React.FC = () => {
         onClose={() => setIsAwardModalOpen(false)}
         onConfirm={handleConfirmAward}
         carrier={selectedCarrier}
+        isLoading={isSelectingBid}
+        error={selectError}
       />
 
       <AwardSuccessModal
@@ -513,7 +656,29 @@ const FreightRequestDetailsView: React.FC = () => {
         onClose={() => setIsSuccessModalOpen(false)}
         onOk={handleSuccessOk}
         carrier={selectedCarrier}
+        projectName={bidsResponse?.projectName || "ABC Logistics Warehouse"}
+        deliveryId={awardedDeliveryId}
+        deliveryDate="04/04/2024 at 14:00"
+        poc="John Site Manager"
+        location="Construction Site, Austin, TX"
       />
+
+      <RequestRevisionModal
+        isOpen={isRevisionModalOpen}
+        onClose={() => setIsRevisionModalOpen(false)}
+        onConfirm={handleConfirmRevision}
+        carrier={selectedCarrier}
+      />
+
+      <RevisionSuccessModal
+        isOpen={isRevisionSuccessOpen}
+        onClose={() => setIsRevisionSuccessOpen(false)}
+        onOk={() => setIsRevisionSuccessOpen(false)}
+        carrier={selectedCarrier}
+        targetAmount={revisionData.targetAmount}
+        message={revisionData.message}
+      />
+
     </div>
   );
 };
