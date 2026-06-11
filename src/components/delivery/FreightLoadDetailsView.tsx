@@ -557,6 +557,10 @@ const FreightLoadDetailsView: React.FC = () => {
         onClose={() => setIsSuccessModalOpen(false)}
         onOk={handleSuccessOk}
         carrier={selectedCarrier}
+        projectName="ABC Logistics Warehouse"
+        deliveryDate="04/04/2024 at 14:00"
+        poc="John Site Manager"
+        location="Construction Site, Austin, TX"
       />
 
       <RevisionSuccessModal 
