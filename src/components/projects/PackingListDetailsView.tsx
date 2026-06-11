@@ -1,8 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Download } from "lucide-react";
 import SubHeading from "../common_component/SubHeading";
 import Button from "../common_component/Button";
+import { useGetPackingListPlanQuery } from "@/redux/api/shipperApi";
+import type { PackingListEntry } from "@/redux/api/shipperApi";
+import PackingListModal from "./PackingListModal";
 
 interface TableColumn {
   header: string;
@@ -61,121 +64,121 @@ const PackingListTable: React.FC<ReusableTableProps> = ({ columns, data }) => (
 
 const PackingListDetailsView: React.FC = () => {
   const navigate = useNavigate();
-  const { id } = useParams();
-  console.log(id);
+  const { id } = useParams<{ id: string }>();
+
+  const [selectedPackingList, setSelectedPackingList] = useState<PackingListEntry | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const { data, isLoading, isError, error } = useGetPackingListPlanQuery(id || "", {
+    skip: !id,
+  });
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#1E51A4]" />
+      </div>
+    );
+  }
+
+  if (isError || !data) {
+    return (
+      <div className="p-6">
+        <div className="flex flex-col items-center justify-center min-h-[400px] gap-3 bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
+          <p className="text-red-500 font-inter font-bold text-lg">Error loading packing list details</p>
+          <p className="text-gray-500 font-inter text-sm max-w-md text-center">
+            {((error as { data?: { message?: string }; message?: string })?.data?.message ||
+              (error as { data?: { message?: string }; message?: string })?.message ||
+              "Failed to load packing list plan. Please try again.")}
+          </p>
+          <Button onClick={() => navigate(-1)} variant="gradient" size="sm">
+            Go Back
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  const { packingListPlan, packingLists = [], bundles = [] } = data;
+  const projectName = packingListPlan.project?.projectName || "N/A";
+  const planNumber = packingListPlan.bundlePlan?.planNumber || packingListPlan.planNumber || "N/A";
+
   const projectDetails = {
-    title: "Project: Riverside Complex | Truckloads: 2",
-    projectName: "Riverside Complex",
-    uploadId: "UPL-001",
-    bundlesCreated: 5,
-    totalWeight: "18500 IBS",
+    title: `Project: ${projectName} | Truckloads: ${packingListPlan.totalPackingLists}`,
+    projectName: projectName,
+    uploadId: planNumber,
+    bundlesCreated: packingListPlan.totalBundles,
+    totalWeight: `${packingListPlan.totalWeight.toLocaleString()} LBS`,
   };
 
   const optimizationSummary = [
-    { label: "Truck Loads", value: "2" },
-    { label: "Total Bundles", value: "4" },
-    { label: "Total Weight", value: "18500 IBS" },
-    { label: "Packing List Generated", value: "2" },
-  ];
-
-  const packingListData = [
-    {
-      loadId: "LOAD-001",
-      truck: "TX-2141",
-      bundles: 3,
-      weight: "36000 IBS",
-      destination: "Riverside Site A",
-      status: "Ready",
-    },
-    {
-      loadId: "LOAD-002",
-      truck: "TX-4712",
-      bundles: 2,
-      weight: "45500 IBS",
-      destination: "Riverside Site A",
-      status: "Ready",
-    },
-  ];
-
-  const bundleListData = [
-    {
-      bundleId: "BND-001",
-      profile: "Beam",
-      items: "STL-B12 x 30",
-      length: "20 ft",
-      weight: "3600 IBS",
-    },
-    {
-      bundleId: "BND-002",
-      profile: "Angle",
-      items: "STL-B12 x 30",
-      length: "12 ft",
-      weight: "2400 IBS",
-    },
-    {
-      bundleId: "BND-003",
-      profile: "Channel",
-      items: "STL-B12 x 30",
-      length: "15 ft",
-      weight: "4500 IBS",
-    },
-    {
-      bundleId: "BND-004",
-      profile: "Beam",
-      items: "STL-B12 x 30",
-      length: "20 ft",
-      weight: "2700 IBS",
-    },
+    { label: "Truck Loads", value: packingListPlan.totalPackingLists.toString() },
+    { label: "Total Bundles", value: packingListPlan.totalBundles.toString() },
+    { label: "Total Weight", value: `${packingListPlan.totalWeight.toLocaleString()} LBS` },
+    { label: "Packing List Generated", value: packingLists.length.toString() },
   ];
 
   const packingListColumns: TableColumn[] = [
     {
       header: "Load ID",
       key: "loadId",
-      render: (item) => (
-        <span className="font-semibold text-[#212B36]">{item.loadId}</span>
+      render: (item: PackingListEntry) => (
+        <span className="font-semibold text-[#212B36]">{item.packingListNo}</span>
       ),
     },
     {
       header: "Truck",
       key: "truck",
-      render: (item) => (
-        <span className="text-[#212B36] font-medium">{item.truck}</span>
+      render: (item: PackingListEntry) => (
+        <span className="text-[#212B36] font-medium">{item.truckLabel || item.truckType || item.truckNo || "-"}</span>
       ),
     },
     {
       header: "Bundles",
       key: "bundles",
-      render: (item) => <span className="text-[#212B36]">{item.bundles}</span>,
+      render: (item: PackingListEntry) => <span className="text-[#212B36]">{item.totalBundles}</span>,
     },
     {
       header: "Weight",
       key: "weight",
-      render: (item) => (
-        <span className="text-(--text-color-gray-4)">{item.weight}</span>
+      render: (item: PackingListEntry) => (
+        <span className="text-(--text-color-gray-4)">{item.totalWeight.toLocaleString()} LBS</span>
       ),
     },
     {
       header: "Destination",
       key: "destination",
-      render: (item) => (
-        <span className="text-(--text-color-gray-4)">{item.destination}</span>
+      render: () => (
+        <span className="text-(--text-color-gray-4)">{projectName} Site A</span>
       ),
     },
     {
       header: "Status",
       key: "status",
-      render: (item) => (
-        <span className="text-(--text-color-gray-4)">{item.status}</span>
+      render: (item: PackingListEntry) => (
+        <span className="text-(--text-color-gray-4) capitalize">{item.status || "Ready"}</span>
       ),
     },
     {
       header: "",
       key: "actions",
-      render: () => (
-        <button className="p-2 bg-gray-400 text-white rounded hover:bg-gray-500 transition-colors">
-          <Download size={18} />
-        </button>
+      render: (item: PackingListEntry) => (
+        <div className="flex items-center justify-end gap-2">
+          <Button variant="grayFilled" size="sm">
+            <Download size={18} strokeWidth={2.5} />
+          </Button>
+          <Button
+            variant="grayFilled"
+            size="sm"
+            className="px-6"
+            onClick={() => {
+              setSelectedPackingList(item);
+              setIsModalOpen(true);
+            }}
+          >
+            View
+          </Button>
+        </div>
       ),
     },
   ];
@@ -185,7 +188,7 @@ const PackingListDetailsView: React.FC = () => {
       header: "Bundle ID",
       key: "bundleId",
       render: (item) => (
-        <span className="font-bold text-[#212B36]">{item.bundleId}</span>
+        <span className="font-bold text-[#212B36]">{item.bundleNo}</span>
       ),
     },
     {
@@ -193,24 +196,24 @@ const PackingListDetailsView: React.FC = () => {
       key: "profile",
       render: (item) => (
         <span className="text-(--text-color-gray-4) font-medium">
-          {item.profile}
+          {item.bundleType || item.title || "N/A"}
         </span>
       ),
     },
     {
       header: "Items",
       key: "items",
-      render: (item) => <span className="text-[#212B36]">{item.items}</span>,
+      render: (item) => <span className="text-[#212B36]">{item.totalQty || item.itemCount}</span>,
     },
     {
       header: "Length",
       key: "length",
-      render: (item) => <span className="text-[#212B36]">{item.length}</span>,
+      render: (item) => <span className="text-[#212B36]">{item.maxLengthFeet} ft</span>,
     },
     {
       header: "Unit Weight",
       key: "weight",
-      render: (item) => <span className="text-[#212B36]">{item.weight}</span>,
+      render: (item) => <span className="text-[#212B36]">{item.totalWeight.toLocaleString()} LBS</span>,
     },
   ];
 
@@ -290,14 +293,14 @@ const PackingListDetailsView: React.FC = () => {
           <SubHeading text="Packing List" />
           <PackingListTable
             columns={packingListColumns}
-            data={packingListData}
+            data={packingLists}
           />
         </div>
 
         {/* Bundle List Table Section */}
         <div className="space-y-4">
           <SubHeading text="Bundle List" />
-          <PackingListTable columns={bundleListColumns} data={bundleListData} />
+          <PackingListTable columns={bundleListColumns} data={bundles} />
 
           {/* Bundle List Footer */}
           <div className="bg-[#262626] text-white p-2 md:p-4 rounded-md flex flex-col md:flex-row justify-between items-center gap-4">
@@ -307,11 +310,11 @@ const PackingListDetailsView: React.FC = () => {
               </div>
               <div className="flex flex-col">
                 <span className="text-gray-400">Total Bundles:</span>
-                <span className="font-semibold">3</span>
+                <span className="font-semibold">{bundles.length}</span>
               </div>
               <div className="flex flex-col">
                 <span className="text-gray-400">Total Weight:</span>
-                <span className="font-semibold">36,000 lbs</span>
+                <span className="font-semibold">{bundles.reduce((sum, b) => sum + (b.totalWeight || 0), 0).toLocaleString()} lbs</span>
               </div>
             </div>
             <div className="flex flex-wrap gap-3">
@@ -325,6 +328,18 @@ const PackingListDetailsView: React.FC = () => {
           </div>
         </div>
       </div>
+
+      <PackingListModal
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setSelectedPackingList(null);
+        }}
+        packingList={selectedPackingList}
+        bundles={bundles}
+        projectName={projectName}
+        planNumber={planNumber}
+      />
     </div>
   );
 };
