@@ -528,6 +528,45 @@ export const logisticsApi = createApi({
         return response.data;
       },
     }),
+    selectFreightBid: builder.mutation<
+      {
+        deliveryId: string;
+        status: string;
+        selectedBid: {
+          bidId: string;
+          carrierId: string;
+          quotedAmount: number;
+          selectedAt: string;
+        };
+        rejectedBidIds: string[];
+        emailFailures: string[];
+      },
+      string
+    >({
+      query: (bidId) => ({
+        url: `/api/plant/freight-bids/${bidId}/select`,
+        method: "POST",
+      }),
+      transformResponse: (
+        response: ApiResponse<{
+          deliveryId: string;
+          status: string;
+          selectedBid: {
+            bidId: string;
+            carrierId: string;
+            quotedAmount: number;
+            selectedAt: string;
+          };
+          rejectedBidIds: string[];
+          emailFailures: string[];
+        }>
+      ) => {
+        if (!response.data) {
+          throw new Error("No data returned from API");
+        }
+        return response.data;
+      },
+    }),
   }),
 });
 
@@ -542,5 +581,6 @@ export const {
   useSendFreightBidsMutation,
   useGetProjectFreightBidsQuery,
   useGetDeliveryFreightBidsQuery,
+  useSelectFreightBidMutation,
 } = logisticsApi;
 
