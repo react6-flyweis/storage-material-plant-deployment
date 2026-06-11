@@ -272,7 +272,7 @@ const UploadBOMModal: React.FC<UploadBOMModalProps> = ({
     if (uploadingBuilding) {
       try {
         setUploadBomError(null);
-        const fileFormat = file.name.split(".").pop() || "xlsx";
+        const fileFormat = file.name.split(".").pop() || "txt";
         const result = await uploadProjectBoms({
           leadId,
           bomFiles: [
@@ -392,11 +392,11 @@ const UploadBOMModal: React.FC<UploadBOMModalProps> = ({
           isOpen={!!uploadingBuilding}
           onClose={() => setUploadingBuilding(null)}
           title={`Upload BOM: Building ${uploadingBuilding.buildingNumber}`}
-          subtitle="Select or drop a BOM file (.xlsx, .xls, .ods) for this building."
+          subtitle="Select or drop a BOM file (.txt, .out) for this building."
           fileLabel={`Building-${uploadingBuilding.buildingNumber}-bom`}
           folder="boms"
           onUpload={handleUploadSuccess}
-          allowedExtensions={["ods", "xls", "xlsx"]}
+          allowedExtensions={["txt", "out"]}
         />
       )}
 
