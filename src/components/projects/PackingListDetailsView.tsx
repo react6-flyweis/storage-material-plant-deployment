@@ -6,6 +6,11 @@ import Button from "../common_component/Button";
 import { useGetPackingListPlanQuery } from "@/redux/api/shipperApi";
 import type { PackingListEntry } from "@/redux/api/shipperApi";
 import PackingListModal from "./PackingListModal";
+import {
+  exportPackingListToPDF,
+  exportBundleListToPDF,
+  exportBundleListToCSV,
+} from "@/lib/exportUtils";
 
 interface TableColumn {
   header: string;
@@ -162,24 +167,65 @@ const PackingListDetailsView: React.FC = () => {
     {
       header: "",
       key: "actions",
-      render: (item: PackingListEntry) => (
-        <div className="flex items-center justify-end gap-2">
-          <Button variant="grayFilled" size="sm">
-            <Download size={18} strokeWidth={2.5} />
-          </Button>
-          <Button
-            variant="grayFilled"
-            size="sm"
-            className="px-6"
-            onClick={() => {
-              setSelectedPackingList(item);
-              setIsModalOpen(true);
-            }}
-          >
-            View
-          </Button>
-        </div>
-      ),
+      render: (item: PackingListEntry) => {
+        const handlePdfDownload = () => {
+          const resolvedBundles = bundles.filter((b) =>
+            (item.bundleIds || []).includes(b._id)
+          );
+
+          const loadInfo = {
+            packingListNo: item.packingListNo || "-",
+            loadId: planNumber,
+            projectName: projectName,
+            truck: item.truckLabel || item.truckType || item.truckNo || "-",
+            driver: "-",
+            destination: "-",
+            dispatchDate: "-",
+          };
+
+          const summary = {
+            totalBundles: item.totalBundles || item.bundleIds.length || 0,
+            totalItems: item.totalItems || resolvedBundles.reduce((sum, b) => sum + (b.totalQty || b.itemCount || 0), 0),
+            totalWeight: item.totalWeight || 0,
+            maxLengthFeet: item.maxLengthFeet || 0,
+          };
+
+          const bundleList = resolvedBundles.map((b) => ({
+            _id: b._id,
+            bundleNo: b.bundleNo,
+            partNumber: b.bundleType || b.title || "N/A",
+            qty: b.totalQty || b.itemCount || 0,
+            length: b.maxLengthFeet || 0,
+            weight: b.totalWeight || 0,
+            status: b.status || "Ready",
+          }));
+
+          exportPackingListToPDF(loadInfo, summary, bundleList, true, id);
+        };
+
+        return (
+          <div className="flex items-center justify-end gap-2">
+            <Button
+              variant="grayFilled"
+              size="sm"
+              onClick={handlePdfDownload}
+            >
+              <Download size={18} strokeWidth={2.5} />
+            </Button>
+            <Button
+              variant="grayFilled"
+              size="sm"
+              className="px-6"
+              onClick={() => {
+                setSelectedPackingList(item);
+                setIsModalOpen(true);
+              }}
+            >
+              View
+            </Button>
+          </div>
+        );
+      },
     },
   ];
 
@@ -318,10 +364,18 @@ const PackingListDetailsView: React.FC = () => {
               </div>
             </div>
             <div className="flex flex-wrap gap-3">
-              <Button variant="white" size="sm">
+              <Button
+                variant="white"
+                size="sm"
+                onClick={() => exportBundleListToPDF(bundles, projectName, planNumber)}
+              >
                 Download PDF
               </Button>
-              <Button variant="white" size="sm">
+              <Button
+                variant="white"
+                size="sm"
+                onClick={() => exportBundleListToCSV(bundles, projectName, planNumber)}
+              >
                 Export Excel
               </Button>
             </div>
@@ -339,6 +393,7 @@ const PackingListDetailsView: React.FC = () => {
         bundles={bundles}
         projectName={projectName}
         planNumber={planNumber}
+        planId={id}
       />
     </div>
   );

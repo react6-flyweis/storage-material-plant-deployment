@@ -4,7 +4,14 @@ import Modal from "../Modal";
 import SubHeading from "../common_component/SubHeading";
 import CommonCheckbox from "../common_component/CommonCheckbox";
 import type { PackingListEntry, BundleItem } from "@/redux/api/shipperApi";
-import { getQRCodeUrl } from "@/lib/utils";
+import { getQRCodeUrl, getPackingListQRDataStr } from "@/lib/utils";
+import {
+  exportPackingListToPDF,
+  exportPackingListToCSV,
+  type ExportLoadInfo,
+  type ExportSummary,
+  type ExportBundleItem,
+} from "@/lib/exportUtils";
 
 
 interface PackingListModalProps {
@@ -15,6 +22,7 @@ interface PackingListModalProps {
   bundles?: BundleItem[];
   projectName?: string;
   planNumber?: string;
+  planId?: string;
 }
 
 const PackingListModal: React.FC<PackingListModalProps> = ({
@@ -25,6 +33,7 @@ const PackingListModal: React.FC<PackingListModalProps> = ({
   bundles = [],
   projectName = "N/A",
   planNumber,
+  planId,
 }) => {
   const [verificationSteps, setVerificationSteps] = useState([
     { id: 1, label: "All Bundles Present", checked: true },
@@ -44,14 +53,47 @@ const PackingListModal: React.FC<PackingListModalProps> = ({
     (packingList?.bundleIds || []).includes(b._id)
   );
 
-  const qrDataStr = JSON.stringify({
-    project: projectName || "",
-    shipper: planNumber || "",
-    load_id: packingList?.packingListNo || "",
-    bundles: resolvedBundles.map((b) => b.bundleNo).join(", "),
-    weight: packingList?.totalWeight || 0,
-    length: packingList?.maxLengthFeet || 0,
-  });
+  const loadInfo: ExportLoadInfo = {
+    packingListNo: packingList?.packingListNo || "-",
+    loadId: planNumber || "-",
+    projectName: projectName || "N/A",
+    truck: packingList?.truckLabel || packingList?.truckType || packingList?.truckNo || "-",
+    driver: "-",
+    destination: "-",
+    dispatchDate: "-",
+  };
+
+  const summary: ExportSummary = {
+    totalBundles: packingList?.totalBundles || packingList?.bundleIds.length || 0,
+    totalItems: packingList?.totalItems || resolvedBundles.reduce((sum, b) => sum + (b.totalQty || b.itemCount || 0), 0),
+    totalWeight: packingList?.totalWeight || 0,
+    maxLengthFeet: packingList?.maxLengthFeet || 0,
+  };
+
+  const bundleList: ExportBundleItem[] = resolvedBundles.map((b) => ({
+    _id: b._id,
+    bundleNo: b.bundleNo,
+    partNumber: b.bundleType || b.title || "N/A",
+    qty: b.totalQty || b.itemCount || 0,
+    length: b.maxLengthFeet || 0,
+    weight: b.totalWeight || 0,
+    status: b.status || "Ready",
+  }));
+
+  const standaloneBase = import.meta.env.VITE_STANDLONE_PAGE_BASE || "";
+  const qrDataStr = getPackingListQRDataStr(planId);
+
+  const handlePdfDownload = () => {
+    if (packingList) {
+      exportPackingListToPDF(loadInfo, summary, bundleList, !!showQr, planId);
+    }
+  };
+
+  const handleExcelExport = () => {
+    if (packingList) {
+      exportPackingListToCSV(loadInfo, summary, bundleList);
+    }
+  };
 
   return (
     <Modal
@@ -68,13 +110,13 @@ const PackingListModal: React.FC<PackingListModalProps> = ({
             Back
           </Button>
           <div className="flex flex-wrap gap-3">
-            <Button variant="purpleFilled" size="sm">
+            <Button variant="purpleFilled" size="sm" onClick={handlePdfDownload} disabled={!packingList}>
               Download PDF
             </Button>
-            <Button variant="purpleFilled" size="sm">
+            {/* <Button variant="purpleFilled" size="sm">
               Print Packing List
-            </Button>
-            <Button variant="purpleFilled" size="sm">
+            </Button> */}
+            <Button variant="purpleFilled" size="sm" onClick={handleExcelExport} disabled={!packingList}>
               Export Excel
             </Button>
           </div>
@@ -97,33 +139,39 @@ const PackingListModal: React.FC<PackingListModalProps> = ({
                 {/* Data List */}
                 <div className="flex-1 space-y-2">
                   <h3 className="text-lg md:text-xl font-inter font-semibold text-(--text-color-gray-5)">
-                    project={projectName || "-"}
+                    project={loadInfo.projectName}
                   </h3>
                   <div className="space-y-1 text-sm md:text-base font-normal">
                     <p className="flex gap-2">
                       <span className="text-(--text-color-gray-4) min-w-[80px]">Shipper :</span>
-                      <span className="text-(--text-color-gray-5) font-medium">shipper={planNumber || "-"}</span>
+                      <span className="text-(--text-color-gray-5) font-medium">shipper={loadInfo.loadId}</span>
                     </p>
                     <p className="flex gap-2">
                       <span className="text-(--text-color-gray-4) min-w-[80px]">Load :</span>
-                      <span className="text-(--text-color-gray-5) font-medium">load_id={packingList?.packingListNo || "-"}</span>
+                      <span className="text-(--text-color-gray-5) font-medium">load_id={loadInfo.packingListNo}</span>
                     </p>
                     <p className="flex gap-2">
                       <span className="text-(--text-color-gray-4) min-w-[80px]">Bundles :</span>
-                      <span className="text-(--text-color-gray-5) font-medium">bundle_ids={resolvedBundles.map((b) => b.bundleNo).join(", ") || "-"}</span>
+                      <span className="text-(--text-color-gray-5) font-medium">bundle_ids={bundleList.map((b) => b.bundleNo).join(", ") || "-"}</span>
                     </p>
                     <p className="flex gap-2">
                       <span className="text-(--text-color-gray-4) min-w-[80px]">Parts :</span>
-                      <span className="text-(--text-color-gray-5) font-medium">parts={Array.from(new Set(resolvedBundles.map((b) => b.bundleType || b.title).filter(Boolean))).join(", ") || "-"}</span>
+                      <span className="text-(--text-color-gray-5) font-medium">parts={Array.from(new Set(bundleList.map((b) => b.partNumber).filter(Boolean))).join(", ") || "-"}</span>
                     </p>
                     <p className="flex gap-2">
                       <span className="text-(--text-color-gray-4) min-w-[80px]">Weight :</span>
-                      <span className="text-(--text-color-gray-5) font-medium">weight={packingList?.totalWeight ? `${packingList.totalWeight.toLocaleString()} LBS` : "-"}</span>
+                      <span className="text-(--text-color-gray-5) font-medium">weight={summary.totalWeight ? `${summary.totalWeight.toLocaleString()} LBS` : "-"}</span>
                     </p>
                     <p className="flex gap-2">
                       <span className="text-(--text-color-gray-4) min-w-[80px]">Length :</span>
-                      <span className="text-(--text-color-gray-5) font-medium">length={packingList?.maxLengthFeet ? `${packingList.maxLengthFeet} FT` : "-"}</span>
+                      <span className="text-(--text-color-gray-5) font-medium">length={summary.maxLengthFeet ? `${summary.maxLengthFeet} FT` : "-"}</span>
                     </p>
+                    {planId && (
+                      <p className="flex gap-2">
+                        <span className="text-(--text-color-gray-4) min-w-[80px]">URL :</span>
+                        <span className="text-(--text-color-gray-5) font-medium break-all">{`${standaloneBase.replace(/\/+$/, "")}/packing-list-plan/${planId}`}</span>
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -137,13 +185,13 @@ const PackingListModal: React.FC<PackingListModalProps> = ({
             <SubHeading text="Load Information" />
             <div className="space-y-2 mt-3">
               {[
-                { label: "Packing List ID", value: packingList?.packingListNo || "-" },
-                { label: "Load ID", value: packingList?.packingListNo || "-" },
-                { label: "Project", value: projectName || "-" },
-                { label: "Truck", value: packingList?.truckLabel || packingList?.truckType || packingList?.truckNo || "-" },
-                { label: "Driver", value: "-" },
-                { label: "Destination", value: "-" },
-                { label: "Dispatch Date", value: "-" },
+                { label: "Packing List ID", value: loadInfo.packingListNo },
+                { label: "Load ID", value: loadInfo.loadId },
+                { label: "Project", value: loadInfo.projectName },
+                { label: "Truck", value: loadInfo.truck },
+                { label: "Driver", value: loadInfo.driver || "-" },
+                { label: "Destination", value: loadInfo.destination || "-" },
+                { label: "Dispatch Date", value: loadInfo.dispatchDate || "-" },
               ].map((item) => (
                 <div key={item.label} className="flex justify-between">
                   <span className="text-(--text-color-black) font-medium">
@@ -163,9 +211,9 @@ const PackingListModal: React.FC<PackingListModalProps> = ({
               <SubHeading text="Packing Summary" />
               <div className="space-y-3 mt-3">
                 {[
-                  { label: "Total Bundles", value: (packingList?.totalBundles || packingList?.bundleIds.length || 0).toString() },
-                  { label: "Total Items", value: (packingList?.totalItems || resolvedBundles.reduce((sum, b) => sum + (b.totalQty || b.itemCount || 0), 0)).toString() },
-                  { label: "Total weight", value: `${(packingList?.totalWeight || 0).toLocaleString()} lbs` },
+                  { label: "Total Bundles", value: summary.totalBundles.toString() },
+                  { label: "Total Items", value: summary.totalItems.toString() },
+                  { label: "Total weight", value: `${summary.totalWeight.toLocaleString()} lbs` },
                 ].map((item) => (
                   <div key={item.label} className="flex justify-between">
                     <span className="text-(--text-color-black) font-medium">
@@ -216,8 +264,8 @@ const PackingListModal: React.FC<PackingListModalProps> = ({
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 text-sm">
-                {resolvedBundles.map((bundle, index) => (
-                  <tr key={bundle._id} className="hover:bg-gray-50/50">
+                {bundleList.map((bundle, index) => (
+                  <tr key={bundle._id || index} className="hover:bg-gray-50/50">
                     <td className="py-6 px-6 font-normal text-(--text-color-black)">
                       {index + 1}
                     </td>
@@ -225,26 +273,26 @@ const PackingListModal: React.FC<PackingListModalProps> = ({
                       {bundle.bundleNo}
                     </td>
                     <td className="py-6 px-6 font-normal text-(--text-color-gray-4)">
-                      {bundle.bundleType || bundle.title || "N/A"}
+                      {bundle.partNumber}
                     </td>
                     <td className="py-6 px-6 font-normal text-(--text-color-gray-4)">
-                      {bundle.totalQty || bundle.itemCount}
+                      {bundle.qty}
                     </td>
                     <td className="py-6 px-6 font-normal text-(--text-color-gray-4)">
-                      {bundle.maxLengthFeet}ft
+                      {bundle.length}ft
                     </td>
                     <td className="py-6 px-6 font-normal text-(--text-color-gray-4) w-24">
                       <div className="flex flex-col">
-                        <span>{bundle.totalWeight.toLocaleString()}</span>
+                        <span>{bundle.weight.toLocaleString()}</span>
                         <span>LBS</span>
                       </div>
                     </td>
                     <td className="py-6 px-6 font-normal text-(--text-color-gray-4) capitalize" colSpan={2}>
-                      {bundle.status || "Ready"}
+                      {bundle.status}
                     </td>
                   </tr>
                 ))}
-                {resolvedBundles.length === 0 && (
+                {bundleList.length === 0 && (
                   <tr>
                     <td colSpan={8} className="py-8 text-center text-gray-500">
                       No bundles assigned to this packing list.
