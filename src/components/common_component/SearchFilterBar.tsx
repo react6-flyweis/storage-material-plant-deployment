@@ -8,6 +8,8 @@ interface SearchFilterBarProps {
   placeholder?: string;
   onFilterClick: () => void;
   className?: string;
+  isFilterApplied?: boolean;
+  onClearFilters?: () => void;
 }
 
 const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
@@ -16,6 +18,8 @@ const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
   placeholder = "Search...",
   onFilterClick,
   className = "",
+  isFilterApplied = false,
+  onClearFilters,
 }) => {
   return (
     <div className={`bg-white p-3 rounded-[14px] flex flex-col md:flex-row gap-3 items-center border border-gray-50 ${className}`}>
@@ -29,9 +33,16 @@ const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
           className="max-w-md w-full pl-12 pr-4 py-3.5 bg-[#F4F6F8] border-none rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1E51A4]/10 transition-all placeholder:text-gray-400"
         />
       </div>
-      <Button variant="gradient" onClick={onFilterClick} className="ml-auto">
-        Filter
-      </Button>
+      <div className="flex items-center gap-2 ml-auto w-full md:w-auto justify-end">
+        {isFilterApplied && onClearFilters && (
+          <Button variant="white" onClick={onClearFilters}>
+            Clear
+          </Button>
+        )}
+        <Button variant="gradient" onClick={onFilterClick}>
+          Filter
+        </Button>
+      </div>
     </div>
   );
 };
