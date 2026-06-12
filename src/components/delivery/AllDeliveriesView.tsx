@@ -23,65 +23,7 @@ import CommonDropdown from "../common_component/CommonDropdown";
 import CommonInput from "../common_component/CommonInput";
 import Pagination from "../Pagination";
 import PageWrapper from "../common_component/PageWrapper";
-
-const statsData = [
-  {
-    title: "Draft",
-    value: "1",
-    icon: FileText,
-    color: "text-[#D08700]",
-    bgColor: "bg-[#FFF9E6]",
-  },
-  {
-    title: "Total",
-    value: "12",
-    icon: Truck,
-    color: "text-[#4A5565]",
-    bgColor: "bg-[#F4F6F8]",
-  },
-  {
-    title: "Scheduled",
-    value: "4",
-    icon: Calendar,
-    color: "text-[#155DFC]",
-    bgColor: "bg-[#E6F0FF]",
-  },
-  {
-    title: "Confirmed",
-    value: "3",
-    icon: CheckCircle2,
-    color: "text-[#00C853]",
-    bgColor: "bg-[#E6FFEF]",
-  },
-  {
-    title: "In Transit",
-    value: "3",
-    icon: Truck,
-    color: "text-[#4A5565]",
-    bgColor: "bg-[#F4F6F8]",
-  },
-  {
-    title: "Delivered",
-    value: "2",
-    icon: CheckCircle2,
-    color: "text-[#4A5565]",
-    bgColor: "bg-[#F4F6F8]",
-  },
-  {
-    title: "Delayed",
-    value: "1",
-    icon: AlertTriangle,
-    color: "text-[#FF4842]",
-    bgColor: "bg-[#FFE9E9]",
-  },
-  {
-    title: "Cancelled",
-    value: "1",
-    icon: X,
-    color: "text-[#FF4842]",
-    bgColor: "bg-[#FFE9E9]",
-  },
-];
+import { useGetPlantDeliveriesStatsQuery, useGetPlantDeliveriesQuery } from "@/redux/api/deliveriesApi";
 
 const StatCard = ({ title, value, icon: Icon, color, bgColor }: any) => (
   <div className="bg-white p-3 md:p-4 rounded-[14px] flex items-center justify-between shadow-sm transition-all">
@@ -103,6 +45,67 @@ const StatCard = ({ title, value, icon: Icon, color, bgColor }: any) => (
 
 const AllDeliveriesView: React.FC = () => {
   const navigate = useNavigate();
+  const { data: stats } = useGetPlantDeliveriesStatsQuery();
+
+  const statsData = useMemo(() => [
+    {
+      title: "Draft",
+      value: stats?.draftCount ?? 0,
+      icon: FileText,
+      color: "text-[#D08700]",
+      bgColor: "bg-[#FFF9E6]",
+    },
+    {
+      title: "Total",
+      value: stats?.totalCount ?? 0,
+      icon: Truck,
+      color: "text-[#4A5565]",
+      bgColor: "bg-[#F4F6F8]",
+    },
+    {
+      title: "Scheduled",
+      value: stats?.scheduledCount ?? 0,
+      icon: Calendar,
+      color: "text-[#155DFC]",
+      bgColor: "bg-[#E6F0FF]",
+    },
+    {
+      title: "Confirmed",
+      value: stats?.confirmedCount ?? 0,
+      icon: CheckCircle2,
+      color: "text-[#00C853]",
+      bgColor: "bg-[#E6FFEF]",
+    },
+    {
+      title: "In Transit",
+      value: stats?.inTransitCount ?? 0,
+      icon: Truck,
+      color: "text-[#4A5565]",
+      bgColor: "bg-[#F4F6F8]",
+    },
+    {
+      title: "Delivered",
+      value: stats?.deliveredCount ?? 0,
+      icon: CheckCircle2,
+      color: "text-[#4A5565]",
+      bgColor: "bg-[#F4F6F8]",
+    },
+    {
+      title: "Delayed",
+      value: stats?.delayedCount ?? 0,
+      icon: AlertTriangle,
+      color: "text-[#FF4842]",
+      bgColor: "bg-[#FFE9E9]",
+    },
+    {
+      title: "Cancelled",
+      value: stats?.cancelledCount ?? 0,
+      icon: X,
+      color: "text-[#FF4842]",
+      bgColor: "bg-[#FFE9E9]",
+    },
+  ], [stats]);
+
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [itemsPerPage, setItemsPerPage] = useState("10");
@@ -129,106 +132,91 @@ const AllDeliveriesView: React.FC = () => {
     category: "all",
     equipment: "all",
     internalOwner: "all",
+    fromDate: "",
+    toDate: "",
   });
 
+  const queryParams = useMemo(() => {
+    return {
+      page: currentPage,
+      limit: parseInt(itemsPerPage) || 10,
+      search: searchTerm || undefined,
+      status: filters.status !== "all" ? filters.status : undefined,
+      projectId: filters.project !== "all" ? filters.project : undefined,
+      customerId: filters.customer !== "all" ? filters.customer : undefined,
+      carrierId: filters.carrier !== "all" ? filters.carrier : undefined,
+      fromDate: filters.fromDate || undefined,
+      toDate: filters.toDate || undefined,
+    };
+  }, [currentPage, itemsPerPage, searchTerm, filters]);
 
-  const [data, setData] = useState([
-    {
-      id: "DEL-1012",
-      priority: "Normal",
-      priorityColor: "text-[#00C853] bg-[#E6FFEF]",
-      status: "Delay",
-      statusColor: "text-[#155DFC] bg-[#E6F0FF]",
-      date: "Apr 1, 2026",
-      time: "07:30 - 11:30",
-      item: "Steel Frame - Primary frame set",
-      project: "ABC Logistics Warehouse",
-      customer: "Austin McClume",
-      vendor: "Roof Masters Ltd.",
-      carrier: "Rapid Delivery Services",
-      poc: "John Smith",
-      equipment: "5,000 lb forklift",
-      site: "Austin Warehouse",
-      address: "Austin TX",
-    },
-    {
-      id: "DEL-1010",
-      priority: "High",
-      priorityColor: "text-[#FF4842] bg-[#FFE9E9]",
-      status: "Delay",
-      statusColor: "text-[#155DFC] bg-[#E6F0FF]",
-      date: "Mar 31, 2026",
-      time: "11:00 - 15:00",
-      item: "Doors - Roll-up doors",
-      project: "Metro Cast Factory",
-      customer: "Sarah Williams",
-      vendor: "Climate Control Inc.",
-      carrier: "FastFreight Logistics",
-      poc: "John Smith",
-      equipment: "Crane required",
-      site: "Austin Warehouse",
-      address: "Austin TX",
-    },
-    {
-      id: "DEL-1008",
-      priority: "Critical",
-      priorityColor: "text-[#FFAB00] bg-[#FFF9E6]",
-      status: "Delivered",
-      statusColor: "text-[#00C853] bg-[#E6FFEF]",
-      date: "Mar 30, 2026",
-      time: "10:00 - 14:00",
-      item: "Steel Frame - Primary frame set",
-      project: "Warehouse Phase 2",
-      customer: "David Martinez",
-      vendor: "Panel Systems Inc.",
-      carrier: "Premier Transport Co.",
-      poc: "John Smith",
-      equipment: "5,000 lb forklift",
-      site: "Warehouse Alpha",
-      address: "Dallas TX",
-    },
-    {
-      id: "DEL-1007",
-      priority: "Normal",
-      priorityColor: "text-[#00C853] bg-[#E6FFEF]",
-      status: "Delay",
-      statusColor: "text-[#155DFC] bg-[#E6F0FF]",
-      date: "Mar 29, 2026",
-      time: "08:00 - 12:00",
-      item: "Doors - Roll-up doors",
-      project: "Storage Facility B",
-      customer: "Patricia Davis",
-      vendor: "Fastener Wholesale",
-      carrier: "FastFreight Logistics",
-      poc: "John Smith",
-      equipment: "Crane required",
-      site: "Storage Hub 5",
-      address: "Houston TX",
-    },
-  ]);
-
-  const filteredData = useMemo(() => {
-    return data.filter(row => 
-      row.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      row.project.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      row.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      row.item.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      row.vendor.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [data, searchTerm]);
-
-  const itemsPerPageNum = parseInt(itemsPerPage) || 10;
-  const startIndex = filteredData.length === 0 ? 0 : (currentPage - 1) * itemsPerPageNum + 1;
-  const endIndex = Math.min(currentPage * itemsPerPageNum, filteredData.length);
-  const totalItems = filteredData.length;
+  const { data: deliveriesData, isLoading } = useGetPlantDeliveriesQuery(queryParams);
 
   const [sortConfig, setSortConfig] = useState<{
     key: string;
     direction: "asc" | "desc" | null;
   }>({ key: "", direction: null });
 
+  const sortedData = useMemo(() => {
+    if (!deliveriesData?.deliveries) return [];
+    const items = [...deliveriesData.deliveries];
+    if (!sortConfig.key || !sortConfig.direction) return items;
+
+    const headerToDataKey: Record<string, string> = {
+      ID: "deliveryNumber",
+      Status: "status",
+      Items: "description",
+      Project: "project",
+      Customer: "customer",
+      Vendor: "shipperVendor",
+      Carrier: "carrier",
+      DeliveryDate: "deliveryDate",
+      Equipment: "equipment",
+      Site: "deliveryLocation",
+    };
+
+    const dataKey = headerToDataKey[sortConfig.key] || sortConfig.key;
+
+    items.sort((a: any, b: any) => {
+      let valA = a[dataKey];
+      let valB = b[dataKey];
+
+      if (dataKey === "project") {
+        valA = a.project?.projectName;
+        valB = b.project?.projectName;
+      } else if (dataKey === "customer") {
+        valA = a.customer?.name;
+        valB = b.customer?.name;
+      } else if (dataKey === "shipperVendor") {
+        valA = a.shipperVendor?.vendorName;
+        valB = b.shipperVendor?.vendorName;
+      } else if (dataKey === "carrier") {
+        valA = a.carrier?.carrierName;
+        valB = b.carrier?.carrierName;
+      } else if (dataKey === "equipment") {
+        valA = a.equipment?.join(", ");
+        valB = b.equipment?.join(", ");
+      }
+
+      valA = valA || "";
+      valB = valB || "";
+
+      if (valA < valB) return sortConfig.direction === "asc" ? -1 : 1;
+      if (valA > valB) return sortConfig.direction === "asc" ? 1 : -1;
+      return 0;
+    });
+
+    return items;
+  }, [deliveriesData, sortConfig]);
+
+  const itemsPerPageNum = parseInt(itemsPerPage) || 10;
+  const totalItems = deliveriesData?.total || 0;
+  const startIndex = totalItems === 0 ? 0 : (currentPage - 1) * itemsPerPageNum + 1;
+  const endIndex = Math.min(currentPage * itemsPerPageNum, totalItems);
+
   const handleFilterChange = (key: string, value: string) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
+    setCurrentPage(1);
   };
 
   const handleSort = (key: string) => {
@@ -237,36 +225,59 @@ const AllDeliveriesView: React.FC = () => {
       direction = "desc";
     }
     setSortConfig({ key, direction });
-
-    const headerToDataKey: Record<string, string> = {
-      ID: "id",
-      Status: "status",
-      Items: "item",
-      Project: "project",
-      Customer: "customer",
-      Vendor: "vendor",
-      Carrier: "carrier",
-      DeliveryDate: "date",
-      Equipment: "equipment",
-      Site: "site",
-    };
-
-    const dataKey = headerToDataKey[key] || key;
-
-    const sortedData = [...data].sort((a: any, b: any) => {
-      const valA = a[dataKey];
-      const valB = b[dataKey];
-
-      if (valA < valB) return direction === "asc" ? -1 : 1;
-      if (valA > valB) return direction === "asc" ? 1 : -1;
-      return 0;
-    });
-    setData(sortedData);
   };
 
   const toggleColumn = (column: string) => {
     setVisibleColumns((prev) => ({ ...prev, [column]: !prev[column] }));
   };
+
+  const formatStatusText = (status: string) => {
+    if (!status) return "";
+    return status
+      .split("_")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  };
+
+  const getStatusColor = (status: string) => {
+    const s = status.toLowerCase();
+    if (s.includes("draft")) return "text-[#D08700] bg-[#FFF9E6]";
+    if (s.includes("bidding") || s.includes("carrier")) return "text-[#155DFC] bg-[#E6F0FF]";
+    if (s.includes("scheduled")) return "text-[#155DFC] bg-[#E6F0FF]";
+    if (s.includes("confirmed")) return "text-[#00C853] bg-[#E6FFEF]";
+    if (s.includes("transit")) return "text-[#4A5565] bg-[#F4F6F8]";
+    if (s.includes("delivered")) return "text-[#00C853] bg-[#E6FFEF]";
+    if (s.includes("delayed")) return "text-[#FF4842] bg-[#FFE9E9]";
+    if (s.includes("cancelled")) return "text-[#FF4842] bg-[#FFE9E9]";
+    return "text-[#4A5565] bg-[#F4F6F8]";
+  };
+
+  const getStatusIcon = (status: string) => {
+    const s = status.toLowerCase();
+    if (s.includes("delayed")) return AlertTriangle;
+    if (s.includes("cancelled")) return X;
+    if (s.includes("confirmed") || s.includes("delivered")) return CheckCircle2;
+    if (s.includes("scheduled") || s.includes("calendar")) return Calendar;
+    return Truck;
+  };
+
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return "-";
+    try {
+      return new Date(dateString).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      });
+    } catch {
+      return dateString;
+    }
+  };
+
+  const DELIVERY_STATUSES = [
+    'draft', 'bidding_sent', 'carrier_selected', 'scheduled',
+    'confirmed', 'in_transit', 'delayed', 'delivered', 'cancelled',
+  ];
 
   const projectOptions = [
     { label: "All Project", value: "all" },
@@ -315,10 +326,10 @@ const AllDeliveriesView: React.FC = () => {
 
   const statusOptions = [
     { label: "All Status", value: "all" },
-    { label: "FastFreight Logistics", value: "fastfreight" },
-    { label: "Premier Transport Co.", value: "premier" },
-    { label: "Rapid Delivery Services", value: "rapid" },
-    { label: "Quick Services", value: "quick" },
+    ...DELIVERY_STATUSES.map(s => ({
+      label: formatStatusText(s),
+      value: s
+    }))
   ];
 
   const ownerOptions = [
@@ -332,7 +343,7 @@ const AllDeliveriesView: React.FC = () => {
   const tableHeaders = [
     { label: "ID", key: "ID", sortable: true },
     { label: "Status", key: "Status", sortable: true },
-    { label: "Date & Time", key: "Items", sortable: true },
+    { label: "Items", key: "Items", sortable: true },
     { label: "Project", key: "Project", sortable: true },
     { label: "Customer", key: "Customer", sortable: true },
     { label: "Vendor", key: "Vendor", sortable: true },
@@ -369,18 +380,17 @@ const AllDeliveriesView: React.FC = () => {
             <input
               type="text"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1);
+              }}
               placeholder="Search by ID, project, customer, item, vendor..."
               className="w-full pl-14 pr-6 py-3 bg-[#F4F6F8] border-none rounded-lg md:text-base text-sm outline-none transition-all placeholder:text-gray-400"
             />
             <CommonDropdown
               value={filters.status}
               onChange={(v) => handleFilterChange("status", v)}
-              options={[
-                { label: "All Status", value: "all" },
-                { label: "Draft Only", value: "draft" },
-                { label: "Scheduled Only", value: "scheduled" },
-              ]}
+              options={statusOptions}
               placeholder="All Status"
               className="min-w-[120px] md:min-w-[200px]"
             />
@@ -416,11 +426,15 @@ const AllDeliveriesView: React.FC = () => {
                 label="Date From"
                 type="date"
                 placeholder="DD/MM/YYYY"
+                value={filters.fromDate}
+                onChange={(v) => handleFilterChange("fromDate", v)}
               />
               <CommonInput
                 label="Date To"
                 type="date"
                 placeholder="DD/MM/YYYY"
+                value={filters.toDate}
+                onChange={(v) => handleFilterChange("toDate", v)}
               />
               <CommonDropdown
                 label="Project"
@@ -492,6 +506,8 @@ const AllDeliveriesView: React.FC = () => {
                       category: "all",
                       equipment: "all",
                       internalOwner: "all",
+                      fromDate: "",
+                      toDate: "",
                     })
                   }
                   size="md"
@@ -587,130 +603,152 @@ const AllDeliveriesView: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {filteredData.map((row, idx) => (
-                <tr
-                  key={idx}
-                  className="hover:bg-gray-50/50 transition-colors group cursor-pointer"
-                  onClick={() =>
-                    navigate(`/delivery/delivery-details/${row.id}`)
-                  }
-                >
-                  <td className="p-3 md:p-5">
-                    <div className="flex flex-col gap-1.5">
-                      <span className="font-medium text-[#4A5565] text-sm">
-                        {row.id}
-                      </span>
-                      <span
-                        className={`w-fit px-2.5 py-0.5 rounded-full text-xs font-normal tracking-wide ${row.priorityColor}`}
-                      >
-                        {row.priority}
-                      </span>
-                    </div>
+              {isLoading ? (
+                <tr>
+                  <td colSpan={tableHeaders.length} className="text-center py-8 text-gray-500">
+                    Loading deliveries...
                   </td>
-                  <td className="p-3 md:p-5">
-                    <div
-                      className={`flex items-center gap-2 px-3 py-1.5 rounded-full w-fit ${row.statusColor}`}
-                    >
-                      {row.status === "Delay" ? (
-                        <Calendar size={14} />
-                      ) : (
-                        <CheckCircle2 size={14} />
-                      )}
-                      <span className="text-xs font-medium">{row.status}</span>
-                    </div>
-                  </td>
-                  {visibleColumns.Items && (
-                    <td className="p-3 md:p-5 max-w-[200px]">
-                      <span className="font-medium text-[#212B36] text-sm leading-snug block whitespace-normal">
-                        {row.item}
-                      </span>
-                    </td>
-                  )}
-                  {visibleColumns.Project && (
-                    <td className="p-3 md:p-5">
-                      <span className="text-[#4A5565] font-medium text-sm">
-                        {row.project}
-                      </span>
-                    </td>
-                  )}
-                  {visibleColumns.Customer && (
-                    <td className="p-3 md:p-5">
-                      <span className="text-[#4A5565] font-medium text-sm">
-                        {row.customer}
-                      </span>
-                    </td>
-                  )}
-                  {visibleColumns.Vendor && (
-                    <td className="p-3 md:p-5">
-                      <span className="text-[#4A5565] font-medium text-sm">
-                        {row.vendor}
-                      </span>
-                    </td>
-                  )}
-                  {visibleColumns.Carrier && (
-                    <td className="p-3 md:p-5">
-                      <span className="text-[#4A5565] font-medium text-sm">
-                        {row.carrier}
-                      </span>
-                    </td>
-                  )}
-                  {visibleColumns.POC && (
-                    <td className="p-3 md:p-5">
-                      <div className="flex flex-col gap-1.5">
-                        <span className="font-medium text-[#4A5565] text-sm truncate max-w-[120px]">
-                          POC {row.poc}
-                        </span>
-                        <div className="flex items-center gap-2">
-                          <button
-                            className="text-[#4A5565] hover:bg-blue-50 p-1 rounded-md transition-colors"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <Phone size={14} />
-                          </button>
-                          <button
-                            className="text-[#4A5565] hover:bg-blue-50 p-1 rounded-md transition-colors"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <Mail size={14} />
-                          </button>
-                        </div>
-                      </div>
-                    </td>
-                  )}
-                  {visibleColumns.DeliveryDate && (
-                    <td className="p-3 md:p-5">
-                      <div className="flex flex-col gap-1">
-                        <span className="font-medium text-[#212B36] text-sm">
-                          {row.date}
-                        </span>
-                        <span className="text-[#637381] text-xs font-normal">
-                          {row.time}
-                        </span>
-                      </div>
-                    </td>
-                  )}
-                  {visibleColumns.Equipment && (
-                    <td className="p-3 md:p-5">
-                      <span className="text-[#637381] font-medium text-sm whitespace-normal max-w-[150px] block">
-                        {row.equipment}
-                      </span>
-                    </td>
-                  )}
-                  {visibleColumns.Site && (
-                    <td className="p-3 md:p-5">
-                      <div className="flex flex-col gap-1">
-                        <span className="font-medium text-[#212B36] text-sm">
-                          {row.site}
-                        </span>
-                        <span className="text-[#637381] text-xs font-medium">
-                          {" "}
-                          – {row.address}
-                        </span>
-                      </div>
-                    </td>
-                  )}
                 </tr>
-              ))}
+              ) : sortedData.length === 0 ? (
+                <tr>
+                  <td colSpan={tableHeaders.length} className="text-center py-8 text-gray-500">
+                    No deliveries found.
+                  </td>
+                </tr>
+              ) : (
+                sortedData.map((row, idx) => {
+                  const priority = (row as any).priority || "Normal";
+                  const priorityColor = (row as any).priorityColor || "text-[#00C853] bg-[#E6FFEF]";
+                  const StatusIcon = getStatusIcon(row.status);
+
+                  return (
+                    <tr
+                      key={row._id || idx}
+                      className="hover:bg-gray-50/50 transition-colors group cursor-pointer"
+                      onClick={() =>
+                        navigate(`/delivery/delivery-details/${row.requestId || row._id}`)
+                      }
+                    >
+                      <td className="p-3 md:p-5">
+                        <div className="flex flex-col gap-1.5">
+                          <span className="font-medium text-[#4A5565] text-sm">
+                            {row.deliveryNumber || row.requestId}
+                          </span>
+                          <span
+                            className={`w-fit px-2.5 py-0.5 rounded-full text-xs font-normal tracking-wide ${priorityColor}`}
+                          >
+                            {priority}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="p-3 md:p-5">
+                        <div
+                          className={`flex items-center gap-2 px-3 py-1.5 rounded-full w-fit ${getStatusColor(row.status)}`}
+                        >
+                          <StatusIcon size={14} />
+                          <span className="text-xs font-medium">{formatStatusText(row.status)}</span>
+                        </div>
+                      </td>
+                      {visibleColumns.Items && (
+                        <td className="p-3 md:p-5 max-w-[200px]">
+                          <span className="font-medium text-[#212B36] text-sm leading-snug block whitespace-normal">
+                            {(row as any).description || (row as any).item || "Delivery materials"}
+                          </span>
+                        </td>
+                      )}
+                      {visibleColumns.Project && (
+                        <td className="p-3 md:p-5">
+                          <span className="text-[#4A5565] font-medium text-sm">
+                            {row.project?.projectName || "-"}
+                          </span>
+                        </td>
+                      )}
+                      {visibleColumns.Customer && (
+                        <td className="p-3 md:p-5">
+                          <span className="text-[#4A5565] font-medium text-sm">
+                            {row.customer?.name || "-"}
+                          </span>
+                        </td>
+                      )}
+                      {visibleColumns.Vendor && (
+                        <td className="p-3 md:p-5">
+                          <span className="text-[#4A5565] font-medium text-sm">
+                            {row.shipperVendor?.vendorName || "-"}
+                          </span>
+                        </td>
+                      )}
+                      {visibleColumns.Carrier && (
+                        <td className="p-3 md:p-5">
+                          <span className="text-[#4A5565] font-medium text-sm">
+                            {row.carrier?.carrierName || "-"}
+                          </span>
+                        </td>
+                      )}
+                      {visibleColumns.POC && (
+                        <td className="p-3 md:p-5">
+                          <div className="flex flex-col gap-1.5">
+                            <span className="font-medium text-[#4A5565] text-sm truncate max-w-[120px]">
+                              {row.poc?.receivingPoc || "-"}
+                            </span>
+                            <div className="flex items-center gap-2">
+                              {row.poc?.pickupContactPhone && (
+                                <button
+                                  className="text-[#4A5565] hover:bg-blue-50 p-1 rounded-md transition-colors"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    window.location.href = `tel:${row.poc?.pickupContactPhone}`;
+                                  }}
+                                >
+                                  <Phone size={14} />
+                                </button>
+                              )}
+                              {row.customer?.email && (
+                                <button
+                                  className="text-[#4A5565] hover:bg-blue-50 p-1 rounded-md transition-colors"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    window.location.href = `mailto:${row.customer?.email}`;
+                                  }}
+                                >
+                                  <Mail size={14} />
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        </td>
+                      )}
+                      {visibleColumns.DeliveryDate && (
+                        <td className="p-3 md:p-5">
+                          <div className="flex flex-col gap-1">
+                            <span className="font-medium text-[#212B36] text-sm">
+                              {formatDate(row.deliveryDate)}
+                            </span>
+                            <span className="text-[#637381] text-xs font-normal">
+                              {row.deliveryTime || "-"}
+                            </span>
+                          </div>
+                        </td>
+                      )}
+                      {visibleColumns.Equipment && (
+                        <td className="p-3 md:p-5">
+                          <span className="text-[#637381] font-medium text-sm whitespace-normal max-w-[150px] block">
+                            {row.equipment ? row.equipment.join(", ") : "-"}
+                          </span>
+                        </td>
+                      )}
+                      {visibleColumns.Site && (
+                        <td className="p-3 md:p-5">
+                          <div className="flex flex-col gap-1">
+                            <span className="font-medium text-[#212B36] text-sm">
+                              {row.deliveryLocation || "-"}
+                            </span>
+                          </div>
+                        </td>
+                      )}
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </table>
         </div>
@@ -719,7 +757,7 @@ const AllDeliveriesView: React.FC = () => {
           <Pagination
             currentPage={currentPage}
             onPageChange={setCurrentPage}
-            totalItems={12}
+            totalItems={totalItems}
             itemsPerPage={Number(itemsPerPage)}
           />
         </div>

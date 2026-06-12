@@ -1,12 +1,12 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useMemo } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import { format, startOfWeek, endOfWeek, eachDayOfInterval, isSameDay, startOfMonth, endOfMonth, isSameMonth, subMonths, addMonths, setMonth, setYear } from "date-fns";
-import { 
-  ChevronLeft, 
-  ChevronRight, 
+import {
+  ChevronLeft,
+  ChevronRight,
   CalendarDays,
   Package,
   Truck,
@@ -22,80 +22,41 @@ import SuccessModal from "../common_component/SuccessModal";
 import TitleSubtitle from "../common_component/TitleSubtitle";
 import PageWrapper from "../common_component/PageWrapper";
 import DeliveryFilterModal from "./DeliveryFilterModal";
+import { useGetCalendarDeliveriesQuery, type CalendarDeliveryItem } from "@/redux/api/deliveriesApi";
 
-// --- Mock Data ---
-const MOCK_DELIVERIES: Delivery[] = [
-  {
-    id: "1",
-    title: "Primary frame steel",
-    projectId: "DEL-001",
-    status: "Scheduled",
-    date: "2024-03-25",
-    badges: [{ text: "Critical Path Items", type: "critical" }, { text: "Equipment conflict", type: "warning" }],
-    project: "Industrial Complex A",
-    customer: "Acme Corporation",
-    timeWindow: "8:00 AM - 12:00 PM",
-    receivingContact: "POC: Austin McClume",
-    vendor: "Steel Supply Co",
-    siteLocation: "Industrial Complex A Austin, TX",
-    requiredEquipment: "Primary frame steel Equipment: Crane required",
-    internalOwner: "Owner: Mike Johnson",
-    carrier: "Fast Freight LLC",
-    freightLoad: "FL-2031",
-  },
-  {
-    id: "2",
-    title: "Roll-up doors",
-    projectId: "DEL-002",
-    status: "Confirmed",
-    date: "2024-03-25",
-    badges: [{ text: "Critical Path Items", type: "critical" }],
-    project: "Storage Facility B",
-    customer: "BuildTech LLC",
-    timeWindow: "1:00 PM - 5:00 PM",
-    receivingContact: "POC: Austin McClume",
-    vendor: "Door Masters Inc",
-    siteLocation: "Industrial Complex A Austin, TX",
-    requiredEquipment: "Primary frame steel Equipment: Crane required",
-    internalOwner: "Owner: Mike Johnson",
-    carrier: "Fast Freight LLC",
-    freightLoad: "FL-2031",
-  },
-  {
-    id: "3",
-    title: "Warehouse Extension",
-    projectId: "DEL-003",
-    status: "Scheduled",
-    date: "2024-03-26",
-    project: "Warehouse Extension",
-    customer: "Steel Masters Co",
-    timeWindow: "9:00 AM - 1:00 PM",
-    receivingContact: "POC: Austin McClume",
-    vendor: "Steel Supply Co",
-    siteLocation: "Austin, TX",
-    requiredEquipment: "None",
-    internalOwner: "Mike",
-    carrier: "Fast Freight",
-    freightLoad: "FL-2032",
-  },
-  {
-    id: "4",
-    title: "Industrial Park C",
-    projectId: "DEL-004",
-    status: "Confirmed",
-    date: "2024-03-27",
-    project: "Industrial Park C",
-    customer: "Metro Build Co",
-    timeWindow: "10:00 AM - 2:00 PM",
-    receivingContact: "POC: Austin McClume",
-    vendor: "Steel Supply Co",
-    siteLocation: "Austin, TX",
-    requiredEquipment: "None",
-    internalOwner: "Mike",
-    carrier: "Fast Freight",
-    freightLoad: "FL-2033",
-  },
-];
+const mapApiDeliveryToDelivery = (item: CalendarDeliveryItem, dateStr: string): Delivery => {
+  const statusMap: Record<string, Delivery["status"]> = {
+    scheduled: "Scheduled",
+    confirmed: "Confirmed",
+    in_transit: "In Transit",
+    delivered: "Delivered",
+    delayed: "Delayed",
+    cancelled: "Cancelled",
+    draft: "Draft",
+    bidding_sent: "Bidding Sent",
+    carrier_selected: "Carrier Selected",
+  };
+  const uiStatus = statusMap[item.status] || "Scheduled";
+
+  return {
+    id: item._id || item.delivery?._id || item.requestId || "",
+    title: item.description || item.delivery?.description || item.delivery?.loadDescription || "Shipment",
+    projectId: item.deliveryNumber || item.delivery?.deliveryNumber || item.requestId || "",
+    status: uiStatus,
+    badges: [],
+    project: item.project?.projectName || "N/A",
+    customer: item.customer?.name || "N/A",
+    timeWindow: item.deliveryTime || item.delivery?.deliveryTime || item.delivery?.timings || "N/A",
+    receivingContact: item.poc?.receivingPoc || item.delivery?.receivingPoc || item.customer?.name || "N/A",
+    vendor: item.carrier?.carrierName || item.shipperVendor?.vendorName || "N/A",
+    siteLocation: item.deliveryLocation || item.delivery?.deliveryLocation || "N/A",
+    requiredEquipment: item.equipment?.join(", ") || item.delivery?.loadingEquipment?.join(", ") || "None",
+    internalOwner: "N/A",
+    carrier: item.carrier?.carrierName || "N/A",
+    freightLoad: item.requestId || "",
+    date: dateStr,
+  };
+};
 
 const MiniDeliveryCard = ({ delivery }: { delivery: Delivery }) => {
   const config = statusConfig[delivery.status];
@@ -126,7 +87,7 @@ const SelectDateModal = ({ isOpen, onClose, onSelect, initialDate }: { isOpen: b
   const monthEnd = endOfMonth(viewDate);
   const startDate = startOfWeek(monthStart);
   const endDate = endOfWeek(monthEnd);
-  
+
   const days = eachDayOfInterval({ start: startDate, end: endDate });
 
   const handlePrevMonth = () => setViewDate(subMonths(viewDate, 1));
@@ -142,7 +103,7 @@ const SelectDateModal = ({ isOpen, onClose, onSelect, initialDate }: { isOpen: b
               <ChevronLeft size={20} className="text-[#212B36]" />
             </button>
             <div className="flex gap-2 text-sm font-semibold">
-              <FilterDropdown 
+              <FilterDropdown
                 activeTab={format(viewDate, "M")}
                 onTabChange={(val) => setViewDate(setMonth(viewDate, parseInt(val) - 1))}
                 options={Array.from({ length: 12 }, (_, i) => ({
@@ -152,7 +113,7 @@ const SelectDateModal = ({ isOpen, onClose, onSelect, initialDate }: { isOpen: b
                 icon={<></>}
               />
 
-              <FilterDropdown 
+              <FilterDropdown
                 activeTab={format(viewDate, "yyyy")}
                 onTabChange={(val) => setViewDate(setYear(viewDate, parseInt(val)))}
                 options={Array.from({ length: 20 }, (_, i) => {
@@ -175,13 +136,12 @@ const SelectDateModal = ({ isOpen, onClose, onSelect, initialDate }: { isOpen: b
               const isCurrentMonth = isSameMonth(day, viewDate);
               const isSelected = isSameDay(day, tempDate);
               return (
-                <button 
-                  key={idx} 
-                  onClick={() => setTempDate(day)} 
-                  className={`h-11 w-11 flex items-center justify-center rounded-md text-sm font-medium transition-all relative ${
-                    isSelected ? "bg-[#212B36] text-white shadow-lg z-10" : 
+                <button
+                  key={idx}
+                  onClick={() => setTempDate(day)}
+                  className={`h-11 w-11 flex items-center justify-center rounded-md text-sm font-medium transition-all relative ${isSelected ? "bg-[#212B36] text-white shadow-lg z-10" :
                     isCurrentMonth ? "text-[#212B36] hover:bg-gray-50" : "text-[#919EAB] opacity-40 hover:bg-gray-50"
-                  }`}
+                    }`}
                 >
                   {format(day, "d")}
                 </button>
@@ -202,10 +162,11 @@ const SelectDateModal = ({ isOpen, onClose, onSelect, initialDate }: { isOpen: b
 const DeliveryCalendarView: React.FC = () => {
   const calendarRef = useRef<FullCalendar>(null);
   const [activeView, setActiveView] = useState("Day");
-  const [currentDate, setCurrentDate] = useState(new Date("2024-03-25"));
+  const [currentDate, setCurrentDate] = useState(new Date("2026-06-12"));
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   const [selectedDay, setSelectedDay] = useState<Date | null>(null);
   const [isDailyModalOpen, setIsDailyModalOpen] = useState(false);
+  const [filters, setFilters] = useState<Record<string, string>>({});
 
   // New modal states
   const [isRescheduleModalOpen, setIsRescheduleModalOpen] = useState(false);
@@ -224,13 +185,54 @@ const DeliveryCalendarView: React.FC = () => {
     else if (activeView === "Month") calendarApi.changeView("dayGridMonth");
   }, [activeView]);
 
+  const dateRange = useMemo(() => {
+    let fromDate: Date;
+    let toDate: Date;
+
+    if (activeView === "Day") {
+      fromDate = currentDate;
+      toDate = currentDate;
+    } else if (activeView === "Week") {
+      fromDate = startOfWeek(currentDate, { weekStartsOn: 0 });
+      toDate = endOfWeek(currentDate, { weekStartsOn: 0 });
+    } else {
+      fromDate = startOfMonth(currentDate);
+      toDate = endOfMonth(currentDate);
+    }
+
+    return {
+      fromDate: format(fromDate, "yyyy-MM-dd"),
+      toDate: format(toDate, "yyyy-MM-dd"),
+    };
+  }, [currentDate, activeView]);
+
+  const { data: calendarData } = useGetCalendarDeliveriesQuery({
+    fromDate: dateRange.fromDate,
+    toDate: dateRange.toDate,
+    projectId: filters.project || undefined,
+    customerId: filters.customer || undefined,
+  });
+
+  const deliveries: Delivery[] = useMemo(() => {
+    if (!calendarData?.dates) return [];
+    return calendarData.dates.flatMap((dateGroup) =>
+      (dateGroup.deliveries || []).map((d) => mapApiDeliveryToDelivery(d, dateGroup.date))
+    );
+  }, [calendarData]);
+
+  const todaysDeliveriesCount = useMemo(() => {
+    const todayStr = format(new Date(), "yyyy-MM-dd");
+    const todayGroup = calendarData?.dates?.find((d) => d.date === todayStr);
+    return todayGroup ? todayGroup.totalDeliveries : 0;
+  }, [calendarData]);
+
   const handleDateSelect = (date: Date) => {
     setCurrentDate(date);
     calendarRef.current?.getApi().gotoDate(date);
     setIsDatePickerOpen(false);
   };
 
-  const handleDateClick = (arg: any) => {
+  const handleDateClick = (arg: { date: Date }) => {
     if (activeView === "Month") {
       setSelectedDay(arg.date);
       setIsDailyModalOpen(true);
@@ -256,13 +258,13 @@ const DeliveryCalendarView: React.FC = () => {
     setIsReminderSuccessOpen(true);
   };
 
-  const renderEventContent = (eventInfo: any) => {
-    const delivery = eventInfo.event.extendedProps as Delivery;
-    
+  const renderEventContent = (eventInfo: { event: { extendedProps: Delivery } }) => {
+    const delivery = eventInfo.event.extendedProps;
+
     if (activeView === "Day") {
       return (
-        <DeliveryCard 
-          delivery={delivery} 
+        <DeliveryCard
+          delivery={delivery}
           onReschedule={handleReschedule}
           onMarkDelivered={handleMarkDelivered}
           onSendReminder={handleSendReminder}
@@ -281,15 +283,15 @@ const DeliveryCalendarView: React.FC = () => {
     }
   };
 
-  const filteredDeliveries = selectedDay 
-    ? MOCK_DELIVERIES.filter(d => isSameDay(new Date(d.date), selectedDay))
+  const filteredDeliveries = selectedDay
+    ? deliveries.filter(d => isSameDay(new Date(d.date), selectedDay))
     : [];
 
   return (
     <PageWrapper>
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-        <TitleSubtitle title="Delivery Calendar" subtitle="Schedule and track deliveries in calendar view"/>
-        
+        <TitleSubtitle title="Delivery Calendar" subtitle="Schedule and track deliveries in calendar view" />
+
         <div className="flex flex-wrap items-center gap-4">
           <Button variant="blueFilled" size="sm" onClick={() => setIsFilterModalOpen(true)}>Filters</Button>
           <div onClick={() => setIsDatePickerOpen(true)} className="flex items-center gap-2 h-10 px-4 bg-white border border-gray-200 rounded-lg text-sm font-medium text-[#212B36] cursor-pointer hover:border-[#1E51A4]">
@@ -298,7 +300,7 @@ const DeliveryCalendarView: React.FC = () => {
           </div>
           <div className="flex p-1 bg-white border border-gray-200 rounded-lg">
             {["Day", "Week", "Month"].map((view) => (
-              <button 
+              <button
                 key={view}
                 onClick={() => setActiveView(view)}
                 className={`px-6 py-1.5 text-sm font-bold rounded-md transition-all ${activeView === view ? "bg-[#1E51A4] text-white shadow-sm" : "text-[#637381]"}`}
@@ -312,7 +314,7 @@ const DeliveryCalendarView: React.FC = () => {
 
       <div className="bg-white rounded-[14px] border border-gray-100 overflow-hidden p-4 calendar-custom">
         <div className="flex flex-wrap gap-4 mb-8 mt-2">
-          <div className="px-5 py-2.5 bg-[#4169B830] text-[#02318C] rounded-[8px] text-sm font-normal">Today's Deliveries: 4 deliveries</div>
+          <div className="px-5 py-2.5 bg-[#4169B830] text-[#02318C] rounded-[8px] text-sm font-normal">Today's Deliveries: {todaysDeliveriesCount} deliveries</div>
           <div className="px-5 py-2.5 bg-[#4169B830] text-[#02318C] rounded-[8px] text-sm font-normal flex items-center gap-2">Weather: ☀ Clear</div>
         </div>
 
@@ -323,7 +325,7 @@ const DeliveryCalendarView: React.FC = () => {
           initialDate={currentDate}
           headerToolbar={false}
           dayHeaderFormat={activeView === "Week" ? { weekday: "short", day: "numeric", month: "short" } : { weekday: "long", month: "long", day: "numeric", year: "numeric" }}
-          events={MOCK_DELIVERIES.map(d => ({
+          events={deliveries.map(d => ({
             id: d.id,
             title: d.title,
             start: d.date,
@@ -349,18 +351,18 @@ const DeliveryCalendarView: React.FC = () => {
         </div>
       </div>
 
-      <SelectDateModal 
-        isOpen={isDatePickerOpen} 
-        onClose={() => setIsDatePickerOpen(false)} 
+      <SelectDateModal
+        isOpen={isDatePickerOpen}
+        onClose={() => setIsDatePickerOpen(false)}
         onSelect={handleDateSelect}
         initialDate={currentDate}
       />
 
-      <DeliveryFilterModal 
+      <DeliveryFilterModal
         isOpen={isFilterModalOpen}
         onClose={() => setIsFilterModalOpen(false)}
-        onApply={(filters) => {
-          console.log("Filters applied:", filters);
+        onApply={(f) => {
+          setFilters(f);
           setIsFilterModalOpen(false);
         }}
       />
@@ -383,7 +385,7 @@ const DeliveryCalendarView: React.FC = () => {
       />
 
       <SuccessModal
-      isLogoBottom={false}
+        isLogoBottom={false}
         isOpen={isMarkDeliveredModalOpen}
         onClose={() => setIsMarkDeliveredModalOpen(false)}
         title="Your delivery is Marked as Delivered"
