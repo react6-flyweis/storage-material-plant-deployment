@@ -14,7 +14,7 @@ import { useNavigate } from "react-router-dom";
 import Button from "../common_component/Button";
 import TitleSubtitle from "../common_component/TitleSubtitle";
 import SearchFilterBar from "../common_component/SearchFilterBar";
-import { StatCard } from "./FreightLoadsView";
+import { LoadStatCard as StatCard } from "./LoadStatCard";
 import FreightFilterModal from "./FreightFilterModal";
 import Modal from "../Modal";
 import AutomatedNotificationSystem from "./AutomatedNotificationSystem";

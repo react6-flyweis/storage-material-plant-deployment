@@ -1,258 +1,195 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import Modal from "../Modal";
 import Button from "../common_component/Button";
 import CommonDropdown from "../common_component/CommonDropdown";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useGetPlantProjectsQuery } from "@/redux/api/projectApi";
+import { useGetPlantCarriersQuery } from "@/redux/api/logisticsApi";
+
+export interface FreightFilters {
+  projectId?: string;
+  customerId?: string;
+  carrierId?: string;
+  status?: string;
+  fromDate?: string;
+  toDate?: string;
+}
 
 interface FreightFilterModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onApply?: (filters: any) => void;
+  onApply?: (filters: FreightFilters) => void;
+  initialFilters?: FreightFilters;
 }
 
 const FreightFilterModal: React.FC<FreightFilterModalProps> = ({
   isOpen,
   onClose,
   onApply,
+  initialFilters,
 }) => {
-  const [filters, setFilters] = useState({
-    deliveries: "all",
-    project: "",
-    deliveryType: "",
-    colorStatus: "",
-    vendor: "",
-    siteLocation: "",
-    priority: "",
-    internalOwner: "",
-    status: "",
-    delivery: "",
-    channel: "",
+  const [filters, setFilters] = useState<FreightFilters>({
+    projectId: initialFilters?.projectId || "",
+    customerId: initialFilters?.customerId || "",
+    carrierId: initialFilters?.carrierId || "",
+    status: initialFilters?.status || "",
   });
 
-  if (!isOpen) return null;
+  const [currentDate, setCurrentDate] = useState(() => {
+    if (initialFilters?.fromDate) {
+      const d = new Date(initialFilters.fromDate + "T00:00:00");
+      if (!isNaN(d.getTime())) {
+        return d;
+      }
+    }
+    return new Date();
+  });
 
-  const handleFilterChange = (key: string, value: string) => {
+  const { data: projectsData } = useGetPlantProjectsQuery({ limit: 100 }, { skip: !isOpen });
+  const { data: carriersData } = useGetPlantCarriersQuery({ limit: 100 }, { skip: !isOpen });
+
+  const handleFilterChange = (key: keyof FreightFilters, value: string) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
 
-  const projectOptions = [
-    { label: "Project", value: "" },
-    { label: "Storage Facility B", value: "1" },
-    { label: "Industrial Complex A", value: "2" },
-    { label: "Warehouse Complex", value: "3" },
-  ];
+  const handlePrevMonth = () => {
+    setCurrentDate((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
+  };
 
-  const deliveryTypeOptions = [
-    { label: "Delivery Type", value: "" },
-    { label: "Flatbed", value: "1" },
-    { label: "Box Truck", value: "2" },
-    { label: "Refrigerated", value: "3" },
-  ];
+  const handleNextMonth = () => {
+    setCurrentDate((prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
+  };
 
-  const colorStatusOptions = [
-    { label: "Color by Status", value: "" },
-    { label: "Ready", value: "1" },
-    { label: "Pending", value: "2" },
-    { label: "Delayed", value: "3" },
-  ];
+  const monthLabel = currentDate.toLocaleString("en-US", {
+    month: "long",
+    year: "numeric",
+  });
 
-  const vendorOptions = [
-    { label: "Vendor", value: "" },
-    { label: "ABC Steel", value: "1" },
-    { label: "Metro Steel", value: "2" },
-    { label: "Steel Works LTD", value: "3" },
-  ];
+  const projectOptions = useMemo(() => {
+    const options = [{ label: "All Projects", value: "" }];
+    if (projectsData?.projects) {
+      projectsData.projects.forEach((p) => {
+        options.push({ label: p.projectName, value: p._id });
+      });
+    }
+    return options;
+  }, [projectsData]);
 
-  const siteLocationOptions = [
-    { label: "Site Location", value: "" },
-    { label: "Dallas, TX", value: "1" },
-    { label: "San Antonio, TX", value: "2" },
-    { label: "Houston, TX", value: "3" },
-  ];
+  const carrierOptions = useMemo(() => {
+    const options = [{ label: "All Carriers", value: "" }];
+    if (carriersData?.carriers) {
+      carriersData.carriers.forEach((c) => {
+        options.push({ label: c.carrierName, value: c._id });
+      });
+    }
+    return options;
+  }, [carriersData]);
 
-  const priorityOptions = [
-    { label: "Priority", value: "" },
-    { label: "High", value: "high" },
-    { label: "Medium", value: "medium" },
-    { label: "Low", value: "low" },
-  ];
-
-  const internalOwnerOptions = [
-    { label: "Internal Owner", value: "" },
-    { label: "John Doe", value: "1" },
-    { label: "Jane Smith", value: "2" },
-    { label: "Michael Brown", value: "3" },
-  ];
+  const customerOptions = [{ label: "All Customers", value: "" }];
 
   const statusOptions = [
-    { label: "Status", value: "" },
+    { label: "All Statuses", value: "" },
     { label: "Awarded", value: "awarded" },
     { label: "Requested", value: "requested" },
     { label: "Bids Received", value: "bids_received" },
-  ];
-
-  const deliveryOptions = [
-    { label: "Delivery", value: "" },
-    { label: "Delivered", value: "delivered" },
     { label: "In Transit", value: "in_transit" },
-    { label: "Pending", value: "pending" },
+    { label: "Delivered", value: "delivered" },
   ];
 
-  const channelOptions = [
-    { label: "Channel", value: "" },
-    { label: "Email", value: "email" },
-    { label: "SMS", value: "sms" },
-    { label: "Voice", value: "voice" },
-  ];
+  const handleApply = () => {
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    // Start of the month in local YYYY-MM-DD
+    const pad = (n: number) => String(n).padStart(2, "0");
+    const fromDateStr = `${year}-${pad(month + 1)}-01`;
+    // End of the month
+    const lastDay = new Date(year, month + 1, 0).getDate();
+    const toDateStr = `${year}-${pad(month + 1)}-${pad(lastDay)}`;
+
+    onApply?.({
+      ...filters,
+      fromDate: fromDateStr,
+      toDate: toDateStr,
+    });
+  };
+
+  if (!isOpen) return null;
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} hideHeader width="max-w-[1100px]">
-      <div className="p-3 md:p-2 space-y-6 font-inter">
+    <Modal isOpen={isOpen} onClose={onClose} hideHeader width="max-w-[750px]">
+      <div className="p-4 md:p-6 space-y-6 font-inter">
         {/* Header */}
-        <h2 className="text-xl md:text-3xl font-semibold text-[#212B36] text-center">
+        <h2 className="text-xl md:text-2xl font-bold text-[#212B36] text-center">
           Filters
         </h2>
 
-        <div className="space-y-4">
-          {/* Row 1: Date Range & Top Filters */}
-          <div className="flex flex-wrap items-center justify-center gap-4">
-            <div className="flex items-center gap-6 px-6 py-2 rounded-full bg-white h-11">
-              <button className="text-[#637381] hover:text-[#212B36] transition-colors">
-                <ChevronLeft size={20} />
-              </button>
-              <span className="text-base md:text-lg font-semibold text-[#212B36] min-w-[140px] text-center">
-                March 2024
-              </span>
-              <button className="text-[#637381] hover:text-[#212B36] transition-colors">
-                <ChevronRight size={20} />
-              </button>
-            </div>
+        <div className="space-y-6">
+          {/* Old Date Selector UI */}
+          <div className="flex items-center justify-center gap-6 py-3">
+            <button
+              onClick={handlePrevMonth}
+              className="text-[#637381] hover:text-[#212B36] transition-colors p-2 rounded-full hover:bg-gray-100"
+            >
+              <ChevronLeft size={24} />
+            </button>
+            <span className="text-lg md:text-xl font-semibold text-[#212B36] min-w-[160px] text-center select-none">
+              {monthLabel}
+            </span>
+            <button
+              onClick={handleNextMonth}
+              className="text-[#637381] hover:text-[#212B36] transition-colors p-2 rounded-full hover:bg-gray-100"
+            >
+              <ChevronRight size={24} />
+            </button>
+          </div>
 
+          {/* Dropdowns Section */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <CommonDropdown
-              value={filters.deliveries}
-              onChange={(v) => handleFilterChange("deliveries", v)}
-              options={[
-                { label: "All Deliveries", value: "all" },
-                { label: "My Deliveries", value: "my" },
-                { label: "Shared Deliveries", value: "shared" },
-              ]}
-              placeholder="All Deliveries"
-              className="min-w-[180px]"
-            />
-            <CommonDropdown
-              value={filters.project}
-              onChange={(v) => handleFilterChange("project", v)}
+              label="Project"
+              value={filters.projectId || ""}
+              onChange={(v) => handleFilterChange("projectId", v)}
               options={projectOptions}
-              placeholder="Project"
-              className="min-w-[220px]"
+              placeholder="Select Project"
             />
             <CommonDropdown
-              value={filters.deliveryType}
-              onChange={(v) => handleFilterChange("deliveryType", v)}
-              options={deliveryTypeOptions}
-              placeholder="Delivery Type"
-              className="min-w-[200px]"
+              label="Customer"
+              value={filters.customerId || ""}
+              onChange={(v) => handleFilterChange("customerId", v)}
+              options={customerOptions}
+              placeholder="Select Customer"
             />
             <CommonDropdown
-              value={filters.colorStatus}
-              onChange={(v) => handleFilterChange("colorStatus", v)}
-              options={colorStatusOptions}
-              placeholder="Color by Status"
-              className="min-w-[220px]"
-            />
-          </div>
-
-          {/* Row 2: Secondary Filters */}
-          <div className="flex flex-wrap items-center justify-center gap-4">
-            <CommonDropdown
-              value={filters.vendor}
-              onChange={(v) => handleFilterChange("vendor", v)}
-              options={vendorOptions}
-              placeholder="Vendor"
-              className="min-w-[220px]"
+              label="Carrier"
+              value={filters.carrierId || ""}
+              onChange={(v) => handleFilterChange("carrierId", v)}
+              options={carrierOptions}
+              placeholder="Select Carrier"
             />
             <CommonDropdown
-              value={filters.siteLocation}
-              onChange={(v) => handleFilterChange("siteLocation", v)}
-              options={siteLocationOptions}
-              placeholder="Site Location"
-              className="min-w-[220px]"
-            />
-            <CommonDropdown
-              value={filters.priority}
-              onChange={(v) => handleFilterChange("priority", v)}
-              options={priorityOptions}
-              placeholder="Priority"
-              className="min-w-[220px]"
-            />
-            <CommonDropdown
-              value={filters.internalOwner}
-              onChange={(v) => handleFilterChange("internalOwner", v)}
-              options={internalOwnerOptions}
-              placeholder="Internal Owner"
-              className="min-w-[220px]"
-            />
-          </div>
-
-          {/* Row 3: Final Filters */}
-          <div className="flex flex-wrap items-center justify-center gap-4">
-            <CommonDropdown
-              value={filters.status}
+              label="Status"
+              value={filters.status || ""}
               onChange={(v) => handleFilterChange("status", v)}
               options={statusOptions}
-              placeholder="Status"
-              className="min-w-[220px]"
-            />
-            <CommonDropdown
-              value={filters.delivery}
-              onChange={(v) => handleFilterChange("delivery", v)}
-              options={deliveryOptions}
-              placeholder="Delivery"
-              className="min-w-[220px]"
-            />
-            <CommonDropdown
-              value={filters.channel}
-              onChange={(v) => handleFilterChange("channel", v)}
-              options={channelOptions}
-              placeholder="Channel"
-              className="min-w-[220px]"
+              placeholder="Select Status"
             />
           </div>
         </div>
 
-        {/* Action Button */}
-        <div className="flex justify-center pt-4">
+        {/* Action Buttons */}
+        <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
+          <Button variant="white" onClick={onClose} size="md">
+            Cancel
+          </Button>
           <Button
             variant="gradient"
-            onClick={() => onApply?.(filters)}
-            size="xl"
+            onClick={handleApply}
+            size="md"
           >
-            Apply
+            Apply Filters
           </Button>
         </div>
       </div>
-
-      <style>{`
-        /* Refined Modal Dropdown Styling */
-        .min-w-[180px] button, 
-        .min-w-[200px] button, 
-        .min-w-[220px] button {
-          background-color: white !important;
-          border-radius: 12px !important;
-          height: 52px !important;
-          border-color: #F4F6F8 !important;
-          box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
-          padding-left: 20px !important;
-          padding-right: 20px !important;
-        }
-        .min-w-[180px] span, 
-        .min-w-[200px] span, 
-        .min-w-[220px] span {
-          font-size: 16px !important;
-          color: #212B36 !important;
-          font-weight: 500 !important;
-        }
-      `}</style>
     </Modal>
   );
 };

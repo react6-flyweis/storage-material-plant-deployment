@@ -16,7 +16,7 @@ export interface Delivery {
   id: string;
   title: string;
   projectId: string;
-  status: "Scheduled" | "Confirmed" | "In Transit" | "Delivered" | "Delayed" | "Cancelled" | "Draft";
+  status: "Scheduled" | "Confirmed" | "In Transit" | "Delivered" | "Delayed" | "Cancelled" | "Draft" | "Bidding Sent" | "Carrier Selected";
   badges?: { text: string; type: "critical" | "warning" }[];
   project: string;
   customer: string;
@@ -33,6 +33,8 @@ export interface Delivery {
 
 export const statusConfig: Record<string, { color: string; bgColor: string; dotColor: string }> = {
   Draft: { color: "#919EAB", bgColor: "#F4F6F8", dotColor: "#DFE3E8" },
+  "Bidding Sent": { color: "#155DFC", bgColor: "#E6F0FF", dotColor: "#155DFC" },
+  "Carrier Selected": { color: "#155DFC", bgColor: "#E6F0FF", dotColor: "#155DFC" },
   Scheduled: { color: "#2B7FFF", bgColor: "#DCFCE7", dotColor: "#2B7FFF" },
   Confirmed: { color: "#22C55E", bgColor: "#F0FDF4", dotColor: "#22C55E" },
   "In Transit": { color: "#FFAB00", bgColor: "#FFF9EA", dotColor: "#FFAB00" },
