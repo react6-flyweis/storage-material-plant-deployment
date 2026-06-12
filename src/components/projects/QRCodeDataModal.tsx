@@ -9,6 +9,7 @@ export interface QRModalData {
   shipperRef?: string;
   loadId?: string | number;
   id?: string;
+  bundleId?: string;
   parts?: string;
   weight?: string;
   length?: string;
@@ -24,8 +25,8 @@ const QRCodeDataModal: React.FC<QRCodeDataModalProps> = ({ isOpen, onClose, data
   if (!data) return null;
 
   const qrDataObj = {
-    project: data.projectName || "RiversideComplex",
-    shipper: data.shipperRef || "SHP-1044",
+    project: data.projectName || "",
+    shipper: data.shipperRef || "",
     load_id: data.loadId || "LOAD-001",
     bundle_id: data.id || "BND-001",
     parts: data.parts || "STL-B12",
@@ -33,7 +34,10 @@ const QRCodeDataModal: React.FC<QRCodeDataModalProps> = ({ isOpen, onClose, data
     length: data.length?.replace(/[^0-9]/g, '') || "20",
   };
 
-  const qrCodeUrl = getQRCodeUrl(qrDataObj, "250x250");
+  const standaloneBase = import.meta.env.VITE_STANDLONE_PAGE_BASE || "";
+  const qrCodeUrl = data.bundleId
+    ? getQRCodeUrl(`${standaloneBase.replace(/\/+$/, "")}/bundle/${data.bundleId}`, "250x250")
+    : getQRCodeUrl(qrDataObj, "250x250");
 
   const handlePrint = () => {
     const printWindow = window.open("", "_blank");
@@ -122,6 +126,7 @@ const QRCodeDataModal: React.FC<QRCodeDataModalProps> = ({ isOpen, onClose, data
               <div class="row"><span class="label">Parts:</span><span class="value">${qrDataObj.parts}</span></div>
               <div class="row"><span class="label">Weight:</span><span class="value">${qrDataObj.weight}</span></div>
               <div class="row"><span class="label">Length:</span><span class="value">${qrDataObj.length}</span></div>
+              ${data.bundleId ? `<div class="row"><span class="label" style="min-width: 60px;">URL:</span><span class="value" style="word-break: break-all; text-align: right;">${standaloneBase.replace(/\/+$/, "")}/bundle/${data.bundleId}</span></div>` : ""}
             </div>
           </div>
           <script>
@@ -155,9 +160,9 @@ const QRCodeDataModal: React.FC<QRCodeDataModalProps> = ({ isOpen, onClose, data
         <div className="flex flex-col md:flex-row items-center md:items-start gap-5">
           {/* QR Code Dynamic Image */}
           <div className="w-48 h-48 md:w-56 md:h-56 shrink-0 bg-white border border-gray-150 flex items-center justify-center p-2 rounded-lg">
-            <img 
+            <img
               src={qrCodeUrl}
-              alt="QR Code" 
+              alt="QR Code"
               className="w-full h-full object-contain"
             />
           </div>
@@ -192,6 +197,14 @@ const QRCodeDataModal: React.FC<QRCodeDataModalProps> = ({ isOpen, onClose, data
                 <span className="text-(--text-color-gray-4) min-w-[80px]">Length :</span>
                 <span className="text-(--text-color-gray-5) font-medium">Length={qrDataObj.length}</span>
               </p>
+              {data.bundleId && (
+                <p className="flex gap-2">
+                  <span className="text-(--text-color-gray-4) min-w-[80px]">URL :</span>
+                  <span className="text-(--text-color-gray-5) font-medium break-all">
+                    {`${standaloneBase.replace(/\/+$/, "")}/bundle/${data.bundleId}`}
+                  </span>
+                </p>
+              )}
             </div>
           </div>
         </div>

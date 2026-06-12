@@ -3,7 +3,8 @@ import Modal from "../Modal";
 import checkIcon from "@/assets/icon/checkIcon.svg";
 import upload from "@/assets/icon/upload.svg";
 import pdf from "@/assets/icon/pdfIcon.svg";
-import { CircleX, X } from "lucide-react";
+import excel from "@/assets/icon/xlsIcon.svg";
+import { CircleX, X, FileText } from "lucide-react";
 import SubHeading from "../common_component/SubHeading";
 import Button from "../common_component/Button";
 import { useGetPresignedUrlMutation } from "@/redux/api/uploadApi";
@@ -213,6 +214,17 @@ const UploadModal: React.FC<UploadModalProps> = ({
 
   const isPending = isUploading || isGettingUrl;
 
+  const renderFileIcon = (fileName: string) => {
+    const ext = fileName.split(".").pop()?.toLowerCase();
+    if (ext === "pdf") {
+      return <img src={pdf} alt="PDF" className="size-8" />;
+    }
+    if (ext === "xls" || ext === "xlsx") {
+      return <img src={excel} alt="Excel" className="size-8" />;
+    }
+    return <FileText className="size-8 text-[#919EAB]" />;
+  };
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} width="max-w-xl" hideHeader>
       {isDraggingActive && (
@@ -292,7 +304,7 @@ const UploadModal: React.FC<UploadModalProps> = ({
         {/* File List Item */}
         {selectedFile && (
           <div className="bg-white border border-gray-100 rounded-xl p-2 flex items-center gap-2 group">
-            <img src={pdf} alt="Upload" className="size-8" />
+            {renderFileIcon(selectedFile.name)}
             <div className="flex-1 min-w-0">
               <p className="text-sm font-inter font-normal text-[#212B36] truncate">
                 {selectedFile.name}

@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { ArrowLeft, Upload } from "lucide-react";
 import ProjectQuickActions from "./ProjectQuickActions";
 import ProjectDetailsCard from "./ProjectDetailsCard";
@@ -24,6 +24,7 @@ import ProjectInvoicesTable from "./ProjectInvoices";
 const ProjectDetailsView = () => {
   const navigate = useNavigate();
   const { projectId } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const {
     data: projectDetail,
@@ -32,8 +33,18 @@ const ProjectDetailsView = () => {
   } = useGetPlantProjectDetailQuery(projectId || "");
 
   // Modal states
-  const [isBOMUploadOpen, setIsBOMUploadOpen] = useState(false);
+  const isBOMUploadOpen = searchParams.get("modal") === "upload-bom";
   const [isDrawingUploadOpen, setIsDrawingUploadOpen] = useState(false);
+
+  const handleBOMOpen = () => {
+    setSearchParams({ modal: "upload-bom" }, { replace: true });
+  };
+
+  const handleBOMClose = () => {
+    const newParams = new URLSearchParams(searchParams);
+    newParams.delete("modal");
+    setSearchParams(newParams, { replace: true });
+  };
 
   if (isLoading) {
     return (
@@ -142,7 +153,7 @@ const ProjectDetailsView = () => {
           <Button
             variant="white"
             size="sm"
-            onClick={() => setIsBOMUploadOpen(true)}
+            onClick={handleBOMOpen}
             className="flex items-center gap-2 px-2 py-2 md:px-4 md:py-2.5 bg-white border border-[#1E51A4] text-[#212B36] rounded-lg hover:bg-gray-50 transition-colors font-inter font-bold text-xs md:text-sm shadow-sm"
           >
             <Upload size={18} className="text-[#1E51A4]" />
@@ -203,7 +214,7 @@ const ProjectDetailsView = () => {
       {/* Modals */}
       <UploadBOMModal
         isOpen={isBOMUploadOpen}
-        onClose={() => setIsBOMUploadOpen(false)}
+        onClose={handleBOMClose}
         leadId={projectId || ""}
       />
 
