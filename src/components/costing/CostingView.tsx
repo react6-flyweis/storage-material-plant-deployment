@@ -9,7 +9,6 @@ import {
   CirclePlus,
 } from "lucide-react";
 import Button from "../common_component/Button";
-import { StatCard } from "../delivery/FreightRequestDetailsView";
 import FilterDropdown from "../common_component/FilterDropdown";
 import SubHeading from "../common_component/SubHeading";
 import TitleSubtitle from "../common_component/TitleSubtitle";
@@ -21,6 +20,7 @@ import PageWrapper from "../common_component/PageWrapper";
 import Pagination from "../Pagination";
 import { useGetSmdtCostListQuery } from "@/redux/api/costingApi";
 import { CATEGORY_OPTIONS } from "@/constants/costing";
+import FreightStatCard from "../delivery/FreightStatCard";
 
 type SortKey = "partName" | "partColor" | "costUnit" | "mbsCost" | "currentMarketCost" | "description";
 
@@ -173,19 +173,19 @@ const CostingView: React.FC = () => {
 
       {/* Stat Cards */}
       <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-4">
-        <StatCard
+        <FreightStatCard
           title="Total Item Cost"
           value={"N/A"}
           icon={DollarSign}
           gradient="linear-gradient(135deg, #2B7FFF 0%, #155DFC 100%)"
         />
-        <StatCard
+        <FreightStatCard
           title="Total Items"
           value={String(data?.total || 0)}
           icon={TrendingUp}
           gradient="linear-gradient(135deg, #22C55E 0%, #16A34A 100%)"
         />
-        <StatCard
+        <FreightStatCard
           title="New Added"
           value={"N/A"}
           icon={FileText}

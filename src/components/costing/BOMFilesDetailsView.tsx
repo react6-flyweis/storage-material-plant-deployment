@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, FileDown, ArrowUpDown, Check } from "lucide-react";
+import { ArrowLeft, ArrowUpDown, Check } from "lucide-react";
 import Button from "../common_component/Button";
 import Heading from "../common_component/Heading";
 import SuccessModal from "../common_component/SuccessModal";
-import { downloadFile } from "@/lib/utils";
+// import { downloadFile } from "@/lib/utils";
 import {
   useGetBOMDetailsQuery,
   useGetPlantProjectDetailQuery,
@@ -14,7 +14,7 @@ import {
 const BOMFilesDetailsView: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  const [filter, setFilter] = useState<"all" | "unpriced" | "frames" | "matched">( "all");
+  const [filter, setFilter] = useState<"all" | "unpriced" | "frames" | "matched" | "bom_priced">("all");
   const [page, setPage] = useState(1);
   const [isSuccessOpen, setIsSuccessOpen] = useState(false);
   const [successTitle, setSuccessTitle] = useState("");
@@ -41,8 +41,12 @@ const BOMFilesDetailsView: React.FC = () => {
       setSuccessTitle("BOM Confirmed");
       setSuccessSubtitle("BOM has been confirmed successfully.");
       setIsSuccessOpen(true);
-    } catch (err: any) {
-      alert(err?.data?.message || "Failed to confirm BOM");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to confirm BOM";
+      // use the success dialog to show error
+      setSuccessTitle("Error");
+      setSuccessSubtitle(message);
+      setIsSuccessOpen(true);
     }
   };
 
@@ -61,6 +65,13 @@ const BOMFilesDetailsView: React.FC = () => {
   const { data: projectDetail } = useGetPlantProjectDetailQuery(leadId || "", {
     skip: !leadId,
   });
+
+  const handleSuccessClose = () => {
+    setIsSuccessOpen(false);
+    if (successTitle === "BOM Confirmed" && leadId) {
+      navigate(`/projects/${leadId}?modal=upload-bom`);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -104,7 +115,7 @@ const BOMFilesDetailsView: React.FC = () => {
     : "N/A";
   const projectJobId = projectDetail?.jobId || "N/A";
 
-  const totalWeight = Object.values(data.itemsByCategory).reduce(
+  const totalWeight = data.summary.totalWeight ?? Object.values(data.itemsByCategory).reduce(
     (sum, items) => sum + items.reduce((s, item) => s + (item.weight || 0), 0),
     0
   );
@@ -140,7 +151,7 @@ const BOMFilesDetailsView: React.FC = () => {
               {isConfirming ? "Confirming..." : "Confirm BOM"}
             </Button>
           )}
-          <Button
+          {/* <Button
             variant="white"
             size="sm"
             className="gap-2 border-gray-200"
@@ -155,7 +166,7 @@ const BOMFilesDetailsView: React.FC = () => {
             onClick={() => downloadFile("/sample-bom.pdf", `${projectName}_BOM.pdf`)}
           >
             <FileDown size={16} className="text-gray-600" /> Download PDF
-          </Button>
+          </Button> */}
         </div>
       </div>
 
@@ -281,7 +292,7 @@ const BOMFilesDetailsView: React.FC = () => {
 
           {/* Filter Tabs */}
           <div className="flex border-b border-gray-200">
-            {(["all", "unpriced", "frames", "matched"] as const).map((tab) => (
+            {(["all", "unpriced", "bom_priced", "frames", "matched"] as const).map((tab) => (
               <button
                 key={tab}
                 onClick={() => {
@@ -293,7 +304,13 @@ const BOMFilesDetailsView: React.FC = () => {
                   : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                   }`}
               >
-                {tab === "all" ? "All Items" : tab === "frames" ? "Frame Items" : `${tab} Items`}
+                {tab === "all"
+                  ? "All Items"
+                  : tab === "frames"
+                  ? "Frame Items"
+                  : tab === "bom_priced"
+                  ? "bom priced"
+                  : `${tab} Items`}
               </button>
             ))}
           </div>
@@ -431,7 +448,7 @@ const BOMFilesDetailsView: React.FC = () => {
       </div>
       <SuccessModal
         isOpen={isSuccessOpen}
-        onClose={() => setIsSuccessOpen(false)}
+        onClose={handleSuccessClose}
         title={successTitle}
         subTitle={successSubtitle}
       />
