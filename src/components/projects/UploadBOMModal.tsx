@@ -1,9 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import Modal from "../Modal";
-import pdfIcon from "@/assets/icon/pdfIcon.svg";
-import xlsxIcon from "@/assets/icon/dashboard/xlxs.svg";
-import { X } from "lucide-react";
+import { X, FileText } from "lucide-react";
 import SubHeading from "../common_component/SubHeading";
 import Button from "../common_component/Button";
 import {
@@ -27,7 +25,6 @@ interface BuildingRowProps {
   isLocked: boolean;
   onUploadClick: (b: ProjectBuilding) => void;
   onNavigateToBOM: (jobId: string) => void;
-  getFileIcon: (fileName?: string) => any;
 }
 
 const BuildingRow: React.FC<BuildingRowProps> = ({
@@ -35,13 +32,9 @@ const BuildingRow: React.FC<BuildingRowProps> = ({
   isLocked,
   onUploadClick,
   onNavigateToBOM,
-  getFileIcon,
 }) => {
   const isCompleted = b.bomJobStatus?.toLowerCase() === "completed";
   const isConfirmed = b.latestBomJob?.isConfirmed === true;
-  const isUnconfirmed = b.latestBomJob?.isConfirmed === false;
-  const hasUnmatched = (b.latestBomJob?.unmatchedItems ?? 0) > 0;
-  const showDangerHighlight = isCompleted && isUnconfirmed && hasUnmatched;
 
   let badgeStyle = "bg-gray-100 text-gray-800";
   let displayStatus = b.bomJobStatus;
@@ -50,9 +43,6 @@ const BuildingRow: React.FC<BuildingRowProps> = ({
     if (isConfirmed) {
       badgeStyle = "bg-blue-50 text-blue-700 border border-blue-200";
       displayStatus = "BOM Confirmed";
-    } else if (hasUnmatched) {
-      badgeStyle = "bg-red-50 text-red-700 border border-red-200";
-      displayStatus = "Missing Items";
     } else {
       badgeStyle = "bg-green-50 text-green-700 border border-green-200";
       displayStatus = "BOM Extracted";
@@ -61,9 +51,7 @@ const BuildingRow: React.FC<BuildingRowProps> = ({
     badgeStyle = "bg-red-50 text-red-700 border border-red-200";
   }
 
-  const containerBg = showDangerHighlight
-    ? "bg-red-50 hover:bg-red-100/70 border-l-4 border-l-red-500"
-    : "bg-white hover:bg-gray-50";
+  const containerBg = "bg-white hover:bg-gray-50";
 
   const renderButtons = () => {
     const latestJob = b.latestBomJob;
@@ -73,11 +61,10 @@ const BuildingRow: React.FC<BuildingRowProps> = ({
 
     const replaceBtn = (
       <button
-        className={`font-inter text-xs font-medium px-3 py-1.5 rounded-md transition-all disabled:opacity-60 disabled:cursor-not-allowed ${
-          b.hasBomJob
-            ? "bg-white border border-[#446DF6] text-[#446DF6] hover:bg-[#446DF6]/5"
-            : "bg-[#1E51A4] text-white hover:bg-[#1E51A4]/90"
-        }`}
+        className={`font-inter text-xs font-medium px-3 py-1.5 rounded-md transition-all disabled:opacity-60 disabled:cursor-not-allowed ${b.hasBomJob
+          ? "bg-white border border-[#446DF6] text-[#446DF6] hover:bg-[#446DF6]/5"
+          : "bg-[#1E51A4] text-white hover:bg-[#1E51A4]/90"
+          }`}
         onClick={() => onUploadClick(b)}
         disabled={isLocked}
       >
@@ -102,23 +89,15 @@ const BuildingRow: React.FC<BuildingRowProps> = ({
       }
 
       if (isUnconfirmedJob) {
-        const jobHasUnmatched = (latestJob.unmatchedItems ?? 0) > 0;
-        const buttonText = jobHasUnmatched
-          ? "View and Add Missing Items"
-          : "View and Confirm";
         return (
           <>
             {replaceBtn}
             <button
-              className={`font-inter text-xs font-medium px-3 py-1.5 rounded-md transition-all disabled:opacity-60 disabled:cursor-not-allowed ${
-                jobHasUnmatched
-                  ? "bg-red-500 hover:bg-red-600 text-white"
-                  : "bg-[#1E51A4] hover:bg-[#1E51A4]/90 text-white"
-              }`}
+              className="font-inter text-xs font-medium px-3 py-1.5 rounded-md transition-all disabled:opacity-60 disabled:cursor-not-allowed bg-[#1E51A4] hover:bg-[#1E51A4]/90 text-white"
               onClick={() => onNavigateToBOM(latestJob.bomJobId)}
               disabled={isLocked}
             >
-              {buttonText}
+              View and Confirm
             </button>
           </>
         );
@@ -141,7 +120,7 @@ const BuildingRow: React.FC<BuildingRowProps> = ({
         </div>
         {b.latestBomJob ? (
           <div className="flex items-center gap-2 text-xs text-[#637381] font-inter truncate">
-            <img src={getFileIcon(b.latestBomJob.fileName)} alt="icon" className="size-4 shrink-0" />
+            <FileText className="size-4 shrink-0 text-gray-400" />
             <span className="truncate max-w-[200px] sm:max-w-xs font-medium text-[#212B36]" title={b.latestBomJob.fileName}>
               {b.latestBomJob.fileName}
             </span>
@@ -303,13 +282,6 @@ const UploadBOMModal: React.FC<UploadBOMModalProps> = ({
     }
   };
 
-  const getFileIcon = (fileName?: string) => {
-    if (!fileName) return xlsxIcon;
-    const lower = fileName.toLowerCase();
-    if (lower.endsWith(".pdf")) return pdfIcon;
-    return xlsxIcon;
-  };
-
   return (
     <>
       <Modal isOpen={isOpen} onClose={onClose} width="max-w-2xl" hideHeader>
@@ -363,7 +335,6 @@ const UploadBOMModal: React.FC<UploadBOMModalProps> = ({
                       onClose();
                       navigate(`/costing/bom-details/${jobId}`);
                     }}
-                    getFileIcon={getFileIcon}
                   />
                 ))}
               </div>
@@ -373,15 +344,19 @@ const UploadBOMModal: React.FC<UploadBOMModalProps> = ({
               <Button variant="outline" size="sm" onClick={onClose}>
                 Close
               </Button>
-              <Button
-                variant="primary"
-                size="sm"
-                className="disabled:cursor-not-allowed"
-                disabled={!canConsolidate || isGenerating}
-                onClick={handleConsolidate}
-              >
-                {isGenerating ? "Consolidating..." : "Consolidate"}
-              </Button>
+              {
+                canConsolidate ? (
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    className="disabled:cursor-not-allowed"
+                    // disabled={!canConsolidate || isGenerating}
+                    onClick={handleConsolidate}
+                  >
+                    {isGenerating ? "Consolidating..." : "Consolidate"}
+                  </Button>
+                ) : ""
+              }
             </div>
           </div>
         </div>

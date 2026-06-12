@@ -1,47 +1,69 @@
-import React, { useState } from "react";
+import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Scale, FileDown } from "lucide-react";
+import { ArrowLeft, Scale, FileDown, Eye } from "lucide-react";
 import Button from "../common_component/Button";
 import Heading from "../common_component/Heading";
 import CommonStatusBadge from "../common_component/CommonStatusBadge";
 import {
   useGetShipperDocumentQuery,
-  useApproveShipperRequestMutation,
-  useRequestResubmitShipperRequestMutation,
+  usePollCompareJobsStatusMutation,
 } from "@/redux/api/shipperApi";
 
 const ShipperFileDetailsView: React.FC = () => {
   const navigate = useNavigate();
   const { requestId } = useParams();
 
-  const { data: shipperDoc, isLoading, error } = useGetShipperDocumentQuery(requestId || "");
+  const { data: shipperDoc, isLoading, error, refetch } = useGetShipperDocumentQuery(requestId || "");
+  const [pollCompareJobsStatus] = usePollCompareJobsStatusMutation();
 
-  const [approveRequest, { isLoading: isApproving }] = useApproveShipperRequestMutation();
-  const [requestResubmit, { isLoading: isResubmitting }] = useRequestResubmitShipperRequestMutation();
-  const [isResubmitModalOpen, setIsResubmitModalOpen] = useState(false);
-  const [resubmitNote, setResubmitNote] = useState("");
+  React.useEffect(() => {
+    const compareJobId = shipperDoc?.compareJobId;
+    if (!compareJobId || shipperDoc.fileStatus !== "comparison_processing") {
+      return;
+    }
 
-  const handleApprove = async () => {
-    if (!requestId) return;
+    const intervalId = setInterval(async () => {
+      try {
+        const response = await pollCompareJobsStatus({ jobIds: [compareJobId] }).unwrap();
+        const job = response.jobs?.[0];
+        if (job) {
+          const status = job.status?.toLowerCase();
+          if (status !== "pending" && status !== "processing" && status !== "comparison_processing") {
+            refetch();
+          }
+        }
+      } catch (err) {
+        console.error("Error polling comparison job status:", err);
+      }
+    }, 2000);
+
+    return () => clearInterval(intervalId);
+  }, [shipperDoc?.compareJobId, shipperDoc?.fileStatus, pollCompareJobsStatus, refetch]);
+
+  const handleDownload = async () => {
+    if (!shipperDoc?.fileUrl) return;
     try {
-      await approveRequest(requestId).unwrap();
-    } catch (err) {
-      console.error("Failed to approve request:", err);
+      const response = await fetch(shipperDoc.fileUrl);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", shipperDoc.fileName || "download");
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode?.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Failed to download file directly, falling back to opening:", error);
+      window.open(shipperDoc.fileUrl, "_blank");
     }
   };
 
-  const handleResubmit = async () => {
-    if (!requestId || !resubmitNote.trim()) return;
-    try {
-      await requestResubmit({ requestId, note: resubmitNote }).unwrap();
-      setIsResubmitModalOpen(false);
-      setResubmitNote("");
-    } catch (err) {
-      console.error("Failed to request resubmit:", err);
-    }
-  };
+  const showViewComparison = shipperDoc?.fileStatus === "comparison_completed" ||
+    shipperDoc?.fileStatus === "approved" ||
+    shipperDoc?.fileStatus === "resubmit_requested" ||
+    shipperDoc?.fileStatus === "rejected";
 
-  const isComparisonCompleted = shipperDoc?.fileStatus === "comparison_completed";
   const showVerification = shipperDoc?.fileStatus !== "comparison_completed" &&
     shipperDoc?.fileStatus !== "approved" &&
     shipperDoc?.fileStatus !== "rejected" &&
@@ -167,7 +189,7 @@ const ShipperFileDetailsView: React.FC = () => {
             <Button
               variant="white"
               size="sm"
-              onClick={() => window.open(shipperDoc.fileUrl, "_blank")}
+              onClick={handleDownload}
               className="flex items-center gap-2 border-[#E2E8F0] font-inter font-bold text-[#212B36]"
             >
               <FileDown size={18} /> Download file
@@ -183,27 +205,15 @@ const ShipperFileDetailsView: React.FC = () => {
               <Scale size={18} /> Order Verification
             </Button>
           )}
-          {isComparisonCompleted && (
-            <>
-              <Button
-                variant="grayFilled"
-                size="sm"
-                onClick={() => setIsResubmitModalOpen(true)}
-                disabled={isResubmitting}
-                className="flex items-center gap-2 font-inter font-bold"
-              >
-                Request Resubmit
-              </Button>
-              <Button
-                variant="greenFilled"
-                size="sm"
-                onClick={handleApprove}
-                disabled={isApproving}
-                className="flex items-center gap-2 font-inter font-bold"
-              >
-                {isApproving ? "Approving..." : "Approve Shipment"}
-              </Button>
-            </>
+          {showViewComparison && (
+            <Button
+              variant="blueFilled"
+              size="sm"
+              onClick={() => navigate(`/load_planning/${requestId}/comparison-result`)}
+              className="flex items-center gap-2 font-inter font-bold"
+            >
+              <Eye size={18} /> View Comparison Detail
+            </Button>
           )}
           {shipperDoc?.fileStatus === "approved" && (
             <Button
@@ -279,48 +289,6 @@ const ShipperFileDetailsView: React.FC = () => {
           )}
         </div>
       </div>
-
-      {/* ── Resubmit Modal ─────────────────────────────────────────── */}
-      {isResubmitModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-white rounded-xl shadow-xl border border-gray-100 max-w-md w-full p-6 space-y-4">
-            <h3 className="text-lg font-bold font-inter text-[#212B36]">
-              Request Corrected Quote
-            </h3>
-            <p className="text-sm text-gray-500 font-inter">
-              Please provide a note to the vendor explaining what correction is needed.
-            </p>
-            <textarea
-              className="w-full min-h-[100px] p-3 border border-gray-200 rounded-lg text-sm font-inter focus:outline-none focus:ring-2 focus:ring-[#1E51A4] focus:border-transparent resize-none"
-              placeholder="e.g., Please correct qty mismatch on C62514."
-              value={resubmitNote}
-              onChange={(e) => setResubmitNote(e.target.value)}
-            />
-            <div className="flex justify-end gap-3">
-              <Button
-                variant="white"
-                size="sm"
-                onClick={() => {
-                  setIsResubmitModalOpen(false);
-                  setResubmitNote("");
-                }}
-                className="border-gray-200 font-medium font-inter text-[#212B36]"
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="blueFilled"
-                size="sm"
-                disabled={!resubmitNote.trim() || isResubmitting}
-                onClick={handleResubmit}
-                className="font-medium font-inter"
-              >
-                {isResubmitting ? "Sending..." : "Submit"}
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
