@@ -194,15 +194,6 @@ const TruckOptimizerView: React.FC = () => {
       { label: "Max Truck Length", value: "N/A" },
     ];
 
-  const getEstimatedCost = (truckType?: string) => {
-    return truckType ? 0 : 0;
-  };
-
-  const totalEstimateFreight = packingLists.reduce(
-    (sum) => sum + getEstimatedCost(),
-    0
-  );
-
 
   return (
     <div className="min-h-screen">
@@ -335,7 +326,7 @@ const TruckOptimizerView: React.FC = () => {
 
             <div className="space-y-6 pt-4">
               {packingLists.map((item, idx) => (
-                <div key={item._id || idx} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div key={item._id || idx} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <label className="text-sm font-inter font-semibold text-black">
                       Load ID
@@ -358,31 +349,8 @@ const TruckOptimizerView: React.FC = () => {
                       className="w-full px-4 py-3 bg-[#F9FAFB] border border-[#E2E4E6] rounded-lg text-sm font-inter text-gray-600 focus:outline-none"
                     />
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-inter font-semibold text-black">
-                      Estimate Cost
-                    </label>
-                    <input
-                      type="text"
-                      readOnly
-                      value={`$${getEstimatedCost(item.truckType)}`}
-                      className="w-full px-4 py-3 bg-[#F9FAFB] border border-[#E2E4E6] rounded-lg text-sm font-inter text-black font-bold focus:outline-none"
-                    />
-                  </div>
                 </div>
               ))}
-
-              <div className="max-w-xs space-y-2">
-                <label className="text-sm font-inter font-semibold text-black">
-                  Total Estimate Freight
-                </label>
-                <input
-                  type="text"
-                  readOnly
-                  value={`$${totalEstimateFreight}`}
-                  className="w-full px-4 py-3 bg-[#F9FAFB] border border-[#E2E4E6] rounded-lg text-sm font-inter text-black font-bold focus:outline-none"
-                />
-              </div>
             </div>
           </div>
         )}
