@@ -264,6 +264,7 @@ const LoadPlanReviewView: React.FC = () => {
         bundles={stateData?.bundles}
         projectName={stateData?.project?.projectName}
         planNumber={stateData?.bundlePlan?.planNumber}
+        planId={truckPlan?.packingListPlan?._id}
       />
     </div>
   );

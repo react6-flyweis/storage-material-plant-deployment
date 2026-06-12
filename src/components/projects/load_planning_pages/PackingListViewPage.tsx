@@ -8,6 +8,7 @@ import SubHeading from "../../common_component/SubHeading";
 import PackingListModal from "../PackingListModal";
 import { useGetTruckPlanQuery, useGetLoadPlanningStateQuery } from "@/redux/api/shipperApi";
 import type { TruckPlanResponse, LoadPlanningStateResponse, PackingListEntry } from "@/redux/api/shipperApi";
+import { exportPackingListToPDF } from "@/lib/exportUtils";
 
 interface Step4PackingListProps {
   onViewPackingList: (packingList: PackingListEntry) => void;
@@ -24,6 +25,43 @@ const Step4PackingList: React.FC<Step4PackingListProps> = ({
   const planNumber = stateData?.bundlePlan?.planNumber || "N/A";
   const totalBundles = stateData?.bundleSummary?.totalBundles ?? truckPlan.summary.totalBundles ?? 0;
   const totalWeight = stateData?.bundleSummary?.totalWeight ?? truckPlan.summary.totalWeight ?? 0;
+
+  const handlePdfDownload = (row: PackingListEntry) => {
+    const planId = truckPlan?.packingListPlan?._id;
+    const bundles = stateData?.bundles || [];
+    const resolvedBundles = bundles.filter((b) =>
+      (row.bundleIds || []).includes(b._id)
+    );
+
+    const loadInfo = {
+      packingListNo: row.packingListNo || "-",
+      loadId: planNumber,
+      projectName: projectName,
+      truck: row.truckLabel || row.truckType || row.truckNo || "-",
+      driver: "-",
+      destination: "-",
+      dispatchDate: "-",
+    };
+
+    const summary = {
+      totalBundles: row.totalBundles || row.bundleIds.length || 0,
+      totalItems: row.totalItems || resolvedBundles.reduce((sum, b) => sum + (b.totalQty || b.itemCount || 0), 0),
+      totalWeight: row.totalWeight || 0,
+      maxLengthFeet: row.maxLengthFeet || 0,
+    };
+
+    const bundleList = resolvedBundles.map((b) => ({
+      _id: b._id,
+      bundleNo: b.bundleNo,
+      partNumber: b.bundleType || b.title || "N/A",
+      qty: b.totalQty || b.itemCount || 0,
+      length: b.maxLengthFeet || 0,
+      weight: b.totalWeight || 0,
+      status: b.status || "Ready",
+    }));
+
+    exportPackingListToPDF(loadInfo, summary, bundleList, true, planId);
+  };
 
   return (
     <div className="space-y-8 bg-white rounded-[14px] border border-gray-100 shadow-sm p-4 md:p-8">
@@ -123,7 +161,7 @@ const Step4PackingList: React.FC<Step4PackingListProps> = ({
                   </td>
                   <td className="py-6 px-6">
                     <div className="flex items-center justify-center gap-3">
-                      <Button variant="grayFilled" size="sm">
+                      <Button variant="grayFilled" size="sm" onClick={() => handlePdfDownload(row)}>
                         <Download size={18} strokeWidth={2.5} />
                       </Button>
                       <Button
@@ -252,6 +290,7 @@ const PackingListViewPage: React.FC = () => {
         bundles={stateData?.bundles}
         projectName={stateData?.project?.projectName}
         planNumber={stateData?.bundlePlan?.planNumber}
+        planId={truckPlan?.packingListPlan?._id}
       />
     </div>
   );
