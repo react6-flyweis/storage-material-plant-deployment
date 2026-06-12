@@ -872,6 +872,7 @@ export interface BOMDetailsResponse {
     frameItems: number;
     totalCost: number;
     isFullyPriced: boolean;
+    totalWeight?: number;
   };
   total: number;
   page: number;
@@ -880,7 +881,7 @@ export interface BOMDetailsResponse {
 
 export interface BOMDetailsQueryParams {
   jobId: string;
-  filter?: "all" | "unpriced" | "frames" | "matched";
+  filter?: "all" | "unpriced" | "frames" | "matched" | "bom_priced";
   page?: number;
   limit?: number;
 }

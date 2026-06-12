@@ -62,6 +62,7 @@ export interface ShipperDocumentResponse {
   uploadedDate: string;
   rates: number;
   fileStatus: string;
+  compareJobId?: string;
 }
 
 export interface ShipperRequestEntry {
@@ -88,6 +89,17 @@ export interface CompareShipperRequestResponse {
   compareJobId: string;
   status: string;
   message: string;
+}
+
+export interface PollCompareJobsResponse {
+  jobs: Array<{
+    compareJobId: string;
+    requestId: string;
+    status: string;
+    resultCount: number | null;
+    errorMessage: string | null;
+    processingEndedAt: string | null;
+  }>;
 }
 
 export interface ApproveShipperRequestResponse {
@@ -197,12 +209,18 @@ export interface GenerateBundlePlanResponse {
 export interface BundleDetail {
   _id: string;
   bundlePlanId: string;
+  leadId?: string;
+  shipperRequestId?: string;
   bundleNo: string;
   bundleType: string;
   title: string;
   totalQty: number;
   totalWeight: number;
   maxLengthFeet: number;
+  estimatedWidthFeet?: number;
+  estimatedHeightFeet?: number;
+  status?: string;
+  packingListId?: string | null;
   stacking: StackingConfig;
   loadSequence: number | null;
   handlingInstruction?: string;
@@ -215,8 +233,12 @@ export interface BundleItemDetail {
   vendorQuoteLineId: string;
   partCode: string;
   description: string;
+  category?: string;
+  color?: string;
   qty: number;
   lengthFeet: number;
+  widthFeet?: number | null;
+  heightFeet?: number | null;
   weight: number;
   markIds: string[];
   sourceLineSnapshot?: Record<string, unknown>;
@@ -254,6 +276,69 @@ export interface EditBundleResponse {
 
 
 
+
+export interface ComparisonSummaryStats {
+  expectedLines: number;
+  vendorLines: number;
+  matchedLines: number;
+  missingItems: number;
+  extraItems: number;
+  qtyMismatches: number;
+  lengthMismatches: number;
+  weightMismatches: number;
+  priceMismatches: number;
+  ambiguousMatches: number;
+}
+
+export interface ComparisonPartItem {
+  partCode: string;
+  partColor: string;
+  qty: number;
+  lengthFeet: number;
+  weight: number;
+  unitCost: number;
+}
+
+export interface ComparisonDifference {
+  qtyDiff: number | null;
+  lengthDiff: number | null;
+  weightDiff: number | null;
+  unitPriceDiff: number | null;
+  amountDiff: number | null;
+}
+
+export interface ComparisonResultItem {
+  resultId: string;
+  status: string;
+  severity: string;
+  expected: ComparisonPartItem | null;
+  received: ComparisonPartItem | null;
+  difference: ComparisonDifference;
+  matchMethod: string;
+  matchConfidence: number | null;
+  reason: string;
+  createdAt: string;
+}
+
+export interface ComparisonSummaryResponse {
+  requestId: string;
+  leadId: string;
+  projectId: string;
+  projectName: string;
+  vendorId: string;
+  vendorName: string;
+  vendorCode: string;
+  status: string;
+  comparisonStatus: string;
+  comparisonRanAt: string;
+  comparisonError: string | null;
+  summary: ComparisonSummaryStats;
+  exceptionsCount: number;
+  resultCount: number;
+  results: ComparisonResultItem[];
+  canProceedToApproval: boolean;
+  blockers: string[];
+}
 
 export const shipperApi = createApi({
   reducerPath: "shipperApi",
@@ -505,6 +590,31 @@ export const shipperApi = createApi({
         return response.data;
       },
     }),
+    getComparisonSummary: builder.query<ComparisonSummaryResponse, string>({
+      query: (requestId) => `/api/plant/shipper-requests/${requestId}/comparison-summary`,
+      providesTags: (_result, _error, requestId) => [
+        { type: "ShipperDocument", id: requestId },
+      ],
+      transformResponse: (response: ApiResponse<ComparisonSummaryResponse>) => {
+        if (!response.data) {
+          throw new Error("No data returned from API");
+        }
+        return response.data;
+      },
+    }),
+    pollCompareJobsStatus: builder.mutation<PollCompareJobsResponse, { jobIds: string[] }>({
+      query: (body) => ({
+        url: "/api/plant/shipper-requests/compare-jobs/status",
+        method: "POST",
+        body,
+      }),
+      transformResponse: (response: ApiResponse<PollCompareJobsResponse>) => {
+        if (!response.data) {
+          throw new Error("No data returned from API");
+        }
+        return response.data;
+      },
+    }),
   }),
 });
 
@@ -691,4 +801,6 @@ export const {
   useGetFreightAutofillQuery,
   useGetPackingListPlanQuery,
   useEditBundleMutation,
+  useGetComparisonSummaryQuery,
+  usePollCompareJobsStatusMutation,
 } = shipperApi;
