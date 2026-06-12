@@ -14,6 +14,7 @@ import QRCodeDataModal from "../QRCodeDataModal";
 
 interface QRData {
   id: string;
+  bundleId?: string;
   loadId: string | number;
   parts: string;
   weight: string;
@@ -225,19 +226,30 @@ const BundlePlannerView: React.FC = () => {
                     label: "Bundle Issues",
                     value: summary.warnings.length > 0 ? `${summary.warnings.length} Warnings` : "No Warnings",
                     color: summary.warnings.length > 0 ? "text-amber-600" : "text-green-600",
+                    warnings: summary.warnings,
                   },
                 ].map((kpi) => (
                   <div
                     key={kpi.label}
-                    className="flex justify-between items-center text-sm"
+                    className="flex justify-between items-center text-sm relative"
                   >
                     <span className="font-inter font-bold text-[#637381]">
                       {kpi.label}
                     </span>
                     <span
-                      className={`font-inter font-bold ${kpi.color || "text-black"}`}
+                      className={`font-inter font-bold ${kpi.color || "text-black"} ${kpi.warnings && kpi.warnings.length > 0 ? "cursor-help group/kpi relative" : ""}`}
                     >
                       {kpi.value}
+                      {kpi.warnings && kpi.warnings.length > 0 && (
+                        <span className="invisible group-hover/kpi:visible absolute z-50 right-0 bottom-full mb-2 w-72 bg-slate-900 text-white text-xs rounded-lg p-3 shadow-xl font-normal leading-relaxed text-left pointer-events-none transition-all duration-200 after:content-[''] after:absolute after:top-full after:right-4 after:border-4 after:border-transparent after:border-t-slate-900">
+                          <span className="font-semibold block mb-1.5 text-amber-400">Plan Warnings:</span>
+                          <ul className="list-disc pl-4 space-y-1">
+                            {kpi.warnings.map((w, i) => (
+                              <li key={i}>{w}</li>
+                            ))}
+                          </ul>
+                        </span>
+                      )}
                     </span>
                   </div>
                 ))}
@@ -329,9 +341,24 @@ const BundlePlannerView: React.FC = () => {
                         {bundle.totalWeight} lbs
                       </td>
                       <td className="py-5 px-6 text-sm">
-                        <span className="font-bold text-[#637381] capitalize">
-                          {bundle.status || "Draft"}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-[#637381] capitalize">
+                            {bundle.status || "Draft"}
+                          </span>
+                          {bundle.warnings && bundle.warnings.length > 0 && (
+                            <span className="inline-flex items-center justify-center bg-amber-50 text-amber-600 border border-amber-200 rounded px-2 py-0.5 text-xs font-semibold cursor-help group/tooltip relative">
+                              {bundle.warnings.length} {bundle.warnings.length === 1 ? "Warning" : "Warnings"}
+                              <span className="invisible group-hover/tooltip:visible absolute z-50 left-1/2 -translate-x-1/2 bottom-full mb-2 w-64 bg-slate-900 text-white text-xs rounded-lg p-2.5 shadow-xl font-normal leading-relaxed text-left pointer-events-none transition-all duration-200 after:content-[''] after:absolute after:top-full after:left-1/2 after:-translate-x-1/2 after:border-4 after:border-transparent after:border-t-slate-900">
+                                <span className="font-semibold block mb-1 text-amber-400">Bundle Warnings:</span>
+                                <ul className="list-disc pl-4 space-y-1">
+                                  {bundle.warnings.map((w, i) => (
+                                    <li key={i}>{w}</li>
+                                  ))}
+                                </ul>
+                              </span>
+                            </span>
+                          )}
+                        </div>
                       </td>
                       <td className="py-3 px-6 text-sm text-right">
                         <div className="flex items-center justify-end gap-3">
@@ -349,6 +376,7 @@ const BundlePlannerView: React.FC = () => {
                             onClick={() => {
                               setSelectedBundleData({
                                 id: bundle.bundleNo,
+                                bundleId: bundle._id,
                                 loadId: bundle.loadSequence || "LOAD-001",
                                 parts: bundle.bundleType,
                                 weight: `${bundle.totalWeight} lbs`,

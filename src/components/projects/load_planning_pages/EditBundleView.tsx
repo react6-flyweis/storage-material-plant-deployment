@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Check, ChevronUp, ChevronDown } from "lucide-react";
-import { useGetBundlePlanQuery, useGetBundleDetailsQuery, useEditBundleMutation } from "@/redux/api/shipperApi";
+import { useGetBundleDetailsQuery, useEditBundleMutation } from "@/redux/api/shipperApi";
 
 interface TableItem {
   id: string;
@@ -19,21 +19,11 @@ const EditBundleView: React.FC = () => {
   const { projectId, bundleId } = useParams<{ projectId: string; bundleId: string }>();
   const navigate = useNavigate();
 
-  // Load actual data from API to align mock with real values if available
-  const { data: bundlePlanData } = useGetBundlePlanQuery(projectId || "", {
-    skip: !projectId,
-  });
-
   const { data: bundleDetails, isLoading, error } = useGetBundleDetailsQuery(bundleId || "", {
     skip: !bundleId,
   });
 
   const [editBundle, { isLoading: isSaving }] = useEditBundleMutation();
-
-  const matchingBundle = useMemo(() => {
-    if (!bundlePlanData || !bundlePlanData.bundles) return null;
-    return bundlePlanData.bundles.find((b) => b.bundleNo === bundleId || b._id === bundleId);
-  }, [bundlePlanData, bundleId]);
 
   // Transform items from API response
   const items = useMemo<TableItem[]>(() => {
@@ -55,9 +45,6 @@ const EditBundleView: React.FC = () => {
   const [lastItems, setLastItems] = useState<TableItem[]>([]);
 
   // Metadata States
-  const [bundleType, setBundleType] = useState<string>("");
-  const [title, setTitle] = useState<string>("");
-  const [loadSequence, setLoadSequence] = useState<number | null>(null);
   const [handlingInstruction, setHandlingInstruction] = useState<string>("");
   const [notes, setNotes] = useState<string>("");
   const [lastBundleDetails, setLastBundleDetails] = useState<any>(null);
@@ -74,9 +61,6 @@ const EditBundleView: React.FC = () => {
 
   if (bundleDetails && bundleDetails !== lastBundleDetails) {
     setLastBundleDetails(bundleDetails);
-    setBundleType(bundleDetails.bundle?.bundleType || "");
-    setTitle(bundleDetails.bundle?.title || "");
-    setLoadSequence(bundleDetails.bundle?.loadSequence ?? null);
     setHandlingInstruction(bundleDetails.bundle?.handlingInstruction || "");
     setNotes(bundleDetails.bundle?.notes || "");
   }
@@ -127,10 +111,7 @@ const EditBundleView: React.FC = () => {
     return `${firstItemCode} × ${active.length}`;
   }, [items, selectedIds]);
 
-  const statusStr = useMemo(() => {
-    if (selectedIds.size === 0) return "Empty";
-    return totalWeight > 15000 ? "Weight Warning" : "Valid";
-  }, [selectedIds, totalWeight]);
+
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -186,9 +167,6 @@ const EditBundleView: React.FC = () => {
         bundleId: bundleId || "",
         body: {
           items: payloadItems,
-          bundleType,
-          title,
-          loadSequence,
           handlingInstruction,
           notes,
         },
@@ -239,9 +217,8 @@ const EditBundleView: React.FC = () => {
     <div className="min-h-screen p-6 font-inter relative">
       {/* Toast Notification */}
       {toastMessage && (
-        <div className={`fixed top-6 right-6 z-50 text-white font-semibold px-6 py-3.5 rounded-xl shadow-lg flex items-center gap-2 animate-bounce ${
-          toastMessage.includes("Error:") ? "bg-red-500" : "bg-[#10B981]"
-        }`}>
+        <div className={`fixed top-6 right-6 z-50 text-white font-semibold px-6 py-3.5 rounded-xl shadow-lg flex items-center gap-2 animate-bounce ${toastMessage.includes("Error:") ? "bg-red-500" : "bg-[#10B981]"
+          }`}>
           <Check size={18} strokeWidth={3} />
           {toastMessage}
         </div>
@@ -274,7 +251,7 @@ const EditBundleView: React.FC = () => {
 
       {/* Main card */}
       <div className="bg-white rounded-xl border border-[#E2E4E6] p-6 shadow-sm space-y-8">
-        
+
         {/* Top Info Table Card */}
         <div className="overflow-x-auto rounded-lg border border-[#E2E4E6]">
           <table className="w-full text-left border-collapse min-w-[700px]">
@@ -293,29 +270,26 @@ const EditBundleView: React.FC = () => {
               <tr className="text-[#212B36] font-semibold text-sm">
                 <td className="py-6 px-6 text-[#637381]">1</td>
                 <td className="py-6 px-6 font-bold">
-                  {bundleDetails?.bundle?.bundleNo || matchingBundle?.bundleNo || bundleId || "BND-001"}
+                  {bundleDetails?.bundle?.bundleNo || bundleId || "BND-001"}
                 </td>
                 <td className="py-6 px-6 text-[#637381] capitalize">
-                  {bundleType || "Beam"}
+                  {bundleDetails?.bundle?.bundleType || "Beam"}
                 </td>
                 <td className="py-6 px-6 text-[#637381]">{itemsNameStr}</td>
                 <td className="py-6 px-6 text-[#637381]">
                   {bundleDetails?.bundle?.maxLengthFeet
                     ? `${bundleDetails.bundle.maxLengthFeet} ft`
-                    : matchingBundle?.maxLengthFeet
-                    ? `${matchingBundle.maxLengthFeet} ft`
                     : "20 ft"}
                 </td>
                 <td className="py-6 px-6 text-[#637381]">
                   {totalWeight ? `${totalWeight.toLocaleString()} IBS` : "0 IBS"}
                 </td>
                 <td className="py-6 px-6">
-                  <span
-                    className={`font-bold text-sm ${statusStr === "Valid" ? "text-[#10B981]" : "text-[#F59E0B]"
-                      }`}
-                  >
-                    {statusStr}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold text-sm text-[#637381] capitalize">
+                      {bundleDetails?.bundle?.status || "Draft"}
+                    </span>
+                  </div>
                 </td>
               </tr>
             </tbody>
@@ -323,35 +297,8 @@ const EditBundleView: React.FC = () => {
         </div>
 
         {/* Metadata Inputs */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-4 border-t border-[#E2E4E6]">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-[#E2E4E6]">
           <div>
-            <label className="block text-xs font-bold text-[#637381] uppercase tracking-wider mb-2">Bundle Type / Profile</label>
-            <input
-              type="text"
-              value={bundleType}
-              onChange={(e) => setBundleType(e.target.value)}
-              className="w-full px-3.5 py-2 border border-[#E2E4E6] rounded-lg text-sm text-[#212B36] font-semibold focus:ring-1 focus:ring-[#6E38F7] outline-none"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-bold text-[#637381] uppercase tracking-wider mb-2">Title</label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-3.5 py-2 border border-[#E2E4E6] rounded-lg text-sm text-[#212B36] font-semibold focus:ring-1 focus:ring-[#6E38F7] outline-none"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-bold text-[#637381] uppercase tracking-wider mb-2">Load Sequence</label>
-            <input
-              type="number"
-              value={loadSequence === null ? "" : loadSequence}
-              onChange={(e) => setLoadSequence(e.target.value === "" ? null : parseInt(e.target.value))}
-              className="w-full px-3.5 py-2 border border-[#E2E4E6] rounded-lg text-sm text-[#212B36] font-semibold focus:ring-1 focus:ring-[#6E38F7] outline-none"
-            />
-          </div>
-          <div className="md:col-span-2 lg:col-span-3">
             <label className="block text-xs font-bold text-[#637381] uppercase tracking-wider mb-2">Handling Instructions</label>
             <textarea
               value={handlingInstruction}
@@ -360,7 +307,7 @@ const EditBundleView: React.FC = () => {
               className="w-full px-3.5 py-2 border border-[#E2E4E6] rounded-lg text-sm text-[#212B36] font-semibold focus:ring-1 focus:ring-[#6E38F7] outline-none resize-none"
             />
           </div>
-          <div className="md:col-span-2 lg:col-span-3">
+          <div>
             <label className="block text-xs font-bold text-[#637381] uppercase tracking-wider mb-2">Notes</label>
             <textarea
               value={notes}

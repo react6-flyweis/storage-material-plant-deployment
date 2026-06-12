@@ -26,8 +26,10 @@ import SuccessModal from "../../common_component/SuccessModal";
 import Button from "../../common_component/Button";
 import CommonDropdown from "../../common_component/CommonDropdown";
 import CardHeader from "../../common_component/CardHeader";
+import LocationSelector from "../../common_component/LocationSelector";
 import { useGetFreightAutofillQuery } from "@/redux/api/shipperApi";
 import { useGetPlantCarriersQuery, useCreatePlantDeliveryMutation, useSendFreightBidsMutation } from "@/redux/api/logisticsApi";
+import { useGetFreightLoadsQuery } from "@/redux/api/deliveriesApi";
 import { UploadFileDialog } from "@/components/upload-file-dialog";
 
 const parseDimensions = (input: string) => {
@@ -97,6 +99,7 @@ interface Step7FreightSelectionProps {
   onOpenReview: (values: FreightFormData, carrierIds: string[]) => void;
   onSaveDraft: (values: FreightFormData) => void;
   onCancel: () => void;
+  isDeliveryCreated: boolean;
 }
 
 const Step7FreightSelection: React.FC<Step7FreightSelectionProps> = ({
@@ -104,6 +107,7 @@ const Step7FreightSelection: React.FC<Step7FreightSelectionProps> = ({
   onOpenReview,
   onSaveDraft,
   onCancel,
+  isDeliveryCreated,
 }) => {
   const { projectId } = useParams<{ projectId: string }>();
   const { data: autofillData, isLoading } = useGetFreightAutofillQuery(projectId || "");
@@ -144,11 +148,7 @@ const Step7FreightSelection: React.FC<Step7FreightSelectionProps> = ({
     },
   });
 
-  React.useEffect(() => {
-    if (carriersData?.carriers) {
-      setSelectedCarrierIds(carriersData.carriers.map((c) => c._id));
-    }
-  }, [carriersData]);
+
 
   if (isLoading) {
     return (
@@ -514,25 +514,14 @@ const Step7FreightSelection: React.FC<Step7FreightSelectionProps> = ({
               control={control}
               name="pickupLocation"
               render={({ field }) => (
-                <div className="space-y-2">
-                  <label className="text-sm font-inter font-bold text-[#212B36]">
-                    Pickup Location <span className="text-red-500">*</span>
-                  </label>
-                  <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#22C55E]">
-                      <MapPin size={18} />
-                    </span>
-                    <input
-                      type="text"
-                      {...field}
-                      placeholder="e.g., Steel Mill, Pittsburgh, PA"
-                      className="w-full pl-12 pr-4 py-3 bg-white border border-[#E2E4E6] rounded-md text-base font-inter focus:outline-none focus:ring-1 focus:ring-[#0043CE]"
-                    />
-                  </div>
-                  {errors.pickupLocation?.message && (
-                    <p className="text-xs text-red-500 mt-1">{errors.pickupLocation.message}</p>
-                  )}
-                </div>
+                <LocationSelector
+                  {...field}
+                  label="Pickup Location"
+                  placeholder="e.g., Steel Mill, Pittsburgh, PA"
+                  required
+                  error={errors.pickupLocation?.message}
+                  iconColor="text-[#22C55E]"
+                />
               )}
             />
 
@@ -540,25 +529,14 @@ const Step7FreightSelection: React.FC<Step7FreightSelectionProps> = ({
               control={control}
               name="deliveryLocation"
               render={({ field }) => (
-                <div className="space-y-2">
-                  <label className="text-sm font-inter font-bold text-[#212B36]">
-                    Delivery Location <span className="text-red-500">*</span>
-                  </label>
-                  <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#EF4444]">
-                      <MapPin size={18} />
-                    </span>
-                    <input
-                      type="text"
-                      {...field}
-                      placeholder="e.g., Construction Site, Austin, TX"
-                      className="w-full pl-12 pr-4 py-3 bg-white border border-[#E2E4E6] rounded-md text-base font-inter focus:outline-none focus:ring-1 focus:ring-[#0043CE]"
-                    />
-                  </div>
-                  {errors.deliveryLocation?.message && (
-                    <p className="text-xs text-red-500 mt-1">{errors.deliveryLocation.message}</p>
-                  )}
-                </div>
+                <LocationSelector
+                  {...field}
+                  label="Delivery Location"
+                  placeholder="e.g., Construction Site, Austin, TX"
+                  required
+                  error={errors.deliveryLocation?.message}
+                  iconColor="text-[#EF4444]"
+                />
               )}
             />
           </div>
@@ -890,7 +868,7 @@ const Step7FreightSelection: React.FC<Step7FreightSelectionProps> = ({
             variant="blueFilled"
             onClick={handleSubmit(handleSendToCarriers)}
             className="w-full"
-            disabled={selectedCarrierIds.length === 0}
+            disabled={selectedCarrierIds.length === 0 || !isDeliveryCreated}
           >
             <Send size={18} className="mr-3" />
             Send to {selectedCarrierIds.length} Carriers
@@ -922,6 +900,13 @@ const FreightSelectionView: React.FC = () => {
   const { data: autofillData } = useGetFreightAutofillQuery(projectId || "");
   const [createPlantDelivery, { isLoading: isSubmitting }] = useCreatePlantDeliveryMutation();
   const [sendFreightBids, { isLoading: isSendingBids }] = useSendFreightBidsMutation();
+
+  const { data: freightLoads } = useGetFreightLoadsQuery(
+    { projectId: projectId || "" },
+    { skip: !projectId }
+  );
+  const [isDeliveryCreatedLocal, setIsDeliveryCreatedLocal] = useState(false);
+  const isDeliveryCreated = !!freightLoads?.requests?.length || isDeliveryCreatedLocal;
 
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
@@ -979,6 +964,7 @@ const FreightSelectionView: React.FC = () => {
         status: "draft",
       };
       await createPlantDelivery(payload).unwrap();
+      setIsDeliveryCreatedLocal(true);
       setIsDraftSuccessModalOpen(true);
     } catch (err) {
       console.error("Failed to save draft:", err);
@@ -1021,6 +1007,7 @@ const FreightSelectionView: React.FC = () => {
         status: "active",
       };
       await createPlantDelivery(payload).unwrap();
+      setIsDeliveryCreatedLocal(true);
 
       await sendFreightBids({
         projectId: projectId || "",
@@ -1051,6 +1038,7 @@ const FreightSelectionView: React.FC = () => {
           onOpenReview={handleOpenReview}
           onSaveDraft={handleSaveDraft}
           onCancel={handleCancel}
+          isDeliveryCreated={isDeliveryCreated}
         />
       </div>
       <CarrierFilterModal
