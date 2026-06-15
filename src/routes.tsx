@@ -170,6 +170,9 @@ const LogisticsView = lazy(
 const AddNewShipper = lazy(
   () => import("./components/logistics/AddNewShipper"),
 );
+const EditShipper = lazy(
+  () => import("./components/logistics/EditShipper"),
+);
 const VendorDetailsView = lazy(
   () => import("./components/logistics/VendorDetailsView"),
 );
@@ -181,6 +184,9 @@ const AddNewFreightCourier = lazy(
 );
 const CarrierDetailsView = lazy(
   () => import("./components/logistics/CarrierDetailsView"),
+);
+const EditFreightCarrier = lazy(
+  () => import("./components/logistics/EditFreightCarrier"),
 );
 const BOMFilesDetailsView = lazy(
   () => import("./components/costing/BOMFilesDetailsView"),
@@ -341,6 +347,10 @@ export const adminRoutes: RouteObject[] = [
             element: <VendorDetailsView />,
           },
           {
+            path: "/logistics/vendor/:id/edit",
+            element: <EditShipper />,
+          },
+          {
             path: "/logistics/freight-carriers",
             element: <FreightCarriersView />,
           },
@@ -351,6 +361,10 @@ export const adminRoutes: RouteObject[] = [
           {
             path: "/logistics/carrier/:id",
             element: <CarrierDetailsView />,
+          },
+          {
+            path: "/logistics/carrier/:id/edit",
+            element: <EditFreightCarrier />,
           },
           {
             path: "/load_planning/uploaded-bom-files",

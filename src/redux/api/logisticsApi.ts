@@ -360,6 +360,7 @@ type PlantCarrierDetailApiResponse = ApiResponse<PlantCarrierDetailResponse>;
 export const logisticsApi = createApi({
   reducerPath: "logisticsApi",
   baseQuery: baseQueryWithReauth,
+  tagTypes: ["PlantVendor", "PlantCarrier"],
   endpoints: (builder) => ({
     createPlantVendor: builder.mutation<unknown, CreatePlantVendorRequest>({
       query: (body) => ({
@@ -368,15 +369,54 @@ export const logisticsApi = createApi({
         body,
       }),
     }),
+    updatePlantVendor: builder.mutation<
+      { vendor: PlantVendorDetail },
+      { vendorId: string; body: CreatePlantVendorRequest }
+    >({
+      query: ({ vendorId, body }) => ({
+        url: `/api/plant/vendors/${vendorId}`,
+        method: "PUT",
+        body,
+      }),
+      invalidatesTags: (_result, _error, { vendorId }) => [{ type: "PlantVendor", id: vendorId }],
+      transformResponse: (response: ApiResponse<{ vendor: PlantVendorDetail }>) => {
+        if (!response.data) {
+          throw new Error("No data returned from API");
+        }
+        return response.data;
+      },
+    }),
     createPlantCarrier: builder.mutation<unknown, CreatePlantCarrierRequest>({
       query: (body) => ({
         url: "/api/plant/carriers",
         method: "POST",
         body,
       }),
+      invalidatesTags: ["PlantCarrier"],
+    }),
+    updatePlantCarrier: builder.mutation<
+      { carrier: PlantCarrierDetail },
+      { carrierId: string; body: CreatePlantCarrierRequest }
+    >({
+      query: ({ carrierId, body }) => ({
+        url: `/api/plant/carriers/${carrierId}`,
+        method: "PUT",
+        body,
+      }),
+      invalidatesTags: (_result, _error, { carrierId }) => [
+        { type: "PlantCarrier", id: carrierId },
+        "PlantCarrier",
+      ],
+      transformResponse: (response: ApiResponse<{ carrier: PlantCarrierDetail }>) => {
+        if (!response.data) {
+          throw new Error("No data returned from API");
+        }
+        return response.data;
+      },
     }),
     getPlantVendor: builder.query<PlantVendorDetailResponse, string>({
       query: (vendorId) => `/api/plant/vendors/${vendorId}`,
+      providesTags: (_result, _error, vendorId) => [{ type: "PlantVendor", id: vendorId }],
       transformResponse: (response: PlantVendorDetailApiResponse) =>
         response.data ?? {
           vendor: {
@@ -439,6 +479,7 @@ export const logisticsApi = createApi({
         url: "/api/plant/carriers",
         params: params ?? undefined,
       }),
+      providesTags: ["PlantCarrier"],
       transformResponse: (response: PlantCarriersApiResponse) =>
         response.data ?? {
           carriers: [],
@@ -449,6 +490,7 @@ export const logisticsApi = createApi({
     }),
     getPlantCarrier: builder.query<PlantCarrierDetailResponse, string>({
       query: (carrierId) => `/api/plant/carriers/${carrierId}`,
+      providesTags: (_result, _error, carrierId) => [{ type: "PlantCarrier", id: carrierId }],
       transformResponse: (response: PlantCarrierDetailApiResponse) =>
         response.data ?? {
           carrier: {
@@ -572,7 +614,9 @@ export const logisticsApi = createApi({
 
 export const {
   useCreatePlantVendorMutation,
+  useUpdatePlantVendorMutation,
   useCreatePlantCarrierMutation,
+  useUpdatePlantCarrierMutation,
   useGetPlantVendorQuery,
   useGetPlantVendorsQuery,
   useGetPlantCarriersQuery,
