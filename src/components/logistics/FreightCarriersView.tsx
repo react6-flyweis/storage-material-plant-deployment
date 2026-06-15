@@ -8,16 +8,13 @@ import {
   Phone,
   Eye,
   Edit2,
-  Trash2,
   Truck
 } from "lucide-react";
 import TitleSubtitle from "../common_component/TitleSubtitle";
 import Button from "../common_component/Button";
 import PageWrapper from "../common_component/PageWrapper";
 import CommonStatusBadge from "../common_component/CommonStatusBadge";
-import SuccessModal from "../common_component/SuccessModal";
 import FreightFilterModal from "../delivery/FreightFilterModal";
-import VendorModal from "./VendorModal";
 import {
   useGetPlantCarriersQuery,
   type PlantCarrier,
@@ -41,17 +38,6 @@ interface CarrierRow {
   equipmentTypes: string[];
 }
 
-interface CarrierModalData {
-  name: string;
-  contact: string;
-  email: string;
-  phone: string;
-  address: string;
-  materialTypes: string[];
-  status: string;
-  notes: string;
-}
-
 const normalizeStatus = (status: string) =>
   status
     .trim()
@@ -72,17 +58,6 @@ const formatCurrency = (value: number) =>
     maximumFractionDigits: 0,
   }).format(value);
 
-const mapCarrierToModalData = (carrier: CarrierRow): CarrierModalData => ({
-  name: carrier.name,
-  contact: carrier.contact,
-  email: carrier.email,
-  phone: carrier.phone,
-  address: carrier.serviceArea,
-  materialTypes: carrier.equipmentTypes,
-  status: carrier.status,
-  notes: `Service type: ${carrier.serviceType}`,
-});
-
 const getStatusVariant = (status: string) => {
   const normalized = normalizeStatus(status);
 
@@ -100,13 +75,7 @@ const getStatusVariant = (status: string) => {
 const FreightCarriersView: React.FC = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
-  const [isCarrierModalOpen, setIsCarrierModalOpen] = useState(false);
-  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
-  const [modalMode, setModalMode] = useState<"add" | "edit">("add");
-  const [selectedCarrier, setSelectedCarrier] =
-    useState<CarrierModalData | null>(null);
-  const [successMsg, setSuccessMsg] = useState({ title: "", subTitle: "" });
 
   const queryArgs = useMemo(
     () => ({
@@ -151,30 +120,16 @@ const FreightCarriersView: React.FC = () => {
   };
 
   const handleEditCarrier = (carrier: CarrierRow) => {
-    setModalMode("edit");
-    setSelectedCarrier(mapCarrierToModalData(carrier));
-    setIsCarrierModalOpen(true);
+    navigate(`/logistics/carrier/${carrier.id}/edit`);
   };
 
-  const handleDeleteCarrier = (carrierId: string) => {
-    setSuccessMsg({
-      title: "Carrier Deleted Successfully!",
-      subTitle: `Carrier ID: ${carrierId}`,
-    });
-    setIsSuccessModalOpen(true);
-  };
-
-  const handleSaveCarrier = (data: CarrierModalData) => {
-    setIsCarrierModalOpen(false);
-    setSuccessMsg({
-      title:
-        modalMode === "add"
-          ? "Carrier Added Successfully!"
-          : "Carrier Updated Successfully!",
-      subTitle: `Carrier Name: ${data.name}`,
-    });
-    setIsSuccessModalOpen(true);
-  };
+  // const handleDeleteCarrier = (carrierId: string) => {
+  //   setSuccessMsg({
+  //     title: "Carrier Deleted Successfully!",
+  //     subTitle: `Carrier ID: ${carrierId}`,
+  //   });
+  //   setIsSuccessModalOpen(true);
+  // };
 
 
   const headers = [
@@ -356,7 +311,7 @@ const FreightCarriersView: React.FC = () => {
                         <button
                           className="p-1 rounded text-gray-600 transition-colors"
                           onClick={() =>
-                            navigate(`/logistics/carrier/${carrier.id}`)
+                             navigate(`/logistics/carrier/${carrier.id}`)
                           }
                         >
                           <Eye size={18} />
@@ -367,12 +322,12 @@ const FreightCarriersView: React.FC = () => {
                         >
                           <Edit2 size={18} />
                         </button>
-                        <button
+                        {/* <button
                           className="p-1 hover:bg-red-50 rounded text-red-500 transition-colors"
                           onClick={() => handleDeleteCarrier(carrier.id)}
                         >
                           <Trash2 size={18} />
-                        </button>
+                        </button> */}
                       </div>
                     </td>
                   </tr>
@@ -382,23 +337,6 @@ const FreightCarriersView: React.FC = () => {
           </table>
         </div>
       </div>
-
-      <VendorModal
-        isOpen={isCarrierModalOpen}
-        onClose={() => setIsCarrierModalOpen(false)}
-        mode={modalMode}
-        initialData={selectedCarrier}
-        onSave={handleSaveCarrier}
-        entityType="Carrier"
-      />
-
-      <SuccessModal
-        isOpen={isSuccessModalOpen}
-        onClose={() => setIsSuccessModalOpen(false)}
-        title={successMsg.title}
-        subTitle={successMsg.subTitle}
-        isLogoBottom={false}
-      />
 
       <FreightFilterModal
         isOpen={isFilterModalOpen}
