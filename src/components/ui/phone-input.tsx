@@ -35,6 +35,7 @@ export default function PhoneNumberInput({
         id={id}
         inputComponent={PhoneInput}
         international
+        defaultCountry="US"
         onChange={(newValue) => {
           const nextValue = newValue ?? "";
           setInternalValue(nextValue);
