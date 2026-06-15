@@ -10,15 +10,8 @@ const MaterialRequestView: React.FC = () => {
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const inventoryData = [
-    { name: "Cement", spec: "OPC 53", category: "Cement", qnt: "230", updated: "08-Apr" },
-    { name: "TMT Steel", spec: "12mm", category: "Steel", qnt: "8.2", updated: "08-Apr" },
-    { name: "Aggregates", spec: "20mm", category: "Aggregate", qnt: "40", updated: "08-Apr" },
-    { name: "Chemical", spec: "Hardener", category: "Consumable", qnt: "4", updated: "08-Apr" },
-    { name: "Cement", spec: "OPC 53", category: "Cement", qnt: "230", updated: "08-Apr" },
-    { name: "TMT Steel", spec: "12mm", category: "Steel", qnt: "8.2", updated: "08-Apr" },
-    { name: "Aggregates", spec: "20mm", category: "Aggregate", qnt: "40", updated: "08-Apr" },
-    { name: "Chemical", spec: "Hardener", category: "Consumable", qnt: "4", updated: "08-Apr" },
+  const inventoryData: Array<{ name: string; spec: string; category: string; qnt: string; updated: string }> = [
+    // { name: "Cement", spec: "OPC 53", category: "Cement", qnt: "230", updated: "08-Apr" },
   ];
 
   return (
@@ -42,13 +35,15 @@ const MaterialRequestView: React.FC = () => {
       <div className="bg-white rounded-[14px] shadow-sm border border-[#F4F6F8] overflow-hidden">
         <div className="p-6 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <SubHeading text="Material Inventory List" />
-          <Button
-            variant="blueFilled"
-            size="sm"
-            className="flex items-center gap-2 px-6"
-          >
-            <FileDown size={18} /> Export PDF
-          </Button>
+          {inventoryData.length > 0 && (
+            <Button
+              variant="blueFilled"
+              size="sm"
+              className="flex items-center gap-2 px-6"
+            >
+              <FileDown size={18} /> Export PDF
+            </Button>
+          )}
         </div>
 
         <div className="overflow-x-auto">
@@ -63,41 +58,49 @@ const MaterialRequestView: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#00000033]">
-              {inventoryData.map((item, idx) => (
-                <tr key={idx} className="hover:bg-gray-50/50 transition-colors font-normal">
-                  <td className="py-6 px-6">
-                    <div className="text-[15px] font-inter font-normal text-[#212B36]">
-                      {item.name}
-                    </div>
-                    <div className="text-[13px] text-[#637381] font-inter font-normal mt-0.5">
-                      {item.spec}
-                    </div>
-                  </td>
-                  <td className="py-6 px-6 text-[15px] font-inter text-[#637381]">
-                    {item.category}
-                  </td>
-                  <td className="py-6 px-6 text-[15px] font-inter  text-[#212B36]">
-                    {item.qnt}
-                  </td>
-                  <td className="py-6 px-6 text-[15px] font-inter text-[#637381]">
-                    {item.updated}
-                  </td>
-                  <td className="py-6 px-6 text-right">
-                    <button 
-                      onClick={() => setIsModalOpen(true)}
-                      className="px-4 py-1.5 bg-[#E1EAF9] text-[#2563EB] rounded-full text-sm font-inter font-normal hover:bg-[#D4E2F7] transition-colors"
-                    >
-                      Approve
-                    </button>
+              {inventoryData.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="text-center py-10 text-[15px] font-inter text-[#637381]">
+                    No material requests found
                   </td>
                 </tr>
-              ))}
+              ) : (
+                inventoryData.map((item, idx) => (
+                  <tr key={idx} className="hover:bg-gray-50/50 transition-colors font-normal">
+                    <td className="py-6 px-6">
+                      <div className="text-[15px] font-inter font-normal text-[#212B36]">
+                        {item.name}
+                      </div>
+                      <div className="text-[13px] text-[#637381] font-inter font-normal mt-0.5">
+                        {item.spec}
+                      </div>
+                    </td>
+                    <td className="py-6 px-6 text-[15px] font-inter text-[#637381]">
+                      {item.category}
+                    </td>
+                    <td className="py-6 px-6 text-[15px] font-inter  text-[#212B36]">
+                      {item.qnt}
+                    </td>
+                    <td className="py-6 px-6 text-[15px] font-inter text-[#637381]">
+                      {item.updated}
+                    </td>
+                    <td className="py-6 px-6 text-right">
+                      <button
+                        onClick={() => setIsModalOpen(true)}
+                        className="px-4 py-1.5 bg-[#E1EAF9] text-[#2563EB] rounded-full text-sm font-inter font-normal hover:bg-[#D4E2F7] transition-colors"
+                      >
+                        Approve
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
       </div>
 
-      <AddMaterialModal 
+      <AddMaterialModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSubmit={() => {
