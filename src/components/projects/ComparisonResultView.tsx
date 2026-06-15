@@ -173,15 +173,17 @@ const ComparisonResultView: React.FC = () => {
             >
               Request Resubmit
             </Button>
-            <Button
-              variant="greenFilled"
-              size="sm"
-              onClick={handleApprove}
-              disabled={isApproving}
-              className="flex items-center gap-2 font-inter font-bold"
-            >
-              {isApproving ? "Approving..." : "Approve Shipment"}
-            </Button>
+            {!(data.summary?.missingItems && data.summary.missingItems > 0) && (
+              <Button
+                variant="greenFilled"
+                size="sm"
+                onClick={handleApprove}
+                disabled={isApproving}
+                className="flex items-center gap-2 font-inter font-bold"
+              >
+                {isApproving ? "Approving..." : "Approve Shipment"}
+              </Button>
+            )}
           </div>
         )}
         {data.status === "approved" && (
