@@ -156,6 +156,38 @@ const ShipperFilesView: React.FC = () => {
     );
   }
 
+  if (allFiles.length === 0) {
+    return (
+      <div className="xl:pr-5 px-2 pb-10 space-y-6">
+        {/* ── Header ────────────────────────────────────────────────────── */}
+        <div className="flex items-center gap-4 mt-2">
+          <Button
+            variant="blueFilled"
+            size="sm"
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-2 shrink-0"
+          >
+            <ArrowLeft size={18} strokeWidth={2.5} /> Back
+          </Button>
+          <Heading text={`${shipperRequestsData?.projectName || "Project"} - Shipper Files`} />
+        </div>
+
+        {/* Premium Empty State */}
+        <div className="p-16 text-center bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col items-center justify-center gap-4 min-h-[400px]">
+          <div className="w-16 h-16 bg-[#1E51A4]/10 rounded-full flex items-center justify-center text-[#1E51A4] mb-2">
+            <Wrench size={32} />
+          </div>
+          <p className="font-bold text-xl font-inter text-[#212B36]">
+            No Shipper Files
+          </p>
+          <p className="text-sm text-gray-500 font-inter max-w-md">
+            There are currently no shipper files, requests, or quotations generated for this project.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   // ── Pagination helpers ────────────────────────────────────────────────────
   const getPageNumbers = () => {
     const pages: (number | "...")[] = [];
