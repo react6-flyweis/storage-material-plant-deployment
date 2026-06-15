@@ -9,7 +9,7 @@ import PageWrapper from "../common_component/PageWrapper";
 import CostingTable from "./CostingTable";
 import PartCostModal from "./PartCostModal";
 import SuccessModal from "../common_component/SuccessModal";
-import { useGetBOMDetailsQuery } from "@/redux/api/projectApi";
+import { useGetBOMDetailsQuery, useUpdateBOMItemPriceMutation } from "@/redux/api/projectApi";
 
 const SORT_OPTIONS = [
   // { label: "Latest", value: "latest" },
@@ -50,6 +50,7 @@ const MissingItemCostListView: React.FC = () => {
     },
     { skip: !id }
   );
+  const [updateBOMItemPrice] = useUpdateBOMItemPriceMutation();
 
   const bomItems = useMemo(() => {
     if (!data?.itemsByCategory) return [];
@@ -138,15 +139,28 @@ const MissingItemCostListView: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  const handleSave = (data: any) => {
+  const handleSave = async (data: any) => {
     console.log("Saved data:", data);
-    setIsModalOpen(false);
-    setSuccessConfig({
-      title: "Item/Part Cost",
-      subTitle: "Saved Successfully",
-      navigatePath: "",
-    });
-    setIsSuccessModalOpen(true);
+    if (!selectedPart?._id) return;
+    try {
+      await updateBOMItemPrice({
+        bomItemId: selectedPart._id,
+        manualUnitCost: Number(data.mbsCost),
+        saveToSMDT: false,
+        jobId: id,
+      }).unwrap();
+
+      setIsModalOpen(false);
+      setSuccessConfig({
+        title: "Item/Part Cost",
+        subTitle: "Saved Successfully",
+        navigatePath: "",
+      });
+      setIsSuccessModalOpen(true);
+    } catch (error) {
+      console.error("Failed to save BOM item manual price:", error);
+      throw error;
+    }
   };
 
   const handleSuccessClose = () => {

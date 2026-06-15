@@ -12,7 +12,7 @@ import { CATEGORY_OPTIONS, COST_UNIT_OPTIONS } from "../../constants/costing";
 interface PartCostModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (data: SmdtSchemaType) => void;
+  onSave: (data: SmdtSchemaType) => void | Promise<void>;
   initialData?: SmdtItem | null;
   mode: "add" | "edit";
 }
@@ -41,8 +41,9 @@ const PartCostModal: React.FC<PartCostModalProps> = ({
 }) => {
   const [addSmdtCostItem, { isLoading: isAdding, error: addError }] = useAddSmdtCostItemMutation();
   const [updateSmdtCostItem, { isLoading: isUpdating, error: updateError }] = useUpdateSmdtCostItemMutation();
+  const [isSavingOnSave, setIsSavingOnSave] = React.useState(false);
 
-  const isPending = isAdding || isUpdating;
+  const isPending = isAdding || isUpdating || isSavingOnSave;
 
   const {
     control,
@@ -120,22 +121,21 @@ const PartCostModal: React.FC<PartCostModalProps> = ({
       payload.partColor = data.partColor?.trim() || "--";
     }
 
-    if (mode === "add") {
-      try {
+    setIsSavingOnSave(true);
+    try {
+      if (mode === "add") {
         await addSmdtCostItem(payload).unwrap();
-        onSave(data);
-      } catch {
-        // Handled by mutation error state
-      }
-    } else {
-      if (initialData?._id) {
-        try {
+        await onSave(data);
+      } else {
+        if (initialData?._id) {
           await updateSmdtCostItem({ itemId: initialData._id, body: payload }).unwrap();
-          onSave(data);
-        } catch {
-          // Handled by mutation error state
+          await onSave(data);
         }
       }
+    } catch {
+      // Handled by mutation error state
+    } finally {
+      setIsSavingOnSave(false);
     }
   };
 
