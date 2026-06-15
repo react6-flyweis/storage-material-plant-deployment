@@ -5,6 +5,7 @@ import Header from "@/components/common_component/Header";
 import SidePanel from "@/components/SidePanel";
 import { NAV_ITEMS } from "@/config/navigation.config";
 import { UploadModal } from "@/components/projects/ProjectUploadModals";
+import GlobalSocketListener from "@/components/GlobalSocketListener";
 
 export function MainLayout() {
   const navigate = useNavigate();
@@ -14,6 +15,8 @@ export function MainLayout() {
   const [activeTab, setActiveTab] = useState(0);
   const [activeSubTab, setActiveSubTab] = useState<string>("");
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+
+
 
   const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
 
@@ -120,6 +123,8 @@ export function MainLayout() {
           // Handle upload success logic
         }}
       />
+
+      <GlobalSocketListener />
     </div>
   );
 }

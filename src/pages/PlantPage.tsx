@@ -13,9 +13,6 @@ import SubHeading from "@/components/common_component/SubHeading";
 import PageWrapper from "@/components/common_component/PageWrapper";
 import {
   productionMetricsByFilter,
-  shipperFilesByFilter,
-  plantAlertsByFilter,
-  freightCarriersByFilter,
   recentShipperFilesByFilter,
   drawingApprovalStatusByFilter,
 } from "@/data/productionMockData";
@@ -211,9 +208,7 @@ const PlantPage = () => {
   // const activeCombo = fontCombos[font];
 
   const productionMetrics = productionMetricsByFilter[activeTab];
-  const shipperFiles = shipperFilesByFilter[activeTab];
-  const alerts = plantAlertsByFilter[activeTab];
-  const carriers = freightCarriersByFilter[activeTab];
+
 
   return (
     <PageWrapper>
@@ -254,9 +249,9 @@ const PlantPage = () => {
       />
       {/* Dashboard Grids */}
       <PlantDataGrids
-        shipperFiles={shipperFiles}
-        alerts={alerts}
-        carriers={carriers}
+        shipperFiles={[]}
+        alerts={[]}
+        carriers={[]}
       />
 
       {/* Recent Shipper Files Table */}
