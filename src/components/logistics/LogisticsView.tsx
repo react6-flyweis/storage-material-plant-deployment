@@ -9,15 +9,14 @@ import {
   Store,
   Eye,
   Edit2,
-  Trash2,
+  // Trash2,
 } from "lucide-react";
 import TitleSubtitle from "../common_component/TitleSubtitle";
 import Button from "../common_component/Button";
 import PageWrapper from "../common_component/PageWrapper";
 import CommonStatusBadge from "../common_component/CommonStatusBadge";
 import Pagination from "../Pagination";
-import VendorModal from "./VendorModal";
-import SuccessModal from "../common_component/SuccessModal";
+// import SuccessModal from "../common_component/SuccessModal";
 import VendorShipperFilterModal from "./VendorShipperFilterModal";
 import {
   useGetPlantVendorsQuery,
@@ -62,12 +61,9 @@ const LogisticsView: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(20);
-  const [isVendorModalOpen, setIsVendorModalOpen] = useState(false);
-  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  // const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
-  const [modalMode, setModalMode] = useState<"add" | "edit">("add");
-  const [selectedVendor, setSelectedVendor] = useState<VendorRow | null>(null);
-  const [successMsg, setSuccessMsg] = useState({ title: "", subTitle: "" });
+  // const [successMsg, setSuccessMsg] = useState({ title: "", subTitle: "" });
   const [appliedFilters, setAppliedFilters] =
     useState<VendorShipperFilterValues>({
       materialType: "",
@@ -149,27 +145,18 @@ const LogisticsView: React.FC = () => {
   };
 
   const handleEditVendor = (vendor: VendorRow) => {
-    setModalMode("edit");
-    setSelectedVendor(vendor);
-    setIsVendorModalOpen(true);
+    navigate(`/logistics/vendor/${vendor.id}/edit`);
   };
 
-  const handleDeleteVendor = (vendor: VendorRow) => {
-    setSelectedVendor(vendor);
-    setSuccessMsg({
-      title: "Vendor Deleted",
-      subTitle: `Vendor Name: ${vendor?.name}`,
-    });
-    setIsSuccessModalOpen(true);
-  };
+  // const handleDeleteVendor = (vendor: VendorRow) => {
+  //   setSuccessMsg({
+  //     title: "Vendor Deleted",
+  //     subTitle: `Vendor Name: ${vendor?.name}`,
+  //   });
+  //   setIsSuccessModalOpen(true);
+  // };
 
-  const handleSaveVendor = (data: { name: string }) => {
-    setSuccessMsg({
-      title: modalMode === "add" ? "Vendor Added" : "Vendor Updated",
-      subTitle: `Vendor Name: ${data.name}`,
-    });
-    setIsSuccessModalOpen(true);
-  };
+
 
   const handleApplyFilters = (filters: VendorShipperFilterValues) => {
     setAppliedFilters(filters);
@@ -371,12 +358,12 @@ const LogisticsView: React.FC = () => {
                         >
                           <Edit2 size={18} />
                         </button>
-                        <button
+                        {/* <button
                           className="p-1 hover:bg-red-50 rounded text-red-500 transition-colors"
                           onClick={() => handleDeleteVendor(vendor)}
                         >
                           <Trash2 size={18} />
-                        </button>
+                        </button> */}
                       </div>
                     </td>
                   </tr>
@@ -401,21 +388,15 @@ const LogisticsView: React.FC = () => {
         />
       )}
 
-      <VendorModal
-        isOpen={isVendorModalOpen}
-        onClose={() => setIsVendorModalOpen(false)}
-        mode={modalMode}
-        initialData={selectedVendor}
-        onSave={handleSaveVendor}
-      />
 
-      <SuccessModal
+
+      {/* <SuccessModal
         isOpen={isSuccessModalOpen}
         onClose={() => setIsSuccessModalOpen(false)}
         title={successMsg.title}
         subTitle={successMsg.subTitle}
         isLogoBottom={false}
-      />
+      /> */}
 
       <VendorShipperFilterModal
         isOpen={isFilterModalOpen}
