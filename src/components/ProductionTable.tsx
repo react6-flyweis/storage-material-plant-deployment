@@ -3,12 +3,13 @@ import { useNavigate } from "react-router-dom";
 import {
   Eye,
   MessageSquare,
-  FileText,
+  // FileText,
   ArrowUpToLine,
   ArrowDownToLine,
 } from "lucide-react";
 import Pagination from "./Pagination";
 import BuildingTypeSelector from "./common_component/BuildingTypeSelector";
+import CustomerSelector from "./common_component/CustomerSelector";
 import CommonStatusBadge from "./common_component/CommonStatusBadge";
 import {
   Select,
@@ -100,22 +101,14 @@ const ProductionTable = () => {
         </div>
 
         <div className="flex flex-wrap gap-3 items-center">
-          <Select
-            onValueChange={(value) => {
+          <CustomerSelector
+            value={assignment}
+            onChange={(value) => {
               setCurrentPage(1);
               setAssignment(value);
             }}
-          >
-            <SelectTrigger className="w-45 bg-white border border-gray-200 rounded-lg h-10 text-sm text-black">
-              <SelectValue placeholder="Select Customer" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Select Customer</SelectItem>
-              <SelectItem value="john">John Doe</SelectItem>
-              <SelectItem value="rohan">Rohan Palkan</SelectItem>
-              <SelectItem value="vijay">Vijay</SelectItem>
-            </SelectContent>
-          </Select>
+            triggerClassName="w-45 bg-white border border-gray-200 rounded-lg h-10 text-sm text-black"
+          />
 
           <BuildingTypeSelector
             value={buildingType}
@@ -184,142 +177,142 @@ const ProductionTable = () => {
             <tbody className="divide-y divide-gray-50">
               {loading
                 ? Array.from({ length: itemsPerPage }).map((_, index) => (
-                    <tr key={`skeleton-${index}`} className="bg-white">
-                      <td className="p-2 md:p-4 text-center">
-                        <div className="mx-auto h-4 w-4 rounded border border-gray-200 bg-gray-100 animate-pulse" />
-                      </td>
-                      <td className="p-2 md:p-4">
-                        <div className="flex flex-col gap-2">
-                          <div className="h-4 w-36 rounded bg-gray-200 animate-pulse" />
-                          <div className="h-3 w-20 rounded bg-gray-100 animate-pulse" />
-                        </div>
-                      </td>
-                      <td className="p-2 md:p-4">
-                        <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 rounded-full bg-gray-200 animate-pulse" />
-                          <div className="h-4 w-24 rounded bg-gray-200 animate-pulse" />
-                        </div>
-                      </td>
-                      <td className="p-4 text-center">
-                        <div className="mx-auto h-4 w-8 rounded bg-gray-200 animate-pulse" />
-                      </td>
-                      <td className="p-2 md:p-4">
-                        <div className="h-6 w-28 rounded-full bg-gray-200 animate-pulse" />
-                      </td>
-                      <td className="p-2 md:p-4">
+                  <tr key={`skeleton-${index}`} className="bg-white">
+                    <td className="p-2 md:p-4 text-center">
+                      <div className="mx-auto h-4 w-4 rounded border border-gray-200 bg-gray-100 animate-pulse" />
+                    </td>
+                    <td className="p-2 md:p-4">
+                      <div className="flex flex-col gap-2">
+                        <div className="h-4 w-36 rounded bg-gray-200 animate-pulse" />
+                        <div className="h-3 w-20 rounded bg-gray-100 animate-pulse" />
+                      </div>
+                    </td>
+                    <td className="p-2 md:p-4">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-full bg-gray-200 animate-pulse" />
                         <div className="h-4 w-24 rounded bg-gray-200 animate-pulse" />
-                      </td>
-                      <td className="p-2 md:p-4">
-                        <div className="h-8 w-24 rounded-md bg-gray-200 animate-pulse" />
-                      </td>
-                      <td className="p-4 text-center">
-                        <div className="flex items-center justify-center gap-8">
-                          <div className="h-5 w-5 rounded bg-gray-200 animate-pulse" />
-                          <div className="h-5 w-5 rounded bg-gray-200 animate-pulse" />
-                        </div>
-                      </td>
-                    </tr>
-                  ))
+                      </div>
+                    </td>
+                    <td className="p-4 text-center">
+                      <div className="mx-auto h-4 w-8 rounded bg-gray-200 animate-pulse" />
+                    </td>
+                    <td className="p-2 md:p-4">
+                      <div className="h-6 w-28 rounded-full bg-gray-200 animate-pulse" />
+                    </td>
+                    <td className="p-2 md:p-4">
+                      <div className="h-4 w-24 rounded bg-gray-200 animate-pulse" />
+                    </td>
+                    <td className="p-2 md:p-4">
+                      <div className="h-8 w-24 rounded-md bg-gray-200 animate-pulse" />
+                    </td>
+                    <td className="p-4 text-center">
+                      <div className="flex items-center justify-center gap-8">
+                        <div className="h-5 w-5 rounded bg-gray-200 animate-pulse" />
+                        <div className="h-5 w-5 rounded bg-gray-200 animate-pulse" />
+                      </div>
+                    </td>
+                  </tr>
+                ))
                 : filteredLeads.map((row, index) => (
-                    <tr
-                      key={index}
-                      className="hover:bg-gray-50 transition-colors bg-white"
+                  <tr
+                    key={index}
+                    className="hover:bg-gray-50 transition-colors bg-white"
+                  >
+                    <td className="p-2 md:p-4 text-center">
+                      <input
+                        type="checkbox"
+                        className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      />
+                    </td>
+                    <td className="p-2 md:p-4">
+                      <div className="flex flex-col">
+                        <span className="font-inter font-semibold text-black text-sm">
+                          {row.projectName || "Untitled"}
+                        </span>
+                        <span className="font-inter text-xs text-[#637381] mt-0.5">
+                          {row.jobId}
+                        </span>
+                      </div>
+                    </td>
+                    <td
+                      className="p-2 md:p-4 cursor-pointer hover:bg-gray-50 transition-colors"
+                      onClick={() =>
+                        navigate(
+                          `/projects/customerinfo/${row.customer?.firstName}`,
+                        )
+                      }
                     >
-                      <td className="p-2 md:p-4 text-center">
-                        <input
-                          type="checkbox"
-                          className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                        />
-                      </td>
-                      <td className="p-2 md:p-4">
-                        <div className="flex flex-col">
-                          <span className="font-inter font-semibold text-black text-sm">
-                            {row.projectName}
-                          </span>
-                          <span className="font-inter text-xs text-[#637381] mt-0.5">
-                            {row.jobId}
-                          </span>
-                        </div>
-                      </td>
-                      <td
-                        className="p-2 md:p-4 cursor-pointer hover:bg-gray-50 transition-colors"
-                        onClick={() =>
-                          navigate(
-                            `/projects/customerinfo/${row.customer?.firstName}`,
-                          )
-                        }
-                      >
-                        <div className="flex items-center gap-2">
-                          {/* {row.customer?.image ? (
+                      <div className="flex items-center gap-2">
+                        {/* {row.customer?.image ? (
                             <img
                               src={row.customer.image}
                               alt={row.customer.name}
                               className="w-8 h-8 shrink-0 rounded-full object-cover"
                             />
                           ) : ( */}
-                          <div className="w-8 h-8 shrink-0 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
-                            {row.clientName?.charAt(0)}
-                          </div>
-                          {/* )} */}
-                          <span className="font-inter text-sm text-[#637381]">
-                            {row.clientName}
-                          </span>
+                        <div className="w-8 h-8 shrink-0 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                          {row.clientName?.charAt(0)}
                         </div>
-                      </td>
-                      <td className="p-4 text-center font-inter font-semibold text-sm text-black">
-                        {row.numberOfBuildings}
-                      </td>
-                      <td className="p-2 md:p-4">
-                        <CommonStatusBadge
-                          text={
-                            getPlantLifecycleStatusConfig(row.lifecycleStatus)
-                              .label
-                          }
-                          variant="gray"
-                          className={
-                            getPlantLifecycleStatusConfig(row.lifecycleStatus)
-                              .badgeClassName
-                          }
-                        />
-                      </td>
-                      <td className="p-2 md:p-4 text-sm font-inter font-semibold text-black">
-                        {new Intl.NumberFormat("en-US", {
-                          style: "currency",
-                          currency: "USD",
-                          maximumFractionDigits: 0,
-                        }).format(row.quoteValue ?? 0)}
-                      </td>
-                      <td className="p-2 md:p-4">
-                        <button
-                          onClick={() => navigate(`/communication`)}
-                          className="flex items-center gap-2 px-4 py-1.5 bg-[#F2F6FF] text-[#446DF6] rounded-md hover:bg-blue-100 transition-colors text-xs font-semibold relative group border border-[#DBEAFE]"
-                        >
-                          <MessageSquare size={14} className="text-[#446DF6]" />
-                          Chat
-                          {/* {row.unreadMessages > 0 && (
+                        {/* )} */}
+                        <span className="font-inter text-sm text-[#637381]">
+                          {row.clientName}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="p-4 text-center font-inter font-semibold text-sm text-black">
+                      {row.numberOfBuildings}
+                    </td>
+                    <td className="p-2 md:p-4">
+                      <CommonStatusBadge
+                        text={
+                          getPlantLifecycleStatusConfig(row.lifecycleStatus)
+                            .label
+                        }
+                        variant="gray"
+                        className={
+                          getPlantLifecycleStatusConfig(row.lifecycleStatus)
+                            .badgeClassName
+                        }
+                      />
+                    </td>
+                    <td className="p-2 md:p-4 text-sm font-inter font-semibold text-black">
+                      {new Intl.NumberFormat("en-US", {
+                        style: "currency",
+                        currency: "USD",
+                        maximumFractionDigits: 0,
+                      }).format(row.quoteValue ?? 0)}
+                    </td>
+                    <td className="p-2 md:p-4">
+                      <button
+                        onClick={() => navigate(`/communication`)}
+                        className="flex items-center gap-2 px-4 py-1.5 bg-[#F2F6FF] text-[#446DF6] rounded-md hover:bg-blue-100 transition-colors text-xs font-semibold relative group border border-[#DBEAFE]"
+                      >
+                        <MessageSquare size={14} className="text-[#446DF6]" />
+                        Chat
+                        {/* {row.unreadMessages > 0 && (
                             <span className="absolute -top-2 -right-2 bg-[#EF4444] text-white  w-6 h-6 flex items-center justify-center rounded-full font-normal text-sm border border-white">
                               {row.unreadMessages}
                             </span>
                           )} */}
+                      </button>
+                    </td>
+                    <td className="p-4 text-center">
+                      <div className="flex items-center justify-center gap-8">
+                        <button
+                          onClick={() => {
+                            navigate(`/projects/${row._id}`);
+                          }}
+                          className="text-[#3C40AF] hover:opacity-80 transition-opacity"
+                        >
+                          <Eye size={20} />
                         </button>
-                      </td>
-                      <td className="p-4 text-center">
-                        <div className="flex items-center justify-center gap-8">
-                          <button
-                            onClick={() => {
-                              navigate(`/projects/${row._id}`);
-                            }}
-                            className="text-[#3C40AF] hover:opacity-80 transition-opacity"
-                          >
-                            <Eye size={20} />
-                          </button>
-                          <button className="text-[#B37878] hover:opacity-80 transition-opacity">
-                            <FileText size={18} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                        {/* <button className="text-[#B37878] hover:opacity-80 transition-opacity">
+                          <FileText size={18} />
+                        </button> */}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
             </tbody>
           </table>
         </div>

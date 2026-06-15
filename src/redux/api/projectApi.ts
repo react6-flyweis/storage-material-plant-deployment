@@ -141,26 +141,39 @@ export interface PhoneNumber {
   countryCode?: string;
 }
 
-interface Customer {
+export interface Customer {
   phone: PhoneNumber;
   _id: string;
   customerId: string;
   firstName: string;
   email: string;
-  password: string;
-  passwordChangedAt: string | null;
-  photo: string | null;
+  password?: string;
+  passwordChangedAt?: string | null;
+  photo?: string | null;
   isActive: boolean;
   source: string;
-  company: string;
-  location: string;
-  resetOtp: string | null;
-  resetOtpExpiry: string | null;
-  resetOtpVerified: boolean;
+  company?: string;
+  location?: string;
+  resetOtp?: string | null;
+  resetOtpExpiry?: string | null;
+  resetOtpVerified?: boolean;
   createdAt: string;
   updatedAt: string;
-  __v: number;
+  __v?: number;
   lastName: string;
+}
+
+export interface CustomersList {
+  customers: Customer[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+export interface CustomersQueryParams {
+  search?: string;
+  page?: number;
+  limit?: number;
 }
 
 export interface ProjectLeadDoc {
@@ -390,6 +403,22 @@ export const projectApi = createApi({
       transformResponse: (response: PlantProjectsApiResponse) =>
         response.data ?? {
           projects: [],
+          total: 0,
+          page: 1,
+          limit: 20,
+        },
+    }),
+    getCustomers: builder.query<
+      CustomersList,
+      CustomersQueryParams | void
+    >({
+      query: (params) => ({
+        url: "/api/customers",
+        params: params ?? undefined,
+      }),
+      transformResponse: (response: ApiResponse<CustomersList>) =>
+        response.data ?? {
+          customers: [],
           total: 0,
           page: 1,
           limit: 20,
@@ -641,6 +670,18 @@ export const projectApi = createApi({
         return response.data;
       },
     }),
+    updateBOMItemPrice: builder.mutation<
+      ApiResponse<{ message: string }>,
+      { bomItemId: string; manualUnitCost: number; saveToSMDT?: boolean; jobId?: string }
+    >({
+      query: ({ bomItemId, manualUnitCost, saveToSMDT = false }) => ({
+        url: `/api/plant/bom/items/${bomItemId}/price`,
+        method: "PUT",
+        body: { manualUnitCost, saveToSMDT },
+      }),
+      invalidatesTags: (_result, _error, { jobId }) =>
+        jobId ? [{ type: "ConsolidatedBOM", id: jobId }] : ["ConsolidatedBOM"],
+    }),
   }),
 });
 
@@ -886,9 +927,17 @@ export interface BOMDetailsQueryParams {
   limit?: number;
 }
 
+export interface UpdateBOMItemPriceRequest {
+  bomItemId: string;
+  manualUnitCost: number;
+  saveToSMDT?: boolean;
+  jobId?: string;
+}
+
 export const {
   useGetProjectStatsQuery,
   useGetPlantProjectsQuery,
+  useGetCustomersQuery,
   useGetPlantProjectDetailQuery,
   useUpdateProjectLifecycleMutation,
   useAddProjectNoteMutation,
@@ -907,4 +956,5 @@ export const {
   useGetBOMProjectsQuery,
   useGetBOMDetailsQuery,
   useConfirmBuildingBOMMutation,
+  useUpdateBOMItemPriceMutation,
 } = projectApi;
