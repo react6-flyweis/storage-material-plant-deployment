@@ -10,6 +10,9 @@ import {
   ChevronDown,
   ArrowUpDown,
   Search,
+  Briefcase,
+  History,
+  FileText,
 } from "lucide-react";
 import PageWrapper from "../common_component/PageWrapper";
 import SubHeading from "../common_component/SubHeading";
@@ -114,8 +117,8 @@ const mapCarrierDetail = (
     date: item.selectedAt
       ? new Date(item.selectedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
       : item.submittedAt
-      ? new Date(item.submittedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
-      : "—",
+        ? new Date(item.submittedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+        : "—",
     status: toTitleCase(item.status),
   }));
 
@@ -333,12 +336,12 @@ const CarrierDetailsView: React.FC = () => {
                     <span className="text-[#7539FF] font-normal">
                       {carrierData.id}
                     </span>
-                    <div className="flex items-center gap-2 text-[#051321]">
+                    {/* <div className="flex items-center gap-2 text-[#051321]">
                       ⭐
                       <span className="font-normal">
                         {carrierData.rating} / 5
                       </span>
-                    </div>
+                    </div> */}
                   </div>
                   <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
                     <h2 className="text-lg md:text-xl lg:text-2xl font-semibold text-[#051321] truncate">
@@ -360,6 +363,7 @@ const CarrierDetailsView: React.FC = () => {
                 <Button
                   variant="white"
                   className="flex items-center gap-2 text-sm font-semibold h-10 px-4"
+                  onClick={() => navigate(`/logistics/carrier/${id}/edit`)}
                 >
                   <PencilLine size={16} /> Edit Profile
                 </Button>
@@ -538,27 +542,45 @@ const CarrierDetailsView: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#E2E4E6]">
-                    {sortedAssigned.map((project, i) => (
-                      <tr key={i} className="hover:bg-gray-50/50 transition-colors">
-                        <td className="px-6 py-4 text-sm text-[#5D6772] font-medium">
-                          {project.id}
-                        </td>
-                        <td className="px-6 py-4 text-sm text-[#051321] font-semibold">
-                          {project.route}
-                        </td>
-                        <td className="px-6 py-4 text-sm text-[#5D6772]">
-                          {project.cargo}
-                        </td>
-                        <td className="px-6 py-4 text-sm text-[#051321] font-medium">
-                          {project.date}
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-1.5 text-xs font-medium text-green-600 bg-green-50 px-2.5 py-1 rounded-full w-fit">
-                            {project.status} <CheckCircle2 size={14} />
+                    {sortedAssigned.length === 0 ? (
+                      <tr>
+                        <td colSpan={5} className="py-12 text-center bg-white rounded-b-lg">
+                          <div className="flex flex-col items-center justify-center max-w-sm mx-auto">
+                            <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center border border-gray-100 shadow-xs mb-3 text-gray-400">
+                              <Briefcase size={22} />
+                            </div>
+                            <h3 className="text-sm font-semibold text-[#051321]">
+                              No assigned projects
+                            </h3>
+                            <p className="text-xs text-[#5D6772] mt-1 max-w-[280px]">
+                              There are currently no active or selected projects assigned to this carrier.
+                            </p>
                           </div>
                         </td>
                       </tr>
-                    ))}
+                    ) : (
+                      sortedAssigned.map((project, i) => (
+                        <tr key={i} className="hover:bg-gray-50/50 transition-colors">
+                          <td className="px-6 py-4 text-sm text-[#5D6772] font-medium">
+                            {project.id}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-[#051321] font-semibold">
+                            {project.route}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-[#5D6772]">
+                            {project.cargo}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-[#051321] font-medium">
+                            {project.date}
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-1.5 text-xs font-medium text-green-600 bg-green-50 px-2.5 py-1 rounded-full w-fit">
+                              {project.status} <CheckCircle2 size={14} />
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -597,21 +619,39 @@ const CarrierDetailsView: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#E2E4E6]">
-                    {paginatedHistory.map((project, i) => (
-                      <tr key={i} className="hover:bg-gray-50/50 transition-colors">
-                        <td className="px-6 py-4 text-sm text-[#006CE4] font-medium underline cursor-pointer">
-                          {project.id}
-                        </td>
-                        <td className="px-6 py-4 text-sm text-[#051321] font-semibold">{project.route}</td>
-                        <td className="px-6 py-4 text-sm text-[#5D6772]">{project.cargo}</td>
-                        <td className="px-6 py-4 text-sm text-[#051321] font-medium">{project.date}</td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-1.5 text-xs font-medium text-[#34C759] bg-[#E8F9EE] px-2.5 py-1 rounded-full w-fit border border-[#34C759]">
-                            {project.status} <CheckCircle2 size={14} />
+                    {paginatedHistory.length === 0 ? (
+                      <tr>
+                        <td colSpan={5} className="py-12 text-center bg-white rounded-b-lg">
+                          <div className="flex flex-col items-center justify-center max-w-sm mx-auto">
+                            <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center border border-gray-100 shadow-xs mb-3 text-gray-400">
+                              <History size={22} />
+                            </div>
+                            <h3 className="text-sm font-semibold text-[#051321]">
+                              No freight history
+                            </h3>
+                            <p className="text-xs text-[#5D6772] mt-1 max-w-[280px]">
+                              This carrier doesn't have any recorded freight delivery history yet.
+                            </p>
                           </div>
                         </td>
                       </tr>
-                    ))}
+                    ) : (
+                      paginatedHistory.map((project, i) => (
+                        <tr key={i} className="hover:bg-gray-50/50 transition-colors">
+                          <td className="px-6 py-4 text-sm text-[#006CE4] font-medium underline cursor-pointer">
+                            {project.id}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-[#051321] font-semibold">{project.route}</td>
+                          <td className="px-6 py-4 text-sm text-[#5D6772]">{project.cargo}</td>
+                          <td className="px-6 py-4 text-sm text-[#051321] font-medium">{project.date}</td>
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-1.5 text-xs font-medium text-[#34C759] bg-[#E8F9EE] px-2.5 py-1 rounded-full w-fit border border-[#34C759]">
+                              {project.status} <CheckCircle2 size={14} />
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -678,23 +718,41 @@ const CarrierDetailsView: React.FC = () => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-[#E2E4E6] bg-white">
-                      {sortedDocs.map((doc, i) => (
-                        <tr key={i} className="hover:bg-gray-50/50 transition-colors">
-                          <td className="px-6 py-4">
-                            <div className="flex items-center gap-3">
-                              <div className="p-2 bg-[#F8F9FA] rounded-md shrink-0 border border-gray-100">
-                                <img src={pdfIcon} alt="PDF" className="size-5" />
+                      {sortedDocs.length === 0 ? (
+                        <tr>
+                          <td colSpan={4} className="py-12 text-center bg-white rounded-b-lg">
+                            <div className="flex flex-col items-center justify-center max-w-sm mx-auto">
+                              <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center border border-gray-100 shadow-xs mb-3 text-gray-400">
+                                <FileText size={22} />
                               </div>
-                              <span className="text-sm font-medium text-[#111827] truncate">
-                                {doc.name}
-                              </span>
+                              <h3 className="text-sm font-semibold text-[#051321]">
+                                No compliance documents
+                              </h3>
+                              <p className="text-xs text-[#5D6772] mt-1 max-w-[280px]">
+                                There are no compliance documents or certifications uploaded for this carrier.
+                              </p>
                             </div>
                           </td>
-                          <td className="px-6 py-4 text-sm text-[#5D6772]">{doc.size}</td>
-                          <td className="px-6 py-4 text-sm text-[#5D6772]">{doc.type}</td>
-                          <td className="px-6 py-4 text-sm text-[#051321] font-medium">{doc.expiry}</td>
                         </tr>
-                      ))}
+                      ) : (
+                        sortedDocs.map((doc, i) => (
+                          <tr key={i} className="hover:bg-gray-50/50 transition-colors">
+                            <td className="px-6 py-4">
+                              <div className="flex items-center gap-3">
+                                <div className="p-2 bg-[#F8F9FA] rounded-md shrink-0 border border-gray-100">
+                                  <img src={pdfIcon} alt="PDF" className="size-5" />
+                                </div>
+                                <span className="text-sm font-medium text-[#111827] truncate">
+                                  {doc.name}
+                                </span>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 text-sm text-[#5D6772]">{doc.size}</td>
+                            <td className="px-6 py-4 text-sm text-[#5D6772]">{doc.type}</td>
+                            <td className="px-6 py-4 text-sm text-[#051321] font-medium">{doc.expiry}</td>
+                          </tr>
+                        ))
+                      )}
                     </tbody>
                   </table>
                 </div>
@@ -708,9 +766,15 @@ const CarrierDetailsView: React.FC = () => {
             <div className="bg-white rounded-[14px] p-6 shadow-sm ">
               <SubHeading text="Notes" />
               <div className="h-px bg-gray-100 my-6" />
-              <p className="text-sm text-[#637381] leading-relaxed">
-                {carrierData.notes}
-              </p>
+              {carrierData.notes && carrierData.notes.trim() ? (
+                <p className="text-sm text-[#637381] leading-relaxed">
+                  {carrierData.notes}
+                </p>
+              ) : (
+                <p className="text-sm text-[#919EAB] italic font-inter">
+                  No notes available for this carrier.
+                </p>
+              )}
             </div>
           </div>
         </div>

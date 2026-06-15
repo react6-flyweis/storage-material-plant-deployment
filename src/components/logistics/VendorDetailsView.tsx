@@ -4,7 +4,7 @@ import {
   Mail,
   Phone,
   ShoppingBag,
-  Globe,
+  FileText,
   Search,
   MapPin,
   Link,
@@ -18,7 +18,6 @@ import PageWrapper from "../common_component/PageWrapper";
 import CommonStatusBadge from "../common_component/CommonStatusBadge";
 import Button from "../common_component/Button";
 import Pagination from "../Pagination";
-import VendorModal from "./VendorModal";
 import SubHeading from "../common_component/SubHeading";
 import FilterDropdown from "../common_component/FilterDropdown";
 import verify from "@/assets/icon/verify.svg";
@@ -28,7 +27,6 @@ import {
   type PlantVendorDetailResponse,
 } from "@/redux/api/logisticsApi";
 
-import personPlaceholderImage from "@/assets/images/personPlaceholderImage.svg";
 
 interface VendorViewData {
   id: string;
@@ -125,9 +123,9 @@ const mapVendorDetail = (
     rating:
       totalOrders > 0
         ? Math.min(
-            5,
-            Number(((completedDeliveries / totalOrders) * 5).toFixed(1)),
-          )
+          5,
+          Number(((completedDeliveries / totalOrders) * 5).toFixed(1)),
+        )
         : 0,
     address: formatAddress(vendor?.address),
     email: vendor?.email || "",
@@ -164,7 +162,7 @@ const mapVendorDetail = (
     ].filter((contact) => contact.name || contact.phone),
     purchaseHistory: orderHistory.map((order) => ({
       id: order.jobId || order._id,
-      material: order.projectName,
+      material: order.projectName || "Untitled",
       quantity: "—",
       value: formatCurrency(order.quoteValue),
       status: order.status,
@@ -189,7 +187,6 @@ const VendorDetailsView: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const [currentPage, setCurrentPage] = useState(1);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [docSort, setDocSort] = useState("Docs Type");
 
   // Sorting and Pagination State
@@ -379,24 +376,24 @@ const VendorDetailsView: React.FC = () => {
           <div className="bg-[#F7F8F9] rounded-[14px] p-3 md:p-6 shadow-sm border border-gray-100">
             <div className="flex flex-wrap gap-6 items-start justify-between mb-8">
               <div className="flex flex-wrap items-center sm:items-start gap-2 md:gap-4 w-full">
-                <div className="w-20 h-20 lg:w-24 lg:h-24 rounded-full overflow-hidden border-4 border-gray-50 shadow-sm shrink-0">
+                {/* <div className="w-20 h-20 lg:w-24 lg:h-24 rounded-full overflow-hidden border-4 border-gray-50 shadow-sm shrink-0">
                   <img
                     src={personPlaceholderImage}
                     alt=""
                     className="w-full h-full object-cover object-center"
                   />
-                </div>
+                </div> */}
                 <div className="space-y-1.5 text-center sm:text-left flex-1 min-w-62.5">
                   <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-3 gap-y-1 text-sm">
                     <span className="text-[#7539FF] font-normal">
                       {vendorData.vendorId}
                     </span>
-                    <div className="flex items-center gap-2 text-[#051321]">
+                    {/* <div className="flex items-center gap-2 text-[#051321]">
                       ⭐
                       <span className="font-normal">
                         {vendorData.rating} / 5
                       </span>
-                    </div>
+                    </div> */}
                   </div>
                   <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
                     <h2 className="text-lg md:text-xl lg:text-2xl font-semibold text-[#051321] truncate">
@@ -418,7 +415,7 @@ const VendorDetailsView: React.FC = () => {
                 <Button
                   variant="white"
                   size="sm"
-                  onClick={() => setIsEditModalOpen(true)}
+                  onClick={() => navigate(`/logistics/vendor/${id}/edit`)}
                   className="flex items-center gap-2 border-gray-200 shadow-sm"
                 >
                   <PencilLine size={16} /> Edit Profile
@@ -427,7 +424,7 @@ const VendorDetailsView: React.FC = () => {
             </div>
 
             {/* Quick Info Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 bg-white p-4 rounded-xl border border-gray-100">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 bg-white p-4 rounded-xl border border-gray-100">
               <InfoTile
                 icon={<Mail size={18} />}
                 label="Email Address"
@@ -438,17 +435,17 @@ const VendorDetailsView: React.FC = () => {
                 label="Phone"
                 value={vendorData.phone}
               />
-              <InfoTile
+              {/* <InfoTile
                 icon={<ShoppingBag size={18} />}
                 label="Shop"
                 value={vendorData.shop}
-              />
-              <InfoTile
+              /> */}
+              {/* <InfoTile
                 icon={<Globe size={18} />}
                 label="Website"
                 value={vendorData.website}
                 isLink
-              />
+              /> */}
             </div>
 
             {/* Details Section */}
@@ -553,45 +550,63 @@ const VendorDetailsView: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#E2E4E6]">
-                  {paginatedHistory.map((order, i) => (
-                    <tr
-                      key={i}
-                      className="hover:bg-gray-50/50 transition-colors"
-                    >
-                      <td className="px-6 py-4 text-sm font-medium text-[#2563EB] whitespace-nowrap border-r border-[#E2E4E6]">
-                        {order.id}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-[#051321] font-medium whitespace-nowrap border-r border-[#E2E4E6]">
-                        {order.material}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-[#5D6772] whitespace-nowrap border-r border-[#E2E4E6]">
-                        {order.quantity}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-[#051321] font-medium whitespace-nowrap border-r border-[#E2E4E6]">
-                        {order.value}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <CommonStatusBadge
-                          text={order.status}
-                          variant={
-                            order.status.toLowerCase() === "approved"
-                              ? "green"
-                              : order.status === "Delivered"
-                                ? "green"
-                                : "blue"
-                          }
-                          icon={
-                            order.status.toLowerCase() === "approved" ||
-                            order.status === "Delivered" ? (
-                              <CircleCheck size={14} />
-                            ) : (
-                              <Hourglass size={14} />
-                            )
-                          }
-                        />
+                  {paginatedHistory.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="py-12 text-center bg-white rounded-b-lg">
+                        <div className="flex flex-col items-center justify-center max-w-sm mx-auto">
+                          <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center border border-gray-100 shadow-xs mb-3 text-gray-400">
+                            <ShoppingBag size={22} />
+                          </div>
+                          <h3 className="text-sm font-semibold text-[#051321]">
+                            No purchase history
+                          </h3>
+                          <p className="text-xs text-[#5D6772] mt-1 max-w-[280px]">
+                            This vendor doesn't have any recorded orders or purchase transactions yet.
+                          </p>
+                        </div>
                       </td>
                     </tr>
-                  ))}
+                  ) : (
+                    paginatedHistory.map((order, i) => (
+                      <tr
+                        key={i}
+                        className="hover:bg-gray-50/50 transition-colors"
+                      >
+                        <td className="px-6 py-4 text-sm font-medium text-[#2563EB] whitespace-nowrap border-r border-[#E2E4E6]">
+                          {order.id}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-[#051321] font-medium whitespace-nowrap border-r border-[#E2E4E6]">
+                          {order.material}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-[#5D6772] whitespace-nowrap border-r border-[#E2E4E6]">
+                          {order.quantity}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-[#051321] font-medium whitespace-nowrap border-r border-[#E2E4E6]">
+                          {order.value}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <CommonStatusBadge
+                            text={order.status}
+                            variant={
+                              order.status.toLowerCase() === "approved"
+                                ? "green"
+                                : order.status === "Delivered"
+                                  ? "green"
+                                  : "blue"
+                            }
+                            icon={
+                              order.status.toLowerCase() === "approved" ||
+                                order.status === "Delivered" ? (
+                                <CircleCheck size={14} />
+                              ) : (
+                                <Hourglass size={14} />
+                              )
+                            }
+                          />
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
@@ -657,32 +672,50 @@ const VendorDetailsView: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#E2E4E6] bg-white">
-                    {sortedDocs.map((doc, i) => (
-                      <tr
-                        key={i}
-                        className="hover:bg-gray-50/50 transition-colors"
-                      >
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-3">
-                            <div className="p-2 bg-[#F8F9FA] rounded-md shrink-0 border border-gray-100">
-                              <img src={pdfIcon} alt="PDF" className="size-5" />
+                    {sortedDocs.length === 0 ? (
+                      <tr>
+                        <td colSpan={4} className="py-12 text-center bg-white rounded-b-lg">
+                          <div className="flex flex-col items-center justify-center max-w-sm mx-auto">
+                            <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center border border-gray-100 shadow-xs mb-3 text-gray-400">
+                              <FileText size={22} />
                             </div>
-                            <span className="text-sm font-medium text-[#111827] truncate">
-                              {doc.name}
-                            </span>
+                            <h3 className="text-sm font-semibold text-[#051321]">
+                              No compliance documents
+                            </h3>
+                            <p className="text-xs text-[#5D6772] mt-1 max-w-[280px]">
+                              There are no compliance documents or certifications uploaded for this vendor.
+                            </p>
                           </div>
                         </td>
-                        <td className="px-6 py-4 text-sm text-[#5D6772]">
-                          {doc.size}
-                        </td>
-                        <td className="px-6 py-4 text-sm text-[#5D6772]">
-                          {doc.type}
-                        </td>
-                        <td className="px-6 py-4 text-sm text-[#051321] font-medium">
-                          {doc.expiry}
-                        </td>
                       </tr>
-                    ))}
+                    ) : (
+                      sortedDocs.map((doc, i) => (
+                        <tr
+                          key={i}
+                          className="hover:bg-gray-50/50 transition-colors"
+                        >
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-3">
+                              <div className="p-2 bg-[#F8F9FA] rounded-md shrink-0 border border-gray-100">
+                                <img src={pdfIcon} alt="PDF" className="size-5" />
+                              </div>
+                              <span className="text-sm font-medium text-[#111827] truncate">
+                                {doc.name}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 text-sm text-[#5D6772]">
+                            {doc.size}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-[#5D6772]">
+                            {doc.type}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-[#051321] font-medium">
+                            {doc.expiry}
+                          </td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -696,9 +729,15 @@ const VendorDetailsView: React.FC = () => {
           <div className="bg-white rounded-[14px] p-3 md:p-5 shadow-sm ">
             <SubHeading text="Notes" />
             <div className="w-full h-px bg-gray-100 mb-6" />
-            <p className="text-sm text-[#637381] leading-relaxed font-inter">
-              {vendorData.notes}
-            </p>
+            {vendorData.notes && vendorData.notes.trim() ? (
+              <p className="text-sm text-[#637381] leading-relaxed font-inter">
+                {vendorData.notes}
+              </p>
+            ) : (
+              <p className="text-sm text-[#919EAB] italic font-inter">
+                No notes available for this vendor.
+              </p>
+            )}
           </div>
 
           {/* Contact Roles Card */}
@@ -720,19 +759,6 @@ const VendorDetailsView: React.FC = () => {
         </div>
       </div>
 
-      <VendorModal
-        isOpen={isEditModalOpen}
-        onClose={() => setIsEditModalOpen(false)}
-        mode="edit"
-        initialData={{
-          ...vendorData,
-          materialTypes: vendorData.materialTypes,
-        }}
-        onSave={(data) => {
-          console.log("Saving vendor data:", data);
-          setIsEditModalOpen(false);
-        }}
-      />
     </PageWrapper>
   );
 };
