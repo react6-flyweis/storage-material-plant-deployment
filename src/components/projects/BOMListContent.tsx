@@ -11,7 +11,7 @@ interface BOMListContentProps {
     summary: {
       totalItems: number;
       totalWeight: string;
-      totalPanelsArea: string;
+      totalPanelsArea: string | number;
     };
     items: Array<{
       qty: number;

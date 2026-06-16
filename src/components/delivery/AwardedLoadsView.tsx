@@ -6,7 +6,6 @@ import {
   DollarSign,
   Phone,
   Eye,
-  MoreHorizontal
 } from "lucide-react";
 import TitleSubtitle from "../common_component/TitleSubtitle";
 import Button from "../common_component/Button";
