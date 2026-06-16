@@ -146,6 +146,63 @@ const ComparisonResultView: React.FC = () => {
     return partCode.includes(q) || reason.includes(q) || status.includes(q);
   });
 
+  const handleDownloadCSV = () => {
+    if (!filteredResults || filteredResults.length === 0) return;
+
+    const headers = [
+      "Part Number",
+      "Description",
+      "Ordered QTY",
+      "Shipped QTY",
+      "Difference",
+      "Reason",
+      "Status"
+    ];
+
+    const csvRows = filteredResults.map((row) => {
+      const part = row.expected || row.received;
+      const partNumber = part?.partCode || "-";
+      const description = part
+        ? `Color: ${part.partColor || "N/A"}${part.lengthFeet ? `, Length: ${part.lengthFeet} ft` : ""}${part.weight ? `, Weight: ${part.weight} lbs` : ""}`
+        : "No details available";
+
+      const orderedQty = row.expected?.totalQty ?? 0;
+      const shippedQty = row.received?.totalQty ?? 0;
+      const difference = row.difference?.qtyDiff !== null && row.difference?.qtyDiff !== undefined
+        ? row.difference.qtyDiff
+        : (shippedQty - orderedQty);
+
+      const differenceStr = difference > 0 ? `+${difference}` : difference.toString();
+      const reason = row.reason || "-";
+      const status = getDisplayStatusText(row.status);
+
+      return [
+        partNumber,
+        description,
+        orderedQty.toString(),
+        shippedQty.toString(),
+        differenceStr,
+        reason,
+        status
+      ];
+    });
+
+    const csvContent = [
+      headers.map(h => `"${h.replace(/"/g, '""')}"`).join(","),
+      ...csvRows.map(row => row.map(val => `"${val.replace(/"/g, '""')}"`).join(","))
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `comparison_report_${requestId || "export"}.csv`);
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="p-4 md:p-6 min-h-screen bg-[#E5ECFF]">
       {/* ── Header ────────────────────────────────────────────────────── */}
@@ -239,9 +296,9 @@ const ComparisonResultView: React.FC = () => {
             className="w-full pl-10 pr-4 py-2.5 bg-white border border-[#E2E4E6] rounded-lg text-sm font-inter placeholder:text-[#919EAB] focus:outline-none focus:ring-1 focus:ring-[#1E51A4]"
           />
         </div>
-        <Button variant="grayFilled" size="sm" onClick={() => console.log("Downloading report...")} className="ml-auto">
+        <Button variant="grayFilled" size="sm" onClick={handleDownloadCSV} className="ml-auto">
           <Download className="mr-2" size={18} />
-          Download Excel Report
+          Download Report
         </Button>
       </div>
 
@@ -293,14 +350,14 @@ const ComparisonResultView: React.FC = () => {
               {filteredResults.map((row) => {
                 const part = row.expected || row.received;
                 const partNumber = part?.partCode || "-";
-                const description = part 
+                const description = part
                   ? `Color: ${part.partColor || "N/A"}${part.lengthFeet ? `, Length: ${part.lengthFeet} ft` : ""}${part.weight ? `, Weight: ${part.weight} lbs` : ""}`
                   : "No details available";
-                
+
                 const orderedQty = row.expected?.totalQty ?? 0;
                 const shippedQty = row.received?.totalQty ?? 0;
-                const difference = row.difference?.qtyDiff !== null && row.difference?.qtyDiff !== undefined 
-                  ? row.difference.qtyDiff 
+                const difference = row.difference?.qtyDiff !== null && row.difference?.qtyDiff !== undefined
+                  ? row.difference.qtyDiff
                   : (shippedQty - orderedQty);
 
                 return (
@@ -387,9 +444,9 @@ const ComparisonResultView: React.FC = () => {
       )}
 
       {/* Success Modal */}
-      <SuccessModal 
-        isOpen={isSuccessModalOpen} 
-        onClose={() => setIsSuccessModalOpen(false)} 
+      <SuccessModal
+        isOpen={isSuccessModalOpen}
+        onClose={() => setIsSuccessModalOpen(false)}
         title={successTitle}
       />
     </div>
