@@ -21,8 +21,15 @@ const ProjectLoadPlanningView: React.FC = () => {
 
     if (isLoading || isError || !stateData) return;
 
+    // Check if we are at the root level of load planning
+    const isRootPath =
+      location.pathname === `/load_planning/${projectId}` ||
+      location.pathname === `/load_planning/${projectId}/` ||
+      location.pathname === `/load_planning/${projectId}/start-load-planning` ||
+      location.pathname === `/load_planning/${projectId}/start-load-planning/`;
+
     const REDIRECT_TO_STATE = import.meta.env.DEV ? false : true;
-    if (REDIRECT_TO_STATE) {
+    if (REDIRECT_TO_STATE && isRootPath) {
 
       if (stateData.packingListPlan?.status === "confirmed") {
         navigate(`/load_planning/${projectId}/load-plan-review`, { replace: true });
@@ -36,18 +43,10 @@ const ProjectLoadPlanningView: React.FC = () => {
         navigate(`/load_planning/${projectId}/bundle-planner`, { replace: true });
         return;
       }
-    }
-
-    // Check if we are at the root level of load planning
-    const isRootPath =
-      location.pathname === `/load_planning/${projectId}` ||
-      location.pathname === `/load_planning/${projectId}/` ||
-      location.pathname === `/load_planning/${projectId}/start-load-planning` ||
-      location.pathname === `/load_planning/${projectId}/start-load-planning/`;
-
-    if (isRootPath) {
       navigate(`/load_planning/${projectId}/item-analysis`, { replace: true });
     }
+
+
 
   }, [projectId, stateData, isLoading, isError, location.pathname, navigate]);
 
