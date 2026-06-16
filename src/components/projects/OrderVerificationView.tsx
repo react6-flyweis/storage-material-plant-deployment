@@ -109,11 +109,32 @@ const OrderVerificationView: React.FC = () => {
     }
   };
 
+  const handleBack = () => {
+    const projId = projectId || shipperDoc?.projectId || shipperRequestsData?.projectId;
+    if (projId && activeRequestId) {
+      navigate(`/projects/${projId}/shipper-files/${activeRequestId}`);
+    } else {
+      navigate(-1);
+    }
+  };
+
+  const handleModalOk = () => {
+    setIsProcessingModalOpen(false);
+    const projId = projectId || shipperDoc?.projectId || shipperRequestsData?.projectId;
+    if (projId && activeRequestId) {
+      navigate(`/projects/${projId}/shipper-files/${activeRequestId}`);
+    } else if (projId) {
+      navigate(`/projects/${projId}`);
+    } else {
+      navigate("/projects");
+    }
+  };
+
   return (
     <div className="p-2 md:p-4">
       {/* ── Header ────────────────────────────────────────────────────── */}
       <div className="flex items-start gap-4 mb-8 flex-wrap w-full">
-        <Button variant="primary" onClick={() => navigate(-1)} size="sm">
+        <Button variant="primary" onClick={handleBack} size="sm">
           <MoveLeft size={18} className="mr-2" />
           Back
         </Button>
@@ -199,6 +220,7 @@ const OrderVerificationView: React.FC = () => {
       <ProcessingFilesModal
         isOpen={isProcessingModalOpen}
         onClose={() => setIsProcessingModalOpen(false)}
+        onOk={handleModalOk}
       />
     </div>
   );

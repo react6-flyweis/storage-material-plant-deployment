@@ -5,15 +5,18 @@ import Modal from "../Modal";
 interface ProcessingFilesModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onOk?: () => void;
 }
 
-const ProcessingFilesModal: React.FC<ProcessingFilesModalProps> = ({ isOpen, onClose }) => {
+const ProcessingFilesModal: React.FC<ProcessingFilesModalProps> = ({ isOpen, onClose, onOk }) => {
   const navigate = useNavigate();
   const { projectId } = useParams();
 
   const handleOk = () => {
     onClose();
-    if (projectId) {
+    if (onOk) {
+      onOk();
+    } else if (projectId) {
       navigate(`/projects/${projectId}`);
     } else {
       navigate("/projects");
