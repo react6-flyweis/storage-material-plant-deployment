@@ -260,11 +260,11 @@ const AwardedLoadsView: React.FC = () => {
                     <td className="p-2 md:p-4 text-sm text-(--text-color-gray-4)">
                       {item.remarks || "-"}
                     </td>
-                    <td className="p-2 md:p-4">
+                    {/* <td className="p-2 md:p-4">
                       <button className="text-[#919EAB] hover:text-(--text-color-gray-5) transition-colors p-2 rounded-full hover:bg-gray-100">
                         <MoreHorizontal size={20} />
                       </button>
-                    </td>
+                    </td> */}
                   </tr>
                 ))
               )}

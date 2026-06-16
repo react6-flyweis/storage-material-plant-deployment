@@ -5,7 +5,7 @@ import {
   CheckCircle2,
   DollarSign,
   Eye,
-  MoreHorizontal,
+  // MoreHorizontal,
 } from "lucide-react";
 import TitleSubtitle from "../common_component/TitleSubtitle";
 import Button from "../common_component/Button";
@@ -250,11 +250,11 @@ const FreightLoadsView: React.FC = () => {
                     <td className="p-2 md:p-4  font-normal text-(--text-color-gray-5) text-sm underline decoration-[#919EAB] underline-offset-4 cursor-pointer hover:text-[#1E51A4] transition-colors">
                       {item.deliveryNumber || "-"}
                     </td>
-                    <td className="p-2 md:p-4">
+                    {/* <td className="p-2 md:p-4">
                       <button className="text-[#919EAB] hover:text-(--text-color-gray-5) transition-colors p-2 rounded-full hover:bg-gray-100">
                         <MoreHorizontal size={20} />
                       </button>
-                    </td>
+                    </td> */}
                   </tr>
                 ))
               )}
