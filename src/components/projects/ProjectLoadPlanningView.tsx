@@ -12,8 +12,24 @@ const ProjectLoadPlanningView: React.FC = () => {
   });
 
   useEffect(() => {
-    if (!projectId) return;
-    // if (!projectId || isLoading || isError || !stateData) return;
+    if (!projectId || isLoading || isError || !stateData) return;
+
+    const REDIRECT_TO_STATE = import.meta.env.DEV ? false : true;
+    if (REDIRECT_TO_STATE) {
+
+      if (stateData.packingListPlan?.status === "confirmed") {
+        navigate(`/load_planning/${projectId}/load-plan-review`, { replace: true });
+        return;
+      }
+      if (stateData.packingListPlan) {
+        navigate(`/load_planning/${projectId}/truck-optimizer`, { replace: true });
+        return;
+      }
+      if (stateData.bundlePlan) {
+        navigate(`/load_planning/${projectId}/bundle-planner`, { replace: true });
+        return;
+      }
+    }
 
     // Check if we are at the root level of load planning
     const isRootPath =
@@ -24,18 +40,8 @@ const ProjectLoadPlanningView: React.FC = () => {
 
     if (isRootPath) {
       navigate(`/load_planning/${projectId}/item-analysis`, { replace: true });
-      // const { bundlePlan, } = stateData;
-      // if (!bundlePlan) {
-      //   // Step 1: No bundle plan generated yet, go to Item Analysis
-      //   navigate(`/load_planning/${projectId}/item-analysis`, { replace: true });
-      // } else if (bundlePlan.status !== "confirmed") {
-      //   // Step 2: Bundle plan exists but not confirmed, go to Bundle Planner
-      //   navigate(`/load_planning/${projectId}/bundle-planner`, { replace: true });
-      // } else {
-      //   // Step 3: Bundle plan confirmed, proceed to Truckload Optimization
-      //   navigate(`/load_planning/${projectId}/truck-optimizer`, { replace: true });
     }
-    // }
+
   }, [projectId, stateData, isLoading, isError, location.pathname, navigate]);
 
   if (isLoading) {
