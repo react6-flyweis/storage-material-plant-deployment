@@ -11,6 +11,7 @@ import {
   Building,
 } from "lucide-react";
 import type { PlantProjectDetail } from "@/redux/api/projectApi";
+import { getLeadProjectName } from "@/lib/utils";
 
 interface ProjectDetailsCardProps {
   project: PlantProjectDetail;
@@ -28,7 +29,7 @@ const ProjectDetailsCard: React.FC<ProjectDetailsCardProps> = ({
   customerAddress,
 }) => {
   const projectIdStr = project?.jobId || "N/A";
-  const projectNameStr = project?.projectName || "N/A";
+  const projectNameStr = getLeadProjectName(project?.lead, project?.client);
   const statusStr = project?.lifecycleStatus || "";
   const poNumberStr = project?.poOrder?.poNumber || "";
 

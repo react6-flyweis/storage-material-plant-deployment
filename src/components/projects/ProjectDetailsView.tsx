@@ -20,6 +20,7 @@ import {
 import { UploadDrawingModal } from "./UploadDrawingModal";
 import { UploadBOMModal } from "./UploadBOMModal";
 import ProjectInvoicesTable from "./ProjectInvoices";
+import { getLeadProjectName } from "@/lib/utils";
 
 const ProjectDetailsView = () => {
   const navigate = useNavigate();
@@ -144,7 +145,7 @@ const ProjectDetailsView = () => {
           <h1 className="text-xl md:text-2xl font-inter font-bold text-[#212B36]">
             Project Details-{" "}
             <span className="text-[#637381] font-medium">
-              {lead.projectName}
+              {getLeadProjectName(lead, client)}
             </span>
           </h1>
         </div>
