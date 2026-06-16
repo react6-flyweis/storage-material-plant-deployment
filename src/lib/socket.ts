@@ -3,8 +3,8 @@ import { io, type Socket } from "socket.io-client";
 export function getSocketBaseUrl() {
   const apiBase = import.meta.env.VITE_API_BASE_URL;
 
-  return apiBase || "";
-
+  //  trim trailing slash
+  return (apiBase || "").replace(/\/$/, "");
   // try {
   //   return new URL(apiBase).origin;
   // } catch {
