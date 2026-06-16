@@ -151,7 +151,7 @@ const BundlePlannerView: React.FC = () => {
   //   count: count.toString(),
   // }));
 
-  const avgWeight = summary.totalBundles > 0 ? Math.round(summary.totalWeight / summary.totalBundles) : 0;
+  const avgWeight = summary.totalBundles > 0 ? summary.totalWeight / summary.totalBundles : 0;
 
 
 
@@ -161,7 +161,6 @@ const BundlePlannerView: React.FC = () => {
     return (
       <div className="min-h-screen">
         <LoadPlanningHeader
-          currentStepIndex={2}
           requestId={projectId || ""}
           title="Bundle / Pallet Planner"
           description="Group items into optimized bundles or pallets for efficient truck loading and site unloading."
@@ -218,10 +217,10 @@ const BundlePlannerView: React.FC = () => {
               <div className="space-y-4 max-w-md">
                 {[
                   { label: "Total Bundles", value: summary.totalBundles.toString() },
-                  { label: "Average Bundle Weight", value: `${avgWeight} lbs` },
-                  { label: "Total Planned Weight", value: `${summary.totalWeight} lbs` },
+                  { label: "Average Bundle Weight", value: `${avgWeight.toFixed(2)} lbs` },
+                  { label: "Total Planned Weight", value: `${Number(summary.totalWeight).toFixed(2)} lbs` },
                   {
-                    label: "Bundle Issues",
+                    label: "Bundle Warnings",
                     value: summary.warnings.length > 0 ? `${summary.warnings.length} Warnings` : "No Warnings",
                     color: summary.warnings.length > 0 ? "text-amber-600" : "text-green-600",
                     warnings: summary.warnings,
@@ -333,29 +332,16 @@ const BundlePlannerView: React.FC = () => {
                         {bundle.itemCount} items
                       </td>
                       <td className="py-5 px-6 font-bold text-[#637381]">
-                        {bundle.maxLengthFeet} ft
+                        {Number(bundle.maxLengthFeet).toFixed(2)} ft
                       </td>
                       <td className="py-5 px-6 font-bold text-[#637381]">
-                        {bundle.totalWeight} lbs
+                        {Number(bundle.totalWeight).toFixed(2)} lbs
                       </td>
                       <td className="py-5 px-6 text-sm">
                         <div className="flex items-center gap-2">
                           <span className="font-bold text-[#637381] capitalize">
                             {bundle.status || "Draft"}
                           </span>
-                          {bundle.warnings && bundle.warnings.length > 0 && (
-                            <span className="inline-flex items-center justify-center bg-amber-50 text-amber-600 border border-amber-200 rounded px-2 py-0.5 text-xs font-semibold cursor-help group/tooltip relative">
-                              {bundle.warnings.length} {bundle.warnings.length === 1 ? "Warning" : "Warnings"}
-                              <span className="invisible group-hover/tooltip:visible absolute z-50 left-1/2 -translate-x-1/2 bottom-full mb-2 w-64 bg-slate-900 text-white text-xs rounded-lg p-2.5 shadow-xl font-normal leading-relaxed text-left pointer-events-none transition-all duration-200 after:content-[''] after:absolute after:top-full after:left-1/2 after:-translate-x-1/2 after:border-4 after:border-transparent after:border-t-slate-900">
-                                <span className="font-semibold block mb-1 text-amber-400">Bundle Warnings:</span>
-                                <ul className="list-disc pl-4 space-y-1">
-                                  {bundle.warnings.map((w, i) => (
-                                    <li key={i}>{w}</li>
-                                  ))}
-                                </ul>
-                              </span>
-                            </span>
-                          )}
                         </div>
                       </td>
                       <td className="py-3 px-6 text-sm text-right">
@@ -377,8 +363,8 @@ const BundlePlannerView: React.FC = () => {
                                 bundleId: bundle._id,
                                 loadId: bundle.loadSequence || "LOAD-001",
                                 parts: bundle.bundleType,
-                                weight: `${bundle.totalWeight} lbs`,
-                                length: `${bundle.maxLengthFeet} ft`,
+                                weight: `${Number(bundle.totalWeight).toFixed(2)} lbs`,
+                                length: `${Number(bundle.maxLengthFeet).toFixed(2)} ft`,
                                 projectName: projectDetail?.projectName || "N/A",
                                 shipperRef: bpDetails?.shipperRequestId || "N/A",
                               });

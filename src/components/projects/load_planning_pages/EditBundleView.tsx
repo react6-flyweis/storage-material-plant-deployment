@@ -34,7 +34,7 @@ const EditBundleView: React.FC = () => {
         qty: item.qty,
         item: item.partCode,
         description: item.description || "",
-        length: `${item.lengthFeet} ft`,
+        length: `${Number(item.lengthFeet || 0).toFixed(2)} ft`,
         weight: item.weight,
       };
     });
@@ -262,7 +262,7 @@ const EditBundleView: React.FC = () => {
                 <th className="py-4 px-6">Profile</th>
                 <th className="py-4 px-6">Items</th>
                 <th className="py-4 px-6">Length</th>
-                <th className="py-4 px-6">Unit Weight</th>
+                <th className="py-4 px-6">Total Weight</th>
                 <th className="py-4 px-6">Status</th>
               </tr>
             </thead>
@@ -278,11 +278,11 @@ const EditBundleView: React.FC = () => {
                 <td className="py-6 px-6 text-[#637381]">{itemsNameStr}</td>
                 <td className="py-6 px-6 text-[#637381]">
                   {bundleDetails?.bundle?.maxLengthFeet
-                    ? `${bundleDetails.bundle.maxLengthFeet} ft`
-                    : "20 ft"}
+                    ? `${Number(bundleDetails.bundle.maxLengthFeet).toFixed(2)} ft`
+                    : "20.00 ft"}
                 </td>
                 <td className="py-6 px-6 text-[#637381]">
-                  {totalWeight ? `${totalWeight.toLocaleString()} IBS` : "0 IBS"}
+                  {totalWeight ? `${totalWeight.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} IBS` : "0.00 IBS"}
                 </td>
                 <td className="py-6 px-6">
                   <div className="flex items-center gap-2">
@@ -370,7 +370,7 @@ const EditBundleView: React.FC = () => {
                     </span>
                   </button>
                 </th>
-                <th className="py-4 px-6 w-28">Weight</th>
+                <th className="py-4 px-6 w-28">Unit Weight</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#E2E4E6] text-sm text-[#212B36]">
@@ -408,7 +408,7 @@ const EditBundleView: React.FC = () => {
                       {item.description}
                     </td>
                     <td className="py-4 px-6 font-medium text-[#212B36]">{item.length}</td>
-                    <td className="py-4 px-6 text-[#637381] font-medium">{item.weight}</td>
+                    <td className="py-4 px-6 text-[#637381] font-medium">{item.weight.toFixed(2)}</td>
                   </tr>
                 );
               })}

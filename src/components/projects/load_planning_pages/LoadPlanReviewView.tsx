@@ -137,7 +137,7 @@ const Step6LoadPlanReview: React.FC<Step6LoadPlanReviewProps> = ({
                     <td className="py-6 px-6 font-normal text-gray-400">{index + 1}</td>
                     <td className="py-6 px-6 font-normal text-[#212B36]">{bundle.bundleNo}</td>
                     <td className="py-6 px-6 font-normal text-[#919EAB]">{bundle.bundleType || bundle.title || "-"}</td>
-                    <td className="py-6 px-6 font-normal text-[#919EAB]">{bundle.totalWeight.toLocaleString()} LBS</td>
+                    <td className="py-6 px-6 font-normal text-[#919EAB]">{bundle.totalWeight?.toLocaleString() || "-"} LBS</td>
                     <td className="py-6 px-6">
                       {isAssigned ? <img src={CheckIcon} alt="check" className="w-8 h-8" /> : "-"}
                     </td>

@@ -160,11 +160,11 @@ const PackingListModal: React.FC<PackingListModalProps> = ({
                     </p>
                     <p className="flex gap-2">
                       <span className="text-(--text-color-gray-4) min-w-[80px]">Weight :</span>
-                      <span className="text-(--text-color-gray-5) font-medium">weight={summary.totalWeight ? `${summary.totalWeight.toLocaleString()} LBS` : "-"}</span>
+                      <span className="text-(--text-color-gray-5) font-medium">weight={summary.totalWeight ? `${summary.totalWeight.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} LBS` : "-"}</span>
                     </p>
                     <p className="flex gap-2">
                       <span className="text-(--text-color-gray-4) min-w-[80px]">Length :</span>
-                      <span className="text-(--text-color-gray-5) font-medium">length={summary.maxLengthFeet ? `${summary.maxLengthFeet} FT` : "-"}</span>
+                      <span className="text-(--text-color-gray-5) font-medium">length={summary.maxLengthFeet ? `${summary.maxLengthFeet.toFixed(2)} FT` : "-"}</span>
                     </p>
                     {planId && (
                       <p className="flex gap-2">
@@ -213,7 +213,7 @@ const PackingListModal: React.FC<PackingListModalProps> = ({
                 {[
                   { label: "Total Bundles", value: summary.totalBundles.toString() },
                   { label: "Total Items", value: summary.totalItems.toString() },
-                  { label: "Total weight", value: `${summary.totalWeight.toLocaleString()} lbs` },
+                  { label: "Total weight", value: `${summary.totalWeight.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} lbs` },
                 ].map((item) => (
                   <div key={item.label} className="flex justify-between">
                     <span className="text-(--text-color-black) font-medium">
@@ -279,11 +279,11 @@ const PackingListModal: React.FC<PackingListModalProps> = ({
                       {bundle.qty}
                     </td>
                     <td className="py-6 px-6 font-normal text-(--text-color-gray-4)">
-                      {bundle.length}ft
+                      {bundle.length.toFixed(2)}ft
                     </td>
                     <td className="py-6 px-6 font-normal text-(--text-color-gray-4) w-24">
                       <div className="flex flex-col">
-                        <span>{bundle.weight.toLocaleString()}</span>
+                        <span>{bundle.weight.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                         <span>LBS</span>
                       </div>
                     </td>
