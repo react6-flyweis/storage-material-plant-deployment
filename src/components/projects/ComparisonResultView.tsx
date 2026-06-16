@@ -297,8 +297,8 @@ const ComparisonResultView: React.FC = () => {
                   ? `Color: ${part.partColor || "N/A"}${part.lengthFeet ? `, Length: ${part.lengthFeet} ft` : ""}${part.weight ? `, Weight: ${part.weight} lbs` : ""}`
                   : "No details available";
                 
-                const orderedQty = row.expected?.qty ?? 0;
-                const shippedQty = row.received?.qty ?? 0;
+                const orderedQty = row.expected?.totalQty ?? 0;
+                const shippedQty = row.received?.totalQty ?? 0;
                 const difference = row.difference?.qtyDiff !== null && row.difference?.qtyDiff !== undefined 
                   ? row.difference.qtyDiff 
                   : (shippedQty - orderedQty);

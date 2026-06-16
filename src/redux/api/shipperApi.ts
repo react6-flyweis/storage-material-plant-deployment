@@ -292,8 +292,9 @@ export interface ComparisonSummaryStats {
 
 export interface ComparisonPartItem {
   partCode: string;
-  partColor: string;
-  qty: number;
+  partColor?: string;
+  qty?: number;
+  totalQty?: number;
   lengthFeet: number;
   weight: number;
   unitCost: number;

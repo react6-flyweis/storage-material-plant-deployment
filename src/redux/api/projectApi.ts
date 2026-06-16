@@ -780,10 +780,10 @@ export interface DrawingUploadResponse {
 export interface ConsolidatedBOMItem {
   _id: string;
   partCode: string;
-  partColor: string;
+  partColor: string | null;
   description: string;
   category: string;
-  costUnit: string;
+  costUnit: string | null;
   totalQty: number;
   totalLengthFeet: number;
   totalWeight: number;
@@ -798,6 +798,8 @@ export interface ConsolidatedBOM {
   status: string;
   fileUrl?: string;
   totalCost: number;
+  totalWeight: number;
+  totalPanelsArea: number;
   itemCount: number;
   items: ConsolidatedBOMItem[];
   sentToVendors: any[];

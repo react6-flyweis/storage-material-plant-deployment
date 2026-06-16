@@ -92,8 +92,8 @@ const BOMView: React.FC = () => {
     jobId: projectDetail?.jobId || "N/A",
     summary: {
       totalItems: consolidatedBOM.itemCount || 0,
-      totalWeight: `${(consolidatedBOM.items || []).reduce((acc, item) => acc + (item.totalWeight || 0), 0).toLocaleString()} lbs`,
-      totalPanelsArea: "N/A",
+      totalWeight: `${consolidatedBOM?.totalWeight?.toFixed(2)} lbs`,
+      totalPanelsArea: consolidatedBOM.totalPanelsArea,
     },
     items: (consolidatedBOM.items || []).map((item) => ({
       qty: item.totalQty || 0,
