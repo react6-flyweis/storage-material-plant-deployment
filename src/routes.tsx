@@ -3,6 +3,7 @@ import { type RouteObject } from "react-router-dom";
 
 import { NotFound } from "@/pages/not-found";
 import { MainLayout } from "@/components/main-layout";
+import ErrorPage from "@/pages/ErrorPage";
 import {
   RedirectIfAuthenticated,
   RequireAuth,
@@ -198,6 +199,7 @@ const MissingItemCostListView = lazy(
 export const adminRoutes: RouteObject[] = [
   {
     element: <RequireAuth />,
+    errorElement: <ErrorPage />,
     children: [
       {
         element: <MainLayout />,
@@ -466,6 +468,7 @@ export const adminRoutes: RouteObject[] = [
   },
   {
     element: <RedirectIfAuthenticated />,
+    errorElement: <ErrorPage />,
     children: [
       { path: "/login", element: <Login /> },
       { path: "/forgot-password", element: <ForgotPassword /> },
