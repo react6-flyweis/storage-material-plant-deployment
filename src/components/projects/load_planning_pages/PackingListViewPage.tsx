@@ -222,7 +222,6 @@ const PackingListViewPage: React.FC = () => {
     return (
       <div className="min-h-screen">
         <LoadPlanningHeader
-          currentStepIndex={4}
           requestId={projectId || ""}
           title="Packing List"
           description="Generate and manage packing lists for truckloads and bundles."
@@ -241,7 +240,6 @@ const PackingListViewPage: React.FC = () => {
     return (
       <div className="min-h-screen">
         <LoadPlanningHeader
-          currentStepIndex={4}
           requestId={projectId || ""}
           title="Packing List"
           description="Generate and manage packing lists for truckloads and bundles."
@@ -264,7 +262,6 @@ const PackingListViewPage: React.FC = () => {
   return (
     <div className="min-h-screen">
       <LoadPlanningHeader
-        currentStepIndex={4}
         requestId={projectId || ""}
         title="Packing List"
         description="Generate and manage packing lists for truckloads and bundles."

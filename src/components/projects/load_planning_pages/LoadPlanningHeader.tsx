@@ -1,5 +1,5 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Check, ArrowLeft } from "lucide-react";
 import Button from "@/components/common_component/Button";
 import TitleSubtitle from "@/components/common_component/TitleSubtitle";
@@ -14,7 +14,6 @@ export interface HeaderAction {
 }
 
 interface LoadPlanningHeaderProps {
-  currentStepIndex: number;
   requestId: string;
   title: string;
   description: string;
@@ -80,6 +79,13 @@ const LoadPlanningHeader: React.FC<LoadPlanningHeaderProps> = ({
   actions = [],
 }) => {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const pathStepIndex = stepsConfig.findIndex((step) =>
+    location.pathname.includes(step.path)
+  );
+
+  const currentStepIndex = pathStepIndex !== -1 ? pathStepIndex : 0;
 
   const handleStepClick = (idx: number) => {
     const step = stepsConfig[idx];

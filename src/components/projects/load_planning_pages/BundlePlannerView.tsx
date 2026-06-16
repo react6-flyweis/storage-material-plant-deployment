@@ -112,7 +112,6 @@ const BundlePlannerView: React.FC = () => {
     return (
       <div className="min-h-screen">
         <LoadPlanningHeader
-          currentStepIndex={2}
           requestId={projectId || ""}
           title="Bundle / Pallet Planner"
           description="Group items into optimized bundles or pallets for efficient truck loading and site unloading."
@@ -189,7 +188,6 @@ const BundlePlannerView: React.FC = () => {
       )}
 
       <LoadPlanningHeader
-        currentStepIndex={2}
         requestId={projectId || ""}
         title="Bundle / Pallet Planner"
         description="Group items into optimized bundles or pallets for efficient truck loading and site unloading."

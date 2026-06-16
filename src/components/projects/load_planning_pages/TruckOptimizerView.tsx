@@ -52,7 +52,6 @@ const TruckOptimizerView: React.FC = () => {
     return (
       <div className="min-h-screen">
         <LoadPlanningHeader
-          currentStepIndex={3}
           requestId={projectId || ""}
           title="Truckload Optimizer"
           description="Optimize bundle assignments into truckloads to maximize utilization and prepare shipments for dispatch."
@@ -129,7 +128,6 @@ const TruckOptimizerView: React.FC = () => {
     return (
       <div className="min-h-screen">
         <LoadPlanningHeader
-          currentStepIndex={3}
           requestId={projectId || ""}
           title="Truckload Optimizer"
           description="Optimize bundle assignments into truckloads to maximize utilization and prepare shipments for dispatch."
@@ -203,7 +201,6 @@ const TruckOptimizerView: React.FC = () => {
         </div>
       )}
       <LoadPlanningHeader
-        currentStepIndex={3}
         requestId={projectId || ""}
         title="Truckload Optimizer"
         description="Optimize bundle assignments into truckloads to maximize utilization and prepare shipments for dispatch."

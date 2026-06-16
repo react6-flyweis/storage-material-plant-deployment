@@ -1025,7 +1025,6 @@ const FreightSelectionView: React.FC = () => {
   return (
     <div className="min-h-screen">
       <LoadPlanningHeader
-        currentStepIndex={7}
         requestId={projectId || ""}
         title="Create Freight Request"
         description="Request freight pricing from carriers and compare competitive bids"

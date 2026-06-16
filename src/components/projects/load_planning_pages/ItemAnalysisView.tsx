@@ -168,7 +168,6 @@ const ItemAnalysisView: React.FC = () => {
   return (
     <div className="min-h-screen">
       <LoadPlanningHeader
-        currentStepIndex={1}
         requestId={projectId || ""}
         title="Item Analysis"
         description="Analyze the material list for accuracy and identify any missing or incompatible items."

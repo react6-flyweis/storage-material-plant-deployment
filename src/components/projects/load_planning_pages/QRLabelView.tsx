@@ -155,7 +155,6 @@ const QRLabelView: React.FC = () => {
     return (
       <div className="min-h-screen">
         <LoadPlanningHeader
-          currentStepIndex={5}
           requestId={projectId || ""}
           title="QR Label Generator"
           description="Generate and print QR labels for bundles and pallets to enable scanning and tracking."
@@ -174,7 +173,6 @@ const QRLabelView: React.FC = () => {
     return (
       <div className="min-h-screen">
         <LoadPlanningHeader
-          currentStepIndex={5}
           requestId={projectId || ""}
           title="QR Label Generator"
           description="Generate and print QR labels for bundles and pallets to enable scanning and tracking."
@@ -197,7 +195,6 @@ const QRLabelView: React.FC = () => {
   return (
     <div className="min-h-screen">
       <LoadPlanningHeader
-        currentStepIndex={5}
         requestId={projectId || ""}
         title="QR Label Generator"
         description="Generate and print QR labels for bundles and pallets to enable scanning and tracking."

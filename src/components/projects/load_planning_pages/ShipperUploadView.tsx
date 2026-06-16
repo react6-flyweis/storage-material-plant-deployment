@@ -236,7 +236,6 @@ const ShipperUploadView: React.FC = () => {
   return (
     <div className="min-h-screen">
       <LoadPlanningHeader
-        currentStepIndex={0}
         requestId={projectId || ""}
         title="Shipper Upload"
         description="Upload material lists and generate optimized loads"

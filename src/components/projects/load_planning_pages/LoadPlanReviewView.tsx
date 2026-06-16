@@ -196,7 +196,6 @@ const LoadPlanReviewView: React.FC = () => {
     return (
       <div className="min-h-screen">
         <LoadPlanningHeader
-          currentStepIndex={6}
           requestId={projectId || ""}
           title="Load Plan Review"
           description="Final check of the entire load plan, including bundles, trucks, and weights, before selecting freight carriers."
@@ -215,7 +214,6 @@ const LoadPlanReviewView: React.FC = () => {
     return (
       <div className="min-h-screen">
         <LoadPlanningHeader
-          currentStepIndex={6}
           requestId={projectId || ""}
           title="Load Plan Review"
           description="Final check of the entire load plan, including bundles, trucks, and weights, before selecting freight carriers."
@@ -238,7 +236,6 @@ const LoadPlanReviewView: React.FC = () => {
   return (
     <div className="min-h-screen">
       <LoadPlanningHeader
-        currentStepIndex={6}
         requestId={projectId || ""}
         title="Load Plan Review"
         description="Final check of the entire load plan, including bundles, trucks, and weights, before selecting freight carriers."
