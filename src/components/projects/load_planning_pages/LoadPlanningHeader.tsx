@@ -20,6 +20,9 @@ interface LoadPlanningHeaderProps {
   actions?: HeaderAction[];
 }
 
+// IN local use the value, in prod false
+const STEPS_CLICKABLE = import.meta.env.DEV ? true : false
+
 const stepsConfig = [
   // {
   //   name: "Shipper Upload",
@@ -72,7 +75,6 @@ const stepsConfig = [
 ];
 
 const LoadPlanningHeader: React.FC<LoadPlanningHeaderProps> = ({
-  currentStepIndex,
   requestId,
   title,
   description,
@@ -88,6 +90,7 @@ const LoadPlanningHeader: React.FC<LoadPlanningHeaderProps> = ({
   const currentStepIndex = pathStepIndex !== -1 ? pathStepIndex : 0;
 
   const handleStepClick = (idx: number) => {
+    if (!STEPS_CLICKABLE) return;
     const step = stepsConfig[idx];
     if (step && requestId) {
       navigate(`/load_planning/${requestId}/${step.path}`);
@@ -95,11 +98,12 @@ const LoadPlanningHeader: React.FC<LoadPlanningHeaderProps> = ({
   };
 
   const handleBack = () => {
-    if (currentStepIndex > 0) {
-      handleStepClick(currentStepIndex - 1);
-    } else {
-      navigate(-1);
-    }
+    // if (currentStepIndex > 0) {
+    //   handleStepClick(currentStepIndex - 1);
+    // } else {
+    //   navigate(-1);
+    // }
+    navigate(`/projects/${requestId}/shipper-files`)
   };
 
   return (
