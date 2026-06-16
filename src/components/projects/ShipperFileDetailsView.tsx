@@ -201,6 +201,7 @@ const ShipperFileDetailsView: React.FC = () => {
               size="sm"
               onClick={() => navigate(`order-verification`)}
               className="flex items-center gap-2 font-inter font-bold"
+              disabled={shipperDoc?.fileStatus === "comparison_processing"}
             >
               <Scale size={18} /> Order Verification
             </Button>
