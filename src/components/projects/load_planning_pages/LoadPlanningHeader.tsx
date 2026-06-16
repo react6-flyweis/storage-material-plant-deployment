@@ -21,12 +21,12 @@ interface LoadPlanningHeaderProps {
 }
 
 const stepsConfig = [
-  {
-    name: "Shipper Upload",
-    title: "Shipper Upload",
-    description: "Upload material lists and generate optimized loads",
-    path: "shipper-upload",
-  },
+  // {
+  //   name: "Shipper Upload",
+  //   title: "Shipper Upload",
+  //   description: "Upload material lists and generate optimized loads",
+  //   path: "shipper-upload",
+  // },
   {
     name: "Item Analysis",
     title: "Item Analysis",
