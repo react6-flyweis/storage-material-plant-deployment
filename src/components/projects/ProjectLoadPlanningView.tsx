@@ -12,7 +12,14 @@ const ProjectLoadPlanningView: React.FC = () => {
   });
 
   useEffect(() => {
-    if (!projectId || isLoading || isError || !stateData) return;
+    if (!projectId) return;
+
+    if (!isLoading && !isError && !stateData) {
+      navigate(`/load_planning/${projectId}/item-analysis`, { replace: true });
+      return;
+    }
+
+    if (isLoading || isError || !stateData) return;
 
     const REDIRECT_TO_STATE = import.meta.env.DEV ? false : true;
     if (REDIRECT_TO_STATE) {
