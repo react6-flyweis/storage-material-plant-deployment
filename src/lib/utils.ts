@@ -25,4 +25,29 @@ export const getPackingListQRDataStr = (planId?: string): string => {
   return `${standaloneBase.replace(/\/+$/, "")}/packing-list-plan/${planId}`;
 };
 
+export function getLeadProjectName(
+  lead?: {
+    projectName?: string | null;
+    customerId?: { firstName?: string | null; name?: string | null } | null;
+    buildingType?: string | null;
+    location?: string | null;
+  } | null,
+  customer?: { firstName?: string | null; name?: string | null } | null
+) {
+  // console.log(lead)
+  if (lead?.projectName && lead.projectName !== "Untitled Lead" && lead.projectName !== "Untitled" && lead.projectName !== "N/A") {
+    return lead.projectName;
+  }
+  const firstName = customer?.firstName || customer?.name || lead?.customerId?.firstName || lead?.customerId?.name || "Unknown";
+  const parts: string[] = [firstName];
+  if (lead?.buildingType && lead.buildingType !== "N/A" && lead.buildingType !== "—" && lead.buildingType !== "-") {
+    parts.push(lead.buildingType);
+  }
+  if (lead?.location && lead.location !== "N/A" && lead.location !== "—" && lead.location !== "-") {
+    parts.push(lead.location);
+  }
+  return parts.join("-");
+}
+
+
 

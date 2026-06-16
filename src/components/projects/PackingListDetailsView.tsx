@@ -6,6 +6,7 @@ import Button from "../common_component/Button";
 import { useGetPackingListPlanQuery } from "@/redux/api/shipperApi";
 import type { PackingListEntry } from "@/redux/api/shipperApi";
 import PackingListModal from "./PackingListModal";
+import { getLeadProjectName } from "@/lib/utils";
 import {
   exportPackingListToPDF,
   exportBundleListToPDF,
@@ -105,7 +106,7 @@ const PackingListDetailsView: React.FC = () => {
   }
 
   const { packingListPlan, packingLists = [], bundles = [] } = data;
-  const projectName = packingListPlan.project?.projectName || "N/A";
+  const projectName = getLeadProjectName(packingListPlan.project);
   const planNumber = packingListPlan.bundlePlan?.planNumber || packingListPlan.planNumber || "N/A";
 
   const projectDetails = {

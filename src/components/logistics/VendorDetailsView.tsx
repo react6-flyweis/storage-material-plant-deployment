@@ -22,6 +22,7 @@ import SubHeading from "../common_component/SubHeading";
 import FilterDropdown from "../common_component/FilterDropdown";
 import verify from "@/assets/icon/verify.svg";
 import pdfIcon from "@/assets/icon/pdfIcon.svg";
+import { getLeadProjectName } from "@/lib/utils";
 import {
   useGetPlantVendorQuery,
   type PlantVendorDetailResponse,
@@ -162,7 +163,7 @@ const mapVendorDetail = (
     ].filter((contact) => contact.name || contact.phone),
     purchaseHistory: orderHistory.map((order) => ({
       id: order.jobId || order._id,
-      material: order.projectName || "Untitled",
+      material: getLeadProjectName(order),
       quantity: "—",
       value: formatCurrency(order.quoteValue),
       status: order.status,

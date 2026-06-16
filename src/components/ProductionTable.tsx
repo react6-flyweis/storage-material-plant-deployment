@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/select";
 import { useGetPlantProjectsQuery } from "@/redux/api/projectApi";
 import Button from "./common_component/Button";
-import { downloadFile } from "../lib/utils";
+import { downloadFile, getLeadProjectName } from "../lib/utils";
 import {
   getPlantLifecycleStatusConfig,
   PLANT_LIFECYCLE_STATUS_OPTIONS,
@@ -227,7 +227,7 @@ const ProductionTable = () => {
                     <td className="p-2 md:p-4">
                       <div className="flex flex-col">
                         <span className="font-inter font-semibold text-black text-sm">
-                          {row.projectName || "Untitled"}
+                          {getLeadProjectName(row, row.customer)}
                         </span>
                         <span className="font-inter text-xs text-[#637381] mt-0.5">
                           {row.jobId}

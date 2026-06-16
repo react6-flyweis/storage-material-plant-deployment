@@ -23,6 +23,7 @@ import TitleSubtitle from "../common_component/TitleSubtitle";
 import PageWrapper from "../common_component/PageWrapper";
 import DeliveryFilterModal from "./DeliveryFilterModal";
 import { useGetCalendarDeliveriesQuery, type CalendarDeliveryItem } from "@/redux/api/deliveriesApi";
+import { getLeadProjectName } from "@/lib/utils";
 
 const mapApiDeliveryToDelivery = (item: CalendarDeliveryItem, dateStr: string): Delivery => {
   const statusMap: Record<string, Delivery["status"]> = {
@@ -44,7 +45,7 @@ const mapApiDeliveryToDelivery = (item: CalendarDeliveryItem, dateStr: string): 
     projectId: item.deliveryNumber || item.delivery?.deliveryNumber || item.requestId || "",
     status: uiStatus,
     badges: [],
-    project: item.project?.projectName || "N/A",
+    project: getLeadProjectName(item.project, item.customer),
     customer: item.customer?.name || "N/A",
     timeWindow: item.deliveryTime || item.delivery?.deliveryTime || item.delivery?.timings || "N/A",
     receivingContact: item.poc?.receivingPoc || item.delivery?.receivingPoc || item.customer?.name || "N/A",

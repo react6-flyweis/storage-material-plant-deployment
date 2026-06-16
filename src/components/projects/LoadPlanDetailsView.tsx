@@ -4,6 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import SubHeading from "../common_component/SubHeading";
 import PackingListTable, { type TableColumn } from "../common_component/PackingListTable";
 import { useGetLoadPlanningStateQuery } from "@/redux/api/shipperApi";
+import { getLeadProjectName } from "@/lib/utils";
 
 const LoadPlanDetailsView: React.FC = () => {
   const navigate = useNavigate();
@@ -47,7 +48,7 @@ const LoadPlanDetailsView: React.FC = () => {
     );
   }
 
-  const projectName = stateData.project?.projectName || "N/A";
+  const projectName = getLeadProjectName(stateData.project);
   const planNumber = stateData.bundlePlan?.planNumber || "N/A";
   const packingLists = stateData.packingLists || [];
   const bundles = stateData.bundles || [];

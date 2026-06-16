@@ -13,6 +13,7 @@ import {
   useGetConsolidatedBOMQuery,
   useGetConsolidatedBOMUrlQuery,
 } from "@/redux/api/projectApi";
+import { getLeadProjectName } from "@/lib/utils";
 
 const BOMView: React.FC = () => {
   const navigate = useNavigate();
@@ -82,7 +83,7 @@ const BOMView: React.FC = () => {
 
   const bomData = {
     id: consolidatedBOM._id || "N/A",
-    projectName: projectDetail?.projectName || "N/A",
+    projectName: getLeadProjectName(projectDetail?.lead, projectDetail?.client),
     customerName: projectDetail?.client
       ? `${projectDetail.client.firstName} ${projectDetail.client.lastName}`
       : "N/A",
