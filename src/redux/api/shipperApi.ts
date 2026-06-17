@@ -18,6 +18,59 @@ export interface ShipperProjectsList {
   total: number;
 }
 
+export interface LoadPlanningProject {
+  leadId: string;
+  projectId: string;
+  jobId: string;
+  projectName: string;
+  bundlePlanId: string;
+  fileReceivedAt: string;
+  totalLoadPlanning: number;
+  status: string;
+  updatedAt: string;
+}
+
+export interface LoadPlanningProjectsList {
+  projects: LoadPlanningProject[];
+  total: number;
+}
+
+export interface PackingListProject {
+  leadId: string;
+  projectId: string;
+  jobId: string;
+  projectName: string;
+  packingListPlanId: string;
+  listGeneratedAt: string;
+  totalPackingList: number;
+  status: string;
+  updatedAt: string;
+}
+
+export interface PackingListProjectsList {
+  projects: PackingListProject[];
+  total: number;
+}
+
+
+export interface ProjectLoadPlan {
+  id: string;
+  project: string;
+  ref: string;
+  vendor: string;
+  bundles: number;
+  loads: number;
+  weight: string;
+  status: string;
+  date: string;
+  avatar?: string;
+}
+
+export interface ProjectLoadPlansListResponse {
+  plans: ProjectLoadPlan[];
+  total: number;
+}
+
 export interface ShipperProjectsQueryParams {
   page?: number;
   limit?: number;
@@ -293,11 +346,13 @@ export interface ComparisonSummaryStats {
 export interface ComparisonPartItem {
   partCode: string;
   partColor?: string;
+  color?: string;
   qty?: number;
   totalQty?: number;
-  lengthFeet: number;
-  weight: number;
-  unitCost: number;
+  lengthFeet?: number | null;
+  weight?: number | null;
+  unitCost?: number;
+  description?: string;
 }
 
 export interface ComparisonDifference {
@@ -358,6 +413,51 @@ export const shipperApi = createApi({
       transformResponse: (response: ApiResponse<ShipperProjectsList>) =>
         response.data ?? {
           projects: [],
+          total: 0,
+        },
+    }),
+    getLoadPlanningProjects: builder.query<
+      LoadPlanningProjectsList,
+      ShipperProjectsQueryParams | void
+    >({
+      query: (params) => ({
+        url: "/api/plant/load-planning/projects",
+        params: params ?? undefined,
+      }),
+      providesTags: ["ShipperProjects"],
+      transformResponse: (response: ApiResponse<LoadPlanningProjectsList>) =>
+        response.data ?? {
+          projects: [],
+          total: 0,
+        },
+    }),
+    getPackingListProjects: builder.query<
+      PackingListProjectsList,
+      ShipperProjectsQueryParams | void
+    >({
+      query: (params) => ({
+        url: "/api/plant/packing-lists/projects",
+        params: params ?? undefined,
+      }),
+      providesTags: ["ShipperProjects"],
+      transformResponse: (response: ApiResponse<PackingListProjectsList>) =>
+        response.data ?? {
+          projects: [],
+          total: 0,
+        },
+    }),
+    getProjectLoadPlans: builder.query<
+      ProjectLoadPlansListResponse,
+      { projectId: string; search?: string; limit?: number; page?: number }
+    >({
+      query: ({ projectId, ...params }) => ({
+        url: `/api/plant/load-planning/projects/${projectId}/plans`,
+        params: params ?? undefined,
+      }),
+      providesTags: ["ShipperProjects"],
+      transformResponse: (response: ApiResponse<ProjectLoadPlansListResponse>) =>
+        response.data ?? {
+          plans: [],
           total: 0,
         },
     }),
@@ -785,6 +885,9 @@ export interface GetPackingListPlanResponse {
 
 export const {
   useGetShipperProjectsQuery,
+  useGetLoadPlanningProjectsQuery,
+  useGetPackingListProjectsQuery,
+  useGetProjectLoadPlansQuery,
   useGetProjectShipperFilesQuery,
   useGetProjectShipperRequestsQuery,
   useGetShipperDocumentQuery,

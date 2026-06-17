@@ -66,9 +66,6 @@ const GenerateShipperOrder = lazy(
 const ProjectDrawingsView = lazy(
   () => import("./components/projects/ProjectDrawingsView"),
 );
-const MaterialDeliveryView = lazy(
-  () => import("./components/projects/MaterialDeliveryView"),
-);
 const EditDeliveryView = lazy(
   () => import("./components/projects/EditDeliveryView"),
 );
@@ -130,8 +127,14 @@ const ComparisonResultView = lazy(
 const LoadPlanningList = lazy(
   () => import("./components/projects/LoadPlanningList"),
 );
+const ProjectLoadPlansList = lazy(
+  () => import("./components/projects/ProjectLoadPlansList"),
+);
 const PackingListView = lazy(
   () => import("./components/projects/PackingListView"),
+);
+const ProjectPackingList = lazy(
+  () => import("./components/projects/ProjectPackingList"),
 );
 const LoadPlanDetailsView = lazy(
   () => import("./components/projects/LoadPlanDetailsView"),
@@ -140,6 +143,9 @@ const PackingListDetailsView = lazy(
   () => import("./components/projects/PackingListDetailsView"),
 );
 const QRLabelsView = lazy(() => import("./components/projects/QRLabelsView"));
+const ProjectQRLabels = lazy(
+  () => import("./components/projects/ProjectQRLabels"),
+);
 const FreightLoadsView = lazy(
   () => import("./components/delivery/FreightLoadsView"),
 );
@@ -250,7 +256,7 @@ export const adminRoutes: RouteObject[] = [
           },
           {
             path: "/projects/:projectId/material-delivery",
-            element: <MaterialDeliveryView />,
+            element: <DeliveryDetailsView showQuickActions={false} />,
           },
           {
             path: "/projects/:projectId/material-delivery/edit",
@@ -281,6 +287,10 @@ export const adminRoutes: RouteObject[] = [
             element: <PackingListView />,
           },
           {
+            path: "/load_planning/packing-list/:projectId",
+            element: <ProjectPackingList />,
+          },
+          {
             path: "/load_planning/details/:id",
             element: <LoadPlanDetailsView />,
           },
@@ -291,6 +301,10 @@ export const adminRoutes: RouteObject[] = [
           {
             path: "/load_planning/qr-labels",
             element: <QRLabelsView />,
+          },
+          {
+            path: "/load_planning/qr-labels/:projectId",
+            element: <ProjectQRLabels />,
           },
           {
             path: "/delivery/freight-loads",
@@ -393,8 +407,8 @@ export const adminRoutes: RouteObject[] = [
             element: <ProjectLoadPlanningView />,
             children: [
               {
-                index: true,
-                element: <ProjectLoadPlanningView />,
+                path: "list",
+                element: <ProjectLoadPlansList />,
               },
               {
                 path: "shipper-upload",
