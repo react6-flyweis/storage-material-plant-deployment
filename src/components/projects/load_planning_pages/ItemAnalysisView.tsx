@@ -112,7 +112,7 @@ const Step1ItemAnalysis: React.FC = () => {
             items={[
               { label: "Project ID", value: shipperDoc.projectId || "" },
               { label: "Upload Id", value: shipperDoc.fileName },
-              { label: "Shipper Refrence", value: shipperDoc.requestId },
+              // { label: "Shipper Refrence", value: shipperDoc.requestId },
               { label: "Vendor", value: shipperDoc.vendorName },
             ]}
           />

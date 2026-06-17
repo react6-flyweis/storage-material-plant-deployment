@@ -217,8 +217,8 @@ const TruckOptimizerView: React.FC = () => {
                 items={[
                   { label: "Project ID", value: projectDetail?.projectId || "" },
                   { label: "Upload Id", value: bpDetails?.planNumber || "" },
-                  { label: "Shipper Refrence", value: bpDetails?.shipperRequestId || "" },
-                  { label: "Vendor", value: bpDetails?.generatedBy || "" },
+                  // { label: "Shipper Refrence", value: bpDetails?.shipperRequestId || "" },
+                  // { label: "Vendor", value: bpDetails?.generatedBy || "" },
                 ]}
               />
             </div>

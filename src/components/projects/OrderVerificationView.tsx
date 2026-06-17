@@ -109,14 +109,7 @@ const OrderVerificationView: React.FC = () => {
     }
   };
 
-  const handleBack = () => {
-    const projId = projectId || shipperDoc?.projectId || shipperRequestsData?.projectId;
-    if (projId && activeRequestId) {
-      navigate(`/projects/${projId}/shipper-files/${activeRequestId}`);
-    } else {
-      navigate(-1);
-    }
-  };
+
 
   const handleModalOk = () => {
     setIsProcessingModalOpen(false);
@@ -134,7 +127,7 @@ const OrderVerificationView: React.FC = () => {
     <div className="p-2 md:p-4">
       {/* ── Header ────────────────────────────────────────────────────── */}
       <div className="flex items-start gap-4 mb-8 flex-wrap w-full">
-        <Button variant="primary" onClick={handleBack} size="sm">
+        <Button variant="primary" onClick={() => navigate(-1)} size="sm">
           <MoveLeft size={18} className="mr-2" />
           Back
         </Button>
