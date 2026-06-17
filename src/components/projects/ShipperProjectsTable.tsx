@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import type { ShipperProject } from "@/redux/api/shipperApi";
 import { Eye, ArrowUpDown } from "lucide-react";
 import CommonCheckbox from "../common_component/CommonCheckbox";
+import { getLeadProjectName } from "@/lib/utils";
 
 interface Props {
   data: ShipperProject[];
@@ -175,7 +176,7 @@ const ShipperProjectsTable: React.FC<Props> = ({ data }) => {
                         : "font-normal text-[#637381]"
                     }`}
                   >
-                    {item.projectName}
+                    {getLeadProjectName(item)}
                   </td>
                   <td className="py-4 px-4 text-sm text-[#637381]">
                     {formatDate(item.latestSubmittedAt)}

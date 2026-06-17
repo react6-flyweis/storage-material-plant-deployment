@@ -137,7 +137,7 @@ const ProjectDetailsView = () => {
           <Button
             variant="blueFilled"
             size="sm"
-            onClick={() => navigate(-1)}
+            onClick={() => navigate("/projects")}
             className="flex items-center gap-2 shrink-0 font-inter font-bold"
           >
             <ArrowLeft size={18} strokeWidth={2.5} /> Back
