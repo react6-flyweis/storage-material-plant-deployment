@@ -5,6 +5,7 @@ import ShipperProjectsTable from "./ShipperProjectsTable";
 import Pagination from "@/components/Pagination";
 import FilterDropdown from "../common_component/FilterDropdown";
 import TitleSubtitle from "../common_component/TitleSubtitle";
+import { getLeadProjectName } from "@/lib/utils";
 
 const ShipperQuotationView: React.FC = () => {
   const [search, setSearch] = useState("");
@@ -23,7 +24,7 @@ const ShipperQuotationView: React.FC = () => {
       const q = search.toLowerCase();
       list = list.filter(
         (p) =>
-          p.projectName.toLowerCase().includes(q) ||
+          getLeadProjectName(p).toLowerCase().includes(q) ||
           p.projectId.toLowerCase().includes(q) ||
           p.jobId.toLowerCase().includes(q)
       );

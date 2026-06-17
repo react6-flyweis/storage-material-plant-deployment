@@ -50,6 +50,25 @@ const ComparisonResultView: React.FC = () => {
     }
   };
 
+  const getFormattedDescription = (part: any) => {
+    if (!part) return "No details available";
+    const parts: string[] = [];
+    if (part.description) {
+      parts.push(part.description);
+    }
+    const color = part.partColor || part.color;
+    if (color && color !== "N/A") {
+      parts.push(`Color: ${color}`);
+    }
+    if (typeof part.lengthFeet === "number" && part.lengthFeet > 0) {
+      parts.push(`Length: ${part.lengthFeet.toFixed(2)} ft`);
+    }
+    if (typeof part.weight === "number" && part.weight > 0) {
+      parts.push(`Weight: ${part.weight.toFixed(2)} lbs`);
+    }
+    return parts.length > 0 ? parts.join(" | ") : `Color: ${color || "N/A"}`;
+  };
+
   const getDisplayStatusText = (status: string) => {
     switch (status) {
       case "missing_in_vendor_quote":
@@ -162,9 +181,7 @@ const ComparisonResultView: React.FC = () => {
     const csvRows = filteredResults.map((row) => {
       const part = row.expected || row.received;
       const partNumber = part?.partCode || "-";
-      const description = part
-        ? `Color: ${part.partColor || "N/A"}${part.lengthFeet ? `, Length: ${part.lengthFeet} ft` : ""}${part.weight ? `, Weight: ${part.weight} lbs` : ""}`
-        : "No details available";
+      const description = getFormattedDescription(part);
 
       const orderedQty = row.expected?.totalQty ?? 0;
       const shippedQty = row.received?.totalQty ?? 0;
@@ -225,12 +242,12 @@ const ComparisonResultView: React.FC = () => {
               variant="grayFilled"
               size="sm"
               onClick={() => setIsResubmitModalOpen(true)}
-              disabled={isResubmitting}
+              disabled={isResubmitting || data.canProceedToApproval}
               className="flex items-center gap-2 font-inter font-bold"
             >
               Request Resubmit
             </Button>
-            {!(data.summary?.missingItems && data.summary.missingItems > 0) && (
+            {data.canProceedToApproval && (
               <Button
                 variant="greenFilled"
                 size="sm"
@@ -350,9 +367,7 @@ const ComparisonResultView: React.FC = () => {
               {filteredResults.map((row) => {
                 const part = row.expected || row.received;
                 const partNumber = part?.partCode || "-";
-                const description = part
-                  ? `Color: ${part.partColor || "N/A"}${part.lengthFeet ? `, Length: ${part.lengthFeet} ft` : ""}${part.weight ? `, Weight: ${part.weight} lbs` : ""}`
-                  : "No details available";
+                const description = getFormattedDescription(part);
 
                 const orderedQty = row.expected?.totalQty ?? 0;
                 const shippedQty = row.received?.totalQty ?? 0;

@@ -37,7 +37,10 @@ const GenerateShipperOrder: React.FC = () => {
   React.useEffect(() => {
     if (consolidatedBOM?.sentToVendors) {
       const sentIds = consolidatedBOM.sentToVendors.map((v: { vendorId: string }) => v.vendorId);
-      setSelectedShipperIds(sentIds);
+      const timer = setTimeout(() => {
+        setSelectedShipperIds(sentIds);
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [consolidatedBOM]);
 
@@ -95,33 +98,7 @@ const GenerateShipperOrder: React.FC = () => {
     );
   }
 
-  const bomData = {
-    id: consolidatedBOM?._id || "N/A",
-    projectName: projectDetail?.projectName || "N/A",
-    customerName: projectDetail?.client
-      ? `${projectDetail.client.firstName} ${projectDetail.client.lastName}`
-      : "N/A",
-    date: consolidatedBOM?.createdAt
-      ? new Date(consolidatedBOM.createdAt).toLocaleDateString()
-      : "N/A",
-    jobId: projectDetail?.jobId || "N/A",
-    summary: {
-      totalItems: consolidatedBOM?.itemCount || 0,
-      totalWeight: `${(consolidatedBOM?.items || []).reduce((acc, item) => acc + (item.totalWeight || 0), 0).toLocaleString()} lbs`,
-      totalPanelsArea: "N/A",
-    },
-    items: (consolidatedBOM?.items || []).map((item) => ({
-      qty: item.totalQty || 0,
-      mark: item.markIds && item.markIds.length > 0 ? item.markIds.join(", ") : "-",
-      description: item.description || "-",
-      part: item.partCode || "-",
-      color: item.partColor || "-",
-      angle: "-",
-      thick: "-",
-      length: `${item.totalLengthFeet || 0} ${item.costUnit || "FT"}`,
-      weight: item.totalWeight ? item.totalWeight.toString() : "0",
-    })),
-  };
+
 
   const toggleShipper = (id: string) => {
     const isAlreadySent = consolidatedBOM?.sentToVendors?.some(
@@ -291,14 +268,16 @@ const GenerateShipperOrder: React.FC = () => {
       </div>
 
       {/* BOM Content Section */}
-      <BOMListContent bomData={bomData} />
+      {consolidatedBOM && (
+        <BOMListContent consolidatedBOM={consolidatedBOM} projectDetail={projectDetail} />
+      )}
 
       {/* Main Success Modal */}
       <SuccessModal
         isOpen={isSuccessModalOpen}
         onClose={() => {
           setIsSuccessModalOpen(false);
-          navigate(-1);
+          navigate(`/projects/${projectId}/shipper-files`);
         }}
         title="Order Sent Successfully"
         subTitle="Material Request has been sent to selected shippers."
