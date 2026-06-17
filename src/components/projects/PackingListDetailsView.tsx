@@ -6,7 +6,7 @@ import Button from "../common_component/Button";
 import { useGetPackingListPlanQuery } from "@/redux/api/shipperApi";
 import type { PackingListEntry } from "@/redux/api/shipperApi";
 import PackingListModal from "./PackingListModal";
-import { getLeadProjectName } from "@/lib/utils";
+import { getLeadProjectName, getQRCodeUrl, getPackingListQRDataStr } from "@/lib/utils";
 import {
   exportPackingListToPDF,
   exportBundleListToPDF,
@@ -36,9 +36,8 @@ const PackingListTable: React.FC<ReusableTableProps> = ({ columns, data }) => (
           {columns.map((col, idx) => (
             <th
               key={idx}
-              className={`p-2 md:p-4 font-inter font-semibold text-xs md:text-sm ${
-                col.align === "center" ? "text-center" : ""
-              }`}
+              className={`p-2 md:p-4 font-inter font-semibold text-xs md:text-sm ${col.align === "center" ? "text-center" : ""
+                }`}
             >
               {col.header}
             </th>
@@ -54,9 +53,8 @@ const PackingListTable: React.FC<ReusableTableProps> = ({ columns, data }) => (
             {columns.map((col, colIdx) => (
               <td
                 key={colIdx}
-                className={`p-2 md:p-4 font-inter text-xs md:text-sm ${
-                  col.align === "center" ? "text-center" : ""
-                }`}
+                className={`p-2 md:p-4 font-inter text-xs md:text-sm ${col.align === "center" ? "text-center" : ""
+                  }`}
               >
                 {col.render ? col.render(item) : item[col.key]}
               </td>
@@ -114,13 +112,13 @@ const PackingListDetailsView: React.FC = () => {
     projectName: projectName,
     uploadId: planNumber,
     bundlesCreated: packingListPlan.totalBundles,
-    totalWeight: `${packingListPlan.totalWeight.toLocaleString()} LBS`,
+    totalWeight: `${Math.round(packingListPlan.totalWeight).toLocaleString()} LBS`,
   };
 
   const optimizationSummary = [
     { label: "Truck Loads", value: packingListPlan.totalPackingLists.toString() },
     { label: "Total Bundles", value: packingListPlan.totalBundles.toString() },
-    { label: "Total Weight", value: `${packingListPlan.totalWeight.toLocaleString()} LBS` },
+    { label: "Total Weight", value: `${Math.round(packingListPlan.totalWeight).toLocaleString()} LBS` },
     { label: "Packing List Generated", value: packingLists.length.toString() },
   ];
 
@@ -148,21 +146,23 @@ const PackingListDetailsView: React.FC = () => {
       header: "Weight",
       key: "weight",
       render: (item: PackingListEntry) => (
-        <span className="text-(--text-color-gray-4)">{item.totalWeight.toLocaleString()} LBS</span>
+        <span className="text-(--text-color-gray-4)">{Math.round(item.totalWeight).toLocaleString()} LBS</span>
       ),
     },
+    /*
     {
       header: "Destination",
       key: "destination",
       render: () => (
-        <span className="text-(--text-color-gray-4)">{projectName} Site A</span>
+        <span className="text-(--text-color-gray-4)">-</span>
       ),
     },
+    */
     {
       header: "Status",
       key: "status",
       render: (item: PackingListEntry) => (
-        <span className="text-(--text-color-gray-4) capitalize">{item.status || "Ready"}</span>
+        <span className="text-(--text-color-gray-4) capitalize">{item.status || ""}</span>
       ),
     },
     {
@@ -187,8 +187,8 @@ const PackingListDetailsView: React.FC = () => {
           const summary = {
             totalBundles: item.totalBundles || item.bundleIds.length || 0,
             totalItems: item.totalItems || resolvedBundles.reduce((sum, b) => sum + (b.totalQty || b.itemCount || 0), 0),
-            totalWeight: item.totalWeight || 0,
-            maxLengthFeet: item.maxLengthFeet || 0,
+            totalWeight: Math.round(item.totalWeight || 0),
+            maxLengthFeet: Math.round(item.maxLengthFeet || 0),
           };
 
           const bundleList = resolvedBundles.map((b) => ({
@@ -196,8 +196,8 @@ const PackingListDetailsView: React.FC = () => {
             bundleNo: b.bundleNo,
             partNumber: b.bundleType || b.title || "N/A",
             qty: b.totalQty || b.itemCount || 0,
-            length: b.maxLengthFeet || 0,
-            weight: b.totalWeight || 0,
+            length: Math.round(b.maxLengthFeet || 0),
+            weight: Math.round(b.totalWeight || 0),
             status: b.status || "Ready",
           }));
 
@@ -255,12 +255,12 @@ const PackingListDetailsView: React.FC = () => {
     {
       header: "Length",
       key: "length",
-      render: (item) => <span className="text-[#212B36]">{item.maxLengthFeet} ft</span>,
+      render: (item) => <span className="text-[#212B36]">{Math.round(item.maxLengthFeet)} ft</span>,
     },
     {
       header: "Unit Weight",
       key: "weight",
-      render: (item) => <span className="text-[#212B36]">{item.totalWeight.toLocaleString()} LBS</span>,
+      render: (item) => <span className="text-[#212B36]">{Math.round(item.totalWeight).toLocaleString()} LBS</span>,
     },
   ];
 
@@ -315,21 +315,86 @@ const PackingListDetailsView: React.FC = () => {
           </div>
         </div>
 
-        {/* Optimization Summary Card */}
-        <div className="space-y-4 max-w-lg">
-          <SubHeading text="Optimization Summary Card" />
-          <div className="space-y-3">
-            {optimizationSummary.map((item, idx) => (
-              <div
-                key={idx}
-                className="flex justify-between items-center text-sm md:text-base font-inter"
-              >
-                <span className="text-(--text-color-gray-4) font-medium">
-                  {item.label}
-                </span>
-                <span className="text-[#212B36] font-normal">{item.value}</span>
+        {/* Summary and QR Code Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+          {/* Optimization Summary Card */}
+          <div className="space-y-4">
+            <SubHeading text="Optimization Summary Card" />
+            <div className="space-y-3 max-w-lg">
+              {optimizationSummary.map((item, idx) => (
+                <div
+                  key={idx}
+                  className="flex justify-between items-center text-sm md:text-base font-inter"
+                >
+                  <span className="text-(--text-color-gray-4) font-medium">
+                    {item.label}
+                  </span>
+                  <span className="text-[#212B36] font-normal">{item.value}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* QR Code Data Section */}
+          <div className="space-y-4">
+            {/* <SubHeading text="QR Code Data" /> */}
+            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5">
+              {/* QR Code Dynamic Image */}
+              <div className="w-40 h-40 shrink-0 flex items-center justify-center p-2 rounded-lg">
+                <img
+                  src={getQRCodeUrl(getPackingListQRDataStr(id), "250x250")}
+                  alt="QR Code"
+                  className="w-full h-full object-contain"
+                />
               </div>
-            ))}
+
+              {/* Data List */}
+              <div className="flex-1 space-y-2 text-sm">
+                <h3 className="text-base font-inter font-semibold text-(--text-color-gray-5) break-all">
+                  project={projectName}
+                </h3>
+                <div className="space-y-1 font-normal">
+                  <p className="flex gap-2">
+                    <span className="text-(--text-color-gray-4) min-w-[80px]">Shipper :</span>
+                    <span className="text-(--text-color-gray-5) font-medium">shipper={planNumber}</span>
+                  </p>
+                  <p className="flex gap-2">
+                    <span className="text-(--text-color-gray-4) min-w-[80px]">Load :</span>
+                    <span className="text-(--text-color-gray-5) font-medium">load_id={planNumber}</span>
+                  </p>
+                  <p className="flex gap-2">
+                    <span className="text-(--text-color-gray-4) min-w-[80px]">Bundles :</span>
+                    <span className="text-(--text-color-gray-5) font-medium">
+                      bundle_ids={bundles.length > 0 ? bundles.map(b => b.bundleNo).slice(0, 5).join(", ") + (bundles.length > 5 ? "..." : "") : "-"}
+                    </span>
+                  </p>
+                  <p className="flex gap-2">
+                    <span className="text-(--text-color-gray-4) min-w-[80px]">Parts :</span>
+                    <span className="text-(--text-color-gray-5) font-medium">
+                      parts={Array.from(new Set(bundles.map(b => b.bundleType || b.title).filter(Boolean))).length > 0
+                        ? Array.from(new Set(bundles.map(b => b.bundleType || b.title).filter(Boolean))).slice(0, 3).join(", ") + (Array.from(new Set(bundles.map(b => b.bundleType || b.title).filter(Boolean))).length > 3 ? "..." : "")
+                        : "-"}
+                    </span>
+                  </p>
+                  <p className="flex gap-2">
+                    <span className="text-(--text-color-gray-4) min-w-[80px]">Weight :</span>
+                    <span className="text-(--text-color-gray-5) font-medium">weight={Math.round(packingListPlan.totalWeight).toLocaleString()} LBS</span>
+                  </p>
+                  <p className="flex gap-2">
+                    <span className="text-(--text-color-gray-4) min-w-[80px]">Length :</span>
+                    <span className="text-(--text-color-gray-5) font-medium">length={Math.round(packingListPlan.maxLengthFeet || 0)} FT</span>
+                  </p>
+                  {/* {id && (
+                    <p className="flex gap-2">
+                      <span className="text-(--text-color-gray-4) min-w-[80px]">URL :</span>
+                      <span className="text-(--text-color-gray-5) font-medium break-all">
+                        {`${(import.meta.env.VITE_STANDLONE_PAGE_BASE || "").replace(/\/+$/, "")}/packing-list-plan/${id}`}
+                      </span>
+                    </p>
+                  )} */}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -361,7 +426,7 @@ const PackingListDetailsView: React.FC = () => {
               </div>
               <div className="flex flex-col">
                 <span className="text-gray-400">Total Weight:</span>
-                <span className="font-semibold">{bundles.reduce((sum, b) => sum + (b.totalWeight || 0), 0).toLocaleString()} lbs</span>
+                <span className="font-semibold">{Math.round(bundles.reduce((sum, b) => sum + (b.totalWeight || 0), 0)).toLocaleString()} lbs</span>
               </div>
             </div>
             <div className="flex flex-wrap gap-3">
