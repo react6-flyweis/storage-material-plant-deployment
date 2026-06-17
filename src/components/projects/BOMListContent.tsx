@@ -1,34 +1,32 @@
 import React, { useState, useMemo } from "react";
 import { ArrowUpDown } from "lucide-react";
+import logo from "@/assets/logo.png";
+import type { ConsolidatedBOM, PlantProjectDetail, ConsolidatedBOMItem } from "@/redux/api/projectApi";
+import { getLeadProjectName } from "@/lib/utils";
 
 interface BOMListContentProps {
-  bomData: {
-    id: string;
-    projectName: string;
-    customerName: string;
-    date: string;
-    jobId: string;
-    summary: {
-      totalItems: number;
-      totalWeight: string;
-      totalPanelsArea: string | number;
-    };
-    items: Array<{
-      qty: number;
-      mark: string;
-      description: string;
-      part: string;
-      color: string;
-      angle: string;
-      thick: string;
-      length: string;
-      weight: string;
-    }>;
-  };
+  consolidatedBOM: ConsolidatedBOM;
+  projectDetail?: PlantProjectDetail;
 }
 
-const BOMListContent: React.FC<BOMListContentProps> = ({ bomData }) => {
+const BOMListContent: React.FC<BOMListContentProps> = ({ consolidatedBOM, projectDetail }) => {
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: "asc" | "desc" } | null>(null);
+
+  const roundToTwo = (val: string | number | null | undefined) => {
+    if (val === null || val === undefined) return "-";
+    const num = typeof val === "number" ? val : parseFloat(val);
+    if (isNaN(num)) return val.toString();
+    return (Math.round((num + Number.EPSILON) * 100) / 100).toString();
+  };
+
+  const projectName = getLeadProjectName(projectDetail?.lead, projectDetail?.client);
+  const customerName = projectDetail?.client
+    ? `${projectDetail.client.firstName} ${projectDetail.client.lastName}`
+    : "N/A";
+  const date = consolidatedBOM.createdAt
+    ? new Date(consolidatedBOM.createdAt).toLocaleDateString()
+    : "N/A";
+  const jobId = projectDetail?.jobId || "N/A";
 
   const handleSort = (key: string) => {
     let direction: "asc" | "desc" = "asc";
@@ -39,38 +37,58 @@ const BOMListContent: React.FC<BOMListContentProps> = ({ bomData }) => {
   };
 
   const sortedItems = useMemo(() => {
-    let sortableItems = [...bomData.items];
+    const sortableItems = [...(consolidatedBOM.items || [])];
     if (sortConfig !== null) {
-      sortableItems.sort((a: any, b: any) => {
-        let valA = a[sortConfig.key];
-        let valB = b[sortConfig.key];
+      sortableItems.sort((a: ConsolidatedBOMItem, b: ConsolidatedBOMItem) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let valA = (a as any)[sortConfig.key];
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let valB = (b as any)[sortConfig.key];
 
-        // Special handling for numeric strings if needed, 
-        // but qty is number, weight is string, mark is string
-        if (sortConfig.key === "weight" || sortConfig.key === "qty") {
-          valA = parseFloat(valA);
-          valB = parseFloat(valB);
+        if (Array.isArray(valA)) {
+          valA = valA.join(", ");
+        }
+        if (Array.isArray(valB)) {
+          valB = valB.join(", ");
         }
 
-        if (valA < valB) {
+        if (valA === null || valA === undefined) valA = "";
+        if (valB === null || valB === undefined) valB = "";
+
+        if (typeof valA === "number" && typeof valB === "number") {
+          return sortConfig.direction === "asc" ? valA - valB : valB - valA;
+        }
+
+        const strA = valA.toString().toLowerCase();
+        const strB = valB.toString().toLowerCase();
+
+        if (strA < strB) {
           return sortConfig.direction === "asc" ? -1 : 1;
         }
-        if (valA > valB) {
+        if (strA > strB) {
           return sortConfig.direction === "asc" ? 1 : -1;
         }
         return 0;
       });
     }
     return sortableItems;
-  }, [bomData.items, sortConfig]);
+  }, [consolidatedBOM.items, sortConfig]);
+
+  // Calculate dynamic totals
+  const totalQty = useMemo(() => {
+    return (consolidatedBOM.items || []).reduce((sum, item) => sum + (item.totalQty || 0), 0);
+  }, [consolidatedBOM.items]);
+
+  const totalWeight = consolidatedBOM.totalWeight || 0;
+  const totalTons = totalWeight / 2000;
+  const totalCost = consolidatedBOM.totalCost || 0;
 
   return (
     <div className="bg-white rounded-[14px] overflow-hidden shadow-sm border border-gray-100">
       {/* Project & BOM ID Header */}
       <div className="bg-[#F9FAFB] px-6 py-4 md:px-8 md:py-6 border-b border-gray-100">
         <h2 className="text-lg lg:text-2xl font-inter font-semibold text-[#212B36]">
-          Project: <span className="font-bold">{bomData.projectName}</span> |
-          BOM ID: <span className="font-bold">{bomData.id}</span>
+          Project: <span className="font-bold">{projectName}</span>
         </h2>
       </div>
 
@@ -86,7 +104,7 @@ const BOMListContent: React.FC<BOMListContentProps> = ({ bomData }) => {
                 Total Items
               </span>
               <span className="text-sm text-[#212B36] font-bold">
-                {bomData.summary.totalItems}
+                {consolidatedBOM.itemCount || 0}
               </span>
             </div>
             <div className="flex justify-between items-center">
@@ -94,7 +112,7 @@ const BOMListContent: React.FC<BOMListContentProps> = ({ bomData }) => {
                 Total Weight
               </span>
               <span className="text-sm text-[#212B36] font-bold">
-                {bomData.summary.totalWeight}
+                {roundToTwo(totalWeight)} lbs
               </span>
             </div>
             <div className="flex justify-between items-center">
@@ -102,7 +120,15 @@ const BOMListContent: React.FC<BOMListContentProps> = ({ bomData }) => {
                 Total Panels Area
               </span>
               <span className="text-sm text-[#212B36] font-bold">
-                {bomData.summary.totalPanelsArea}
+                {roundToTwo(consolidatedBOM.totalPanelsArea)} sq ft
+              </span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-[#637381] font-medium">
+                Total Cost
+              </span>
+              <span className="text-sm text-[#212B36] font-bold">
+                ${roundToTwo(totalCost)}
               </span>
             </div>
           </div>
@@ -113,14 +139,11 @@ const BOMListContent: React.FC<BOMListContentProps> = ({ bomData }) => {
           <div className="grid grid-cols-1 md:grid-cols-12 divide-y md:divide-y-0 md:divide-x-2 divide-black">
             {/* Logo Section */}
             <div className="md:col-span-4 flex items-center justify-center p-4">
-              <div className="flex flex-wrap items-center gap-1 font-archivo tracking-tighter">
-                <span className="text-lg md:text-2xl font-black text-[#212B36]">
-                  STORAGE
-                </span>
-                <span className="text-lg md:text-2xl font-black text-white bg-[#1E51A4] px-2">
-                  MATERIALS
-                </span>
-              </div>
+              <img
+                src={logo}
+                alt="Logo"
+                className="h-10 md:h-12 object-contain"
+              />
             </div>
 
             {/* Title & Info Section */}
@@ -140,7 +163,7 @@ const BOMListContent: React.FC<BOMListContentProps> = ({ bomData }) => {
                     </div>
                     <div className="md:col-span-2 p-2 flex items-center justify-center">
                       <span className="text-xs md:text-sm font-bold text-[#212B36]">
-                        {bomData.customerName}
+                        {customerName}
                       </span>
                     </div>
                   </div>
@@ -152,7 +175,7 @@ const BOMListContent: React.FC<BOMListContentProps> = ({ bomData }) => {
                     </div>
                     <div className="md:col-span-2 p-2 flex items-center justify-center">
                       <span className="text-xs md:text-sm font-semibold text-[#212B36]">
-                        {bomData.projectName}
+                        {projectName}
                       </span>
                     </div>
                   </div>
@@ -163,7 +186,7 @@ const BOMListContent: React.FC<BOMListContentProps> = ({ bomData }) => {
                       Date
                     </div>
                     <div className="p-1 px-2 text-xs md:text-sm font-semibold text-[#212B36]">
-                      {bomData.date}
+                      {date}
                     </div>
                   </div>
                   <div className="grid grid-cols-2 divide-x-2 divide-black h-full">
@@ -171,7 +194,7 @@ const BOMListContent: React.FC<BOMListContentProps> = ({ bomData }) => {
                       Job Id
                     </div>
                     <div className="p-1 px-2 text-xs md:text-sm font-semibold text-[#212B36]">
-                      {bomData.jobId}
+                      {jobId}
                     </div>
                   </div>
                 </div>
@@ -182,92 +205,112 @@ const BOMListContent: React.FC<BOMListContentProps> = ({ bomData }) => {
 
         {/* Main Data Table */}
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse min-w-[800px]">
+          <table className="w-full text-left border-collapse min-w-[1000px]">
             <thead>
               <tr className="bg-[#F9FAFB] border-y border-gray-200">
-                <th 
+                <th
                   className="py-3 px-4 text-xs md:text-sm font-semibold text-[#212B36] tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
-                  onClick={() => handleSort("qty")}
+                  onClick={() => handleSort("category")}
                 >
                   <div className="flex items-center gap-1">
-                    QTY <ArrowUpDown size={12} className={sortConfig?.key === "qty" ? "text-[#1E51A4]" : "text-gray-400"} />
+                    Category <ArrowUpDown size={12} className={sortConfig?.key === "category" ? "text-[#1E51A4]" : "text-gray-400"} />
                   </div>
                 </th>
-                <th 
+                <th
                   className="py-3 px-4 text-xs md:text-sm font-semibold text-[#212B36] tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
-                  onClick={() => handleSort("mark")}
+                  onClick={() => handleSort("partCode")}
                 >
                   <div className="flex items-center gap-1">
-                    Mark <ArrowUpDown size={12} className={sortConfig?.key === "mark" ? "text-[#1E51A4]" : "text-gray-400"} />
+                    Part Code <ArrowUpDown size={12} className={sortConfig?.key === "partCode" ? "text-[#1E51A4]" : "text-gray-400"} />
                   </div>
                 </th>
-                <th className="py-3 px-4 text-xs md:text-sm font-semibold text-[#212B36] tracking-wider">
-                  Description
-                </th>
-                <th className="py-3 px-4 text-xs md:text-sm font-semibold text-[#212B36] tracking-wider">
-                  Part
-                </th>
-                <th className="py-3 px-4 text-xs md:text-sm font-semibold text-[#212B36] tracking-wider">
-                  Color
-                </th>
-                <th 
+                <th
                   className="py-3 px-4 text-xs md:text-sm font-semibold text-[#212B36] tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
-                  onClick={() => handleSort("angle")}
+                  onClick={() => handleSort("description")}
                 >
                   <div className="flex items-center gap-1">
-                    Angle <ArrowUpDown size={12} className={sortConfig?.key === "angle" ? "text-[#1E51A4]" : "text-gray-400"} />
+                    Description <ArrowUpDown size={12} className={sortConfig?.key === "description" ? "text-[#1E51A4]" : "text-gray-400"} />
                   </div>
                 </th>
-                <th className="py-3 px-4 text-xs md:text-sm font-semibold text-[#212B36] tracking-wider">
-                  Thick
-                </th>
-                <th 
+                <th
                   className="py-3 px-4 text-xs md:text-sm font-semibold text-[#212B36] tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
-                  onClick={() => handleSort("length")}
+                  onClick={() => handleSort("partColor")}
                 >
                   <div className="flex items-center gap-1">
-                    Length <ArrowUpDown size={12} className={sortConfig?.key === "length" ? "text-[#1E51A4]" : "text-gray-400"} />
+                    Color <ArrowUpDown size={12} className={sortConfig?.key === "partColor" ? "text-[#1E51A4]" : "text-gray-400"} />
                   </div>
                 </th>
-                <th 
-                  className="py-3 px-4 text-xs md:text-sm font-semibold text-[#212B36] tracking-wider text-right cursor-pointer hover:bg-gray-100 transition-colors"
-                  onClick={() => handleSort("weight")}
+                <th
+                  className="py-3 px-4 text-xs md:text-sm font-semibold text-[#212B36] tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                  onClick={() => handleSort("markIds")}
                 >
-                  <div className="flex items-center justify-end gap-1">
-                    Weight <ArrowUpDown size={12} className={sortConfig?.key === "weight" ? "text-[#1E51A4]" : "text-gray-400"} />
+                  <div className="flex items-center gap-1">
+                    Mark <ArrowUpDown size={12} className={sortConfig?.key === "markIds" ? "text-[#1E51A4]" : "text-gray-400"} />
+                  </div>
+                </th>
+                <th
+                  className="py-3 px-4 text-xs md:text-sm font-semibold text-[#212B36] tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                  onClick={() => handleSort("totalQty")}
+                >
+                  <div className="flex items-center gap-1">
+                    QTY <ArrowUpDown size={12} className={sortConfig?.key === "totalQty" ? "text-[#1E51A4]" : "text-gray-400"} />
+                  </div>
+                </th>
+                <th
+                  className="py-3 px-4 text-xs md:text-sm font-semibold text-[#212B36] tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                  onClick={() => handleSort("totalLengthFeet")}
+                >
+                  <div className="flex items-center gap-1">
+                    Length <ArrowUpDown size={12} className={sortConfig?.key === "totalLengthFeet" ? "text-[#1E51A4]" : "text-gray-400"} />
+                  </div>
+                </th>
+                <th
+                  className="py-3 px-4 text-xs md:text-sm font-semibold text-[#212B36] tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                  onClick={() => handleSort("totalWeight")}
+                >
+                  <div className="flex items-center gap-1">
+                    Weight <ArrowUpDown size={12} className={sortConfig?.key === "totalWeight" ? "text-[#1E51A4]" : "text-gray-400"} />
+                  </div>
+                </th>
+                <th
+                  className="py-3 px-4 text-xs md:text-sm font-semibold text-[#212B36] tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                  onClick={() => handleSort("totalCost")}
+                >
+                  <div className="flex items-center gap-1">
+                    Total Cost <ArrowUpDown size={12} className={sortConfig?.key === "totalCost" ? "text-[#1E51A4]" : "text-gray-400"} />
                   </div>
                 </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {sortedItems.map((item, index) => (
-                <tr key={index} className="hover:bg-gray-50 transition-colors">
-                  <td className="py-3 px-4 text-xs md:text-sm font-medium text-[#212B36]">
-                    {item.qty}
-                  </td>
-                  <td className="py-3 px-4 text-xs md:text-sm font-medium text-[#212B36]">
-                    {item.mark}
-                  </td>
+                <tr key={item._id || index} className="hover:bg-gray-50 transition-colors">
                   <td className="py-3 px-4 text-xs md:text-sm font-medium text-[#637381]">
-                    {item.description}
+                    {item.category || "-"}
                   </td>
                   <td className="py-3 px-4 text-xs md:text-sm font-medium text-[#212B36]">
-                    {item.part}
+                    {item.partCode || "-"}
                   </td>
                   <td className="py-3 px-4 text-xs md:text-sm font-medium text-[#637381]">
-                    {item.color}
+                    {item.description || "-"}
                   </td>
                   <td className="py-3 px-4 text-xs md:text-sm font-medium text-[#637381]">
-                    {item.angle}
-                  </td>
-                  <td className="py-3 px-4 text-xs md:text-sm font-medium text-[#637381]">
-                    {item.thick}
+                    {item.partColor || "-"}
                   </td>
                   <td className="py-3 px-4 text-xs md:text-sm font-medium text-[#212B36]">
-                    {item.length}
+                    {item.markIds && item.markIds.length > 0 ? item.markIds.join(", ") : "-"}
                   </td>
-                  <td className="py-3 px-4 text-xs md:text-sm font-medium text-[#637381] text-right">
-                    {item.weight}
+                  <td className="py-3 px-4 text-xs md:text-sm font-medium text-[#212B36]">
+                    {item.totalQty || 0}
+                  </td>
+                  <td className="py-3 px-4 text-xs md:text-sm font-medium text-[#212B36]">
+                    {roundToTwo(item.totalLengthFeet)} {item.costUnit || "FT"}
+                  </td>
+                  <td className="py-3 px-4 text-xs md:text-sm font-medium text-[#637381]">
+                    {roundToTwo(item.totalWeight)}
+                  </td>
+                  <td className="py-3 px-4 text-xs md:text-sm font-medium text-[#212B36]">
+                    ${roundToTwo(item.totalCost)}
                   </td>
                 </tr>
               ))}
@@ -281,31 +324,26 @@ const BOMListContent: React.FC<BOMListContentProps> = ({ bomData }) => {
                   Total Tons:
                 </td>
                 <td className="py-4 px-4 text-xs md:text-sm text-[#212B36]">
-                  1.71
+                  {roundToTwo(totalTons)}
                 </td>
                 <td className="py-4 px-4 text-xs md:text-sm text-[#637381]">
-                  RO
+                  Total Cost:
                 </td>
                 <td className="py-4 px-4 text-xs md:text-sm text-[#212B36]">
-                  -
+                  ${roundToTwo(totalCost)}
                 </td>
-                <td className="py-4 px-4" colSpan={3}>
-                  <div className="flex justify-end pr-8 font-normal">
+                <td className="py-4 px-4 text-xs md:text-sm text-[#212B36] font-bold">
+                  {totalQty}
+                </td>
+                <td className="py-4 px-4" colSpan={2}>
+                  <div className="flex justify-end pr-4 font-normal">
                     <span className="text-xs md:text-sm text-[#637381] ">
                       Total Weight (lbs)
                     </span>
                   </div>
                 </td>
-                <td className="py-4 px-4 text-xs md:text-sm text-[#212B36] text-right">
-                  3423
-                </td>
-              </tr>
-              <tr className="border-t border-gray-100">
-                <td
-                  colSpan={9}
-                  className="py-4 px-4 text-xs md:text-sm text-[#212B36] font-bold"
-                >
-                  199
+                <td className="py-4 px-4 text-xs md:text-sm text-[#212B36] text-right font-bold">
+                  {roundToTwo(totalWeight)}
                 </td>
               </tr>
               <tr>

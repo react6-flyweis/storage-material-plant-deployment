@@ -13,7 +13,7 @@ import {
   useGetConsolidatedBOMQuery,
   useGetConsolidatedBOMUrlQuery,
 } from "@/redux/api/projectApi";
-import { getLeadProjectName } from "@/lib/utils";
+
 
 const BOMView: React.FC = () => {
   const navigate = useNavigate();
@@ -81,34 +81,6 @@ const BOMView: React.FC = () => {
     return null;
   }
 
-  const bomData = {
-    id: consolidatedBOM._id || "N/A",
-    projectName: getLeadProjectName(projectDetail?.lead, projectDetail?.client),
-    customerName: projectDetail?.client
-      ? `${projectDetail.client.firstName} ${projectDetail.client.lastName}`
-      : "N/A",
-    date: consolidatedBOM.createdAt
-      ? new Date(consolidatedBOM.createdAt).toLocaleDateString()
-      : "N/A",
-    jobId: projectDetail?.jobId || "N/A",
-    summary: {
-      totalItems: consolidatedBOM.itemCount || 0,
-      totalWeight: `${consolidatedBOM?.totalWeight?.toFixed(2)} lbs`,
-      totalPanelsArea: consolidatedBOM.totalPanelsArea,
-    },
-    items: (consolidatedBOM.items || []).map((item) => ({
-      qty: item.totalQty || 0,
-      mark: item.markIds && item.markIds.length > 0 ? item.markIds.join(", ") : "-",
-      description: item.description || "-",
-      part: item.partCode || "-",
-      color: item.partColor || "-",
-      angle: "-",
-      thick: "-",
-      length: `${item.totalLengthFeet || 0} ${item.costUnit || "FT"}`,
-      weight: item.totalWeight ? item.totalWeight.toString() : "0",
-    })),
-  };
-
   const handleDownload = () => {
     if (bomUrlData?.fileUrl) {
       window.open(bomUrlData.fileUrl, "_blank");
@@ -141,15 +113,6 @@ const BOMView: React.FC = () => {
             <img src={xlxsIcon} alt="xlsx" className="w-4 h-4 mr-2" />
             {isBomUrlLoading ? "Loading..." : "Download Excel"}
           </Button>
-          {/* 
-          <Button
-            variant="white"
-            size="sm"
-          >
-            <img src={pdfIcon} alt="pdf" className="w-4 h-4 mr-2" />
-            Download PDF
-          </Button>
-          */}
           <Button
             size="sm"
             variant="purpleFilled"
@@ -160,7 +123,7 @@ const BOMView: React.FC = () => {
         </div>
       </div>
 
-      <BOMListContent bomData={bomData} />
+      <BOMListContent consolidatedBOM={consolidatedBOM} projectDetail={projectDetail} />
     </div>
   );
 };

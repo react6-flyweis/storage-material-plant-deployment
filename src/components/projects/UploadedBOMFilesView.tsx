@@ -18,7 +18,7 @@ import { UploadModal } from "./ProjectUploadModals";
 import FilterDropdown from "../common_component/FilterDropdown";
 import CommonCheckbox from "../common_component/CommonCheckbox";
 import CommonStatusBadge from "../common_component/CommonStatusBadge";
-import { cn } from "@/lib/utils";
+import { cn, getLeadProjectName } from "@/lib/utils";
 import PageWrapper from "../common_component/PageWrapper";
 
 import { useGetBOMProjectsQuery, type BOMProject } from "@/redux/api/projectApi";
@@ -58,7 +58,12 @@ const UploadedBOMFilesView: React.FC = () => {
     limit: rowsPerPage,
   });
 
-  const projects = React.useMemo(() => data?.projects || [], [data?.projects]);
+  const projects = React.useMemo(() => {
+    return (data?.projects || []).map((item) => ({
+      ...item,
+      resolvedProjectName: getLeadProjectName(item),
+    }));
+  }, [data?.projects]);
   const total = data?.total || 0;
 
   const stats = [
@@ -89,7 +94,7 @@ const UploadedBOMFilesView: React.FC = () => {
   ];
 
   const projectOptions = React.useMemo(() => {
-    const uniqueProjects = Array.from(new Set(projects.map((d) => d.projectName)));
+    const uniqueProjects = Array.from(new Set(projects.map((d) => d.resolvedProjectName)));
     return [
       { label: "All Projects", value: "all" },
       ...uniqueProjects.map((p) => ({ label: p, value: p })),
@@ -110,13 +115,13 @@ const UploadedBOMFilesView: React.FC = () => {
     // Filter by search query
     if (searchQuery) {
       list = list.filter((item) =>
-        item.projectName.toLowerCase().includes(searchQuery.toLowerCase())
+        item.resolvedProjectName.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
     // Filter by project dropdown
     if (projectFilter !== "all") {
-      list = list.filter((item) => item.projectName === projectFilter);
+      list = list.filter((item) => item.resolvedProjectName === projectFilter);
     }
 
     // Sort logic
@@ -243,7 +248,7 @@ const UploadedBOMFilesView: React.FC = () => {
                 </th>
                 <th
                   className="py-3 px-4 text-sm font-archivo font-semibold text-black cursor-pointer group"
-                  onClick={() => handleSort("projectName")}
+                  onClick={() => handleSort("resolvedProjectName")}
                 >
                   <div className="flex items-center gap-1">
                     Project
@@ -251,7 +256,7 @@ const UploadedBOMFilesView: React.FC = () => {
                       size={14}
                       className={cn(
                         "transition-colors",
-                        sortConfig.key === "projectName"
+                        sortConfig.key === "resolvedProjectName"
                           ? "text-(--text-color-primary-blue)"
                           : "text-(--text-color-gray-4)",
                       )}
@@ -327,7 +332,7 @@ const UploadedBOMFilesView: React.FC = () => {
                       />
                     </td>
                     <td className="py-2 px-4 text-[15px] font-archivo font-normal text-[#637381]">
-                      {item.projectName}
+                      {item.resolvedProjectName}
                     </td>
                     <td className="py-2 px-4 text-[15px] font-inter text-[#637381]">
                       {formatDate(item.uploadDate)}
