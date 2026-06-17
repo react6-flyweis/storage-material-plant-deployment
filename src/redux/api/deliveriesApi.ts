@@ -217,6 +217,63 @@ export const deliveriesApi = createApi({
       query: (leadId) => `/api/plant/projects/${leadId}/delivery`,
       transformResponse: (response: ApiResponse<ProjectDeliveryResponse>) => response.data as ProjectDeliveryResponse,
     }),
+    getProjectDeliveriesList: builder.query<PlantDeliveriesListResponse, string>({
+      query: (leadId) => `/api/plant/deliveries/project/${leadId}`,
+      transformResponse: (response: ApiResponse<unknown>) => {
+        const data = response.data;
+        if (Array.isArray(data)) {
+          const deliveries = data.map((item) => {
+            const typedItem = item as Record<string, unknown>;
+            return {
+              ...typedItem,
+              _id: (typedItem._id as string) || (typedItem.requestId as string),
+            };
+          }) as unknown as PlantDeliveryItem[];
+          return {
+            deliveries,
+            total: deliveries.length,
+            page: 1,
+            limit: deliveries.length,
+          };
+        }
+        const dataObj = data as Record<string, unknown>;
+        if (dataObj && Array.isArray(dataObj.requests)) {
+          const deliveries = dataObj.requests.map((item) => {
+            const typedItem = item as Record<string, unknown>;
+            return {
+              ...typedItem,
+              _id: (typedItem._id as string) || (typedItem.requestId as string),
+            };
+          }) as unknown as PlantDeliveryItem[];
+          return {
+            deliveries,
+            total: (dataObj.total as number) || deliveries.length,
+            page: 1,
+            limit: deliveries.length,
+          };
+        }
+        if (dataObj && Array.isArray(dataObj.deliveries)) {
+          return {
+            deliveries: dataObj.deliveries.map((item) => {
+              const typedItem = item as Record<string, unknown>;
+              return {
+                ...typedItem,
+                _id: (typedItem._id as string) || (typedItem.requestId as string),
+              };
+            }) as unknown as PlantDeliveryItem[],
+            total: (dataObj.total as number) || dataObj.deliveries.length,
+            page: 1,
+            limit: dataObj.deliveries.length,
+          };
+        }
+        return {
+          deliveries: [],
+          total: 0,
+          page: 1,
+          limit: 20,
+        };
+      },
+    }),
   }),
 });
 
@@ -502,5 +559,6 @@ export const {
   useGetCalendarDeliveriesQuery,
   useGetPlantDeliveriesQuery,
   useGetProjectDeliveryQuery,
+  useGetProjectDeliveriesListQuery,
 } = deliveriesApi;
 

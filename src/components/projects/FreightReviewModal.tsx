@@ -32,6 +32,7 @@ interface FreightReviewModalProps {
   formData: FreightFormData | null;
   projectName?: string;
   isSubmitting?: boolean;
+  error?: string | null;
 }
 
 const FreightReviewModal: React.FC<FreightReviewModalProps> = ({
@@ -41,6 +42,7 @@ const FreightReviewModal: React.FC<FreightReviewModalProps> = ({
   formData,
   projectName = "ABC Logistics Warehouse",
   isSubmitting = false,
+  error = null,
 }) => {
   const formatTime = (time?: string) => {
     if (!time) return "";
@@ -61,6 +63,9 @@ const FreightReviewModal: React.FC<FreightReviewModalProps> = ({
       return dateStr;
     }
   };
+
+  const displayedError = error;
+  const isSubmitDisabled = isSubmitting;
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} width="max-w-3xl" title="Email">
@@ -134,12 +139,18 @@ const FreightReviewModal: React.FC<FreightReviewModalProps> = ({
           )}
         </div>
 
+        {displayedError && (
+          <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm font-medium text-center">
+            {displayedError}
+          </div>
+        )}
+
         <div className="flex justify-center mt-6 mb-4">
           <Button
             variant="gradient"
             size="lg"
             onClick={onSubmit}
-            disabled={isSubmitting}
+            disabled={isSubmitDisabled}
           >
             {isSubmitting ? "Submitting..." : "Submit your quote to Carriers"}
           </Button>
