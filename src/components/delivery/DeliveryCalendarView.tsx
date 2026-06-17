@@ -3,7 +3,7 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import { format, startOfWeek, endOfWeek, eachDayOfInterval, isSameDay, startOfMonth, endOfMonth, isSameMonth, subMonths, addMonths, setMonth, setYear } from "date-fns";
+import { format, startOfWeek, endOfWeek, eachDayOfInterval, isSameDay, startOfMonth, endOfMonth, isSameMonth, subMonths, addMonths, setMonth, setYear, addDays, subDays, addWeeks, subWeeks } from "date-fns";
 import {
   ChevronLeft,
   ChevronRight,
@@ -78,9 +78,16 @@ const MiniDeliveryCard = ({ delivery }: { delivery: Delivery }) => {
   );
 };
 
-const SelectDateModal = ({ isOpen, onClose, onSelect, initialDate }: { isOpen: boolean; onClose: () => void; onSelect: (date: Date) => void; initialDate: Date }) => {
+const SelectDateModal = ({ isOpen, onClose, onSelect, initialDate, activeView }: { isOpen: boolean; onClose: () => void; onSelect: (date: Date) => void; initialDate: Date; activeView: string }) => {
   const [viewDate, setViewDate] = useState(initialDate);
   const [tempDate, setTempDate] = useState(initialDate);
+
+  useEffect(() => {
+    if (isOpen) {
+      setViewDate(initialDate);
+      setTempDate(initialDate);
+    }
+  }, [isOpen, initialDate]);
 
   if (!isOpen) return null;
 
@@ -97,7 +104,9 @@ const SelectDateModal = ({ isOpen, onClose, onSelect, initialDate }: { isOpen: b
   return (
     <Modal isOpen={isOpen} onClose={onClose} hideHeader width="max-w-[440px]">
       <div className="p-4 space-y-4 font-inter">
-        <h2 className="text-base md:text-xl font-semibold text-[#212B36]">Select Date</h2>
+        <h2 className="text-base md:text-xl font-semibold text-[#212B36]">
+          {activeView === "Day" ? "Select Date" : activeView === "Week" ? "Select Week" : "Select Month"}
+        </h2>
         <div className="border border-gray-300 rounded-2xl p-4 space-y-6">
           <div className="flex items-center justify-between">
             <button onClick={handlePrevMonth} className="p-2 hover:bg-gray-50 rounded-full transition-colors">
@@ -135,14 +144,48 @@ const SelectDateModal = ({ isOpen, onClose, onSelect, initialDate }: { isOpen: b
             ))}
             {days.map((day, idx) => {
               const isCurrentMonth = isSameMonth(day, viewDate);
-              const isSelected = isSameDay(day, tempDate);
+              
+              let isSelected = false;
+              let isRangeStart = false;
+              let isRangeEnd = false;
+              let isInRange = false;
+
+              if (activeView === "Week") {
+                const weekStart = startOfWeek(tempDate, { weekStartsOn: 0 });
+                const weekEnd = endOfWeek(tempDate, { weekStartsOn: 0 });
+                isSelected = isSameDay(day, tempDate);
+                isInRange = day >= weekStart && day <= weekEnd;
+                isRangeStart = isSameDay(day, weekStart);
+                isRangeEnd = isSameDay(day, weekEnd);
+              } else if (activeView === "Month") {
+                const monthS = startOfMonth(tempDate);
+                const monthE = endOfMonth(tempDate);
+                isSelected = isSameDay(day, tempDate);
+                isInRange = isCurrentMonth && day >= monthS && day <= monthE;
+                isRangeStart = isCurrentMonth && isSameDay(day, monthS);
+                isRangeEnd = isCurrentMonth && isSameDay(day, monthE);
+              } else {
+                isSelected = isSameDay(day, tempDate);
+              }
+
+              let bgClass = "";
+              if (isSelected) {
+                bgClass = "bg-[#1E51A4] text-white shadow-lg z-10 rounded-md";
+              } else if (isInRange) {
+                bgClass = "bg-[#1E51A4]/10 text-[#1E51A4] hover:bg-[#1E51A4]/20";
+                if (isRangeStart) bgClass += " rounded-l-md";
+                if (isRangeEnd) bgClass += " rounded-r-md";
+              } else if (isCurrentMonth) {
+                bgClass = "text-[#212B36] hover:bg-gray-50 rounded-md";
+              } else {
+                bgClass = "text-[#919EAB] opacity-40 hover:bg-gray-50 rounded-md";
+              }
+
               return (
                 <button
                   key={idx}
                   onClick={() => setTempDate(day)}
-                  className={`h-11 w-11 flex items-center justify-center rounded-md text-sm font-medium transition-all relative ${isSelected ? "bg-[#212B36] text-white shadow-lg z-10" :
-                    isCurrentMonth ? "text-[#212B36] hover:bg-gray-50" : "text-[#919EAB] opacity-40 hover:bg-gray-50"
-                    }`}
+                  className={`h-11 w-11 flex items-center justify-center text-sm font-medium transition-all relative ${bgClass}`}
                 >
                   {format(day, "d")}
                 </button>
@@ -184,7 +227,9 @@ const DeliveryCalendarView: React.FC = () => {
     if (activeView === "Day") calendarApi.changeView("dayGridDay");
     else if (activeView === "Week") calendarApi.changeView("dayGridWeek");
     else if (activeView === "Month") calendarApi.changeView("dayGridMonth");
-  }, [activeView]);
+
+    calendarApi.gotoDate(currentDate);
+  }, [activeView, currentDate]);
 
   const dateRange = useMemo(() => {
     let fromDate: Date;
@@ -229,9 +274,46 @@ const DeliveryCalendarView: React.FC = () => {
 
   const handleDateSelect = (date: Date) => {
     setCurrentDate(date);
-    calendarRef.current?.getApi().gotoDate(date);
     setIsDatePickerOpen(false);
   };
+
+  const handlePrev = () => {
+    if (activeView === "Day") {
+      setCurrentDate(prev => subDays(prev, 1));
+    } else if (activeView === "Week") {
+      setCurrentDate(prev => subWeeks(prev, 1));
+    } else {
+      setCurrentDate(prev => subMonths(prev, 1));
+    }
+  };
+
+  const handleNext = () => {
+    if (activeView === "Day") {
+      setCurrentDate(prev => addDays(prev, 1));
+    } else if (activeView === "Week") {
+      setCurrentDate(prev => addWeeks(prev, 1));
+    } else {
+      setCurrentDate(prev => addMonths(prev, 1));
+    }
+  };
+
+  const dateLabel = useMemo(() => {
+    if (activeView === "Day") {
+      return format(currentDate, "dd MMM yyyy");
+    } else if (activeView === "Week") {
+      const start = startOfWeek(currentDate, { weekStartsOn: 0 });
+      const end = endOfWeek(currentDate, { weekStartsOn: 0 });
+      if (start.getFullYear() !== end.getFullYear()) {
+        return `${format(start, "dd MMM yyyy")} - ${format(end, "dd MMM yyyy")}`;
+      } else if (start.getMonth() !== end.getMonth()) {
+        return `${format(start, "dd MMM")} - ${format(end, "dd MMM yyyy")}`;
+      } else {
+        return `${format(start, "dd")} - ${format(end, "dd MMM yyyy")}`;
+      }
+    } else {
+      return format(currentDate, "MMMM yyyy");
+    }
+  }, [currentDate, activeView]);
 
   const handleDateClick = (arg: { date: Date }) => {
     if (activeView === "Month") {
@@ -294,10 +376,29 @@ const DeliveryCalendarView: React.FC = () => {
         <TitleSubtitle title="Delivery Calendar" subtitle="Schedule and track deliveries in calendar view" />
 
         <div className="flex flex-wrap items-center gap-4">
-          <Button variant="blueFilled" size="sm" onClick={() => setIsFilterModalOpen(true)}>Filters</Button>
-          <div onClick={() => setIsDatePickerOpen(true)} className="flex items-center gap-2 h-10 px-4 bg-white border border-gray-200 rounded-lg text-sm font-medium text-[#212B36] cursor-pointer hover:border-[#1E51A4]">
-            <span>{format(currentDate, "dd MMM yyyy")}</span>
-            <CalendarDays size={18} className="text-[#637381]" />
+          {/* <Button variant="blueFilled" size="sm" onClick={() => setIsFilterModalOpen(true)}>Filters</Button> */}
+          <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-lg p-1">
+            <button
+              onClick={handlePrev}
+              className="p-1.5 hover:bg-gray-50 rounded-md transition-colors text-[#637381] hover:text-[#212B36]"
+              aria-label="Previous range"
+            >
+              <ChevronLeft size={18} />
+            </button>
+            <div
+              onClick={() => setIsDatePickerOpen(true)}
+              className="flex items-center gap-2 h-8 px-3 rounded-md text-sm font-semibold text-[#212B36] cursor-pointer hover:bg-gray-50"
+            >
+              <span>{dateLabel}</span>
+              <CalendarDays size={16} className="text-[#637381]" />
+            </div>
+            <button
+              onClick={handleNext}
+              className="p-1.5 hover:bg-gray-50 rounded-md transition-colors text-[#637381] hover:text-[#212B36]"
+              aria-label="Next range"
+            >
+              <ChevronRight size={18} />
+            </button>
           </div>
           <div className="flex p-1 bg-white border border-gray-200 rounded-lg">
             {["Day", "Week", "Month"].map((view) => (
@@ -357,6 +458,7 @@ const DeliveryCalendarView: React.FC = () => {
         onClose={() => setIsDatePickerOpen(false)}
         onSelect={handleDateSelect}
         initialDate={currentDate}
+        activeView={activeView}
       />
 
       <DeliveryFilterModal

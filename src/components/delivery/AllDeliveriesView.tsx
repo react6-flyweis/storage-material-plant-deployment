@@ -626,7 +626,7 @@ const AllDeliveriesView: React.FC = () => {
                       key={row._id || idx}
                       className="hover:bg-gray-50/50 transition-colors group cursor-pointer"
                       onClick={() =>
-                        navigate(`/delivery/delivery-details/${row.requestId || row._id}`)
+                        navigate(`/delivery/delivery-details/${row.project?._id}`)
                       }
                     >
                       <td className="p-3 md:p-5">

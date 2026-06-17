@@ -123,7 +123,7 @@ const AwardedLoadsView: React.FC = () => {
     { label: "Load Size / Weight", align: "text-left" },
     { label: "Delivery Link", align: "text-left" },
     { label: "Internal Owner", align: "text-left" },
-    { label: "Freight Load ID", align: "text-left" },
+    // { label: "Freight Load ID", align: "text-left" },
     { label: "Logs", align: "text-left" },
   ];
 
@@ -255,7 +255,7 @@ const AwardedLoadsView: React.FC = () => {
                       {item.deliveryNumber || "-"}
                     </td>
                     <td className="p-2 md:p-4 text-sm text-(--text-color-gray-5)">{item.poc?.receivingPoc || "-"}</td>
-                    <td className="p-2 md:p-4 text-sm text-(--text-color-gray-5)">{item.requestId || "-"}</td>
+                    {/* <td className="p-2 md:p-4 text-sm text-(--text-color-gray-5)">{item.requestId || "-"}</td> */}
                     <td className="p-2 md:p-4 text-sm text-(--text-color-gray-4)">
                       {item.remarks || "-"}
                     </td>
