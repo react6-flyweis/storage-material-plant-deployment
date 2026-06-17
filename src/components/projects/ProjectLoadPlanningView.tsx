@@ -28,8 +28,8 @@ const ProjectLoadPlanningView: React.FC = () => {
       location.pathname === `/load_planning/${projectId}/start-load-planning` ||
       location.pathname === `/load_planning/${projectId}/start-load-planning/`;
 
-    const REDIRECT_TO_STATE = import.meta.env.DEV ? false : true;
-    if (REDIRECT_TO_STATE && isRootPath) {
+    // const REDIRECT_TO_STATE = import.meta.env.DEV ? false : true;
+    if (isRootPath) {
 
       if (stateData.packingListPlan?.status === "confirmed") {
         navigate(`/load_planning/${projectId}/load-plan-review`, { replace: true });
