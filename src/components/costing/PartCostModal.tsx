@@ -57,11 +57,6 @@ const PartCostModal: React.FC<PartCostModalProps> = ({
       partName: "",
       partColor: "",
       costUnit: "",
-      mbsCost: 0,
-      currentMarketCost: 0,
-      laborCost: 0,
-      additionalCost: 0,
-      materialCost: 0,
       description: "",
     },
   });
@@ -89,11 +84,6 @@ const PartCostModal: React.FC<PartCostModalProps> = ({
           partName: "",
           partColor: "",
           costUnit: "",
-          mbsCost: 0,
-          currentMarketCost: 0,
-          laborCost: 0,
-          additionalCost: 0,
-          materialCost: 0,
           description: "",
         });
       }
@@ -236,6 +226,7 @@ const PartCostModal: React.FC<PartCostModalProps> = ({
             render={({ field: { onChange, value } }) => (
               <CommonInput
                 label="MBS Cost"
+                type="number"
                 value={value !== undefined && value !== null ? String(value) : ""}
                 onChange={onChange}
                 placeholder="e.g. 3.50"
@@ -251,6 +242,7 @@ const PartCostModal: React.FC<PartCostModalProps> = ({
             render={({ field: { onChange, value } }) => (
               <CommonInput
                 label="Current Market Cost"
+                type="number"
                 value={value !== undefined && value !== null ? String(value) : ""}
                 onChange={onChange}
                 placeholder="e.g. 4.20"
@@ -266,6 +258,7 @@ const PartCostModal: React.FC<PartCostModalProps> = ({
             render={({ field: { onChange, value } }) => (
               <CommonInput
                 label="Labor Cost"
+                type="number"
                 value={value !== undefined && value !== null ? String(value) : ""}
                 onChange={onChange}
                 placeholder="0"
@@ -281,6 +274,7 @@ const PartCostModal: React.FC<PartCostModalProps> = ({
             render={({ field: { onChange, value } }) => (
               <CommonInput
                 label="Additional Cost"
+                type="number"
                 value={value !== undefined && value !== null ? String(value) : ""}
                 onChange={onChange}
                 placeholder="0"
@@ -296,6 +290,7 @@ const PartCostModal: React.FC<PartCostModalProps> = ({
             render={({ field: { onChange, value } }) => (
               <CommonInput
                 label="Material Cost"
+                type="number"
                 value={value !== undefined && value !== null ? String(value) : ""}
                 onChange={onChange}
                 placeholder="0"
