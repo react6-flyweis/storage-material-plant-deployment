@@ -29,7 +29,6 @@ import CardHeader from "../../common_component/CardHeader";
 import LocationSelector from "../../common_component/LocationSelector";
 import { useGetFreightAutofillQuery } from "@/redux/api/shipperApi";
 import { useGetPlantCarriersQuery, useCreatePlantDeliveryMutation, useSendFreightBidsMutation } from "@/redux/api/logisticsApi";
-import { useGetFreightLoadsQuery } from "@/redux/api/deliveriesApi";
 import { UploadFileDialog } from "@/components/upload-file-dialog";
 
 const parseDimensions = (input: string) => {
@@ -901,12 +900,8 @@ const FreightSelectionView: React.FC = () => {
   const [createPlantDelivery, { isLoading: isSubmitting }] = useCreatePlantDeliveryMutation();
   const [sendFreightBids, { isLoading: isSendingBids }] = useSendFreightBidsMutation();
 
-  const { data: freightLoads } = useGetFreightLoadsQuery(
-    { projectId: projectId || "" },
-    { skip: !projectId }
-  );
-  const [isDeliveryCreatedLocal, setIsDeliveryCreatedLocal] = useState(false);
-  const isDeliveryCreated = !!freightLoads?.requests?.length || isDeliveryCreatedLocal;
+  const [savedDeliveryId, setSavedDeliveryId] = useState<string | null>(null);
+  const isDeliveryCreated = !!savedDeliveryId;
 
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
@@ -928,6 +923,13 @@ const FreightSelectionView: React.FC = () => {
     setSelectedCarriersCount(carrierIds.length);
     setIsReviewModalOpen(true);
   };
+
+  interface CreateDeliveryResponse {
+    _id?: string;
+    data?: {
+      _id?: string;
+    };
+  }
 
   const handleSaveDraft = async (values: FreightFormData) => {
     try {
@@ -963,8 +965,15 @@ const FreightSelectionView: React.FC = () => {
         additionalNotes: values.additionalNotes || undefined,
         status: "draft",
       };
-      await createPlantDelivery(payload).unwrap();
-      setIsDeliveryCreatedLocal(true);
+
+      if (!savedDeliveryId) {
+        const res = (await createPlantDelivery(payload).unwrap()) as CreateDeliveryResponse;
+        const createdId = res?.data?._id || res?._id;
+        if (createdId) {
+          setSavedDeliveryId(createdId);
+        }
+      }
+
       setIsDraftSuccessModalOpen(true);
     } catch (err) {
       console.error("Failed to save draft:", err);
@@ -1006,8 +1015,14 @@ const FreightSelectionView: React.FC = () => {
         additionalNotes: pendingFormData.additionalNotes || undefined,
         status: "active",
       };
-      await createPlantDelivery(payload).unwrap();
-      setIsDeliveryCreatedLocal(true);
+
+      if (!savedDeliveryId) {
+        const res = (await createPlantDelivery(payload).unwrap()) as CreateDeliveryResponse;
+        const createdId = res?.data?._id || res?._id;
+        if (createdId) {
+          setSavedDeliveryId(createdId);
+        }
+      }
 
       await sendFreightBids({
         projectId: projectId || "",

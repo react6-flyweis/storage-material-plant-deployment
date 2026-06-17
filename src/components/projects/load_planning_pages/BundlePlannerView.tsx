@@ -180,11 +180,6 @@ const BundlePlannerView: React.FC = () => {
 
   return (
     <div className="min-h-screen">
-      {apiError && (
-        <div className="mx-6 mt-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm font-medium">
-          {apiError}
-        </div>
-      )}
 
       <LoadPlanningHeader
         requestId={projectId || ""}
@@ -193,6 +188,11 @@ const BundlePlannerView: React.FC = () => {
         actions={actions}
       />
       <div className="p-6 pt-0">
+        {apiError && (
+          <div className=" my-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm font-medium">
+            {apiError}
+          </div>
+        )}
         <div className="space-y-8 bg-white rounded-xl border border-gray-100 shadow-sm p-4 md:p-8">
 
           {/* Project header */}
@@ -202,8 +202,8 @@ const BundlePlannerView: React.FC = () => {
               items={[
                 { label: "Project ID", value: projectDetail?.projectId || "" },
                 { label: "Upload Id", value: bpDetails.planNumber },
-                { label: "Shipper Refrence", value: bpDetails.shipperRequestId },
-                { label: "Vendor", value: bpDetails.generatedBy },
+                // { label: "Shipper Refrence", value: bpDetails.shipperRequestId },
+                // { label: "Vendor", value: bpDetails.generatedBy },
               ]}
             />
           </div>
