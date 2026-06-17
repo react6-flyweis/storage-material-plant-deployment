@@ -14,9 +14,6 @@ import networkIcon from "@/assets/icon/dashboard/network.svg";
 import gitBranchIcon from "@/assets/icon/dashboard/gitBranch.svg";
 import { useNavigate } from "react-router-dom";
 
-import { createAdminSocket } from "@/lib/socket";
-import { useAppSelector } from "@/redux/hooks";
-import type { RootState } from "@/redux/store";
 import type { ShipperFile, PlantAlert, FreightCarrier } from "@/data/productionMockData";
 
 interface PlantDataGridsProps {
@@ -51,8 +48,6 @@ const PlantDataGrids: React.FC<PlantDataGridsProps> = ({
   const [localAlerts, setLocalAlerts] = useState<PlantAlert[]>(alerts);
   const [localCarriers, setLocalCarriers] = useState<FreightCarrier[]>(carriers);
 
-  const accessToken = useAppSelector((state: RootState) => state.auth.accessToken);
-
   // Sync props to state if they change
   useEffect(() => {
     setLocalShipperFiles(shipperFiles);
@@ -66,48 +61,40 @@ const PlantDataGrids: React.FC<PlantDataGridsProps> = ({
     setLocalCarriers(carriers);
   }, [carriers]);
 
+  // Listen to global socket events sent from GlobalSocketListener
   useEffect(() => {
-    if (!accessToken) return;
-
-    const socket = createAdminSocket(accessToken);
-    if (!socket) return;
-
-    socket.on("connect", () => {
-      console.log("Connected to /admin Socket.io room");
-    });
-
-    // 1. project_assigned
-    socket.on("project_assigned", (data: { leadId: string; poOrderId: string; projectName: string }) => {
+    const handleProjectAssigned = (e: Event) => {
+      const data = (e as CustomEvent).detail;
       const newAlert: PlantAlert = {
         message: `Project assigned: ${data.projectName} (PO: ${data.poOrderId})`,
         time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
         type: "order",
       };
       setLocalAlerts((prev) => [newAlert, ...prev]);
-    });
+    };
 
-    // 2. bom_extraction_complete
-    socket.on("bom_extraction_complete", (data: { jobId: string; buildingNumber: number; totalItems: number }) => {
+    const handleBomExtractionComplete = (e: Event) => {
+      const data = (e as CustomEvent).detail;
       const newAlert: PlantAlert = {
         message: `BOM extraction complete for Building ${data.buildingNumber} (${data.totalItems} items)`,
         time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
         type: "shipper",
       };
       setLocalAlerts((prev) => [newAlert, ...prev]);
-    });
+    };
 
-    // 3. bom_extraction_failed
-    socket.on("bom_extraction_failed", (data: { jobId: string; buildingNumber: number; error: string }) => {
+    const handleBomExtractionFailed = (e: Event) => {
+      const data = (e as CustomEvent).detail;
       const newAlert: PlantAlert = {
         message: `BOM extraction failed for Building ${data.buildingNumber}: ${data.error}`,
         time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
         type: "fileLine",
       };
       setLocalAlerts((prev) => [newAlert, ...prev]);
-    });
+    };
 
-    // 4. shipper_file_submitted
-    socket.on("shipper_file_submitted", (data: { leadId: string; requestId: string; vendorId: string; vendorName: string; submittedAt: string; quoteValue: number }) => {
+    const handleShipperFileSubmitted = (e: Event) => {
+      const data = (e as CustomEvent).detail;
       const newFile: ShipperFile = {
         name: `Quote Request ${data.requestId}`,
         shpId: data.requestId,
@@ -124,42 +111,56 @@ const PlantDataGrids: React.FC<PlantDataGridsProps> = ({
         type: "shipper",
       };
       setLocalAlerts((prev) => [newAlert, ...prev]);
-    });
+    };
 
-    // 5. all_shipper_files_submitted
-    socket.on("all_shipper_files_submitted", (data: { leadId: string; consolidatedBOMId: string; vendorCount: number }) => {
+    const handleAllShipperFilesSubmitted = (e: Event) => {
+      const data = (e as CustomEvent).detail;
       const newAlert: PlantAlert = {
         message: `All ${data.vendorCount} vendor quotes submitted for Lead ${data.leadId}`,
         time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
         type: "shipper",
       };
       setLocalAlerts((prev) => [newAlert, ...prev]);
-    });
+    };
 
-    // 6. shipper_comparison_complete
-    socket.on("shipper_comparison_complete", (data: { jobId: string; requestId: string; leadId: string; vendorId: string }) => {
+    const handleShipperComparisonComplete = (e: Event) => {
+      const data = (e as CustomEvent).detail;
       const newAlert: PlantAlert = {
         message: `Shipper comparison complete for request ${data.requestId}`,
         time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
         type: "shipper",
       };
       setLocalAlerts((prev) => [newAlert, ...prev]);
-    });
+    };
 
-    // 7. shipper_comparison_failed
-    socket.on("shipper_comparison_failed", (data: { jobId: string; requestId: string; leadId: string; vendorId: string; error: string }) => {
+    const handleShipperComparisonFailed = (e: Event) => {
+      const data = (e as CustomEvent).detail;
       const newAlert: PlantAlert = {
         message: `Shipper comparison failed for request ${data.requestId}: ${data.error}`,
         time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
         type: "fileLine",
       };
       setLocalAlerts((prev) => [newAlert, ...prev]);
-    });
+    };
+
+    window.addEventListener("socket_project_assigned", handleProjectAssigned);
+    window.addEventListener("socket_bom_extraction_complete", handleBomExtractionComplete);
+    window.addEventListener("socket_bom_extraction_failed", handleBomExtractionFailed);
+    window.addEventListener("socket_shipper_file_submitted", handleShipperFileSubmitted);
+    window.addEventListener("socket_all_shipper_files_submitted", handleAllShipperFilesSubmitted);
+    window.addEventListener("socket_shipper_comparison_complete", handleShipperComparisonComplete);
+    window.addEventListener("socket_shipper_comparison_failed", handleShipperComparisonFailed);
 
     return () => {
-      socket.disconnect();
+      window.removeEventListener("socket_project_assigned", handleProjectAssigned);
+      window.removeEventListener("socket_bom_extraction_complete", handleBomExtractionComplete);
+      window.removeEventListener("socket_bom_extraction_failed", handleBomExtractionFailed);
+      window.removeEventListener("socket_shipper_file_submitted", handleShipperFileSubmitted);
+      window.removeEventListener("socket_all_shipper_files_submitted", handleAllShipperFilesSubmitted);
+      window.removeEventListener("socket_shipper_comparison_complete", handleShipperComparisonComplete);
+      window.removeEventListener("socket_shipper_comparison_failed", handleShipperComparisonFailed);
     };
-  }, [accessToken]);
+  }, []);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3 xl:gap-4 mt-6">
