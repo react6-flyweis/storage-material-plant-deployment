@@ -14,7 +14,9 @@ const ProjectLoadPlanningView: React.FC = () => {
   useEffect(() => {
     if (!projectId) return;
 
-    if (!isLoading && !isError && !stateData) {
+    // console.log({ isLoading, isError, stateData })
+
+    if (!isLoading && !stateData) {
       navigate(`/load_planning/${projectId}/item-analysis`, { replace: true });
       return;
     }
