@@ -11,6 +11,8 @@ import {
   useConfirmBuildingBOMMutation,
 } from "@/redux/api/projectApi";
 
+import logo from "@/assets/logo.png";
+
 const BOMFilesDetailsView: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
@@ -175,8 +177,8 @@ const BOMFilesDetailsView: React.FC = () => {
         <div className="bg-[#F9FAFB] px-8 py-6 border-b border-gray-100">
           <h2 className="text-xl lg:text-2xl font-inter font-semibold text-[#212B36]">
             Project: <span className="font-bold">{projectName}</span> | Building -
-            <span className="font-bold">{data.bomJob?.buildingNumber || "N/A"}</span> | BOM ID:{" "}
-            <span className="font-bold">{data.bomJob?._id || id}</span>
+            <span className="font-bold">{data.bomJob?.buildingNumber || "N/A"}</span>
+            {/* | BOM ID:{" "} <span className="font-bold">{data.bomJob?._id || id}</span> */}
           </h2>
         </div>
 
@@ -243,10 +245,11 @@ const BOMFilesDetailsView: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-12 divide-y md:divide-y-0 md:divide-x-2 divide-black">
               {/* Logo Section */}
               <div className="md:col-span-4 flex items-center justify-center p-4">
-                <div className="flex flex-wrap items-center gap-1 font-archivo tracking-tighter">
-                  <span className="text-2xl font-black text-[#212B36]">STORAGE</span>
-                  <span className="text-2xl font-black text-white bg-[#1E51A4] px-2">MATERIALS</span>
-                </div>
+                <img
+                  src={logo}
+                  alt="Logo"
+                  className="h-10 object-contain"
+                />
               </div>
 
               {/* Title & Info Section */}
@@ -307,10 +310,10 @@ const BOMFilesDetailsView: React.FC = () => {
                 {tab === "all"
                   ? "All Items"
                   : tab === "frames"
-                  ? "Frame Items"
-                  : tab === "bom_priced"
-                  ? "bom priced"
-                  : `${tab} Items`}
+                    ? "Frame Items"
+                    : tab === "bom_priced"
+                      ? "bom priced"
+                      : `${tab} Items`}
               </button>
             ))}
           </div>
