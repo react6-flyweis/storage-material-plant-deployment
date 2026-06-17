@@ -1,5 +1,7 @@
 import React from "react";
 import { Package, Truck, MapPin, Clock } from "lucide-react";
+import { useParams } from "react-router-dom";
+import { useGetProjectDeliveryQuery } from "@/redux/api/deliveriesApi";
 
 interface DetailItemProps {
   label: string;
@@ -14,9 +16,50 @@ const DetailItem = ({ label, value, highlight }: DetailItemProps) => (
   </div>
 );
 
+const formatStatusText = (status: string) => {
+  if (!status) return "";
+  return status
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+};
+
+const formatDate = (dateStr?: string) => {
+  if (!dateStr) return "";
+  try {
+    return new Date(dateStr).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  } catch {
+    return dateStr;
+  }
+};
+
 export const FreightRequestDetailsTab: React.FC = () => {
+  const { projectId } = useParams();
+  const { data, isLoading } = useGetProjectDeliveryQuery(projectId || "", { skip: !projectId });
+  const delivery = data?.delivery;
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[300px]">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#1E51A4]"></div>
+      </div>
+    );
+  }
+
+  const weightVal = delivery?.formDetails?.loadWeight ? `${delivery.formDetails.loadWeight.toLocaleString()} lbs` : "-";
+  const dimensionsVal = delivery?.formDetails?.dimensions 
+    ? `${delivery.formDetails.dimensions.lengthFeet}' L x ${delivery.formDetails.dimensions.widthFeet}' W x ${delivery.formDetails.dimensions.heightFeet}' H`
+    : "-";
+  const materialTypeVal = delivery?.formDetails?.materialType || delivery?.deliveryInformation?.materialCategory || "-";
+  const equipmentVal = delivery?.equipmentRequirement?.join(", ") || delivery?.formDetails?.loadingEquipment?.join(", ") || "-";
+  const statusVal = delivery?.status ? formatStatusText(delivery.status) : "-";
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 font-inter">
       <div className="space-y-6">
         {/* Load Details */}
         <div className="bg-white rounded-[24px] border border-gray-100 p-8 shadow-sm space-y-8">
@@ -30,16 +73,18 @@ export const FreightRequestDetailsTab: React.FC = () => {
           <div className="space-y-6">
             <div>
               <p className="text-xs text-[#919EAB] font-bold uppercase tracking-wider mb-2">Description</p>
-              <p className="text-lg font-bold text-[#212B36]">-</p>
+              <p className="text-lg font-bold text-[#212B36]">
+                {delivery?.formDetails?.loadDescription || delivery?.formDetails?.description || "-"}
+              </p>
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-3 gap-8">
-              <DetailItem label="Weight" value="-" highlight />
-              <DetailItem label="Dimensions" value="-" highlight />
+              <DetailItem label="Weight" value={weightVal} highlight />
+              <DetailItem label="Dimensions" value={dimensionsVal} highlight />
               <DetailItem label="Distance" value="-" highlight />
-              <DetailItem label="Material Type" value="-" />
-              <DetailItem label="Equipment" value="-" />
-              <DetailItem label="Status" value="-" highlight />
+              <DetailItem label="Material Type" value={materialTypeVal} />
+              <DetailItem label="Equipment" value={equipmentVal} />
+              <DetailItem label="Status" value={statusVal} highlight />
             </div>
           </div>
         </div>
@@ -56,20 +101,27 @@ export const FreightRequestDetailsTab: React.FC = () => {
           <div className="space-y-6">
             <div>
               <p className="text-xs text-[#919EAB] font-bold uppercase tracking-wider mb-1">Receiving POC</p>
-              <p className="text-base font-bold text-[#212B36]">-</p>
+              <p className="text-base font-bold text-[#212B36]">
+                {delivery?.receivingPocDetails?.receivingPoc || delivery?.formDetails?.receivingPoc || "-"}
+                {(delivery?.receivingPocDetails?.pickupContactPhone || delivery?.formDetails?.pickupContactPhone) ? (
+                  <span className="text-sm font-normal text-[#637381] ml-2">
+                    ({delivery?.receivingPocDetails?.pickupContactPhone || delivery?.formDetails?.pickupContactPhone})
+                  </span>
+                ) : null}
+              </p>
             </div>
 
             <div className="space-y-4">
               <div>
                 <p className="text-xs text-[#919EAB] font-bold uppercase tracking-wider mb-2">Special Requirements</p>
                 <div className="bg-[#FFFBEB] border border-[#FEF3C7] p-4 rounded-xl text-sm font-medium text-[#B45309]">
-                  -
+                  {delivery?.formDetails?.specialRequirements || delivery?.siteCoordinationNotes || "-"}
                 </div>
               </div>
               <div>
                 <p className="text-xs text-[#919EAB] font-bold uppercase tracking-wider mb-2">Additional Notes</p>
                 <div className="bg-[#F8F9FA] border border-gray-100 p-4 rounded-xl text-sm font-medium text-[#637381]">
-                  -
+                  {delivery?.formDetails?.additionalNotes || "-"}
                 </div>
               </div>
             </div>
@@ -95,12 +147,20 @@ export const FreightRequestDetailsTab: React.FC = () => {
               <div className="absolute -left-[31px] top-1 w-[22px] h-[22px] bg-white border-4 border-[#22C55E] rounded-full z-10"></div>
               <div className="space-y-2">
                 <p className="text-xs text-[#919EAB] font-bold uppercase tracking-wider">Pickup Location</p>
-                <div className="flex items-center gap-2">
-                  <MapPin size={16} className="text-[#22C55E]" />
-                  <p className="text-base font-bold text-[#212B36]">-</p>
+                <div className="flex items-start gap-2">
+                  <MapPin size={16} className="text-[#22C55E] shrink-0 mt-0.5" />
+                  <p className="text-base font-bold text-[#212B36]">
+                    {delivery?.formDetails?.pickupLocation || delivery?.deliverySchedule?.pickupAddress || "-"}
+                  </p>
                 </div>
                 <p className="text-xs text-[#637381] flex items-center gap-1.5">
-                  <Clock size={12} /> -
+                  <Clock size={12} />
+                  {delivery?.formDetails?.pickupDate ? (
+                    <>
+                      {formatDate(delivery.formDetails.pickupDate)}
+                      {delivery.formDetails.pickupTime ? ` at ${delivery.formDetails.pickupTime}` : ""}
+                    </>
+                  ) : "-"}
                 </p>
               </div>
             </div>
@@ -109,12 +169,20 @@ export const FreightRequestDetailsTab: React.FC = () => {
               <div className="absolute -left-[31px] top-1 w-[22px] h-[22px] bg-white border-4 border-[#FF5630] rounded-full z-10"></div>
               <div className="space-y-2">
                 <p className="text-xs text-[#919EAB] font-bold uppercase tracking-wider">Delivery Location</p>
-                <div className="flex items-center gap-2">
-                  <MapPin size={16} className="text-[#FF5630]" />
-                  <p className="text-base font-bold text-[#212B36]">-</p>
+                <div className="flex items-start gap-2">
+                  <MapPin size={16} className="text-[#FF5630] shrink-0 mt-0.5" />
+                  <p className="text-base font-bold text-[#212B36]">
+                    {delivery?.formDetails?.deliveryLocation || delivery?.deliverySchedule?.dropoffAddress || "-"}
+                  </p>
                 </div>
                 <p className="text-xs text-[#637381] flex items-center gap-1.5">
-                  <Clock size={12} /> -
+                  <Clock size={12} />
+                  {delivery?.deliverySchedule?.deliveryDate || delivery?.formDetails?.deliveryDate ? (
+                    <>
+                      {formatDate(delivery.deliverySchedule?.deliveryDate || delivery.formDetails?.deliveryDate)}
+                      {delivery.formDetails?.deliveryTime || delivery.deliverySchedule?.timeWindow ? ` (${delivery.formDetails?.deliveryTime || delivery.deliverySchedule?.timeWindow})` : ""}
+                    </>
+                  ) : "-"}
                 </p>
               </div>
             </div>
@@ -126,3 +194,4 @@ export const FreightRequestDetailsTab: React.FC = () => {
 };
 
 export default FreightRequestDetailsTab;
+

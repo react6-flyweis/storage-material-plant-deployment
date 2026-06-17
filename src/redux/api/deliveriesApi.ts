@@ -213,6 +213,10 @@ export const deliveriesApi = createApi({
           limit: 20,
         },
     }),
+    getProjectDelivery: builder.query<ProjectDeliveryResponse, string>({
+      query: (leadId) => `/api/plant/projects/${leadId}/delivery`,
+      transformResponse: (response: ApiResponse<ProjectDeliveryResponse>) => response.data as ProjectDeliveryResponse,
+    }),
   }),
 });
 
@@ -368,6 +372,127 @@ export interface CalendarQueryParams {
   toDate?: string;
 }
 
+export interface ProjectDeliveryResponse {
+  delivery: {
+    deliveryId: string;
+    deliveryNumber: string;
+    status: string;
+    statusHistory: Array<{
+      status: string;
+      changedAt: string;
+    }>;
+    project: {
+      leadId: string;
+      projectName: string;
+      jobId: string;
+    };
+    customer: {
+      customerId: string;
+      customerName: string;
+    };
+    formDetails: {
+      description: string;
+      loadDescription: string;
+      loadWeight: number;
+      dimensions: {
+        lengthFeet: number;
+        widthFeet: number;
+        heightFeet: number;
+      };
+      materialType: string;
+      packageCount: number;
+      loadingEquipment: string[];
+      bidDeadline: string;
+      documentUrl: string;
+      pickupLocation: string;
+      pickupLocationData: {
+        address: string;
+        coordinates: {
+          lat: number;
+          lng: number;
+        };
+      };
+      deliveryLocation: string;
+      deliveryLocationData: {
+        address: string;
+        coordinates: {
+          lat: number;
+          lng: number;
+        };
+      };
+      pickupDate: string;
+      pickupTime: string;
+      deliveryDate: string;
+      deliveryTime: string;
+      timings: string;
+      receivingPoc: string;
+      pickupContactPhone: string;
+      specialRequirements: string;
+      additionalNotes: string;
+    };
+    deliverySchedule: {
+      deliveryDate: string;
+      timeWindow: string;
+      pickupAddress: string;
+      dropoffAddress: string;
+    };
+    deliveryInformation: {
+      description: string;
+      materialCategory: string;
+      pickupDate: string;
+    };
+    shipperDetails: {
+      vendorId: string;
+      vendorName: string;
+      personName: string;
+      number: string;
+      email: string;
+    };
+    vendorDetails: {
+      vendorId: string;
+      vendorName: string;
+      personName: string;
+      number: string;
+      email: string;
+    };
+    deliveryCompanyDetails: {
+      carrierId: string;
+      carrierName: string;
+      personName: string;
+      number: string;
+      email: string;
+    };
+    selectedBid: {
+      bidId: string;
+      carrierId: string;
+      carrierName: string;
+      quotedAmount: number;
+      currency: string;
+      carrierNotes: string;
+      submittedAt: string;
+      selectedAt: string;
+      status: string;
+    };
+    internalOwner: {
+      userId: string;
+      name: string;
+      email: string;
+      phone: string;
+    };
+    siteCoordinationNotes: string;
+    equipmentRequirement: string[];
+    deliveryTypeAndSize: {
+      bundleCount: number;
+      packageCount: number;
+      totalWeight: number;
+    };
+    receivingPocDetails: {
+      receivingPoc: string;
+      pickupContactPhone: string;
+    };
+  };
+}
+
 export const {
   useGetFreightStatsQuery,
   useGetAwardedStatsQuery,
@@ -376,4 +501,6 @@ export const {
   useGetAwardedLoadsQuery,
   useGetCalendarDeliveriesQuery,
   useGetPlantDeliveriesQuery,
+  useGetProjectDeliveryQuery,
 } = deliveriesApi;
+
