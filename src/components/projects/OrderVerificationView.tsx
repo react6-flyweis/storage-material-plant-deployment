@@ -14,8 +14,10 @@ import {
   useGetProjectShipperRequestsQuery,
   useCompareShipperRequestMutation,
 } from "@/redux/api/shipperApi";
+import { truncateMiddle } from "@/lib/utils";
 
 const OrderVerificationView: React.FC = () => {
+
   const navigate = useNavigate();
   const { projectId, requestId } = useParams();
 
@@ -109,8 +111,6 @@ const OrderVerificationView: React.FC = () => {
     }
   };
 
-
-
   const handleModalOk = () => {
     setIsProcessingModalOpen(false);
     const projId = projectId || shipperDoc?.projectId || shipperRequestsData?.projectId;
@@ -165,8 +165,11 @@ const OrderVerificationView: React.FC = () => {
               BOM File
             </h3>
             {bomFile ? (
-              <div className="px-6 py-2 border border-[#1E51A4] rounded-lg text-[#1E51A4] text-sm font-inter font-medium bg-white">
-                {bomFile}
+              <div 
+                className="px-6 py-2 border border-[#1E51A4] rounded-lg text-[#1E51A4] text-sm font-inter font-medium bg-white max-w-full truncate-middle-wrapper"
+                title={bomFile}
+              >
+                {truncateMiddle(bomFile)}
               </div>
             ) : (
               <p className="text-xs md:text-sm font-inter text-[#637381]">
@@ -188,8 +191,11 @@ const OrderVerificationView: React.FC = () => {
               Shipper File
             </h3>
             {shipperFile ? (
-              <div className="px-6 py-2 border border-[#1E51A4] rounded-lg text-[#1E51A4] text-sm font-inter font-medium bg-white">
-                {shipperFile}
+              <div 
+                className="px-6 py-2 border border-[#1E51A4] rounded-lg text-[#1E51A4] text-sm font-inter font-medium bg-white max-w-full truncate-middle-wrapper"
+                title={shipperFile}
+              >
+                {truncateMiddle(shipperFile)}
               </div>
             ) : (
               <p className="text-xs md:text-sm font-inter text-[#637381]">

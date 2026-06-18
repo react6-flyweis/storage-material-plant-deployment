@@ -12,6 +12,7 @@ import {
 // import Button from "../common_component/Button";
 import TitleSubtitle from "../common_component/TitleSubtitle";
 import { useGetLoadPlanningProjectsQuery } from "@/redux/api/shipperApi";
+import { projectDisplayName } from "@/lib/utils";
 
 
 const LoadPlanningList: React.FC = () => {
@@ -156,7 +157,8 @@ const LoadPlanningList: React.FC = () => {
                       {item.projectId}
                     </td>
                     <td className="p-3 md:p-4 text-sm font-inter text-[#212B36] font-semibold">
-                      {item.projectName || "Untitled"}
+                      <div>{projectDisplayName(item)}</div>
+
                     </td>
                     <td className="p-3 md:p-4 text-sm font-inter text-[#637381]">
                       {formatDate(item.fileReceivedAt)}

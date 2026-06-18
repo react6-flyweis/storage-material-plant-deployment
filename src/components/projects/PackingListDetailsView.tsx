@@ -103,8 +103,8 @@ const PackingListDetailsView: React.FC = () => {
     );
   }
 
-  const { packingListPlan, packingLists = [], bundles = [] } = data;
-  const projectName = getLeadProjectName(packingListPlan.project);
+  const { packingListPlan, project, packingLists = [], bundles = [] } = data;
+  const projectName = getLeadProjectName(project || packingListPlan?.project);
   const planNumber = packingListPlan.bundlePlan?.planNumber || packingListPlan.planNumber || "N/A";
 
   const projectDetails = {
@@ -291,7 +291,7 @@ const PackingListDetailsView: React.FC = () => {
           <h2 className="text-lg md:text-xl font-inter font-bold text-[#212B36]">
             {projectDetails.title}
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-3 text-sm">
             <p>
               <span className="font-semibold text-[#212B36]">Project:</span>{" "}
               {projectDetails.projectName}
@@ -300,6 +300,30 @@ const PackingListDetailsView: React.FC = () => {
               <span className="font-semibold text-[#212B36]">Upload ID:</span>{" "}
               {projectDetails.uploadId}
             </p>
+            {project?.projectId && (
+              <p>
+                <span className="font-semibold text-[#212B36]">Project ID / Job ID:</span>{" "}
+                {project.projectId}
+              </p>
+            )}
+            {project?.location && (
+              <p>
+                <span className="font-semibold text-[#212B36]">Location:</span>{" "}
+                {project.location}
+              </p>
+            )}
+            {project?.buildingType && (
+              <p>
+                <span className="font-semibold text-[#212B36]">Building Type:</span>{" "}
+                <span className="capitalize">{project.buildingType}</span>
+              </p>
+            )}
+            {project?.lifecycleStatus && (
+              <p>
+                <span className="font-semibold text-[#212B36]">Lifecycle Status:</span>{" "}
+                <span className="capitalize">{project.lifecycleStatus.replace(/_/g, " ")}</span>
+              </p>
+            )}
             <p>
               <span className="font-semibold text-[#212B36]">
                 Bundles Created:
@@ -312,6 +336,12 @@ const PackingListDetailsView: React.FC = () => {
               </span>{" "}
               {projectDetails.totalWeight}
             </p>
+            {project?.customer && (
+              <p className="md:col-span-2 lg:col-span-3">
+                <span className="font-semibold text-[#212B36]">Customer:</span>{" "}
+                {project.customer.name} ({project.customer.customerId}) {project.customer.email ? `| ${project.customer.email}` : ""}
+              </p>
+            )}
           </div>
         </div>
 
