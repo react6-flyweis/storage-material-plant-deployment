@@ -137,7 +137,7 @@ const ShipperFilesView: React.FC = () => {
           <Button
             variant="blueFilled"
             size="sm"
-            onClick={() => navigate(-1)}
+            onClick={() => navigate(`/projects/${projectId}`)}
             className="flex items-center gap-2 shrink-0"
           >
             <ArrowLeft size={18} strokeWidth={2.5} /> Back
@@ -164,7 +164,7 @@ const ShipperFilesView: React.FC = () => {
           <Button
             variant="blueFilled"
             size="sm"
-            onClick={() => navigate(-1)}
+            onClick={() => navigate(`/projects/${projectId}`)}
             className="flex items-center gap-2 shrink-0"
           >
             <ArrowLeft size={18} strokeWidth={2.5} /> Back
@@ -209,7 +209,7 @@ const ShipperFilesView: React.FC = () => {
         <Button
           variant="blueFilled"
           size="sm"
-          onClick={() => navigate(-1)}
+          onClick={() => navigate(`/projects/${projectId}`)}
           className="flex items-center gap-2 shrink-0"
         >
           <ArrowLeft size={18} strokeWidth={2.5} /> Back

@@ -8,6 +8,7 @@ import {
   useGetShipperDocumentQuery,
   usePollCompareJobsStatusMutation,
 } from "@/redux/api/shipperApi";
+import { truncateMiddle } from "@/lib/utils";
 
 const ShipperFileDetailsView: React.FC = () => {
   const navigate = useNavigate();
@@ -258,7 +259,9 @@ const ShipperFileDetailsView: React.FC = () => {
             <div className="space-y-3">
               <div className="flex items-center gap-3">
                 <span className="text-sm font-inter font-medium text-[#637381] w-28">Shipper File:</span>
-                <span className="text-sm font-inter font-bold text-[#212B36]">{shipperDoc.fileName}</span>
+                <span className="text-sm font-inter font-bold text-[#212B36]" title={shipperDoc.fileName || undefined}>
+                  {truncateMiddle(shipperDoc.fileName || "")}
+                </span>
               </div>
               <div className="flex items-center gap-3">
                 <span className="text-sm font-inter font-medium text-[#637381] w-28">Upload Date:</span>

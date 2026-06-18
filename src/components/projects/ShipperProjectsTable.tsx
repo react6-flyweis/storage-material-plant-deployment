@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import type { ShipperProject } from "@/redux/api/shipperApi";
 import { Eye, ArrowUpDown } from "lucide-react";
 import CommonCheckbox from "../common_component/CommonCheckbox";
-import { getLeadProjectName } from "@/lib/utils";
+import { projectDisplayName } from "@/lib/utils";
 
 interface Props {
   data: ShipperProject[];
@@ -146,63 +146,27 @@ const ShipperProjectsTable: React.FC<Props> = ({ data }) => {
               <th className="py-4 px-6 text-right w-24"></th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#E2E4E6]">
-            {sortedData.map((item, idx) => {
-              // Highlight Project Name when not all shipper files are received or status is partial/none
-              const isPending =
-                item.fileReceivedStatus === "partial" ||
-                item.fileReceivedStatus === "none" ||
-                item.receivedShipperFiles < item.totalShipperFiles;
-
-              return (
-                <tr
-                  key={item.leadId || idx}
-                  className="hover:bg-gray-50 transition-colors group/row"
-                >
-                  <td className="py-3 px-6">
-                    <CommonCheckbox
-                      size="xs"
-                      checked={selectedRows.includes(item.leadId)}
-                      onChange={(checked) => handleSelectRow(item.leadId, checked)}
-                    />
-                  </td>
-                  <td className="py-4 px-4 text-sm text-[#637381]">
-                    {item.projectId || item.jobId || "-"}
-                  </td>
-                  <td
-                    className={`py-4 px-4 text-sm transition-all ${
-                      isPending
-                        ? "font-semibold text-[#212B36]"
-                        : "font-normal text-[#637381]"
-                    }`}
-                  >
-                    {getLeadProjectName(item)}
-                  </td>
-                  <td className="py-4 px-4 text-sm text-[#637381]">
-                    {formatDate(item.latestSubmittedAt)}
-                  </td>
-                  <td className="py-4 px-4 text-sm text-black font-semibold">
-                    {item.totalShipperFiles}
-                  </td>
-                  <td className="py-3 px-6 text-right">
-                    <button
-                      onClick={() => handleViewDetails(item)}
-                      className="p-2 hover:bg-gray-100 rounded-full text-black transition-colors"
-                      title="View Details"
-                    >
-                      <Eye size={20} />
-                    </button>
-                  </td>
-                </tr>
-              );
-            })}
-            {sortedData.length === 0 && (
-              <tr>
-                <td colSpan={6} className="text-center py-8 text-sm text-[#637381]">
-                  No projects found.
+          <tbody>
+            {sortedData.map((item) => (
+              <tr key={item.leadId} className="border-b border-[#E2E4E6] text-nowrap hover:bg-[#F9FAFB]">
+                <td className="py-4 px-6">
+                  <CommonCheckbox
+                    size="xs"
+                    checked={selectedRows.includes(item.leadId)}
+                    onChange={(checked) => handleSelectRow(item.leadId, checked)}
+                  />
+                </td>
+                <td className="py-4 px-4 text-sm text-[#475467]">{item.projectId}</td>
+                <td className="py-4 px-4 text-sm text-[#101828] font-medium">{projectDisplayName(item)}</td>
+                <td className="py-4 px-4 text-sm text-[#475467]">{formatDate(item.latestSubmittedAt)}</td>
+                <td className="py-4 px-4 text-sm text-[#475467]">{item.totalShipperFiles}</td>
+                <td className="py-4 px-6 text-right">
+                  <button onClick={() => handleViewDetails(item)} className="text-[#475467] hover:text-black">
+                    <Eye size={18} />
+                  </button>
                 </td>
               </tr>
-            )}
+            ))}
           </tbody>
         </table>
       </div>
