@@ -101,7 +101,11 @@ const EditBundleView: React.FC = () => {
   const totalWeight = useMemo(() => {
     return items
       .filter((item) => selectedIds.has(item.id))
-      .reduce((sum, item) => sum + item.weight * (itemQuantities[item.id] ?? item.qty), 0);
+      .reduce((sum, item) => {
+        const currentQty = itemQuantities[item.id] ?? item.qty;
+        const unitWeight = item.qty > 0 ? item.weight / item.qty : 0;
+        return sum + unitWeight * currentQty;
+      }, 0);
   }, [items, selectedIds, itemQuantities]);
 
   const itemsNameStr = useMemo(() => {
@@ -282,7 +286,7 @@ const EditBundleView: React.FC = () => {
                     : "20.00 ft"}
                 </td>
                 <td className="py-6 px-6 text-[#637381]">
-                  {totalWeight ? `${totalWeight.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} IBS` : "0.00 IBS"}
+                  {totalWeight ? `${totalWeight.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} LBS` : "0.00 LBS"}
                 </td>
                 <td className="py-6 px-6">
                   <div className="flex items-center gap-2">
@@ -371,12 +375,15 @@ const EditBundleView: React.FC = () => {
                   </button>
                 </th>
                 <th className="py-4 px-6 w-28">Unit Weight</th>
+                <th className="py-4 px-6 w-28">Total Weight</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#E2E4E6] text-sm text-[#212B36]">
               {sortedItems.map((item) => {
                 const isSelected = selectedIds.has(item.id);
                 const currentQty = itemQuantities[item.id] ?? item.qty;
+                const unitWeight = item.qty > 0 ? item.weight / item.qty : 0;
+                const itemTotalWeight = unitWeight * currentQty;
                 return (
                   <tr
                     key={item.id}
@@ -408,7 +415,8 @@ const EditBundleView: React.FC = () => {
                       {item.description}
                     </td>
                     <td className="py-4 px-6 font-medium text-[#212B36]">{item.length}</td>
-                    <td className="py-4 px-6 text-[#637381] font-medium">{item.weight.toFixed(2)}</td>
+                    <td className="py-4 px-6 text-[#637381] font-medium">{unitWeight.toFixed(2)}</td>
+                    <td className="py-4 px-6 text-[#637381] font-medium">{itemTotalWeight.toFixed(2)}</td>
                   </tr>
                 );
               })}

@@ -44,7 +44,7 @@ const Step6LoadPlanReview: React.FC<Step6LoadPlanReviewProps> = ({
             { label: "Total Bundles", value: truckPlan.summary.totalBundles.toString() },
             { label: "Total Loads", value: truckPlan.summary.totalPackingLists.toString() },
             { label: "Total Weight", value: `${truckPlan.summary.totalWeight.toLocaleString()} LBS` },
-            { label: "Estimated Freight Request", value: "-" },
+            // { label: "Estimated Freight Request", value: "-" },
           ].map((item) => (
             <div key={item.label} className="flex justify-between items-center text-sm md:text-base">
               <span className="font-inter font-bold text-[#212B36]">

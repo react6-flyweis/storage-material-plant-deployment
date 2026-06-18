@@ -257,6 +257,34 @@ const Step7FreightSelection: React.FC<Step7FreightSelectionProps> = ({
     },
   });
 
+  useEffect(() => {
+    if (autofillData && selectedType === "new" && !savedDeliveryId) {
+      reset({
+        description: "Project outbound freight",
+        loadDescription: autofillData.loadDescription || "",
+        weight: autofillData.weight || undefined,
+        weightUnit: "Lbs",
+        dimensionsInput: autofillData.dimensions
+          ? `${autofillData.dimensions.lengthFeet}' x ${autofillData.dimensions.widthFeet}' x ${autofillData.dimensions.heightFeet}'`
+          : "",
+        metalType: autofillData.metalType || "",
+        packageCount: autofillData.packageCount || undefined,
+        loadingEquipment: ["Crane"],
+        bidDeadline: "",
+        pickupLocation: "",
+        deliveryLocation: "",
+        pickupDate: "",
+        pickupTime: "",
+        deliveryDate: "",
+        deliveryTime: "",
+        receivingPoc: "",
+        pickupContactPhone: "",
+        specialRequirements: "",
+        additionalNotes: "",
+      });
+    }
+  }, [autofillData, reset, selectedType, savedDeliveryId]);
+
   const pickupDateValue = watch("pickupDate");
 
   const handleSelectDelivery = (delivery: DeliveryItem) => {
