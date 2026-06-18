@@ -202,6 +202,30 @@ const DeliveryDetailsView: React.FC<DeliveryDetailsViewProps> = ({ showQuickActi
     );
   }
 
+  if (!delivery) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] text-center p-8 bg-white border border-gray-100 rounded-[14px] shadow-sm max-w-md mx-auto my-12 font-inter">
+        <div className="w-16 h-16 bg-[#F4F6F8] rounded-full flex items-center justify-center mb-5 text-[#6A7282]">
+          <Truck size={32} />
+        </div>
+        <h3 className="text-lg font-semibold text-[#212B36] mb-2">
+          No Delivery Available
+        </h3>
+        <p className="text-sm text-[#6A7282] mb-6 max-w-xs leading-relaxed">
+          We couldn't find any delivery details for this project or delivery ID. Please verify the link or return back.
+        </p>
+        <Button
+          variant="primary"
+          size="md"
+          className="px-6 font-semibold"
+          onClick={() => navigate(-1)}
+        >
+          Go Back
+        </Button>
+      </div>
+    );
+  }
+
   const formatDate = (dateStr?: string) => {
     if (!dateStr) return "";
     try {

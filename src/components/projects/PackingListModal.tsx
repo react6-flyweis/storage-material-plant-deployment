@@ -1,8 +1,7 @@
-import React, { useState } from "react";
+import React from "react";
 import Button from "../common_component/Button";
 import Modal from "../Modal";
 import SubHeading from "../common_component/SubHeading";
-import CommonCheckbox from "../common_component/CommonCheckbox";
 import type { PackingListEntry, BundleItem } from "@/redux/api/shipperApi";
 import { getQRCodeUrl, getPackingListQRDataStr } from "@/lib/utils";
 import {
@@ -35,19 +34,7 @@ const PackingListModal: React.FC<PackingListModalProps> = ({
   planNumber,
   planId,
 }) => {
-  const [verificationSteps, setVerificationSteps] = useState([
-    { id: 1, label: "All Bundles Present", checked: true },
-    { id: 2, label: "QR Labels Verified", checked: true },
-    { id: 3, label: "Packing List Matches Load", checked: true },
-  ]);
 
-  const toggleVerification = (id: number) => {
-    setVerificationSteps((prev) =>
-      prev.map((step) =>
-        step.id === id ? { ...step, checked: !step.checked } : step
-      )
-    );
-  };
 
   const resolvedBundles = bundles.filter((b) =>
     (packingList?.bundleIds || []).includes(b._id)

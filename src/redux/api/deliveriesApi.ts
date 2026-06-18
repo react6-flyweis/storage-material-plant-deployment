@@ -307,6 +307,8 @@ export interface PlantDeliveryItem {
     pickupContactPhone?: string;
   };
   equipment?: string[];
+  description?: string;
+  item?: string;
   pickupLocation?: string;
   deliveryLocation?: string;
   pickupDate?: string;
