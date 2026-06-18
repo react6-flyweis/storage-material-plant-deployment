@@ -27,18 +27,18 @@ const DailyDeliveriesModal: React.FC<DailyDeliveriesModalProps> = ({
   if (!isOpen || !date) return null;
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} hideHeader width="max-w-[1000px]">
+    <Modal isOpen={isOpen} onClose={onClose} hideHeader width="max-w-[1000px] max-h-[85vh] overflow-y-auto">
       <div className="p-4 md:p-6 space-y-6">
         <h2 className="text-xl md:text-2xl font-bold text-[#212B36]">
           {format(date, "EEEE, MMMM d, yyyy")}
         </h2>
-        
-        <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-2 custom-scrollbar">
+
+        <div className="space-y-4 pr-2">
           {deliveries.length > 0 ? (
             deliveries.map((delivery) => (
-              <DeliveryCard 
-                key={delivery.id} 
-                delivery={delivery} 
+              <DeliveryCard
+                key={delivery.id}
+                delivery={delivery}
                 onReschedule={onReschedule}
                 onMarkDelivered={onMarkDelivered}
                 onViewDetails={onViewDetails}

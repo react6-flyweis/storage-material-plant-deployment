@@ -1,11 +1,11 @@
 import { useNavigate } from "react-router-dom";
-import { 
-  Building2, 
-  Clock, 
-  Phone, 
-  Truck, 
-  Bell, 
-  AlertTriangle, 
+import {
+  Building2,
+  Clock,
+  Phone,
+  Truck,
+  Bell,
+  AlertTriangle,
   Van,
   CalendarSync,
   ClipboardCheck
@@ -44,9 +44,8 @@ export const statusConfig: Record<string, { color: string; bgColor: string; dotC
 };
 
 export const Badge = ({ text, type }: { text: string; type: "critical" | "warning" }) => (
-  <span className={`px-2 py-0.5 rounded-full text-xs font-normal tracking-wider flex items-center gap-1 ${
-    type === "critical" ? "bg-[#FFE4DE] text-[#822900]" : "bg-[#FFF5CC] text-[#CC8D10]"
-  }`}>
+  <span className={`px-2 py-0.5 rounded-full text-xs font-normal tracking-wider flex items-center gap-1 ${type === "critical" ? "bg-[#FFE4DE] text-[#822900]" : "bg-[#FFF5CC] text-[#CC8D10]"
+    }`}>
     {type === "warning" && <AlertTriangle size={12} />}
     {text}
   </span>
@@ -58,7 +57,7 @@ export const DetailItem = ({ label, value, icon: Icon, subValue }: any) => (
     <div className="flex items-start gap-2">
       {Icon && <Icon size={16} className="text-[#637381] mt-0.5 shrink-0" />}
       <div>
-        <p className="text-sm font-normal text-[#212B36] leading-tight">{value}</p>
+        <p className="text-sm font-normal text-[#212B36] leading-tight " style={{ overflowWrap: "break-word", wordBreak: "break-word", whiteSpace: "normal" }}>{value}</p>
         {subValue && <p className="text-xs text-[#637381] mt-0.5">{subValue}</p>}
       </div>
     </div>
@@ -73,11 +72,11 @@ interface DeliveryCardProps {
   onSendReminder?: (id: string) => void;
 }
 
-export const DeliveryCard = ({ 
-  delivery, 
-  onReschedule, 
-  onMarkDelivered, 
-  onViewDetails, 
+export const DeliveryCard = ({
+  delivery,
+  onReschedule,
+  onMarkDelivered,
+  onViewDetails,
   onSendReminder,
 }: DeliveryCardProps) => {
   const config = statusConfig[delivery.status];
@@ -122,7 +121,8 @@ export const DeliveryCard = ({
         <DetailItem label="SITE LOCATION" value={delivery.siteLocation} />
         <DetailItem label="REQUIRED EQUIPMENT" value={delivery.requiredEquipment} />
         <DetailItem label="INTERNAL OWNER" value={delivery.internalOwner} />
-        <DetailItem label="CARRIER" value={delivery.carrier} subValue={`Freight Load: ${delivery.freightLoad}`} />
+        {/* <DetailItem label="CARRIER" value={delivery.carrier} subValue={`Freight Load: ${delivery.freightLoad}`} /> */}
+        <DetailItem label="CARRIER" value={delivery.carrier} />
       </div>
 
       <div className="border-t border-gray-50 flex gap-3 flex-wrap items-center p-3">

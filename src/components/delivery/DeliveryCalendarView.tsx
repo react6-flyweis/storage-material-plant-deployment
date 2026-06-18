@@ -8,7 +8,7 @@ import {
   ChevronLeft,
   ChevronRight,
   CalendarDays,
-  Package,
+  // Package,
   Truck,
   Clock
 } from "lucide-react";
@@ -41,7 +41,7 @@ const mapApiDeliveryToDelivery = (item: CalendarDeliveryItem, dateStr: string): 
 
   return {
     id: item._id || item.delivery?._id || item.requestId || "",
-    title: item.description || item.delivery?.description || item.delivery?.loadDescription || "Shipment",
+    title: item.project?.projectName || item.delivery?.description || item.delivery?.loadDescription || "Shipment",
     projectId: item.deliveryNumber || item.delivery?.deliveryNumber || item.requestId || "",
     status: uiStatus,
     badges: [],
@@ -59,17 +59,17 @@ const mapApiDeliveryToDelivery = (item: CalendarDeliveryItem, dateStr: string): 
   };
 };
 
-const MiniDeliveryCard = ({ delivery }: { delivery: Delivery }) => {
+const MiniDeliveryCard = ({ delivery, onClick }: { delivery: Delivery; onClick?: () => void }) => {
   const config = statusConfig[delivery.status];
   return (
-    <div className="bg-white p-3 rounded-xl border-l-4 shadow-sm border border-gray-100 space-y-2 text-left" style={{ borderLeftColor: config.dotColor }}>
+    <div onClick={onClick} className="bg-white p-3 rounded-xl border-l-4 shadow-sm border border-gray-100 space-y-2 text-left cursor-pointer" style={{ borderLeftColor: config.dotColor }}>
       <div className="flex items-center gap-2">
         <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: config.dotColor }} />
         <p className="text-[11px] font-semibold text-[#212B36] truncate">{delivery.project}</p>
       </div>
       <p className="text-[9px] font-medium text-[#637381]">{delivery.customer}</p>
       <div className="space-y-1">
-        <div className="flex items-center gap-1.5 text-[9px] text-[#637381]"><Package size={10} /> {delivery.title}</div>
+        {/* <div className="flex items-center gap-1.5 text-[9px] text-[#637381]"><Package size={10} /> {delivery.title}</div> */}
         <div className="flex items-center gap-1.5 text-[9px] text-[#637381]"><Truck size={10} /> {delivery.vendor}</div>
         <div className="flex items-center gap-1.5 text-[9px] text-[#637381]"><Clock size={10} /> {delivery.timeWindow}</div>
       </div>
@@ -91,6 +91,9 @@ const SelectDateModal = ({ isOpen, onClose, onSelect, initialDate, activeView }:
 
   if (!isOpen) return null;
 
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
   const monthStart = startOfMonth(viewDate);
   const monthEnd = endOfMonth(viewDate);
   const startDate = startOfWeek(monthStart);
@@ -98,8 +101,34 @@ const SelectDateModal = ({ isOpen, onClose, onSelect, initialDate, activeView }:
 
   const days = eachDayOfInterval({ start: startDate, end: endDate });
 
-  const handlePrevMonth = () => setViewDate(subMonths(viewDate, 1));
+  const currentMonthStart = startOfMonth(today);
+  const canGoPrev = viewDate > currentMonthStart;
+
+  const handlePrevMonth = () => {
+    if (canGoPrev) {
+      setViewDate(subMonths(viewDate, 1));
+    }
+  };
   const handleNextMonth = () => setViewDate(addMonths(viewDate, 1));
+
+  const currentYear = today.getFullYear();
+  const currentMonthIndex = today.getMonth();
+  const viewYear = viewDate.getFullYear();
+
+  const monthOptions = Array.from({ length: 12 }, (_, i) => ({
+    label: format(new Date(2000, i, 1), "MMM"),
+    value: (i + 1).toString()
+  })).filter((_, i) => {
+    if (viewYear === currentYear) {
+      return i >= currentMonthIndex;
+    }
+    return true;
+  });
+
+  const yearOptions = Array.from({ length: 10 }, (_, i) => {
+    const year = currentYear + i;
+    return { label: year.toString(), value: year.toString() };
+  });
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} hideHeader width="max-w-[440px]">
@@ -109,27 +138,32 @@ const SelectDateModal = ({ isOpen, onClose, onSelect, initialDate, activeView }:
         </h2>
         <div className="border border-gray-300 rounded-2xl p-4 space-y-6">
           <div className="flex items-center justify-between">
-            <button onClick={handlePrevMonth} className="p-2 hover:bg-gray-50 rounded-full transition-colors">
+            <button
+              onClick={handlePrevMonth}
+              disabled={!canGoPrev}
+              className={`p-2 hover:bg-gray-50 rounded-full transition-colors ${!canGoPrev ? "opacity-30 cursor-not-allowed" : ""}`}
+            >
               <ChevronLeft size={20} className="text-[#212B36]" />
             </button>
             <div className="flex gap-2 text-sm font-semibold">
               <FilterDropdown
                 activeTab={format(viewDate, "M")}
                 onTabChange={(val) => setViewDate(setMonth(viewDate, parseInt(val) - 1))}
-                options={Array.from({ length: 12 }, (_, i) => ({
-                  label: format(new Date(2000, i, 1), "MMM"),
-                  value: (i + 1).toString()
-                }))}
+                options={monthOptions}
                 icon={<></>}
               />
 
               <FilterDropdown
                 activeTab={format(viewDate, "yyyy")}
-                onTabChange={(val) => setViewDate(setYear(viewDate, parseInt(val)))}
-                options={Array.from({ length: 20 }, (_, i) => {
-                  const year = new Date().getFullYear() - 10 + i;
-                  return { label: year.toString(), value: year.toString() };
-                })}
+                onTabChange={(val) => {
+                  const nextYear = parseInt(val);
+                  let nextDate = setYear(viewDate, nextYear);
+                  if (nextYear === currentYear && nextDate.getMonth() < currentMonthIndex) {
+                    nextDate = setMonth(nextDate, currentMonthIndex);
+                  }
+                  setViewDate(nextDate);
+                }}
+                options={yearOptions}
                 icon={<></>}
               />
             </div>
@@ -144,32 +178,37 @@ const SelectDateModal = ({ isOpen, onClose, onSelect, initialDate, activeView }:
             ))}
             {days.map((day, idx) => {
               const isCurrentMonth = isSameMonth(day, viewDate);
-              
+              const isPast = day < today;
+
               let isSelected = false;
               let isRangeStart = false;
               let isRangeEnd = false;
               let isInRange = false;
 
-              if (activeView === "Week") {
-                const weekStart = startOfWeek(tempDate, { weekStartsOn: 0 });
-                const weekEnd = endOfWeek(tempDate, { weekStartsOn: 0 });
-                isSelected = isSameDay(day, tempDate);
-                isInRange = day >= weekStart && day <= weekEnd;
-                isRangeStart = isSameDay(day, weekStart);
-                isRangeEnd = isSameDay(day, weekEnd);
-              } else if (activeView === "Month") {
-                const monthS = startOfMonth(tempDate);
-                const monthE = endOfMonth(tempDate);
-                isSelected = isSameDay(day, tempDate);
-                isInRange = isCurrentMonth && day >= monthS && day <= monthE;
-                isRangeStart = isCurrentMonth && isSameDay(day, monthS);
-                isRangeEnd = isCurrentMonth && isSameDay(day, monthE);
-              } else {
-                isSelected = isSameDay(day, tempDate);
+              if (!isPast) {
+                if (activeView === "Week") {
+                  const weekStart = startOfWeek(tempDate, { weekStartsOn: 0 });
+                  const weekEnd = endOfWeek(tempDate, { weekStartsOn: 0 });
+                  isSelected = isSameDay(day, tempDate);
+                  isInRange = day >= weekStart && day <= weekEnd;
+                  isRangeStart = isSameDay(day, weekStart);
+                  isRangeEnd = isSameDay(day, weekEnd);
+                } else if (activeView === "Month") {
+                  const monthS = startOfMonth(tempDate);
+                  const monthE = endOfMonth(tempDate);
+                  isSelected = isSameDay(day, tempDate);
+                  isInRange = isCurrentMonth && day >= monthS && day <= monthE;
+                  isRangeStart = isCurrentMonth && isSameDay(day, monthS);
+                  isRangeEnd = isCurrentMonth && isSameDay(day, monthE);
+                } else {
+                  isSelected = isSameDay(day, tempDate);
+                }
               }
 
               let bgClass = "";
-              if (isSelected) {
+              if (isPast) {
+                bgClass = "text-[#919EAB] opacity-30 cursor-not-allowed";
+              } else if (isSelected) {
                 bgClass = "bg-[#1E51A4] text-white shadow-lg z-10 rounded-md";
               } else if (isInRange) {
                 bgClass = "bg-[#1E51A4]/10 text-[#1E51A4] hover:bg-[#1E51A4]/20";
@@ -184,7 +223,8 @@ const SelectDateModal = ({ isOpen, onClose, onSelect, initialDate, activeView }:
               return (
                 <button
                   key={idx}
-                  onClick={() => setTempDate(day)}
+                  onClick={() => !isPast && setTempDate(day)}
+                  disabled={isPast}
                   className={`h-11 w-11 flex items-center justify-center text-sm font-medium transition-all relative ${bgClass}`}
                 >
                   {format(day, "d")}
@@ -195,7 +235,7 @@ const SelectDateModal = ({ isOpen, onClose, onSelect, initialDate, activeView }:
         </div>
         <div className="flex flex-wrap justify-between gap-4 pt-2">
           <Button onClick={onClose} variant="white">Cancel</Button>
-          <Button onClick={() => { onSelect(tempDate); onClose(); }}
+          <Button onClick={() => { if (tempDate >= today) { onSelect(tempDate); } onClose(); }}
             variant="purpleFilled">Save</Button>
         </div>
       </div>
@@ -206,7 +246,7 @@ const SelectDateModal = ({ isOpen, onClose, onSelect, initialDate, activeView }:
 const DeliveryCalendarView: React.FC = () => {
   const calendarRef = useRef<FullCalendar>(null);
   const [activeView, setActiveView] = useState("Day");
-  const [currentDate, setCurrentDate] = useState(new Date("2026-06-12"));
+  const [currentDate, setCurrentDate] = useState(new Date());
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   const [selectedDay, setSelectedDay] = useState<Date | null>(null);
   const [isDailyModalOpen, setIsDailyModalOpen] = useState(false);
@@ -219,6 +259,7 @@ const DeliveryCalendarView: React.FC = () => {
   const [isReminderSuccessOpen, setIsReminderSuccessOpen] = useState(false);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [activeDeliveryId, setActiveDeliveryId] = useState<string>("");
+  const [selectedDeliveryForModal, setSelectedDeliveryForModal] = useState<Delivery | null>(null);
 
   useEffect(() => {
     const calendarApi = calendarRef.current?.getApi();
@@ -277,7 +318,27 @@ const DeliveryCalendarView: React.FC = () => {
     setIsDatePickerOpen(false);
   };
 
+  const canGoPrevMain = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (activeView === "Day") {
+      const currentDayStart = new Date(currentDate);
+      currentDayStart.setHours(0, 0, 0, 0);
+      return currentDayStart > today;
+    } else if (activeView === "Week") {
+      const currentWeekStart = startOfWeek(currentDate, { weekStartsOn: 0 });
+      const todayWeekStart = startOfWeek(today, { weekStartsOn: 0 });
+      return currentWeekStart > todayWeekStart;
+    } else {
+      const currentMonthStart = startOfMonth(currentDate);
+      const todayMonthStart = startOfMonth(today);
+      return currentMonthStart > todayMonthStart;
+    }
+  }, [currentDate, activeView]);
+
   const handlePrev = () => {
+    if (!canGoPrevMain) return;
     if (activeView === "Day") {
       setCurrentDate(prev => subDays(prev, 1));
     } else if (activeView === "Week") {
@@ -337,8 +398,8 @@ const DeliveryCalendarView: React.FC = () => {
     setIsMarkDeliveredModalOpen(true);
   };
 
-  const handleSendReminder = (_id: string) => {
-    setIsReminderSuccessOpen(true);
+  const handleSendReminder = (id: string) => {
+    setIsReminderSuccessOpen(!!id);
   };
 
   const renderEventContent = (eventInfo: { event: { extendedProps: Delivery } }) => {
@@ -354,7 +415,7 @@ const DeliveryCalendarView: React.FC = () => {
         />
       );
     } else if (activeView === "Week") {
-      return <MiniDeliveryCard delivery={delivery} />;
+      return <MiniDeliveryCard delivery={delivery} onClick={() => setSelectedDeliveryForModal(delivery)} />;
     } else {
       // Month view summary
       return (
@@ -380,7 +441,8 @@ const DeliveryCalendarView: React.FC = () => {
           <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-lg p-1">
             <button
               onClick={handlePrev}
-              className="p-1.5 hover:bg-gray-50 rounded-md transition-colors text-[#637381] hover:text-[#212B36]"
+              disabled={!canGoPrevMain}
+              className={`p-1.5 hover:bg-gray-50 rounded-md transition-colors text-[#637381] hover:text-[#212B36] ${!canGoPrevMain ? "opacity-30 cursor-not-allowed" : ""}`}
               aria-label="Previous range"
             >
               <ChevronLeft size={18} />
@@ -417,7 +479,7 @@ const DeliveryCalendarView: React.FC = () => {
       <div className="bg-white rounded-[14px] border border-gray-100 overflow-hidden p-4 calendar-custom">
         <div className="flex flex-wrap gap-4 mb-8 mt-2">
           <div className="px-5 py-2.5 bg-[#4169B830] text-[#02318C] rounded-[8px] text-sm font-normal">Today's Deliveries: {todaysDeliveriesCount} deliveries</div>
-          <div className="px-5 py-2.5 bg-[#4169B830] text-[#02318C] rounded-[8px] text-sm font-normal flex items-center gap-2">Weather: ☀ Clear</div>
+          {/* <div className="px-5 py-2.5 bg-[#4169B830] text-[#02318C] rounded-[8px] text-sm font-normal flex items-center gap-2">Weather: ☀ Clear</div> */}
         </div>
 
         <FullCalendar
@@ -426,7 +488,13 @@ const DeliveryCalendarView: React.FC = () => {
           initialView="dayGridDay"
           initialDate={currentDate}
           headerToolbar={false}
-          dayHeaderFormat={activeView === "Week" ? { weekday: "short", day: "numeric", month: "short" } : { weekday: "long", month: "long", day: "numeric", year: "numeric" }}
+          dayHeaderFormat={
+            activeView === "Week"
+              ? { weekday: "short", day: "numeric", month: "short" }
+              : activeView === "Month"
+              ? { weekday: "long" }
+              : { weekday: "long", month: "long", day: "numeric", year: "numeric" }
+          }
           events={deliveries.map(d => ({
             id: d.id,
             title: d.title,
@@ -441,7 +509,7 @@ const DeliveryCalendarView: React.FC = () => {
         />
       </div>
 
-      <div className="bg-[#F8F9FA] rounded-[16px] border border-gray-100 p-6 md:p-8">
+      {/* <div className="bg-[#F8F9FA] rounded-[16px] border border-gray-100 p-6 md:p-8">
         <p className="text-sm font-bold text-[#212B36] mb-6">Status Legend</p>
         <div className="flex flex-wrap items-center gap-x-10 gap-y-4">
           {Object.entries(statusConfig).map(([status, config]) => (
@@ -451,7 +519,7 @@ const DeliveryCalendarView: React.FC = () => {
             </div>
           ))}
         </div>
-      </div>
+      </div> */}
 
       <SelectDateModal
         isOpen={isDatePickerOpen}
@@ -486,6 +554,30 @@ const DeliveryCalendarView: React.FC = () => {
         deliveryId={activeDeliveryId}
         onSubmit={handleRescheduleSubmit}
       />
+
+      <Modal isOpen={!!selectedDeliveryForModal} onClose={() => setSelectedDeliveryForModal(null)} hideHeader width="max-w-[1000px]">
+        <div className="p-4 md:p-6 space-y-6">
+          {selectedDeliveryForModal && (
+            <DeliveryCard
+              delivery={selectedDeliveryForModal}
+              onReschedule={(id) => {
+                setSelectedDeliveryForModal(null);
+                handleReschedule(id);
+              }}
+              onMarkDelivered={(id) => {
+                setSelectedDeliveryForModal(null);
+                handleMarkDelivered(id);
+              }}
+              onSendReminder={(id) => {
+                handleSendReminder(id);
+              }}
+              onViewDetails={() => {
+                setSelectedDeliveryForModal(null);
+              }}
+            />
+          )}
+        </div>
+      </Modal>
 
       <SuccessModal
         isLogoBottom={false}
