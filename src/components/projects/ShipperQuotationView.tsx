@@ -1,11 +1,19 @@
 import React, { useState, useMemo } from "react";
-import { Search, Filter } from "lucide-react";
-import { useGetShipperProjectsQuery } from "@/redux/api/shipperApi";
+import {
+  Search,
+  Filter,
+  Wrench,
+  ShieldCheck,
+  CircleDollarSign,
+  ChartSpline,
+} from "lucide-react";
+import { useGetShipperProjectsQuery, useGetShipperStatsQuery } from "@/redux/api/shipperApi";
 import ShipperProjectsTable from "./ShipperProjectsTable";
 import Pagination from "@/components/Pagination";
 import FilterDropdown from "../common_component/FilterDropdown";
 import TitleSubtitle from "../common_component/TitleSubtitle";
-import { getLeadProjectName } from "@/lib/utils";
+import { projectDisplayName } from "@/lib/utils";
+import StatCard from "@/components/ui/stat-card";
 
 const ShipperQuotationView: React.FC = () => {
   const [search, setSearch] = useState("");
@@ -14,6 +22,36 @@ const ShipperQuotationView: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
   const { data, isLoading, error } = useGetShipperProjectsQuery();
+  const { data: statsData, isLoading: statsLoading } = useGetShipperStatsQuery();
+
+  const stats = useMemo(() => {
+    return [
+      {
+        title: "Total files",
+        value: statsData ? `${statsData.totalFiles} Files` : "0 Files",
+        icon: <Wrench className="md:size-6 size-4 text-[#1E51A4]" />,
+        color: "bg-[#1E51A4]",
+      },
+      {
+        title: "Files received",
+        value: statsData ? `${statsData.filesReceived} Files` : "0 Files",
+        icon: <ShieldCheck className="md:size-6 size-4 text-[#3AB449]" />,
+        color: "bg-[#3AB449]",
+      },
+      {
+        title: "Orders sent",
+        value: statsData ? `${statsData.ordersSent} Files` : "0 Files",
+        icon: <CircleDollarSign className="md:size-6 size-4 text-[#EAB308]" />,
+        color: "bg-[#EAB308]",
+      },
+      {
+        title: "Revisions sent",
+        value: statsData ? `${statsData.revisionsSent} Files` : "0 Files",
+        icon: <ChartSpline className="md:size-6 size-4 text-[#FD8D5B]" />,
+        color: "bg-[#FD8D5B]",
+      },
+    ];
+  }, [statsData]);
 
   // Derived data
   const filtered = useMemo(() => {
@@ -24,7 +62,7 @@ const ShipperQuotationView: React.FC = () => {
       const q = search.toLowerCase();
       list = list.filter(
         (p) =>
-          getLeadProjectName(p).toLowerCase().includes(q) ||
+          projectDisplayName(p).toLowerCase().includes(q) ||
           p.projectId.toLowerCase().includes(q) ||
           p.jobId.toLowerCase().includes(q)
       );
@@ -63,7 +101,7 @@ const ShipperQuotationView: React.FC = () => {
         />
         <div className="p-10 text-center bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col items-center justify-center gap-4">
           <p className="font-semibold text-lg font-inter text-[#212B36]">
-            Error Loading Projects
+             Error Loading Projects
           </p>
           <p className="text-sm text-gray-500 font-inter max-w-md">
             Something went wrong while retrieving projects. Please try again later.
@@ -80,6 +118,20 @@ const ShipperQuotationView: React.FC = () => {
         title="Shipper Files"
         subtitle="Manage vendor shipment files and prepare for validation"
       />
+
+      {/* ── Stat Cards ─────────────────────────────────────────────── */}
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        {stats.map((stat, index) => (
+          <StatCard
+            key={index}
+            title={stat.title}
+            value={stat.value}
+            icon={stat.icon}
+            color={stat.color}
+            loading={statsLoading}
+          />
+        ))}
+      </div>
 
       {/* ── Search / Filter / Status bar ────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 justify-between">

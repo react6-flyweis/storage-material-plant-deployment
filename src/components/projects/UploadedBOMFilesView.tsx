@@ -18,7 +18,7 @@ import { UploadModal } from "./ProjectUploadModals";
 import FilterDropdown from "../common_component/FilterDropdown";
 import CommonCheckbox from "../common_component/CommonCheckbox";
 import CommonStatusBadge from "../common_component/CommonStatusBadge";
-import { cn, getLeadProjectName } from "@/lib/utils";
+import { cn, projectDisplayName } from "@/lib/utils";
 import PageWrapper from "../common_component/PageWrapper";
 
 import { useGetBOMProjectsQuery, type BOMProject } from "@/redux/api/projectApi";
@@ -61,7 +61,7 @@ const UploadedBOMFilesView: React.FC = () => {
   const projects = React.useMemo(() => {
     return (data?.projects || []).map((item) => ({
       ...item,
-      resolvedProjectName: getLeadProjectName(item),
+      resolvedProjectName: projectDisplayName(item),
     }));
   }, [data?.projects]);
   const total = data?.total || 0;

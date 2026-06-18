@@ -11,6 +11,9 @@ import {
 } from "@/redux/api/shipperApi";
 import { useGetPlantProjectDetailQuery } from "@/redux/api/projectApi";
 import QRCodeDataModal from "../QRCodeDataModal";
+import {
+  exportBundleListToCSV,
+} from "@/lib/exportUtils";
 
 interface QRData {
   id: string;
@@ -73,11 +76,20 @@ const BundlePlannerView: React.FC = () => {
 
   const actions: HeaderAction[] = [
     {
-      label: "Export Bundle Plan",
+      label: "Export Excel",
       variant: "white",
       className: "border-[#E2E4E6] text-[#212B36] font-bold text-sm px-5",
       icon: <Download size={18} className="mr-2" />,
-      onClick: () => { },
+      disabled: isLoading || !bundlePlanData,
+      onClick: () => {
+        const bpDetails = bundlePlanData?.bundlePlan;
+        const bundles = bundlePlanData?.bundles || [];
+        exportBundleListToCSV(
+          bundles,
+          projectDetail?.projectName || "N/A",
+          bpDetails?.planNumber || "N/A"
+        );
+      },
     },
     ...(!isConfirmed
       ? [
@@ -329,7 +341,7 @@ const BundlePlannerView: React.FC = () => {
                         {bundle.bundleType}
                       </td>
                       <td className="py-5 px-6 font-bold text-[#637381]">
-                        {bundle.itemCount} items
+                        {bundle.itemCount} {bundle.itemCount === 1 ? "item" : "items"}
                       </td>
                       <td className="py-5 px-6 font-bold text-[#637381]">
                         {Number(bundle.maxLengthFeet).toFixed(2)} ft
