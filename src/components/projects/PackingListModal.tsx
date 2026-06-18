@@ -189,9 +189,9 @@ const PackingListModal: React.FC<PackingListModalProps> = ({
                 { label: "Load ID", value: loadInfo.loadId },
                 { label: "Project", value: loadInfo.projectName },
                 { label: "Truck", value: loadInfo.truck },
-                { label: "Driver", value: loadInfo.driver || "-" },
-                { label: "Destination", value: loadInfo.destination || "-" },
-                { label: "Dispatch Date", value: loadInfo.dispatchDate || "-" },
+                // { label: "Driver", value: loadInfo.driver || "-" },
+                // { label: "Destination", value: loadInfo.destination || "-" },
+                // { label: "Dispatch Date", value: loadInfo.dispatchDate || "-" },
               ].map((item) => (
                 <div key={item.label} className="flex justify-between">
                   <span className="text-(--text-color-black) font-medium">
@@ -227,7 +227,7 @@ const PackingListModal: React.FC<PackingListModalProps> = ({
               </div>
             </div>
 
-            <div>
+            {/* <div>
               <SubHeading text="Loading Verification" />
               <div className="space-y-3 max-w-sm mt-3">
                 {verificationSteps.map((step) => (
@@ -243,7 +243,7 @@ const PackingListModal: React.FC<PackingListModalProps> = ({
                   </div>
                 ))}
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
 

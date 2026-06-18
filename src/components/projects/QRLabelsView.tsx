@@ -12,6 +12,7 @@ import {
 // import Button from "../common_component/Button";
 import TitleSubtitle from "../common_component/TitleSubtitle";
 import { useGetLoadPlanningProjectsQuery } from "@/redux/api/shipperApi";
+import { projectDisplayName } from "@/lib/utils";
 
 const QRLabelsView: React.FC = () => {
   const navigate = useNavigate();
@@ -189,7 +190,8 @@ const QRLabelsView: React.FC = () => {
                       onClick={() => navigate(`/load_planning/qr-labels/${item.projectId}`)}
                       className="p-3 md:p-4 text-sm font-inter text-[#212B36] font-semibold cursor-pointer hover:text-[#1E51A4] transition-colors"
                     >
-                      {item.projectName || "Untitled"}
+                      <div>{projectDisplayName(item)}</div>
+
                     </td>
                     <td className="p-3 md:p-4 text-sm font-inter text-[#637381]">
                       {formatDate(item.fileReceivedAt)}
@@ -250,8 +252,8 @@ const QRLabelsView: React.FC = () => {
                   key={page}
                   onClick={() => setCurrentPageProj(page)}
                   className={`w-8 h-8 rounded-full text-xs font-semibold font-inter flex items-center justify-center transition-all ${isActive
-                      ? "bg-[#FF7F27] text-white shadow-sm"
-                      : "text-gray-500 hover:bg-gray-50"
+                    ? "bg-[#FF7F27] text-white shadow-sm"
+                    : "text-gray-500 hover:bg-gray-50"
                     }`}
                 >
                   {page}

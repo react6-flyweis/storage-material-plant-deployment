@@ -12,6 +12,7 @@ import {
 // import Button from "../common_component/Button";
 import TitleSubtitle from "../common_component/TitleSubtitle";
 import { useGetPackingListProjectsQuery } from "@/redux/api/shipperApi";
+import { projectDisplayName } from "@/lib/utils";
 
 const PackingListView: React.FC = () => {
   const navigate = useNavigate();
@@ -158,7 +159,7 @@ const PackingListView: React.FC = () => {
                       className="p-3 md:p-4 text-sm font-inter text-[#212B36] font-semibold cursor-pointer hover:text-[#1E51A4] transition-colors"
                       onClick={() => navigate(`/load_planning/packing-list/${item.projectId}`)}
                     >
-                      {item.projectName || "Untitled"}
+                      <div>{projectDisplayName(item)}</div>
                     </td>
                     <td className="p-3 md:p-4 text-sm font-inter text-[#637381]">
                       {formatDate(item.listGeneratedAt)}
