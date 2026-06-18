@@ -67,7 +67,7 @@ const FreightRequestDetailsView: React.FC = () => {
     : "—";
 
   const deliveryPoc = delivery?.receivingPocDetails?.receivingPoc || delivery?.formDetails?.receivingPoc || "—";
-  
+
   const deliveryLocation = delivery?.formDetails?.deliveryLocation || delivery?.deliverySchedule?.dropoffAddress || "—";
 
   const [selectFreightBid, { isLoading: isSelectingBid }] = useSelectFreightBidMutation();
@@ -120,7 +120,7 @@ const FreightRequestDetailsView: React.FC = () => {
 
   const handleSuccessOk = () => {
     setIsSuccessModalOpen(false);
-    navigate(`/delivery/delivery-details/${awardedDeliveryId}`);
+    navigate(`/delivery/delivery-details/${projectId}`);
   };
 
   const tabs = [
@@ -144,8 +144,8 @@ const FreightRequestDetailsView: React.FC = () => {
       .map((bid) => ({
         type: "received",
         title: "Bid Received",
-        details: `${bid.carrierName} submitted bid: $${bid.bidAmount.toLocaleString()}`,
-        time: `${new Date(bid.submittedAt!).toLocaleString()} by System`,
+        details: `${bid.carrierName} submitted bid: $${bid.bidAmount?.toLocaleString()}`,
+        time: `${new Date(bid.submittedAt!)?.toLocaleString()} by System`,
       })),
   ];
 

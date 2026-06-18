@@ -134,8 +134,8 @@ const BidCard = ({ bid, rank, lowestBidAmount, onAward, onRequestRevision }: Bid
       {!isSent && status !== "rejected" && status !== "no_bid" && (
         <div className="flex flex-wrap gap-3 mt-5 md:ml-16">
           {isAwarded ? (
-            <span className="inline-flex items-center gap-2 bg-[#00A76F] text-white px-4 py-2.5 rounded-[8px] text-sm font-bold shadow-sm">
-              <Award size={16} strokeWidth={2.5} />
+            <span className="inline-flex items-center gap-2 bg-[#F4FBF7] text-[#27AE60] border border-[#27AE60]/20 px-4 py-2.5 rounded-[8px] text-sm font-bold shadow-sm">
+              <Award size={16} strokeWidth={2.5} className="text-[#27AE60]" />
               Awarded Load
             </span>
           ) : (
