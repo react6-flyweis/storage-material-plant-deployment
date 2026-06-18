@@ -1,4 +1,4 @@
-import { createApi } from "@reduxjs/toolkit/query/react";
+import { createApi } from "../utils/createApi";
 import type { ApiResponse } from "./apiResponse";
 import { baseQueryWithReauth } from "./baseQueryWithReauth";
 
@@ -39,6 +39,15 @@ export interface SmdtListResponse {
   categories: string[];
 }
 
+export interface SmdtStatsResponse {
+  activeVersion: ActiveVersion | null;
+  totalItems: number;
+  totalItemCost: number;
+  newlyAdded: number;
+  lastImportInserted: number;
+  lastImportUpdated: number;
+}
+
 export interface SmdtQueryParams {
   category?: string;
   isFrameType?: boolean | string;
@@ -70,6 +79,20 @@ export const costingApi = createApi({
         };
       },
     }),
+    getSmdtStats: builder.query<SmdtStatsResponse, void>({
+      query: () => "/api/smdt/stats",
+      providesTags: ["SmdtCostList"],
+      transformResponse: (response: ApiResponse<SmdtStatsResponse>) => {
+        return response.data ?? {
+          activeVersion: null,
+          totalItems: 0,
+          totalItemCost: 0,
+          newlyAdded: 0,
+          lastImportInserted: 0,
+          lastImportUpdated: 0,
+        };
+      },
+    }),
     addSmdtCostItem: builder.mutation<ApiResponse<SmdtItem>, Partial<SmdtItem>>({
       query: (body) => ({
         url: "/api/smdt",
@@ -91,6 +114,7 @@ export const costingApi = createApi({
 
 export const {
   useGetSmdtCostListQuery,
+  useGetSmdtStatsQuery,
   useAddSmdtCostItemMutation,
   useUpdateSmdtCostItemMutation,
 } = costingApi;

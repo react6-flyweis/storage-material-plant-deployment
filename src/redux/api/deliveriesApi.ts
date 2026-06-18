@@ -1,4 +1,4 @@
-import { createApi } from "@reduxjs/toolkit/query/react";
+import { createApi } from "../utils/createApi";
 import type { ApiResponse } from "./apiResponse";
 import { baseQueryWithReauth } from "./baseQueryWithReauth";
 

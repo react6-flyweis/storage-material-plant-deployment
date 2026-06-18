@@ -186,5 +186,31 @@ export function getLeadProjectName(
   return parts.join("-");
 }
 
+export const truncateMiddle = (str: string, maxLength = 24) => {
+  if (!str || str.length <= maxLength) return str;
+  const mid = Math.ceil((maxLength - 3) / 2);
+  return `${str.slice(0, mid)}...${str.slice(-mid)}`;
+};
+
+export function projectDisplayName(row?: {
+  projectName?: string;
+  customerName?: string;
+  buildingType?: string;
+  location?: string;
+  jobId?: string;
+  projectId?: string;
+} | null) {
+  if (!row) return "Unnamed project";
+  if (row.projectName?.trim()) return row.projectName.trim();
+  const parts = [
+    row.customerName?.trim(),
+    row.buildingType?.trim(),
+    row.location?.trim(),
+  ].filter(Boolean);
+  if (parts.length) return parts.join(" · ");
+  return row.jobId || row.projectId || "Unnamed project";
+}
+
+
 
 
