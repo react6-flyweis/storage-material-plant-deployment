@@ -6,7 +6,7 @@ import { createAdminSocket } from "@/lib/socket";
 import ProjectAssignedDialog from "@/components/ProjectAssignedDialog";
 import Modal from "@/components/Modal";
 import Button from "@/components/common_component/Button";
-import { FileSpreadsheet, Scale, FileText } from "lucide-react";
+import { FileSpreadsheet, Scale } from "lucide-react";
 
 interface ShipperFilePayload {
   leadId: string;
@@ -221,22 +221,6 @@ export default function GlobalSocketListener() {
               <h4 className="text-lg font-bold text-slate-900 leading-snug mb-3">
                 Completed Successfully
               </h4>
-              <div className="space-y-3 mt-2 pt-2 border-t border-blue-100/30 text-sm">
-                <div className="flex items-start gap-2">
-                  <FileText className="h-4 w-4 text-slate-400 mt-0.5 shrink-0" />
-                  <div>
-                    <div className="text-xs text-slate-500">Request ID</div>
-                    <div className="font-semibold text-slate-800 mt-0.5">{comparison.requestId}</div>
-                  </div>
-                </div>
-                <div className="flex items-start gap-2">
-                  <FileText className="h-4 w-4 text-slate-400 mt-0.5 shrink-0" />
-                  <div>
-                    <div className="text-xs text-slate-500">Job ID</div>
-                    <div className="font-semibold text-slate-800 mt-0.5">{comparison.jobId}</div>
-                  </div>
-                </div>
-              </div>
             </div>
           )}
 
