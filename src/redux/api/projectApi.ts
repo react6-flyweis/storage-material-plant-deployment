@@ -1,4 +1,4 @@
-import { createApi } from "@reduxjs/toolkit/query/react";
+import { createApi } from "../utils/createApi";
 
 import type { ApiResponse } from "./apiResponse";
 import { baseQueryWithReauth } from "./baseQueryWithReauth";
@@ -824,6 +824,9 @@ export interface BOMProject {
   leadId: string;
   projectId: string;
   projectName: string;
+  customerName?: string;
+  buildingType?: string;
+  location?: string;
   buildingId: string;
   buildingNumber: number;
   uploadDate: string;

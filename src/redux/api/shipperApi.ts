@@ -1,4 +1,4 @@
-import { createApi } from "@reduxjs/toolkit/query/react";
+import { createApi } from "../utils/createApi";
 import type { ApiResponse } from "./apiResponse";
 import { baseQueryWithReauth } from "./baseQueryWithReauth";
 
@@ -7,6 +7,9 @@ export interface ShipperProject {
   projectId: string;
   jobId: string;
   projectName: string;
+  customerName?: string;
+  buildingType?: string;
+  location?: string;
   totalShipperFiles: number;
   receivedShipperFiles: number;
   fileReceivedStatus: "all" | "partial" | "none" | string;
@@ -23,6 +26,9 @@ export interface LoadPlanningProject {
   projectId: string;
   jobId: string;
   projectName: string;
+  customerName?: string;
+  buildingType?: string;
+  location?: string;
   bundlePlanId: string;
   fileReceivedAt: string;
   totalLoadPlanning: number;
@@ -40,6 +46,9 @@ export interface PackingListProject {
   projectId: string;
   jobId: string;
   projectName: string;
+  customerName?: string;
+  buildingType?: string;
+  location?: string;
   packingListPlanId: string;
   listGeneratedAt: string;
   totalPackingList: number;
@@ -396,6 +405,13 @@ export interface ComparisonSummaryResponse {
   blockers: string[];
 }
 
+export interface ShipperStats {
+  totalFiles: number;
+  filesReceived: number;
+  ordersSent: number;
+  revisionsSent: number;
+}
+
 export const shipperApi = createApi({
   reducerPath: "shipperApi",
   baseQuery: baseQueryWithReauth,
@@ -716,6 +732,16 @@ export const shipperApi = createApi({
         return response.data;
       },
     }),
+    getShipperStats: builder.query<ShipperStats, void>({
+      query: () => "/api/plant/shipper-files/stats",
+      providesTags: ["ShipperRequests"],
+      transformResponse: (response: ApiResponse<ShipperStats>) => {
+        if (!response.data) {
+          throw new Error("No data returned from API");
+        }
+        return response.data;
+      },
+    }),
   }),
 });
 
@@ -729,7 +755,13 @@ export interface FreightAutofillResponse {
   };
   metalType: string;
   packageCount: number;
+  bundlePlan?: BundlePlan | null;
+  packingListPlan?: PackingListPlanDetail | null;
+  bundles?: BundleItem[];
+  packingLists?: PackingListEntry[];
 }
+
+
 
 export interface ConfirmTruckPlanResponse {
   packingListPlanId: string;
@@ -866,6 +898,23 @@ export interface GeneratePackingListPlanResponse {
   truckConfig: Record<string, TruckConfigEntry>;
 }
 
+export interface ProjectDetailForPackingList {
+  _id: string;
+  leadId: string;
+  projectId: string;
+  jobId: string;
+  projectName: string;
+  buildingType: string;
+  location: string;
+  lifecycleStatus: string;
+  customer?: {
+    _id: string;
+    customerId: string;
+    name: string;
+    email: string;
+  };
+}
+
 export interface GetPackingListPlanResponse {
   packingListPlan: PackingListPlanDetail & {
     project?: {
@@ -879,6 +928,7 @@ export interface GetPackingListPlanResponse {
       status: string;
     } | null;
   };
+  project?: ProjectDetailForPackingList;
   packingLists: PackingListEntry[];
   bundles: BundleItem[];
 }
@@ -907,4 +957,5 @@ export const {
   useEditBundleMutation,
   useGetComparisonSummaryQuery,
   usePollCompareJobsStatusMutation,
+  useGetShipperStatsQuery,
 } = shipperApi;
