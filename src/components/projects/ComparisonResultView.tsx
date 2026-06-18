@@ -8,6 +8,8 @@ import {
   useGetComparisonSummaryQuery,
   useApproveShipperRequestMutation,
   useRequestResubmitShipperRequestMutation,
+  type ComparisonResultItem,
+  type ComparisonPartItem,
 } from "@/redux/api/shipperApi";
 
 const ComparisonResultView: React.FC = () => {
@@ -19,6 +21,8 @@ const ComparisonResultView: React.FC = () => {
 
   const [isResubmitModalOpen, setIsResubmitModalOpen] = useState(false);
   const [resubmitNote, setResubmitNote] = useState("");
+
+  const [activeKpi, setActiveKpi] = useState<string | null>(null);
 
   const { data, isLoading, error } = useGetComparisonSummaryQuery(requestId || "", {
     skip: !requestId,
@@ -50,7 +54,7 @@ const ComparisonResultView: React.FC = () => {
     }
   };
 
-  const getFormattedDescription = (part: any) => {
+  const getFormattedDescription = (part: ComparisonPartItem | null) => {
     if (!part) return "No details available";
     const parts: string[] = [];
     if (part.description) {
@@ -151,13 +155,37 @@ const ComparisonResultView: React.FC = () => {
     );
   }
 
+  const totalCount = data.results?.length ?? 0;
+  const matchedCount = data.results?.filter((r: ComparisonResultItem) => r.status === "matched").length ?? 0;
+  const missingCount = data.results?.filter((r: ComparisonResultItem) => r.status === "missing_in_vendor_quote").length ?? 0;
+  const mismatchCount = data.results?.filter((r: ComparisonResultItem) =>
+    r.status !== "matched" &&
+    r.status !== "missing_in_vendor_quote" &&
+    r.status !== "extra_in_vendor_quote"
+  ).length ?? 0;
+  const extraCount = data.results?.filter((r: ComparisonResultItem) => r.status === "extra_in_vendor_quote").length ?? 0;
+
   const stats = [
-    { label: "Matched Items", value: data.summary?.matchedLines ?? 0, color: "bg-[#00D261]" },
-    { label: "Missing Items", value: data.summary?.missingItems ?? 0, color: "bg-[#F5B500]" },
-    { label: "Extra Items", value: data.summary?.extraItems ?? 0, color: "bg-[#FF6D00]" },
+    { id: "total", label: "Total Items", value: totalCount, color: "bg-[#1E51A4]" },
+    { id: "matched", label: "Matched Items", value: matchedCount, color: "bg-[#00D261]" },
+    { id: "missing", label: "Part Missing", value: missingCount, color: "bg-[#F5B500]" },
+    { id: "mismatch", label: "Not Match", value: mismatchCount, color: "bg-[#E11D48]" },
+    { id: "extra", label: "Extra Items", value: extraCount, color: "bg-[#FF6D00]" },
   ];
 
   const filteredResults = (data.results || []).filter((row) => {
+    if (activeKpi) {
+      const status = (row.status || "").toLowerCase();
+      if (activeKpi === "matched" && status !== "matched") return false;
+      if (activeKpi === "missing" && status !== "missing_in_vendor_quote") return false;
+      if (activeKpi === "extra" && status !== "extra_in_vendor_quote") return false;
+      if (activeKpi === "mismatch") {
+        if (status === "matched" || status === "missing_in_vendor_quote" || status === "extra_in_vendor_quote") {
+          return false;
+        }
+      }
+    }
+
     const q = searchQuery.toLowerCase();
     const partCode = (row.expected?.partCode || row.received?.partCode || "").toLowerCase();
     const reason = (row.reason || "").toLowerCase();
@@ -283,20 +311,27 @@ const ComparisonResultView: React.FC = () => {
       </div>
 
       {/* ── Stats Cards ───────────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 lg:gap-8 mb-8">
-        {stats.map((stat) => (
-          <div
-            key={stat.label}
-            className={`${stat.color} rounded-[10px] p-3 lg:p-6 flex items-center justify-between text-white shadow-sm`}
-          >
-            <span className="text-sm lg:text-lg font-inter font-normal">
-              {stat.label}
-            </span>
-            <span className="text-xl lg:text-3xl font-inter font-normal">
-              {stat.value}
-            </span>
-          </div>
-        ))}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 lg:gap-4 mb-8">
+        {stats.map((stat) => {
+          const isSelected = activeKpi === stat.id || (stat.id === "total" && activeKpi === null);
+          return (
+            <div
+              key={stat.id}
+              onClick={() => setActiveKpi(stat.id === "total" ? null : (activeKpi === stat.id ? null : stat.id))}
+              className={`${stat.color} rounded-[10px] p-3 lg:p-5 flex items-center justify-between text-white shadow-sm cursor-pointer border-2 ${isSelected
+                  ? "border-black shadow-md"
+                  : "border-transparent"
+                }`}
+            >
+              <span className="text-xs lg:text-sm font-inter font-semibold">
+                {stat.label}
+              </span>
+              <span className="text-lg lg:text-2xl font-inter font-bold">
+                {stat.value}
+              </span>
+            </div>
+          );
+        })}
       </div>
 
       {/* ── Search & Download ────────────────────────────────────────── */}

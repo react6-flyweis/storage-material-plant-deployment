@@ -118,7 +118,6 @@ const FreightLoadsView: React.FC = () => {
     { label: "Status", align: "text-center" },
     { label: "Actions", align: "text-center" },
     { label: "Load Size / Weight", align: "text-left" },
-    { label: "Delivery Link", align: "text-left" },
   ];
 
   const formatDate = (dateString?: string) => {
@@ -187,19 +186,18 @@ const FreightLoadsView: React.FC = () => {
                     {header.label}
                   </th>
                 ))}
-                <th className="p-2 md:p-4"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
               {isLoading ? (
                 <tr>
-                  <td colSpan={tableHeaders.length + 1} className="text-center py-8 text-gray-500">
+                  <td colSpan={tableHeaders.length} className="text-center py-8 text-gray-500">
                     Loading freight loads...
                   </td>
                 </tr>
               ) : !loadsData?.requests || loadsData.requests.length === 0 ? (
                 <tr>
-                  <td colSpan={tableHeaders.length + 1} className="text-center py-8 text-gray-500">
+                  <td colSpan={tableHeaders.length} className="text-center py-8 text-gray-500">
                     No freight loads found.
                   </td>
                 </tr>
@@ -210,12 +208,26 @@ const FreightLoadsView: React.FC = () => {
                       <div className="font-normal text-(--text-color-gray-5) text-sm">{item.deliveryNumber || item.requestId}</div>
                       <div className="text-xs font-normal text-[#101828] mt-0.5">Requested: {formatDate(item.createdAt)}</div>
                     </td>
-                    <td className="p-2 md:p-4 font-medium text-(--text-color-gray-5) text-sm">{item.project?.projectName || "-"}</td>
+                    <td className="p-2 md:p-4 font-medium text-(--text-color-gray-5) text-sm">
+                      <span className="block max-w-80 whitespace-normal wrap-break-word">
+                        {item.project?.projectName || "-"}
+                      </span>
+                    </td>
                     <td className="p-2 md:p-4 text-(--text-color-gray-4) text-sm max-w-[200px] truncate">{item.description || "-"}</td>
                     <td className="p-2 md:p-4 text-center">
-                      <div className="text-xs  font-normal text-(--text-color-gray-5)">{item.pickupLocation || "-"}</div>
-                      <div className="text-[#919EAB] text-xs py-0.5  font-normal">↓</div>
-                      <div className="text-xs  font-normal text-(--text-color-gray-5)">{item.deliveryLocation || "-"}</div>
+                      <div
+                        className="text-xs font-normal text-(--text-color-gray-5) max-w-[150px] truncate mx-auto"
+                        title={item.pickupLocation || undefined}
+                      >
+                        {item.pickupLocation || "-"}
+                      </div>
+                      <div className="text-[#919EAB] text-xs py-0.5 font-normal">↓</div>
+                      <div
+                        className="text-xs font-normal text-(--text-color-gray-5) max-w-[150px] truncate mx-auto"
+                        title={item.deliveryLocation || undefined}
+                      >
+                        {item.deliveryLocation || "-"}
+                      </div>
                     </td>
                     <td className="p-2 md:p-4">
                       <div className="text-xs text-[#637381] font-medium font-inter">Pickup: <span className="text-(--text-color-gray-5)  font-normal">{formatDate(item.pickupDate)}</span></div>
@@ -246,9 +258,6 @@ const FreightLoadsView: React.FC = () => {
                       <div className="text-[12px] font-medium text-[#637381]">
                         {item.loadSize?.packageCount ? `${item.loadSize.packageCount} packages` : ""}
                       </div>
-                    </td>
-                    <td className="p-2 md:p-4  font-normal text-(--text-color-gray-5) text-sm underline decoration-[#919EAB] underline-offset-4 cursor-pointer hover:text-[#1E51A4] transition-colors">
-                      {item.deliveryNumber || "-"}
                     </td>
                     {/* <td className="p-2 md:p-4">
                       <button className="text-[#919EAB] hover:text-(--text-color-gray-5) transition-colors p-2 rounded-full hover:bg-gray-100">

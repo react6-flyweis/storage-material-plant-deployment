@@ -15,6 +15,7 @@ import Button from "../common_component/Button";
 import { AwardLoadModal, AwardSuccessModal, RequestRevisionModal, RevisionSuccessModal } from "./AwardLoadModals";
 import FilterDropdown from "../common_component/FilterDropdown";
 import { useGetProjectFreightBidsQuery, useSelectFreightBidMutation, type FreightBidItem } from "@/redux/api/logisticsApi";
+import { useGetProjectDeliveryQuery } from "@/redux/api/deliveriesApi";
 
 import BidCard from "./BidCard";
 import FreightRequestDetailsTab from "./FreightRequestDetailsTab";
@@ -44,6 +45,30 @@ const FreightRequestDetailsView: React.FC = () => {
   const [sortBy, setSortBy] = useState("low");
   const [awardedDeliveryId, setAwardedDeliveryId] = useState<string>("");
   const [selectError, setSelectError] = useState<string>("");
+
+  const { data: projectDeliveryData } = useGetProjectDeliveryQuery(projectId || "", { skip: !projectId });
+  const delivery = projectDeliveryData?.delivery;
+
+  const formatDate = (dateStr?: string) => {
+    if (!dateStr) return "";
+    try {
+      return new Date(dateStr).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      });
+    } catch {
+      return dateStr;
+    }
+  };
+
+  const deliveryDateFormatted = delivery?.deliverySchedule?.deliveryDate || delivery?.formDetails?.deliveryDate
+    ? `${formatDate(delivery.deliverySchedule?.deliveryDate || delivery.formDetails?.deliveryDate)}${delivery.formDetails?.deliveryTime || delivery.deliverySchedule?.timeWindow ? ` (${delivery.formDetails?.deliveryTime || delivery.deliverySchedule?.timeWindow})` : ""}`
+    : "—";
+
+  const deliveryPoc = delivery?.receivingPocDetails?.receivingPoc || delivery?.formDetails?.receivingPoc || "—";
+  
+  const deliveryLocation = delivery?.formDetails?.deliveryLocation || delivery?.deliverySchedule?.dropoffAddress || "—";
 
   const [selectFreightBid, { isLoading: isSelectingBid }] = useSelectFreightBidMutation();
 
@@ -340,11 +365,11 @@ const FreightRequestDetailsView: React.FC = () => {
         onClose={() => setIsSuccessModalOpen(false)}
         onOk={handleSuccessOk}
         carrier={selectedCarrier}
-        projectName={bidsResponse?.projectName || "ABC Logistics Warehouse"}
+        projectName={bidsResponse?.projectName || "—"}
         deliveryId={awardedDeliveryId}
-        deliveryDate="04/04/2024 at 14:00"
-        poc="John Site Manager"
-        location="Construction Site, Austin, TX"
+        deliveryDate={deliveryDateFormatted}
+        poc={deliveryPoc}
+        location={deliveryLocation}
       />
 
       <RequestRevisionModal
