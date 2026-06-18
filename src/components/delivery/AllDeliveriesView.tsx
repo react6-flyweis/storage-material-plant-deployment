@@ -13,10 +13,9 @@ import {
   Check,
   ArrowUpDown,
   Phone,
-  Mail,
+
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { downloadFile } from "../../lib/utils";
 import TitleSubtitle from "../common_component/TitleSubtitle";
 import Button from "../common_component/Button";
 import CommonDropdown from "../common_component/CommonDropdown";
@@ -350,7 +349,7 @@ const AllDeliveriesView: React.FC = () => {
     { label: "Carrier", key: "Carrier", sortable: true },
     { label: "POC", key: "POC", sortable: false },
     {
-      label: "Delivery Date & Time Window",
+      label: "Delivery Date & Time",
       key: "DeliveryDate",
       sortable: true,
     },
@@ -408,9 +407,6 @@ const AllDeliveriesView: React.FC = () => {
             <Button
               variant="outlineGreen"
               size="sm"
-              onClick={() =>
-                downloadFile("/sample-data.csv", "deliveries_export.csv")
-              }
             >
               <Download className="mr-3 size-4 xl:size-5 text-[#00C853]" />{" "}
               Export CSV
@@ -629,7 +625,7 @@ const AllDeliveriesView: React.FC = () => {
                         navigate(`/delivery/delivery-details/${row.project?._id}`)
                       }
                     >
-                      <td className="p-3 md:p-5">
+                      <td className="px-4 py-2">
                         <div className="flex flex-col gap-1.5">
                           <span className="font-medium text-[#4A5565] text-sm">
                             {row.deliveryNumber || row.requestId}
@@ -641,52 +637,52 @@ const AllDeliveriesView: React.FC = () => {
                           </span>
                         </div>
                       </td>
-                      <td className="p-3 md:p-5">
+                      <td className="px-4 py-2">
                         <div
-                          className={`flex items-center gap-2 px-3 py-1.5 rounded-full w-fit ${getStatusColor(row.status)}`}
+                          className={`flex items-center gap-2 px-4 py-1 rounded-full w-fit ${getStatusColor(row.status)}`}
                         >
                           <StatusIcon size={14} />
                           <span className="text-xs font-medium">{formatStatusText(row.status)}</span>
                         </div>
                       </td>
                       {visibleColumns.Items && (
-                        <td className="p-3 md:p-5 max-w-[200px]">
-                          <span className="font-medium text-[#212B36] text-sm leading-snug block whitespace-normal">
-                            {(row as any).description || (row as any).item || "Delivery materials"}
+                        <td className="px-4 py-2">
+                          <span className="font-medium whitespace-nowrap text-[#212B36] text-sm leading-snug block">
+                            {row.description || row.item || "Delivery materials"}
                           </span>
                         </td>
                       )}
                       {visibleColumns.Project && (
-                        <td className="p-3 md:p-5">
-                          <span className="text-[#4A5565] font-medium text-sm">
+                        <td className="px-4 py-2">
+                          <span className="text-[#4A5565] font-medium text-sm whitespace-normal max-w-[200px] block">
                             {row.project?.projectName || "-"}
                           </span>
                         </td>
                       )}
                       {visibleColumns.Customer && (
-                        <td className="p-3 md:p-5">
+                        <td className="px-4 py-2">
                           <span className="text-[#4A5565] font-medium text-sm">
                             {row.customer?.name || "-"}
                           </span>
                         </td>
                       )}
                       {visibleColumns.Vendor && (
-                        <td className="p-3 md:p-5">
+                        <td className="px-4 py-2">
                           <span className="text-[#4A5565] font-medium text-sm">
                             {row.shipperVendor?.vendorName || "-"}
                           </span>
                         </td>
                       )}
                       {visibleColumns.Carrier && (
-                        <td className="p-3 md:p-5">
+                        <td className="px-4 py-2">
                           <span className="text-[#4A5565] font-medium text-sm">
                             {row.carrier?.carrierName || "-"}
                           </span>
                         </td>
                       )}
                       {visibleColumns.POC && (
-                        <td className="p-3 md:p-5">
-                          <div className="flex flex-col gap-1.5">
+                        <td className="px-4 py-2">
+                          <div className="flex  gap-1.5">
                             <span className="font-medium text-[#4A5565] text-sm truncate max-w-[120px]">
                               {row.poc?.receivingPoc || "-"}
                             </span>
@@ -702,7 +698,7 @@ const AllDeliveriesView: React.FC = () => {
                                   <Phone size={14} />
                                 </button>
                               )}
-                              {row.customer?.email && (
+                              {/* {row.customer?.email && (
                                 <button
                                   className="text-[#4A5565] hover:bg-blue-50 p-1 rounded-md transition-colors"
                                   onClick={(e) => {
@@ -712,37 +708,38 @@ const AllDeliveriesView: React.FC = () => {
                                 >
                                   <Mail size={14} />
                                 </button>
-                              )}
+                              )} */}
                             </div>
                           </div>
                         </td>
                       )}
                       {visibleColumns.DeliveryDate && (
-                        <td className="p-3 md:p-5">
-                          <div className="flex flex-col gap-1">
+                        <td className="px-4 py-2">
+                          <div className="flex  gap-1">
                             <span className="font-medium text-[#212B36] text-sm">
                               {formatDate(row.deliveryDate)}
                             </span>
-                            <span className="text-[#637381] text-xs font-normal">
+                            <span className="text-[#637381] text-sm font-normal">
                               {row.deliveryTime || "-"}
                             </span>
                           </div>
                         </td>
                       )}
                       {visibleColumns.Equipment && (
-                        <td className="p-3 md:p-5">
+                        <td className="px-4 py-2">
                           <span className="text-[#637381] font-medium text-sm whitespace-normal max-w-[150px] block">
                             {row.equipment ? row.equipment.join(", ") : "-"}
                           </span>
                         </td>
                       )}
                       {visibleColumns.Site && (
-                        <td className="p-3 md:p-5">
-                          <div className="flex flex-col gap-1">
-                            <span className="font-medium text-[#212B36] text-sm">
-                              {row.deliveryLocation || "-"}
-                            </span>
-                          </div>
+                        <td className="px-4 py-2 max-w-100">
+                          <span
+                            className="font-medium text-[#212B36] text-sm block truncate max-w-[180px]"
+                            title={row.deliveryLocation?.trim() || undefined}
+                          >
+                            {row.deliveryLocation?.trim() || "-"}
+                          </span>
                         </td>
                       )}
                     </tr>

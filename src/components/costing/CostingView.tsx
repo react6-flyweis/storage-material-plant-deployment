@@ -7,6 +7,8 @@ import {
   FileText,
   Upload,
   CirclePlus,
+  Check,
+  AlertCircle,
 } from "lucide-react";
 import Button from "../common_component/Button";
 import FilterDropdown from "../common_component/FilterDropdown";
@@ -18,9 +20,10 @@ import PartCostModal from "./PartCostModal";
 import CostingTable from "./CostingTable";
 import PageWrapper from "../common_component/PageWrapper";
 import Pagination from "../Pagination";
-import { useGetSmdtCostListQuery } from "@/redux/api/costingApi";
+import { useGetSmdtCostListQuery, useGetSmdtStatsQuery } from "@/redux/api/costingApi";
 import { CATEGORY_OPTIONS } from "@/constants/costing";
 import FreightStatCard from "../delivery/FreightStatCard";
+import { useAppSelector } from "@/redux/hooks";
 
 type SortKey = "partName" | "partColor" | "costUnit" | "mbsCost" | "currentMarketCost" | "description";
 
@@ -35,6 +38,7 @@ const SORT_OPTIONS = [
 
 const CostingView: React.FC = () => {
   const navigate = useNavigate();
+  const token = useAppSelector((state) => state.auth.accessToken);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -51,10 +55,54 @@ const CostingView: React.FC = () => {
 
   const [selectedRows, setSelectedRows] = useState<(string | number)[]>([]);
   const [quickSort, setQuickSort] = useState("latest");
+  const [isExporting, setIsExporting] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   // Pagination State
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(50);
+
+  const handleExport = async () => {
+    if (isExporting) return;
+    setIsExporting(true);
+    try {
+      const params = new URLSearchParams();
+      if (filterType) params.append("category", filterType);
+      if (searchTerm.trim()) params.append("search", searchTerm.trim());
+      // trailing slash remove
+      const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL || "").replace(/\/$/, "");
+      const url = `${apiBaseUrl}/api/smdt/export/excel?${params.toString()}`;
+
+      const res = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to export Excel file");
+      }
+
+      const blob = await res.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = downloadUrl;
+      link.setAttribute("download", "smdt-cost-list.xlsx");
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(downloadUrl);
+
+      setToastMessage("Excel exported successfully!");
+      setTimeout(() => setToastMessage(null), 3000);
+    } catch (error) {
+      console.error("Error exporting excel:", error);
+      setToastMessage("Error: Failed to export Excel list.");
+      setTimeout(() => setToastMessage(null), 3000);
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   // Fetch SMDT Cost list from active cost version
   const { data, isLoading } = useGetSmdtCostListQuery({
@@ -63,6 +111,9 @@ const CostingView: React.FC = () => {
     page,
     limit,
   });
+
+  // Fetch SMDT Stats
+  const { data: statsData, isLoading: isStatsLoading } = useGetSmdtStatsQuery();
 
   const items = data?.items ?? [];
 
@@ -155,16 +206,31 @@ const CostingView: React.FC = () => {
 
   return (
     <PageWrapper>
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div className={`fixed top-6 right-6 z-50 text-white font-semibold px-6 py-3.5 rounded-xl shadow-lg flex items-center gap-2 animate-bounce ${toastMessage.includes("Error:") ? "bg-red-500" : "bg-[#10B981]"
+          }`}>
+          {toastMessage.includes("Error:") ? <AlertCircle size={18} strokeWidth={3} /> : <Check size={18} strokeWidth={3} />}
+          {toastMessage}
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
         <TitleSubtitle title="Item Cost List" />
         <div className="flex flex-wrap items-center gap-2 ml-auto">
-          <Button variant="white" size="sm" className="gap-2">
-            <Upload size={16} /> Export
+          <Button
+            variant="white"
+            size="sm"
+            className="gap-2"
+            onClick={handleExport}
+            disabled={isExporting}
+          >
+            <Upload size={16} /> {isExporting ? "Exporting..." : "Export SMD list"}
           </Button>
-          <Button variant="grayFilled" size="sm" onClick={() => setIsModalOpen(true)}>
+          {/* <Button variant="grayFilled" size="sm" onClick={() => setIsModalOpen(true)}>
             <CirclePlus size={16} /> Check BOM Costing
-          </Button>
+          </Button> */}
           <Button variant="gradient" size="sm" onClick={handleAdd}>
             <CirclePlus size={16} /> Add New Item/Part Cost
           </Button>
@@ -175,19 +241,19 @@ const CostingView: React.FC = () => {
       <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-4">
         <FreightStatCard
           title="Total Item Cost"
-          value={"N/A"}
+          value={isStatsLoading ? "..." : `$${(statsData?.totalItemCost ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
           icon={DollarSign}
           gradient="linear-gradient(135deg, #2B7FFF 0%, #155DFC 100%)"
         />
         <FreightStatCard
           title="Total Items"
-          value={String(data?.total || 0)}
+          value={isStatsLoading ? "..." : (statsData?.totalItems ?? 0).toLocaleString()}
           icon={TrendingUp}
           gradient="linear-gradient(135deg, #22C55E 0%, #16A34A 100%)"
         />
         <FreightStatCard
           title="New Added"
-          value={"N/A"}
+          value={isStatsLoading ? "..." : (statsData?.newlyAdded ?? 0).toLocaleString()}
           icon={FileText}
           gradient="linear-gradient(135deg, #FF6900 0%, #F54900 100%)"
         />

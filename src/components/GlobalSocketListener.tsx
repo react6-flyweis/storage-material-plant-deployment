@@ -109,8 +109,10 @@ export default function GlobalSocketListener() {
   };
 
   const handleViewShipperQuotation = () => {
-    navigate("/load_planning/shipper-quotation");
-    setIsShipperFileOpen(false);
+    if (shipperFile) {
+      navigate(`/projects/${shipperFile.leadId}/shipper-files/${shipperFile.requestId}`);
+      setIsShipperFileOpen(false);
+    }
   };
 
   const handleViewComparisonResult = () => {
@@ -158,10 +160,10 @@ export default function GlobalSocketListener() {
                 {shipperFile.vendorName}
               </h4>
               <div className="grid grid-cols-2 gap-4 text-sm mt-2 pt-2 border-t border-emerald-100/30">
-                <div>
+                {/* <div>
                   <div className="text-xs text-slate-500">Request ID</div>
                   <div className="font-semibold text-slate-800 mt-0.5">{shipperFile.requestId}</div>
-                </div>
+                </div> */}
                 <div>
                   <div className="text-xs text-slate-500">Quote Value</div>
                   <div className="font-semibold text-slate-800 mt-0.5">
@@ -186,7 +188,7 @@ export default function GlobalSocketListener() {
               onClick={handleViewShipperQuotation}
               className="w-full sm:w-36 py-2 text-sm font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white"
             >
-              View Quotations
+              View Details
             </Button>
           </div>
         </div>
