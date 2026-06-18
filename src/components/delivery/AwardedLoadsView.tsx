@@ -121,10 +121,8 @@ const AwardedLoadsView: React.FC = () => {
     { label: "Status", align: "text-center" },
     { label: "Actions", align: "text-center" },
     { label: "Load Size / Weight", align: "text-left" },
-    { label: "Delivery Link", align: "text-left" },
     { label: "Internal Owner", align: "text-left" },
     // { label: "Freight Load ID", align: "text-left" },
-    { label: "Logs", align: "text-left" },
   ];
 
   return (
@@ -180,19 +178,18 @@ const AwardedLoadsView: React.FC = () => {
                     {header.label}
                   </th>
                 ))}
-                <th className="p-2 md:p-4"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
               {isLoading ? (
                 <tr>
-                  <td colSpan={tableHeaders.length + 1} className="text-center py-8 text-gray-500">
+                  <td colSpan={tableHeaders.length} className="text-center py-8 text-gray-500">
                     Loading awarded loads...
                   </td>
                 </tr>
               ) : !loadsData?.requests || loadsData.requests.length === 0 ? (
                 <tr>
-                  <td colSpan={tableHeaders.length + 1} className="text-center py-8 text-gray-500">
+                  <td colSpan={tableHeaders.length} className="text-center py-8 text-gray-500">
                     No awarded loads found.
                   </td>
                 </tr>
@@ -208,10 +205,24 @@ const AwardedLoadsView: React.FC = () => {
                         </span>
                       </div>
                     </td>
-                    <td className="p-2 md:p-4 font-medium text-(--text-color-gray-5) text-sm">{item.project?.projectName || "-"}</td>
+                    <td className="p-2 md:p-4 font-medium text-(--text-color-gray-5) text-sm">
+                      <span className="block max-w-80 whitespace-normal wrap-break-word">
+                        {item.project?.projectName || "-"}
+                      </span>
+                    </td>
                     <td className="p-2 md:p-4 text-(--text-color-gray-4) text-sm max-w-[200px] truncate">{item.description || "-"}</td>
-                    <td className="p-2 md:p-4 text-(--text-color-gray-5) text-sm">{item.pickupLocation || "-"}</td>
-                    <td className="p-2 md:p-4 text-(--text-color-gray-5) text-sm">{item.deliveryLocation || "-"}</td>
+                    <td
+                      className="p-2 md:p-4 text-(--text-color-gray-5) text-sm max-w-[150px] truncate"
+                      title={item.pickupLocation || undefined}
+                    >
+                      {item.pickupLocation || "-"}
+                    </td>
+                    <td
+                      className="p-2 md:p-4 text-(--text-color-gray-5) text-sm max-w-[150px] truncate"
+                      title={item.deliveryLocation || undefined}
+                    >
+                      {item.deliveryLocation || "-"}
+                    </td>
                     <td className="p-2 md:p-4">
                       <div className="text-xs text-[#637381] font-medium font-inter">Pickup: <span className="text-(--text-color-gray-5) font-normal">{formatDate(item.pickupDate)}</span></div>
                       <div className="text-xs text-[#637381] font-medium font-inter">Delivery: <span className="text-(--text-color-gray-5) font-normal">{formatDate(item.deliveryDate)}</span></div>
@@ -251,14 +262,8 @@ const AwardedLoadsView: React.FC = () => {
                         {item.loadSize?.packageCount ? `${item.loadSize.packageCount} packages` : ""}
                       </div>
                     </td>
-                    <td className="p-2 md:p-4 text-sm font-normal text-(--text-color-gray-5) underline decoration-[#919EAB] underline-offset-4 cursor-pointer hover:text-[#1E51A4] transition-colors">
-                      {item.deliveryNumber || "-"}
-                    </td>
                     <td className="p-2 md:p-4 text-sm text-(--text-color-gray-5)">{item.poc?.receivingPoc || "-"}</td>
                     {/* <td className="p-2 md:p-4 text-sm text-(--text-color-gray-5)">{item.requestId || "-"}</td> */}
-                    <td className="p-2 md:p-4 text-sm text-(--text-color-gray-4)">
-                      {item.remarks || "-"}
-                    </td>
                     {/* <td className="p-2 md:p-4">
                       <button className="text-[#919EAB] hover:text-(--text-color-gray-5) transition-colors p-2 rounded-full hover:bg-gray-100">
                         <MoreHorizontal size={20} />

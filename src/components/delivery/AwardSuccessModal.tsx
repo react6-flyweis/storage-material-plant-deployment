@@ -19,17 +19,17 @@ export const AwardSuccessModal: React.FC<AwardSuccessModalProps> = ({
   onClose,
   onOk,
   carrier,
-  projectName = "ABC Logistics Warehouse",
-  deliveryId = "DEL-0997",
-  deliveryDate = "04/04/2024 at 14:00",
-  poc = "John Site Manager",
-  location = "Construction Site, Austin, TX",
+  projectName = "",
+  deliveryId = "",
+  deliveryDate = "",
+  poc = "",
+  location = "",
 }) => {
   if (!isOpen) return null;
 
-  const carrierName = carrier?.carrier || "QuickFreight Solutions";
-  const carrierAmountHeader = carrier?.amount || "$2,850";
-  const carrierAmountDetail = carrier?.amount || "$2,840";
+  const carrierName = carrier?.carrierName || "";
+  const carrierAmountHeader = carrier?.bidAmount ? `$${carrier.bidAmount.toLocaleString()}` : "";
+  const carrierAmountDetail = carrier?.bidAmount ? `$${carrier.bidAmount.toLocaleString()}` : "";
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} hideHeader width="max-w-[540px]">

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Star, CheckCircle2, Award } from "lucide-react";
+import { CheckCircle2, Award } from "lucide-react";
 import Button from "../common_component/Button";
 import Modal from "../Modal";
 
@@ -77,21 +77,15 @@ export const AwardLoadModal: React.FC<AwardLoadModalProps> = ({
               Winning Carrier
             </p>
             <h3 className="text-base md:text-[22px] font-semibold text-[#212B36]">
-              {carrier?.carrier || "QuickFreight Solutions"}
+              {carrier?.carrierName || ""}
             </h3>
-            <div className="flex items-center gap-1.5 mt-1">
-              <Star size={16} className="text-[#FFAB00] fill-[#FFAB00]" />
-              <span className="text-[14px] font-normal text-[#212B36]">
-                {carrier?.rating || "4.8"} rating
-              </span>
-            </div>
           </div>
           <div className="text-right relative z-10">
             <p className="text-xs font-medium text-[#4A5565] mb-1">
               Award Amount
             </p>
             <p className="text-[26px] md:text-[36px] font-semibold md:font-bold text-[#00A76F] leading-none mb-1">
-              {carrier?.amount || "$2,850"}
+              {carrier?.bidAmount ? `$${carrier.bidAmount.toLocaleString()}` : ""}
             </p>
             <p className="text-[11px] font-semibold text-[#00A76F] uppercase tracking-[0.5px]">
               BEST RATE
@@ -105,7 +99,7 @@ export const AwardLoadModal: React.FC<AwardLoadModalProps> = ({
             active={sendEmail}
             onChange={() => setSendEmail(!sendEmail)}
             title="Send award confirmation email to carrier"
-            subtitle={`Notify QuickFreight Solutions that they've been awarded the load`}
+            subtitle={`Notify ${carrier?.carrierName || "carrier"} that they've been awarded the load`}
           />
           <Toggle
             active={autoCreate}
@@ -133,10 +127,10 @@ export const AwardLoadModal: React.FC<AwardLoadModalProps> = ({
             <p className="text-xs md:text-sm text-[#155DFC] font-normal leading-relaxed">
               This will finalize the freight request for{" "}
               <span className="font-normal">
-                {carrier?.carrier || "QuickFreight Solutions"}
+                {carrier?.carrierName || ""}
               </span>{" "}
               at{" "}
-              <span className="font-normal">{carrier?.amount || "$2,850"}</span>{" "}
+              <span className="font-normal">{carrier?.bidAmount ? `$${carrier.bidAmount.toLocaleString()}` : ""}</span>{" "}
               and trigger all selected automation workflows.
             </p>
           </div>
