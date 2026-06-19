@@ -14,7 +14,12 @@ import { useNavigate, useParams } from "react-router-dom";
 import Button from "../common_component/Button";
 import { AwardLoadModal, AwardSuccessModal, RequestRevisionModal, RevisionSuccessModal } from "./AwardLoadModals";
 import FilterDropdown from "../common_component/FilterDropdown";
-import { useGetProjectFreightBidsQuery, useSelectFreightBidMutation, type FreightBidItem } from "@/redux/api/logisticsApi";
+import {
+  useGetDeliveryFreightBidsQuery,
+  useSelectFreightBidMutation,
+  useRequestFreightBidRevisionMutation,
+  type FreightBidItem,
+} from "@/redux/api/logisticsApi";
 import { useGetProjectDeliveryQuery } from "@/redux/api/deliveriesApi";
 
 import BidCard from "./BidCard";
@@ -45,8 +50,9 @@ const FreightRequestDetailsView: React.FC = () => {
   const [sortBy, setSortBy] = useState("low");
   const [awardedDeliveryId, setAwardedDeliveryId] = useState<string>("");
   const [selectError, setSelectError] = useState<string>("");
+  const [revisionError, setRevisionError] = useState<string>("");
 
-  const { data: projectDeliveryData } = useGetProjectDeliveryQuery(projectId || "", { skip: !projectId });
+  const { data: projectDeliveryData, isLoading: isDeliveryLoading } = useGetProjectDeliveryQuery(projectId || "", { skip: !projectId });
   const delivery = projectDeliveryData?.delivery;
 
   const formatDate = (dateStr?: string) => {
@@ -71,12 +77,15 @@ const FreightRequestDetailsView: React.FC = () => {
   const deliveryLocation = delivery?.formDetails?.deliveryLocation || delivery?.deliverySchedule?.dropoffAddress || "—";
 
   const [selectFreightBid, { isLoading: isSelectingBid }] = useSelectFreightBidMutation();
+  const [requestFreightBidRevision, { isLoading: isRevisingBid }] = useRequestFreightBidRevisionMutation();
 
   const sortParam = sortBy === "low" ? "low_to_high" : "high_to_low";
-  const { data: bidsResponse, isLoading, error } = useGetProjectFreightBidsQuery(
-    { projectId: projectId ?? "", sort: sortParam },
-    { skip: !projectId }
+  const { data: bidsResponse, isLoading: isBidsLoading, error, refetch } = useGetDeliveryFreightBidsQuery(
+    { deliveryId: delivery?.deliveryId ?? "", sort: sortParam },
+    { skip: !delivery?.deliveryId }
   );
+
+  const isLoading = isDeliveryLoading || (delivery?.deliveryId ? isBidsLoading : false);
 
   const handleAwardClick = (bidId: string) => {
     const bid = bidsResponse?.bids?.find((bid) => bid.bidId === bidId);
@@ -90,6 +99,7 @@ const FreightRequestDetailsView: React.FC = () => {
     const bid = bidsResponse?.bids?.find((bid) => bid.bidId === bidId);
     if (!bid) return;
     setSelectedCarrier(bid);
+    setRevisionError("");
     setIsRevisionModalOpen(true);
   };
 
@@ -112,15 +122,38 @@ const FreightRequestDetailsView: React.FC = () => {
     }
   };
 
-  const handleConfirmRevision = (data: RevisionData) => {
-    setRevisionData(data);
-    setIsRevisionModalOpen(false);
-    setIsRevisionSuccessOpen(true);
+  const handleConfirmRevision = async (data: RevisionData) => {
+    if (!selectedCarrier?.bidId) {
+      setRevisionError("Invalid bid selection.");
+      return;
+    }
+    setRevisionError("");
+    try {
+      const cleanAmount = data.targetAmount.replace(/[^0-9.]/g, "");
+      const parsedAmount = cleanAmount ? Number(cleanAmount) : undefined;
+      const bidAmount = (parsedAmount !== undefined && !isNaN(parsedAmount)) ? parsedAmount : undefined;
+
+      await requestFreightBidRevision({
+        bidId: selectedCarrier.bidId,
+        body: { 
+          note: data.message,
+          bidAmount,
+        },
+      }).unwrap();
+      setRevisionData(data);
+      setIsRevisionModalOpen(false);
+      setIsRevisionSuccessOpen(true);
+      refetch();
+    } catch (err) {
+      const errorObj = err as { data?: { message?: string }; message?: string };
+      const errMsg = errorObj?.data?.message || errorObj?.message || "Failed to request revision. Please try again.";
+      setRevisionError(errMsg);
+    }
   };
 
   const handleSuccessOk = () => {
     setIsSuccessModalOpen(false);
-    navigate(`/delivery/delivery-details/${projectId}`);
+    navigate(`/delivery/delivery-details/${awardedDeliveryId || bidsResponse?.requestId}`);
   };
 
   const tabs = [
@@ -163,10 +196,10 @@ const FreightRequestDetailsView: React.FC = () => {
           <div>
             <h1 className="text-lg md:text-[25px] font-semibold text-[#212B36] tracking-tight">Freight Request Details</h1>
             <div className="flex items-center gap-2 mt-1">
-              <span className="text-[#2B7FFF] font-normal text-sm">
+              {/* <span className="text-[#2B7FFF] font-normal text-sm">
                 {bidsResponse?.requestId || ""}
               </span>
-              <span className="text-gray-400 text-xs">•</span>
+              <span className="text-gray-400 text-xs">•</span> */}
               <span className="text-[#637381] font-normal text-sm">
                 {bidsResponse?.projectName || "N/A"}
               </span>
@@ -289,8 +322,8 @@ const FreightRequestDetailsView: React.FC = () => {
               </div>
             )}
 
-            {activeTab === "Request Details" && (
-              <FreightRequestDetailsTab />
+            {activeTab === "Request Details" && bidsResponse?.requestId && (
+              <FreightRequestDetailsTab deliveryId={bidsResponse.requestId} />
             )}
 
             {activeTab === "Communication Log" && (
@@ -373,10 +406,13 @@ const FreightRequestDetailsView: React.FC = () => {
       />
 
       <RequestRevisionModal
+        key={selectedCarrier?.bidId || "revision-modal"}
         isOpen={isRevisionModalOpen}
         onClose={() => setIsRevisionModalOpen(false)}
         onConfirm={handleConfirmRevision}
         carrier={selectedCarrier}
+        isLoading={isRevisingBid}
+        error={revisionError}
       />
 
       <RevisionSuccessModal

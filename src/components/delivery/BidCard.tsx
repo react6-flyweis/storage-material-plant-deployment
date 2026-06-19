@@ -16,7 +16,7 @@ const BidCard = ({ bid, rank, lowestBidAmount, onAward, onRequestRevision }: Bid
   const isAwarded = bid.status === "selected";
 
   let diffText = "";
-  if (!isSent && !isRejected) {
+  if (!isSent && !isRejected && bid.bidAmount !== null && bid.bidAmount !== undefined) {
     if (bid.isLowest) {
       diffText = "Lowest Bid";
     } else if (lowestBidAmount > 0 && bid.bidAmount > lowestBidAmount) {
@@ -30,7 +30,14 @@ const BidCard = ({ bid, rank, lowestBidAmount, onAward, onRequestRevision }: Bid
   // const onTime = "89%";
   const submitted = bid.submittedAt ? new Date(bid.submittedAt).toLocaleDateString() : "Pending";
   // const transit = isSent || isRejected ? "—" : "1 day";
-  const amount = isSent ? "Pending" : isRejected ? "No Bid" : `$${bid.bidAmount?.toLocaleString()}`;
+  const isPending = bid.status === "sent" || bid.status === "resubmit_requested";
+  const amount = isPending
+    ? "Pending"
+    : isRejected
+      ? "No Bid"
+      : bid.bidAmount !== null && bid.bidAmount !== undefined
+        ? `$${bid.bidAmount.toLocaleString()}`
+        : "Pending";
   const notes = bid.carrierNote;
   const status = bid.status;
   const bidId = bid.bidId;
@@ -130,8 +137,32 @@ const BidCard = ({ bid, rank, lowestBidAmount, onAward, onRequestRevision }: Bid
         </div>
       )}
 
+      {/* Revision Info */}
+      {bid.status === "resubmit_requested" && (
+        <div className="mt-4 p-4 rounded-[12px] md:ml-16 bg-[#FFF9EC] border border-[#FFE2A3]/30 text-[#B76E00]">
+          <div className="flex flex-wrap justify-between items-center gap-2">
+            <p className="text-sm font-bold">Revision Requested</p>
+            {bid.resubmitRequestedAt && (
+              <span className="text-xs opacity-80">
+                {new Date(bid.resubmitRequestedAt).toLocaleString()}
+              </span>
+            )}
+          </div>
+          {(bid.plantNote || bid.resubmitNote) && (
+            <p className="text-sm font-normal mt-1">
+              Note: {bid.plantNote || bid.resubmitNote}
+            </p>
+          )}
+          {bid.resubmitCount !== undefined && bid.resubmitCount > 0 && (
+            <p className="text-xs opacity-60 mt-1 font-medium">
+              Revision request count: {bid.resubmitCount}
+            </p>
+          )}
+        </div>
+      )}
+
       {/* Action Buttons */}
-      {!isSent && status !== "rejected" && status !== "no_bid" && (
+      {!isSent && status !== "rejected" && status !== "no_bid" && (isAwarded || (bid.bidAmount !== null && bid.bidAmount !== undefined) || bid.canRequestResubmit !== false) && (
         <div className="flex flex-wrap gap-3 mt-5 md:ml-16">
           {isAwarded ? (
             <span className="inline-flex items-center gap-2 bg-[#F4FBF7] text-[#27AE60] border border-[#27AE60]/20 px-4 py-2.5 rounded-[8px] text-sm font-bold shadow-sm">
@@ -140,29 +171,24 @@ const BidCard = ({ bid, rank, lowestBidAmount, onAward, onRequestRevision }: Bid
             </span>
           ) : (
             <>
-              <button
-                onClick={() => onAward(bidId)}
-                className="flex items-center gap-2 bg-[#00A76F] hover:bg-[#008F5E] text-white px-4 py-2.5 rounded-[8px] text-sm font-bold shadow-sm transition-all"
-              >
-                <Award size={16} strokeWidth={2.5} />
-                Award Load
-              </button>
-              <button
-                onClick={() => onRequestRevision(bidId)}
-                className="flex items-center gap-2 bg-[#FF6900] hover:bg-[#e05c00] text-white px-4 py-2.5 rounded-[8px] text-sm font-bold shadow-sm transition-all"
-              >
-                <RotateCw size={16} strokeWidth={2.5} />
-                Request Revision
-              </button>
-              {/* <button
-                onClick={() => {
-                  console.log("Decline bid from:", carrier);
-                }}
-                className="flex items-center gap-2 bg-white border border-gray-200 hover:bg-gray-50 text-[#FF5630] px-4 py-2.5 rounded-[8px] text-sm font-bold shadow-sm transition-all"
-              >
-                <XCircle size={16} strokeWidth={2.5} />
-                Decline
-              </button> */}
+              {bid.bidAmount !== null && bid.bidAmount !== undefined && (
+                <button
+                  onClick={() => onAward(bidId)}
+                  className="flex items-center gap-2 bg-[#00A76F] hover:bg-[#008F5E] text-white px-4 py-2.5 rounded-[8px] text-sm font-bold shadow-sm transition-all"
+                >
+                  <Award size={16} strokeWidth={2.5} />
+                  Award Load
+                </button>
+              )}
+              {bid.canRequestResubmit !== false && (
+                <button
+                  onClick={() => onRequestRevision(bidId)}
+                  className="flex items-center gap-2 bg-[#FF6900] hover:bg-[#e05c00] text-white px-4 py-2.5 rounded-[8px] text-sm font-bold shadow-sm transition-all"
+                >
+                  <RotateCw size={16} strokeWidth={2.5} />
+                  Request Revision
+                </button>
+              )}
             </>
           )}
         </div>

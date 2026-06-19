@@ -1,7 +1,6 @@
 import React from "react";
 import { Package, Truck, MapPin, Clock } from "lucide-react";
-import { useParams } from "react-router-dom";
-import { useGetProjectDeliveryQuery } from "@/redux/api/deliveriesApi";
+import { useGetDeliveryDetailQuery } from "@/redux/api/deliveriesApi";
 
 interface DetailItemProps {
   label: string;
@@ -37,9 +36,12 @@ const formatDate = (dateStr?: string) => {
   }
 };
 
-export const FreightRequestDetailsTab: React.FC = () => {
-  const { projectId } = useParams();
-  const { data, isLoading } = useGetProjectDeliveryQuery(projectId || "", { skip: !projectId });
+interface FreightRequestDetailsTabProps {
+  deliveryId: string;
+}
+
+export const FreightRequestDetailsTab: React.FC<FreightRequestDetailsTabProps> = ({ deliveryId }) => {
+  const { data, isLoading } = useGetDeliveryDetailQuery(deliveryId, { skip: !deliveryId });
   const delivery = data?.delivery;
 
   if (isLoading) {
