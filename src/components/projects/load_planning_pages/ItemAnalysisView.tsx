@@ -31,7 +31,6 @@ const Step1ItemAnalysis: React.FC = () => {
   const isLoading = isLoadingRequests || (!!approvedRequest && isLoadingDoc);
 
   const handleAutoOptimize = async () => {
-    if (!approvedRequest?.requestId) return;
     setErrorMsg(null);
     try {
       await generateBundlePlan(approvedRequest.requestId).unwrap();
