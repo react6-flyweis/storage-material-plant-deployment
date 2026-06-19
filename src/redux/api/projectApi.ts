@@ -638,6 +638,16 @@ export const projectApi = createApi({
           limit: 20,
         },
     }),
+    getBOMStats: builder.query<BOMStats, void>({
+      query: () => "/api/plant/bom/stats",
+      transformResponse: (response: ApiResponse<BOMStats>) =>
+        response.data ?? {
+          totalBomFilesUploaded: 0,
+          pendingUploads: 0,
+          readyForShipper: 0,
+          issuesDetected: 0,
+        },
+    }),
     getBOMDetails: builder.query<
       BOMDetailsResponse,
       BOMDetailsQueryParams
@@ -939,6 +949,13 @@ export interface UpdateBOMItemPriceRequest {
   jobId?: string;
 }
 
+export interface BOMStats {
+  totalBomFilesUploaded: number;
+  pendingUploads: number;
+  readyForShipper: number;
+  issuesDetected: number;
+}
+
 export const {
   useGetProjectStatsQuery,
   useGetPlantProjectsQuery,
@@ -959,6 +976,7 @@ export const {
   useGenerateConsolidatedBOMMutation,
   useSendConsolidatedBOMMutation,
   useGetBOMProjectsQuery,
+  useGetBOMStatsQuery,
   useGetBOMDetailsQuery,
   useConfirmBuildingBOMMutation,
   useUpdateBOMItemPriceMutation,

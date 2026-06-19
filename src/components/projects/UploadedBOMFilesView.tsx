@@ -21,7 +21,7 @@ import CommonStatusBadge from "../common_component/CommonStatusBadge";
 import { cn, projectDisplayName } from "@/lib/utils";
 import PageWrapper from "../common_component/PageWrapper";
 
-import { useGetBOMProjectsQuery, type BOMProject } from "@/redux/api/projectApi";
+import { useGetBOMProjectsQuery, useGetBOMStatsQuery, type BOMProject } from "@/redux/api/projectApi";
 
 const formatDate = (dateString: string) => {
   try {
@@ -58,6 +58,8 @@ const UploadedBOMFilesView: React.FC = () => {
     limit: rowsPerPage,
   });
 
+  const { data: statsData } = useGetBOMStatsQuery();
+
   const projects = React.useMemo(() => {
     return (data?.projects || []).map((item) => ({
       ...item,
@@ -69,25 +71,25 @@ const UploadedBOMFilesView: React.FC = () => {
   const stats = [
     {
       title: "Total BOM Files",
-      value: `${total} Files`,
+      value: statsData?.totalBomFilesUploaded !== undefined ? `${statsData.totalBomFilesUploaded} Files` : "0 Files",
       color: "bg-[#1E51A4]",
       icon: <Hammer className="text-[#1E51A4]" size={18} />,
     },
     {
       title: "Pending Upload",
-      value: "N/A",
+      value: statsData?.pendingUploads !== undefined ? String(statsData.pendingUploads) : "0",
       color: "bg-[#3AB449]",
       icon: <ShieldCheck className="text-[#3AB449]" size={18} />,
     },
     {
       title: "Ready for Shipper",
-      value: "N/A",
+      value: statsData?.readyForShipper !== undefined ? String(statsData.readyForShipper) : "0",
       color: "bg-[#DCC426]",
       icon: <DollarSign className="text-[#DCC426]" size={18} />,
     },
     {
       title: "Issues Detected",
-      value: "N/A",
+      value: statsData?.issuesDetected !== undefined ? String(statsData.issuesDetected) : "0",
       color: "bg-[#FD8D5B]",
       icon: <BarChart3 className="text-[#FD8D5B]" size={18} />,
     },
