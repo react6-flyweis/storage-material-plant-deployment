@@ -158,6 +158,9 @@ const FreightRequestDetailsView = lazy(
 const DeliveryDetailsView = lazy(
   () => import("./components/delivery/DeliveryDetailsView"),
 );
+const MaterialDeliveryView = lazy(
+  () => import("./components/delivery/MaterialDeliveryView"),
+);
 const FreightLoadDetailsView = lazy(
   () => import("./components/delivery/FreightLoadDetailsView"),
 );
@@ -256,7 +259,7 @@ export const adminRoutes: RouteObject[] = [
           },
           {
             path: "/projects/:projectId/material-delivery",
-            element: <DeliveryDetailsView showQuickActions={false} />,
+            element: <MaterialDeliveryView />,
           },
           {
             path: "/projects/:projectId/material-delivery/edit",

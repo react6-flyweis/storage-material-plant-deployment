@@ -1,6 +1,6 @@
 import Modal from "@/components/Modal";
 import Button from "@/components/common_component/Button";
-import { ClipboardList, FileText } from "lucide-react";
+import { ClipboardList } from "lucide-react";
 
 interface ProjectAssignedPayload {
   leadId: string;
@@ -52,7 +52,7 @@ export default function ProjectAssignedDialog({
         </div>
 
         {/* Project Details Grid */}
-        <div className="space-y-4 mb-6 text-sm">
+        {/* <div className="space-y-4 mb-6 text-sm">
           <div className="flex items-start gap-2.5">
             <FileText className="h-4 w-4 text-slate-400 mt-0.5 shrink-0" />
             <div>
@@ -62,7 +62,7 @@ export default function ProjectAssignedDialog({
               </div>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Footer */}
         <div className="flex flex-col sm:flex-row sm:justify-end gap-2 border-t border-slate-100 pt-4 mt-6">
