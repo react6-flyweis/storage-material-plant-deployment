@@ -20,7 +20,7 @@ import {
   useRequestFreightBidRevisionMutation,
   type FreightBidItem,
 } from "@/redux/api/logisticsApi";
-import { useGetProjectDeliveryQuery } from "@/redux/api/deliveriesApi";
+import { useGetDeliveryDetailQuery } from "@/redux/api/deliveriesApi";
 
 import BidCard from "./BidCard";
 import FreightRequestDetailsTab from "./FreightRequestDetailsTab";
@@ -52,7 +52,7 @@ const FreightRequestDetailsView: React.FC = () => {
   const [selectError, setSelectError] = useState<string>("");
   const [revisionError, setRevisionError] = useState<string>("");
 
-  const { data: projectDeliveryData, isLoading: isDeliveryLoading } = useGetProjectDeliveryQuery(projectId || "", { skip: !projectId });
+  const { data: projectDeliveryData, isLoading: isDeliveryLoading } = useGetDeliveryDetailQuery(projectId || "", { skip: !projectId });
   const delivery = projectDeliveryData?.delivery;
 
   const formatDate = (dateStr?: string) => {

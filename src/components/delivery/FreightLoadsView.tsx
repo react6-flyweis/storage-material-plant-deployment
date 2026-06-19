@@ -246,7 +246,7 @@ const FreightLoadsView: React.FC = () => {
                       <Button
                         variant="white"
                         size="sm"
-                        onClick={() => navigate(`/delivery/freight-request/${item?.project?._id}/`)}
+                        onClick={() => navigate(`/delivery/freight-request/${item?.requestId}/`)}
                       >
                         <Eye size={16} className="mr-2" /> View
                       </Button>

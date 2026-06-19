@@ -1295,6 +1295,8 @@ const FreightSelectionView: React.FC = () => {
   const [pendingCarrierIds, setPendingCarrierIds] = useState<string[]>([]);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
+  const [sentRequestId, setSentRequestId] = useState<string | null>(null);
+
   const { data: deliveriesData, isLoading: isLoadingDeliveries } = useGetProjectDeliveriesListQuery(
     projectId || "",
     { skip: !projectId }
@@ -1438,19 +1440,26 @@ const FreightSelectionView: React.FC = () => {
         status: "active",
       };
 
-      if (!savedDeliveryId) {
+      let currentDeliveryId = savedDeliveryId;
+      if (!currentDeliveryId) {
         const res = (await createPlantDelivery(payload).unwrap()) as CreateDeliveryResponse;
         const createdId = res?.data?._id || res?._id;
         if (createdId) {
+          currentDeliveryId = createdId;
           setSavedDeliveryId(createdId);
         }
       }
 
-      await sendFreightBids({
+      const sendRes = (await sendFreightBids({
         projectId: projectId || "",
         carrierIds: pendingCarrierIds,
         bidDeadline: pendingFormData.bidDeadline ? new Date(pendingFormData.bidDeadline).toISOString() : new Date().toISOString(),
-      }).unwrap();
+      }).unwrap()) as any;
+
+      const targetId = sendRes?.requestId || sendRes?.deliveryId || sendRes?.data?.requestId || sendRes?.data?.deliveryId || currentDeliveryId;
+      if (targetId) {
+        setSentRequestId(targetId);
+      }
 
       setIsReviewModalOpen(false);
       setIsSentSuccessModalOpen(true);
@@ -1504,7 +1513,11 @@ const FreightSelectionView: React.FC = () => {
               </div>
 
               <button
-                onClick={() => navigate(`/delivery/freight-request/${projectId}`)}
+                onClick={() => {
+                  const activeDelivery = activeFreightDeliveries[0];
+                  const navId = activeDelivery?.requestId || activeDelivery?._id || projectId;
+                  navigate(`/delivery/freight-request/${navId}`);
+                }}
                 className="px-4 py-2 bg-[#1E51A4] hover:bg-[#123E84] text-white font-semibold rounded-md transition-all text-sm cursor-pointer flex items-center gap-2"
               >
                 <span>Go to Freight Request</span>
@@ -1629,8 +1642,9 @@ const FreightSelectionView: React.FC = () => {
         isOpen={isSentSuccessModalOpen}
         onClose={() => {
           setIsSentSuccessModalOpen(false);
-          if (projectId) {
-            navigate(`/delivery/freight-request/${projectId}`);
+          const navId = sentRequestId || savedDeliveryId || projectId;
+          if (navId) {
+            navigate(`/delivery/freight-request/${navId}`);
           }
         }}
         title={`Freight request sent to ${selectedCarriersCount} Carriers`}
