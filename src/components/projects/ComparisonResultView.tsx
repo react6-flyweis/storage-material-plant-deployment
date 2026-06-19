@@ -23,6 +23,7 @@ const ComparisonResultView: React.FC = () => {
   const [resubmitNote, setResubmitNote] = useState("");
 
   const [activeKpi, setActiveKpi] = useState<string | null>(null);
+  const [navigateOnClose, setNavigateOnClose] = useState<string | null>(null);
 
   const { data, isLoading, error } = useGetComparisonSummaryQuery(requestId || "", {
     skip: !requestId,
@@ -48,6 +49,7 @@ const ComparisonResultView: React.FC = () => {
       setIsResubmitModalOpen(false);
       setResubmitNote("");
       setSuccessTitle("Resubmit Request Sent Successfully");
+      setNavigateOnClose(`/projects/${data?.leadId}/shipper-files`);
       setIsSuccessModalOpen(true);
     } catch (err) {
       console.error("Failed to request resubmit:", err);
@@ -319,8 +321,8 @@ const ComparisonResultView: React.FC = () => {
               key={stat.id}
               onClick={() => setActiveKpi(stat.id === "total" ? null : (activeKpi === stat.id ? null : stat.id))}
               className={`${stat.color} rounded-[10px] p-3 lg:p-5 flex items-center justify-between text-white shadow-sm cursor-pointer border-2 ${isSelected
-                  ? "border-black shadow-md"
-                  : "border-transparent"
+                ? "border-black shadow-md"
+                : "border-transparent"
                 }`}
             >
               <span className="text-xs lg:text-sm font-inter font-semibold">
@@ -496,7 +498,13 @@ const ComparisonResultView: React.FC = () => {
       {/* Success Modal */}
       <SuccessModal
         isOpen={isSuccessModalOpen}
-        onClose={() => setIsSuccessModalOpen(false)}
+        onClose={() => {
+          setIsSuccessModalOpen(false);
+          if (navigateOnClose) {
+            navigate(navigateOnClose);
+            setNavigateOnClose(null);
+          }
+        }}
         title={successTitle}
       />
     </div>

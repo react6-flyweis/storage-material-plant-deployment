@@ -31,9 +31,10 @@ import {
   DeliveredSuccessModal
 } from "./DeliveryActionModals";
 import RescheduleDeliveryModal from "./RescheduleDeliveryModal";
-import { useGetProjectDeliveryQuery } from "@/redux/api/deliveriesApi";
+import { useGetDeliveryDetailQuery } from "@/redux/api/deliveriesApi";
 
 // --- Sub-components ---
+
 
 const formatStatusText = (status: string) => {
   if (!status) return "";
@@ -180,12 +181,12 @@ interface DeliveryDetailsViewProps {
 
 const DeliveryDetailsView: React.FC<DeliveryDetailsViewProps> = ({ showQuickActions = true }) => {
   const navigate = useNavigate();
-  const { id, projectId } = useParams();
-  const deliveryId = id || projectId || "";
+  const { id } = useParams();
+  const deliveryId = id || "";
   const [isEditing, setIsEditing] = useState(false);
 
   // Fetch project delivery details
-  const { data, isLoading } = useGetProjectDeliveryQuery(deliveryId);
+  const { data, isLoading } = useGetDeliveryDetailQuery(deliveryId);
   const delivery = data?.delivery;
 
   // Modal States
@@ -196,23 +197,115 @@ const DeliveryDetailsView: React.FC<DeliveryDetailsViewProps> = ({ showQuickActi
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <p className="text-[#6A7282] font-medium">Loading delivery details...</p>
+      <div className="xl:pr-5 px-2 pb-10 space-y-6 animate-pulse">
+        {/* Header Skeleton */}
+        <div className="flex flex-wrap md:items-center justify-between gap-4 mt-2">
+          <div className="flex items-center gap-4">
+            <div className="w-6 h-6 bg-gray-200 rounded-full" />
+            <div className="space-y-2">
+              <div className="h-6 w-32 bg-gray-200 rounded" />
+              <div className="h-4 w-48 bg-gray-200 rounded" />
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-28 bg-gray-200 rounded-lg" />
+            <div className="h-10 w-28 bg-gray-200 rounded-lg" />
+          </div>
+        </div>
+
+        {/* Main Layout Skeleton */}
+        <div className="grid grid-cols-1 xl:grid-cols-[1fr_320px] gap-3">
+          {/* Left Column */}
+          <div className="space-y-4">
+            {/* Delivery Overview Card */}
+            <div className="bg-white border border-gray-100 rounded-[14px] p-4 lg:p-6 shadow-xs">
+              <div className="h-5 w-40 bg-gray-200 rounded mb-6" />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-4 lg:gap-x-8 lg:gap-y-5">
+                {[...Array(5)].map((_, i) => (
+                  <div key={i} className="space-y-2">
+                    <div className="h-3 w-20 bg-gray-200 rounded" />
+                    <div className="h-4 w-3/4 bg-gray-200 rounded" />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Delivery Information Card */}
+            <div className="bg-white border border-gray-100 rounded-[14px] p-4 lg:p-6 shadow-xs">
+              <div className="h-5 w-40 bg-gray-200 rounded mb-6" />
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <div className="h-3 w-24 bg-gray-200 rounded" />
+                  <div className="h-4 w-full bg-gray-200 rounded" />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3">
+                  <div className="space-y-2">
+                    <div className="h-3 w-24 bg-gray-200 rounded" />
+                    <div className="h-4 w-1/2 bg-gray-200 rounded" />
+                  </div>
+                  <div className="space-y-2">
+                    <div className="h-3 w-24 bg-gray-200 rounded" />
+                    <div className="h-4 w-1/2 bg-gray-200 rounded" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Contact Cards Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="bg-white border border-gray-100 rounded-[14px] p-4 lg:p-6 shadow-sm space-y-4 h-[180px]">
+                  <div className="h-4 w-24 bg-gray-200 rounded" />
+                  <div className="flex items-center gap-2">
+                    <div className="w-5 h-5 bg-gray-200 rounded" />
+                    <div className="h-4 w-32 bg-gray-200 rounded" />
+                  </div>
+                  <div className="space-y-2">
+                    <div className="h-3 w-24 bg-gray-200 rounded" />
+                    <div className="h-3 w-36 bg-gray-200 rounded" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Right Column */}
+          <div className="space-y-6">
+            {/* POC Card */}
+            <div className="bg-white border border-gray-100 rounded-[14px] p-5 shadow-xs space-y-4">
+              <div className="h-4 w-44 bg-gray-200 rounded" />
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-gray-200" />
+                <div className="h-4 w-28 bg-gray-200 rounded" />
+              </div>
+              <div className="space-y-2">
+                <div className="h-3 w-36 bg-gray-200 rounded" />
+              </div>
+            </div>
+
+            {/* Quick Actions Card */}
+            <div className="bg-white border border-[#0000001A] rounded-[14px] p-5 shadow-sm space-y-4">
+              <div className="h-4 w-24 bg-gray-200 rounded mb-4" />
+              <div className="space-y-2">
+                {[...Array(6)].map((_, i) => (
+                  <div key={i} className="h-10 bg-gray-100 rounded-lg w-full" />
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
 
   if (!delivery) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] text-center p-8 bg-white border border-gray-100 rounded-[14px] shadow-sm max-w-md mx-auto my-12 font-inter">
-        <div className="w-16 h-16 bg-[#F4F6F8] rounded-full flex items-center justify-center mb-5 text-[#6A7282]">
-          <Truck size={32} />
-        </div>
+      <div className="flex flex-col items-center justify-center py-16 text-center p-8 bg-white border border-gray-100 rounded-[14px] shadow-sm my-12 font-inter">
         <h3 className="text-lg font-semibold text-[#212B36] mb-2">
           No Delivery Available
         </h3>
         <p className="text-sm text-[#6A7282] mb-6 max-w-xs leading-relaxed">
-          We couldn't find any delivery details for this project or delivery ID. Please verify the link or return back.
+          We couldn't find any delivery details for this project.
         </p>
         <Button
           variant="primary"

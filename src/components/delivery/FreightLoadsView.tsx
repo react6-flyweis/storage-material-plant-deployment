@@ -178,43 +178,43 @@ const FreightLoadsView: React.FC = () => {
       {/* Freight Loads Table */}
       <div className="bg-white rounded-[14px] overflow-hidden border border-gray-100 min-h-[400px] flex flex-col">
         <div className="overflow-x-auto flex-1">
-          <table className="w-full text-left border-collapse text-nowrap">
+          <table className="w-full text-left border-collapse border border-gray-200 text-nowrap">
             <thead>
-              <tr className="bg-[#F9FAFB] border-b border-gray-100">
+              <tr className="bg-[#F9FAFB] border-b border-gray-200">
                 {tableHeaders.map((header, idx) => (
-                  <th key={idx} className={`p-2 md:p-4 text-[#637381] font-normal text-xs md:text-sm tracking-wider uppercase ${header.align}`}>
+                  <th key={idx} className={`p-2 md:p-4 border border-gray-200 text-[#637381] font-normal text-xs md:text-sm tracking-wider uppercase ${header.align}`}>
                     {header.label}
                   </th>
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50">
+            <tbody className="divide-y divide-gray-200">
               {isLoading ? (
                 <tr>
-                  <td colSpan={tableHeaders.length} className="text-center py-8 text-gray-500">
+                  <td colSpan={tableHeaders.length} className="text-center py-8 text-gray-500 border border-gray-200">
                     Loading freight loads...
                   </td>
                 </tr>
               ) : !loadsData?.requests || loadsData.requests.length === 0 ? (
                 <tr>
-                  <td colSpan={tableHeaders.length} className="text-center py-8 text-gray-500">
+                  <td colSpan={tableHeaders.length} className="text-center py-8 text-gray-500 border border-gray-200">
                     No freight loads found.
                   </td>
                 </tr>
               ) : (
                 loadsData.requests.map((item, idx) => (
                   <tr key={item._id || idx} className="hover:bg-gray-50/50 transition-colors group">
-                    <td className="p-4">
+                    <td className="p-4 border border-gray-200">
                       <div className="font-normal text-(--text-color-gray-5) text-sm">{item.deliveryNumber || item.requestId}</div>
                       <div className="text-xs font-normal text-[#101828] mt-0.5">Requested: {formatDate(item.createdAt)}</div>
                     </td>
-                    <td className="p-2 md:p-4 font-medium text-(--text-color-gray-5) text-sm">
+                    <td className="p-2 md:p-4 border border-gray-200 font-medium text-(--text-color-gray-5) text-sm">
                       <span className="block max-w-80 whitespace-normal wrap-break-word">
                         {item.project?.projectName || "-"}
                       </span>
                     </td>
-                    <td className="p-2 md:p-4 text-(--text-color-gray-4) text-sm max-w-[200px] truncate">{item.description || "-"}</td>
-                    <td className="p-2 md:p-4 text-center">
+                    <td className="p-2 md:p-4 border border-gray-200 text-(--text-color-gray-4) text-sm max-w-[200px] truncate">{item.description || "-"}</td>
+                    <td className="p-2 md:p-4 border border-gray-200 text-center">
                       <div
                         className="text-xs font-normal text-(--text-color-gray-5) max-w-[150px] truncate mx-auto"
                         title={item.pickupLocation || undefined}
@@ -229,20 +229,20 @@ const FreightLoadsView: React.FC = () => {
                         {item.deliveryLocation || "-"}
                       </div>
                     </td>
-                    <td className="p-2 md:p-4">
+                    <td className="p-2 md:p-4 border border-gray-200">
                       <div className="text-xs text-[#637381] font-medium font-inter">Pickup: <span className="text-(--text-color-gray-5)  font-normal">{formatDate(item.pickupDate)}</span></div>
                       <div className="text-xs text-[#637381] font-medium font-inter">Delivery: <span className="text-(--text-color-gray-5)  font-normal">{formatDate(item.deliveryDate)}</span></div>
                     </td>
-                    <td className="p-2 md:p-4 font-normal text-(--text-color-gray-5) text-sm font-inter">
+                    <td className="p-2 md:p-4 border border-gray-200 font-normal text-(--text-color-gray-5) text-sm font-inter">
                       {item.awardedBidAmount ? formatCurrency(item.awardedBidAmount) : "-"}
                     </td>
-                    <td className="p-2 md:p-4 text-center">
+                    <td className="p-2 md:p-4 border border-gray-200 text-center">
                       <CommonStatusBadge
                         text={formatStatusText(item.status)}
                         variant={getBadgeVariant(item.status)}
                       />
                     </td>
-                    <td className="p-2 md:p-4 text-center">
+                    <td className="p-2 md:p-4 border border-gray-200 text-center">
                       <Button
                         variant="white"
                         size="sm"
@@ -251,7 +251,7 @@ const FreightLoadsView: React.FC = () => {
                         <Eye size={16} className="mr-2" /> View
                       </Button>
                     </td>
-                    <td className="p-2 md:p-4 font-inter">
+                    <td className="p-2 md:p-4 border border-gray-200 font-inter">
                       <div className="text-sm  font-normal text-(--text-color-gray-5)">
                         {item.loadSize?.weight ? `${new Intl.NumberFormat().format(item.loadSize.weight)} lbs` : "-"}
                       </div>
