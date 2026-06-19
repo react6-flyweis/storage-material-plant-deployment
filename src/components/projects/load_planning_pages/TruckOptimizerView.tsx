@@ -2,8 +2,7 @@ import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import LoadPlanningHeader, { type HeaderAction } from "./LoadPlanningHeader";
 import SubHeading from "../../common_component/SubHeading";
-import { useGetTruckPlanQuery, useConfirmTruckPlanMutation, useGetBundlePlanQuery } from "@/redux/api/shipperApi";
-import { useGetPlantProjectDetailQuery } from "@/redux/api/projectApi";
+import { useGetTruckPlanQuery, useConfirmTruckPlanMutation } from "@/redux/api/shipperApi";
 import CommonInfoList from "@/components/common_component/CommonInfoList";
 
 
@@ -11,16 +10,10 @@ const TruckOptimizerView: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
 
+
   const { data, isLoading, isError, error } = useGetTruckPlanQuery(projectId || "");
   const [confirmTruckPlan, { isLoading: isConfirming }] = useConfirmTruckPlanMutation();
   const [apiError, setApiError] = useState<string | null>(null);
-
-  const { data: projectDetail } = useGetPlantProjectDetailQuery(projectId || "");
-  const { data: bundlePlanData } = useGetBundlePlanQuery(projectId || "", {
-    skip: !projectId,
-  });
-
-  const bpDetails = bundlePlanData?.bundlePlan;
 
   const isConfirmed = data?.packingListPlan?.status === "confirmed";
 
@@ -170,27 +163,13 @@ const TruckOptimizerView: React.FC = () => {
     { label: "Average Load Utilization", value: `${averageLoadUtilization}%` },
   ];
 
-  const uniqueTruckConfigs = packingLists.reduce<Array<{ truckType: string; truckLabel: string; maxWeight: number; maxLength: number }>>((acc, current) => {
-    if (current.truckType && !acc.some(item => item.truckType === current.truckType)) {
-      acc.push({
-        truckType: current.truckType,
-        truckLabel: current.truckLabel || current.truckType,
-        maxWeight: current.maxTruckWeight,
-        maxLength: current.maxTruckLengthFeet,
-      });
-    }
-    return acc;
-  }, []);
+  const truckSummary = data.summary?.truckSummary;
+  const truckSummaryItems = [
+    { label: "53' Semi Truck Count", value: (truckSummary?.semi53Count ?? 0).toString() },
+    { label: "40' Hotshot Count", value: (truckSummary?.hotshot40Count ?? 0).toString() },
+    { label: "Total Trucks", value: (truckSummary?.totalTrucks ?? 0).toString() },
+  ];
 
-  const truckConfig = uniqueTruckConfigs.length > 0
-    ? uniqueTruckConfigs.flatMap((config) => [
-      { label: `${config.truckLabel} Max Weight`, value: `${config.maxWeight.toLocaleString()} LBS` },
-      { label: `${config.truckLabel} Max Length`, value: `${config.maxLength} FT` },
-    ])
-    : [
-      { label: "Max Truck Weight", value: "N/A" },
-      { label: "Max Truck Length", value: "N/A" },
-    ];
 
 
   return (
@@ -213,10 +192,10 @@ const TruckOptimizerView: React.FC = () => {
             {/* Project header */}
             <div className="bg-[#F8F9FB] rounded-xl p-4 border border-gray-100">
               <CommonInfoList
-                title={`Project: ${projectDetail?.projectName || "N/A"} | Upload ID: ${bpDetails?.planNumber || "-"}`}
+                title={`Project: ${data?.project?.projectName || "N/A"} | Packing Plan ID: ${data?.packingListPlan?.planNumber || "-"}`}
                 items={[
-                  { label: "Project ID", value: projectDetail?.projectId || "" },
-                  { label: "Upload Id", value: bpDetails?.planNumber || "" },
+                  { label: "Project ID", value: data?.project?.projectId || "" },
+                  { label: "Packing Plan Id", value: data?.packingListPlan?.planNumber || "-" },
                   // { label: "Shipper Refrence", value: bpDetails?.shipperRequestId || "" },
                   // { label: "Vendor", value: bpDetails?.generatedBy || "" },
                 ]}
@@ -242,9 +221,9 @@ const TruckOptimizerView: React.FC = () => {
                 </div>
               </div>
               <div className="space-y-4 max-w-lg">
-                <SubHeading text="Truck Configuration Settings" />
+                <SubHeading text="Truck Summary" />
                 <div className="space-y-3">
-                  {truckConfig.map((item, idx) => (
+                  {truckSummaryItems.map((item, idx) => (
                     <div
                       key={idx}
                       className="flex justify-between items-center text-sm md:text-base font-inter"
@@ -296,7 +275,7 @@ const TruckOptimizerView: React.FC = () => {
                             {row.totalWeight} LBS
                           </td>
                           <td className="py-6 px-6 font-normal text-[#637381]">
-                            {utilVal > 0 ? `${utilVal}%` : "N/A"}
+                            {utilVal > 0 ? `${utilVal}%` : "-"}
                           </td>
                           <td className="py-6 px-6 font-normal text-[#637381] capitalize">
                             {row.status || "Ready"}
@@ -321,7 +300,7 @@ const TruckOptimizerView: React.FC = () => {
               </div>
             </div>
 
-            <div className="space-y-6 pt-4">
+            {/* <div className="space-y-6 pt-4">
               {packingLists.map((item, idx) => (
                 <div key={item._id || idx} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <div className="space-y-2">
@@ -348,7 +327,7 @@ const TruckOptimizerView: React.FC = () => {
                   </div>
                 </div>
               ))}
-            </div>
+            </div> */}
           </div>
         )}
       </div>

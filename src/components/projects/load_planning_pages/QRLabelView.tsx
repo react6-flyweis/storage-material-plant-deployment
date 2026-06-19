@@ -20,8 +20,8 @@ const Step5QRLabel: React.FC<Step5QRLabelProps> = ({
   truckPlan,
   stateData,
 }) => {
-  const projectName = stateData?.project?.projectName || "N/A";
-  const planNumber = stateData?.bundlePlan?.planNumber || "N/A";
+  const projectName = truckPlan?.project?.projectName || "N/A";
+  const planNumber = truckPlan?.packingListPlan?.planNumber || "N/A";
   const totalBundles = stateData?.bundleSummary?.totalBundles ?? truckPlan.summary.totalBundles ?? 0;
   const totalWeight = stateData?.bundleSummary?.totalWeight ?? truckPlan.summary.totalWeight ?? 0;
 
@@ -29,10 +29,10 @@ const Step5QRLabel: React.FC<Step5QRLabelProps> = ({
     <div className="space-y-8 bg-white rounded-xl border border-gray-100 shadow-sm p-4 md:p-8">
       {/* Project Header Card */}
       <CommonInfoList
-        title={`Project: ${projectName} | Shipper Ref: ${planNumber}`}
+        title={`Project: ${projectName} | Packing Plan: ${planNumber}`}
         items={[
           { label: "Project", value: projectName },
-          { label: "Upload ID", value: planNumber },
+          { label: "Packing List Plan ID", value: planNumber },
           { label: "Bundles Created", value: totalBundles.toString() },
           { label: "Total Weight", value: `${totalWeight.toLocaleString()} LBS` },
         ]}
@@ -219,8 +219,8 @@ const QRLabelView: React.FC = () => {
         }}
         packingList={selectedPackingList}
         bundles={stateData?.bundles}
-        projectName={stateData?.project?.projectName}
-        planNumber={stateData?.bundlePlan?.planNumber}
+        projectName={truckPlan?.project?.projectName}
+        planNumber={truckPlan?.packingListPlan?.planNumber}
         planId={truckPlan?.packingListPlan?._id}
       />
     </div>
