@@ -6,7 +6,7 @@ import { createAdminSocket } from "@/lib/socket";
 import ProjectAssignedDialog from "@/components/ProjectAssignedDialog";
 import Modal from "@/components/Modal";
 import Button from "@/components/common_component/Button";
-import { FileSpreadsheet, Scale } from "lucide-react";
+import { FileSpreadsheet, Scale, Truck } from "lucide-react";
 
 interface ShipperFilePayload {
   leadId: string;
@@ -24,6 +24,19 @@ interface ShipperComparisonPayload {
   vendorId: string;
 }
 
+interface FreightBidSubmittedPayload {
+  leadId: string;
+  deliveryId: string;
+  deliveryNumber: string;
+  bidId: string;
+  carrierId: string;
+  carrierName: string;
+  submittedAt: string;
+  quotedAmount: number;
+  projectName: string;
+  jobId: string;
+}
+
 export default function GlobalSocketListener() {
   const navigate = useNavigate();
   const accessToken = useAppSelector((state: RootState) => state.auth.accessToken);
@@ -37,6 +50,9 @@ export default function GlobalSocketListener() {
 
   const [comparison, setComparison] = useState<ShipperComparisonPayload | null>(null);
   const [isComparisonOpen, setIsComparisonOpen] = useState(false);
+
+  const [freightBid, setFreightBid] = useState<FreightBidSubmittedPayload | null>(null);
+  const [isFreightBidOpen, setIsFreightBidOpen] = useState(false);
 
   useEffect(() => {
     if (!accessToken) return;
@@ -96,6 +112,14 @@ export default function GlobalSocketListener() {
       window.dispatchEvent(new CustomEvent("socket_shipper_comparison_failed", { detail: data }));
     });
 
+    // 8. freight_bid_submitted
+    socket.on("freight_bid_submitted", (data: FreightBidSubmittedPayload) => {
+      console.log("socket event: freight_bid_submitted", data);
+      setFreightBid(data);
+      setIsFreightBidOpen(true);
+      window.dispatchEvent(new CustomEvent("socket_freight_bid_submitted", { detail: data }));
+    });
+
     return () => {
       socket.disconnect();
     };
@@ -119,6 +143,13 @@ export default function GlobalSocketListener() {
     if (comparison) {
       navigate(`/load_planning/${comparison.requestId}/comparison-result`);
       setIsComparisonOpen(false);
+    }
+  };
+
+  const handleViewFreightRequest = () => {
+    if (freightBid) {
+      navigate(`/delivery/freight-request/${freightBid.deliveryId}`);
+      setIsFreightBidOpen(false);
     }
   };
 
@@ -243,6 +274,77 @@ export default function GlobalSocketListener() {
           </div>
         </div>
       </Modal>
+
+      {/* 4. Freight Bid Submitted Modal */}
+      <Modal isOpen={isFreightBidOpen} onClose={() => setIsFreightBidOpen(false)} hideHeader={true} width="max-w-md">
+        <div className="p-4 text-left">
+          {/* Header */}
+          <div className="flex items-center gap-4 border-b border-slate-100 pb-4 mb-4">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-600">
+              <Truck className="h-6 w-6" />
+            </div>
+            <div>
+              <h3 className="text-xl font-semibold text-slate-900">
+                New Freight Bid Submitted
+              </h3>
+              <p className="text-sm text-slate-500">
+                A carrier has submitted a new bid for a delivery
+              </p>
+            </div>
+          </div>
+
+          {/* Details Card */}
+          {freightBid && (
+            <div className="mb-5 bg-linear-to-br from-blue-50 to-indigo-50/50 p-4 rounded-xl border border-blue-100/50">
+              <div className="text-xs font-semibold text-blue-600 uppercase tracking-wider mb-1">
+                Project Name
+              </div>
+              <h4 className="text-lg font-bold text-slate-900 leading-snug mb-3">
+                {freightBid.projectName}
+              </h4>
+              <div className="grid grid-cols-2 gap-4 text-sm mt-2 pt-2 border-t border-blue-100/30">
+                <div>
+                  <div className="text-xs text-slate-500">Carrier</div>
+                  <div className="font-semibold text-slate-800 mt-0.5">
+                    {freightBid.carrierName}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-xs text-slate-500">Quoted Amount</div>
+                  <div className="font-semibold text-slate-800 mt-0.5">
+                    ${freightBid.quotedAmount ? freightBid.quotedAmount.toLocaleString() : "0"}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-xs text-slate-500">Delivery Number</div>
+                  <div className="font-semibold text-slate-800 mt-0.5">
+                    {freightBid.deliveryNumber}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Footer */}
+          <div className="flex flex-col sm:flex-row sm:justify-end gap-2 border-t border-slate-100 pt-4 mt-6">
+            <Button
+              variant="outline"
+              onClick={() => setIsFreightBidOpen(false)}
+              className="w-full sm:w-28 py-2 text-sm font-semibold rounded-lg text-slate-600 hover:bg-slate-50"
+            >
+              Dismiss
+            </Button>
+            <Button
+              variant="blueFilled"
+              onClick={handleViewFreightRequest}
+              className="w-full sm:w-36 py-2 text-sm font-semibold rounded-lg bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              View Bid
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
     </>
   );
 }
