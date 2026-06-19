@@ -567,9 +567,9 @@ const AllDeliveriesView: React.FC = () => {
       {/* Deliveries Table */}
       <div className="bg-white rounded-[14px] overflow-hidden border border-gray-100 shadow-xs flex flex-col min-h-[500px]">
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse text-nowrap">
+          <table className="w-full text-left border-collapse border border-gray-200 text-nowrap">
             <thead className="bg-[linear-gradient(90deg,_#DBEAFE_0%,_#F3E8FF_100%)]">
-              <tr className="border-b border-blue-100">
+              <tr className="border-b border-gray-200">
                 {tableHeaders.map(
                   (header) =>
                     (header.key === "ID" ||
@@ -578,7 +578,7 @@ const AllDeliveriesView: React.FC = () => {
                       visibleColumns[header.key]) && (
                       <th
                         key={header.key}
-                        className={`px-6 py-5 text-[#212B36] font-semibold text-sm tracking-tight ${header.sortable ? "cursor-pointer select-none hover:bg-black/5 transition-colors" : ""}`}
+                        className={`px-6 py-5 border border-gray-200 text-[#212B36] font-semibold text-sm tracking-tight ${header.sortable ? "cursor-pointer select-none hover:bg-black/5 transition-colors" : ""} ${header.key === "Equipment" ? "whitespace-normal min-w-[130px] max-w-[150px]" : ""} ${header.key === "Items" ? "whitespace-normal min-w-[280px] max-w-[350px]" : ""} ${header.key === "Site" ? "whitespace-normal min-w-[250px] max-w-[300px]" : ""}`}
                         onClick={() =>
                           header.sortable && handleSort(header.key)
                         }
@@ -598,16 +598,16 @@ const AllDeliveriesView: React.FC = () => {
                 )}
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50">
+            <tbody className="divide-y divide-gray-200">
               {isLoading ? (
                 <tr>
-                  <td colSpan={tableHeaders.length} className="text-center py-8 text-gray-500">
+                  <td colSpan={tableHeaders.length} className="text-center py-8 text-gray-500 border border-gray-200">
                     Loading deliveries...
                   </td>
                 </tr>
               ) : sortedData.length === 0 ? (
                 <tr>
-                  <td colSpan={tableHeaders.length} className="text-center py-8 text-gray-500">
+                  <td colSpan={tableHeaders.length} className="text-center py-8 text-gray-500 border border-gray-200">
                     No deliveries found.
                   </td>
                 </tr>
@@ -622,10 +622,10 @@ const AllDeliveriesView: React.FC = () => {
                       key={row._id || idx}
                       className="hover:bg-gray-50/50 transition-colors group cursor-pointer"
                       onClick={() =>
-                        navigate(`/delivery/delivery-details/${row.project?._id}`)
+                        navigate(`/delivery/delivery-details/${row.requestId || row._id}`)
                       }
                     >
-                      <td className="px-4 py-2">
+                      <td className="px-4 py-2 border border-gray-200">
                         <div className="flex flex-col gap-1.5">
                           <span className="font-medium text-[#4A5565] text-sm">
                             {row.deliveryNumber || row.requestId}
@@ -637,7 +637,7 @@ const AllDeliveriesView: React.FC = () => {
                           </span>
                         </div>
                       </td>
-                      <td className="px-4 py-2">
+                      <td className="px-4 py-2 border border-gray-200">
                         <div
                           className={`flex items-center gap-2 px-4 py-1 rounded-full w-fit ${getStatusColor(row.status)}`}
                         >
@@ -646,42 +646,50 @@ const AllDeliveriesView: React.FC = () => {
                         </div>
                       </td>
                       {visibleColumns.Items && (
-                        <td className="px-4 py-2">
-                          <span className="font-medium whitespace-nowrap text-[#212B36] text-sm leading-snug block">
+                        <td className="px-4 py-2 border border-gray-200 min-w-[280px] max-w-[330px] whitespace-normal">
+                          <span
+                            className="font-medium whitespace-normal text-[#212B36] text-sm leading-snug"
+                            style={{
+                              display: "-webkit-box",
+                              WebkitLineClamp: 2,
+                              WebkitBoxOrient: "vertical",
+                              overflow: "hidden",
+                            }}
+                          >
                             {row.description || row.item || "Delivery materials"}
                           </span>
                         </td>
                       )}
                       {visibleColumns.Project && (
-                        <td className="px-4 py-2">
+                        <td className="px-4 py-2 border border-gray-200">
                           <span className="text-[#4A5565] font-medium text-sm whitespace-normal max-w-[200px] block">
                             {row.project?.projectName || "-"}
                           </span>
                         </td>
                       )}
                       {visibleColumns.Customer && (
-                        <td className="px-4 py-2">
+                        <td className="px-4 py-2 border border-gray-200">
                           <span className="text-[#4A5565] font-medium text-sm">
                             {row.customer?.name || "-"}
                           </span>
                         </td>
                       )}
                       {visibleColumns.Vendor && (
-                        <td className="px-4 py-2">
+                        <td className="px-4 py-2 border border-gray-200">
                           <span className="text-[#4A5565] font-medium text-sm">
                             {row.shipperVendor?.vendorName || "-"}
                           </span>
                         </td>
                       )}
                       {visibleColumns.Carrier && (
-                        <td className="px-4 py-2">
+                        <td className="px-4 py-2 border border-gray-200">
                           <span className="text-[#4A5565] font-medium text-sm">
                             {row.carrier?.carrierName || "-"}
                           </span>
                         </td>
                       )}
                       {visibleColumns.POC && (
-                        <td className="px-4 py-2">
+                        <td className="px-4 py-2 border border-gray-200">
                           <div className="flex  gap-1.5">
                             <span className="font-medium text-[#4A5565] text-sm truncate max-w-[120px]">
                               {row.poc?.receivingPoc || "-"}
@@ -698,23 +706,12 @@ const AllDeliveriesView: React.FC = () => {
                                   <Phone size={14} />
                                 </button>
                               )}
-                              {/* {row.customer?.email && (
-                                <button
-                                  className="text-[#4A5565] hover:bg-blue-50 p-1 rounded-md transition-colors"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    window.location.href = `mailto:${row.customer?.email}`;
-                                  }}
-                                >
-                                  <Mail size={14} />
-                                </button>
-                              )} */}
                             </div>
                           </div>
                         </td>
                       )}
                       {visibleColumns.DeliveryDate && (
-                        <td className="px-4 py-2">
+                        <td className="px-4 py-2 border border-gray-200">
                           <div className="flex  gap-1">
                             <span className="font-medium text-[#212B36] text-sm">
                               {formatDate(row.deliveryDate)}
@@ -726,16 +723,22 @@ const AllDeliveriesView: React.FC = () => {
                         </td>
                       )}
                       {visibleColumns.Equipment && (
-                        <td className="px-4 py-2">
+                        <td className="px-4 py-2 border border-gray-200">
                           <span className="text-[#637381] font-medium text-sm whitespace-normal max-w-[150px] block">
                             {row.equipment ? row.equipment.join(", ") : "-"}
                           </span>
                         </td>
                       )}
                       {visibleColumns.Site && (
-                        <td className="px-4 py-2 max-w-100">
+                        <td className="px-4 py-2 border border-gray-200 min-w-[250px] max-w-[300px] whitespace-normal">
                           <span
-                            className="font-medium text-[#212B36] text-sm block truncate max-w-[180px]"
+                            className="font-medium text-[#212B36] text-sm whitespace-normal"
+                            style={{
+                              display: "-webkit-box",
+                              WebkitLineClamp: 2,
+                              WebkitBoxOrient: "vertical",
+                              overflow: "hidden",
+                            }}
                             title={row.deliveryLocation?.trim() || undefined}
                           >
                             {row.deliveryLocation?.trim() || "-"}

@@ -478,7 +478,7 @@ const DeliveryCalendarView: React.FC = () => {
 
       <div className="bg-white rounded-[14px] border border-gray-100 overflow-hidden p-4 calendar-custom">
         <div className="flex flex-wrap gap-4 mb-8 mt-2">
-          <div className="px-5 py-2.5 bg-[#4169B830] text-[#02318C] rounded-[8px] text-sm font-normal">Today's Deliveries: {todaysDeliveriesCount} deliveries</div>
+          <div className="px-5 py-2.5 bg-[#4169B830] text-[#02318C] rounded-[8px] text-sm font-normal">Total Deliveries: {todaysDeliveriesCount} deliveries</div>
           {/* <div className="px-5 py-2.5 bg-[#4169B830] text-[#02318C] rounded-[8px] text-sm font-normal flex items-center gap-2">Weather: ☀ Clear</div> */}
         </div>
 
@@ -492,8 +492,8 @@ const DeliveryCalendarView: React.FC = () => {
             activeView === "Week"
               ? { weekday: "short", day: "numeric", month: "short" }
               : activeView === "Month"
-              ? { weekday: "long" }
-              : { weekday: "long", month: "long", day: "numeric", year: "numeric" }
+                ? { weekday: "long" }
+                : { weekday: "long", month: "long", day: "numeric", year: "numeric" }
           }
           events={deliveries.map(d => ({
             id: d.id,
