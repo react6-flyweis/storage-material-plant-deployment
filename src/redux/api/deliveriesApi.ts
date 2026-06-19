@@ -217,6 +217,10 @@ export const deliveriesApi = createApi({
       query: (leadId) => `/api/plant/projects/${leadId}/delivery`,
       transformResponse: (response: ApiResponse<ProjectDeliveryResponse>) => response.data as ProjectDeliveryResponse,
     }),
+    getDeliveryDetail: builder.query<ProjectDeliveryResponse, string>({
+      query: (deliveryId) => `/api/plant/deliveries/${deliveryId}/detail`,
+      transformResponse: (response: ApiResponse<ProjectDeliveryResponse>) => response.data as ProjectDeliveryResponse,
+    }),
     getProjectDeliveriesList: builder.query<PlantDeliveriesListResponse, string>({
       query: (leadId) => `/api/plant/deliveries/project/${leadId}`,
       transformResponse: (response: ApiResponse<unknown>) => {
@@ -562,5 +566,6 @@ export const {
   useGetPlantDeliveriesQuery,
   useGetProjectDeliveryQuery,
   useGetProjectDeliveriesListQuery,
+  useGetDeliveryDetailQuery,
 } = deliveriesApi;
 

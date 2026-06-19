@@ -267,11 +267,16 @@ export interface FreightBidItem {
   bidId: string;
   carrierId: string;
   carrierName: string;
-  submittedAt: string;
+  submittedAt: string | null;
   carrierNote: string;
-  bidAmount: number;
+  bidAmount: number | null;
   status: string;
   isLowest?: boolean;
+  resubmitCount?: number;
+  resubmitRequestedAt?: string | null;
+  resubmitNote?: string;
+  plantNote?: string;
+  canRequestResubmit?: boolean;
 }
 
 export interface FreightBidsResponse {
@@ -609,6 +614,16 @@ export const logisticsApi = createApi({
         return response.data;
       },
     }),
+    requestFreightBidRevision: builder.mutation<
+      unknown,
+      { bidId: string; body: { note: string; bidAmount?: number } }
+    >({
+      query: ({ bidId, body }) => ({
+        url: `/api/plant/freight-bids/${bidId}/request-resubmit`,
+        method: "POST",
+        body,
+      }),
+    }),
   }),
 });
 
@@ -626,5 +641,6 @@ export const {
   useGetProjectFreightBidsQuery,
   useGetDeliveryFreightBidsQuery,
   useSelectFreightBidMutation,
+  useRequestFreightBidRevisionMutation,
 } = logisticsApi;
 

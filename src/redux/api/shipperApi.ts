@@ -742,6 +742,18 @@ export const shipperApi = createApi({
         return response.data;
       },
     }),
+    getProjectShipperStats: builder.query<ShipperStats, string>({
+      query: (leadId) => `/api/plant/shipper-files/projects/${leadId}/stats`,
+      providesTags: (_result, _error, leadId) => [
+        { type: "ShipperRequests", id: leadId },
+      ],
+      transformResponse: (response: ApiResponse<ShipperStats>) => {
+        if (!response.data) {
+          throw new Error("No data returned from API");
+        }
+        return response.data;
+      },
+    }),
   }),
 });
 
@@ -780,12 +792,29 @@ export interface ConfirmTruckPlanResponse {
 }
 
 export interface TruckPlanResponse {
+  project?: {
+    _id: string;
+    leadId: string;
+    projectId: string;
+    jobId: string;
+    projectName: string;
+    buildingType?: string;
+    location?: string;
+    lifecycleStatus?: string;
+    customer?: {
+      _id: string;
+      customerId: string;
+      name: string;
+      email: string;
+    };
+  };
   packingListPlan: {
     _id: string;
     status: string;
     totalPackingLists: number;
     totalBundles: number;
     totalWeight: number;
+    planNumber?: string;
   };
   packingLists: PackingListEntry[];
   summary: {
@@ -958,4 +987,5 @@ export const {
   useGetComparisonSummaryQuery,
   usePollCompareJobsStatusMutation,
   useGetShipperStatsQuery,
+  useGetProjectShipperStatsQuery,
 } = shipperApi;
