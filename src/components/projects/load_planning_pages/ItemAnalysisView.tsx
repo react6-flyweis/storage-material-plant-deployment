@@ -31,9 +31,11 @@ const Step1ItemAnalysis: React.FC = () => {
   const isLoading = isLoadingRequests || (!!approvedRequest && isLoadingDoc);
 
   const handleAutoOptimize = async () => {
+    const requestId = approvedRequest?.requestId;
+    if (!requestId) return;
     setErrorMsg(null);
     try {
-      await generateBundlePlan(approvedRequest.requestId).unwrap();
+      await generateBundlePlan(requestId).unwrap();
       if (projectId) {
         navigate(`/load_planning/${projectId}/bundle-planner`);
       }
@@ -129,14 +131,16 @@ const Step1ItemAnalysis: React.FC = () => {
             </div>
           )}
           <div className="flex justify-end">
-            <Button
-              variant="purpleFilled"
-              className="font-bold px-6 py-2.5 whitespace-nowrap self-end md:self-auto"
-              onClick={handleAutoOptimize}
-              disabled={isGenerating || shipperDoc.fileStatus !== "approved"}
-            >
-              {isGenerating ? "Optimizing..." : "Auto Optimize Bundles"}
-            </Button>
+            {shipperDoc.fileStatus === "approved" && (
+              <Button
+                variant="purpleFilled"
+                className="font-bold px-6 py-2.5 whitespace-nowrap self-end md:self-auto"
+                onClick={handleAutoOptimize}
+                disabled={isGenerating}
+              >
+                {isGenerating ? "Optimizing..." : "Auto Optimize Bundles"}
+              </Button>
+            )}
           </div>
         </div>
       </div>
