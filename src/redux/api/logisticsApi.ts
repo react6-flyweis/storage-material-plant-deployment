@@ -365,7 +365,7 @@ type PlantCarrierDetailApiResponse = ApiResponse<PlantCarrierDetailResponse>;
 export const logisticsApi = createApi({
   reducerPath: "logisticsApi",
   baseQuery: baseQueryWithReauth,
-  tagTypes: ["PlantVendor", "PlantCarrier"],
+  tagTypes: ["PlantVendor", "PlantCarrier", "DeliveryFreightBids"],
   endpoints: (builder) => ({
     createPlantVendor: builder.mutation<unknown, CreatePlantVendorRequest>({
       query: (body) => ({
@@ -568,6 +568,7 @@ export const logisticsApi = createApi({
         url: `/api/plant/deliveries/${deliveryId}/bids`,
         params: sort ? { sort } : undefined,
       }),
+      providesTags: (_result, _error, { deliveryId }) => [{ type: "DeliveryFreightBids", id: deliveryId }],
       transformResponse: (response: ApiResponse<FreightBidsResponse>) => {
         if (!response.data) {
           throw new Error("No data returned from API");

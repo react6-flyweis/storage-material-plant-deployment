@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAppSelector } from "@/redux/hooks";
+import { useAppSelector, useAppDispatch } from "@/redux/hooks";
 import type { RootState } from "@/redux/store";
 import { createAdminSocket } from "@/lib/socket";
 import ProjectAssignedDialog from "@/components/ProjectAssignedDialog";
 import Modal from "@/components/Modal";
 import Button from "@/components/common_component/Button";
 import { FileSpreadsheet, Scale, Truck } from "lucide-react";
+import { deliveriesApi } from "@/redux/api/deliveriesApi";
+import { logisticsApi } from "@/redux/api/logisticsApi";
 
 interface ShipperFilePayload {
   leadId: string;
@@ -39,6 +41,7 @@ interface FreightBidSubmittedPayload {
 
 export default function GlobalSocketListener() {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const accessToken = useAppSelector((state: RootState) => state.auth.accessToken);
 
   // States for Modals
@@ -117,13 +120,17 @@ export default function GlobalSocketListener() {
       console.log("socket event: freight_bid_submitted", data);
       setFreightBid(data);
       setIsFreightBidOpen(true);
+      if (data.deliveryId) {
+        dispatch(deliveriesApi.util.invalidateTags([{ type: "DeliveryDetail", id: data.deliveryId }]));
+        dispatch(logisticsApi.util.invalidateTags([{ type: "DeliveryFreightBids", id: data.deliveryId }]));
+      }
       window.dispatchEvent(new CustomEvent("socket_freight_bid_submitted", { detail: data }));
     });
 
     return () => {
       socket.disconnect();
     };
-  }, [accessToken]);
+  }, [accessToken, dispatch]);
 
   const handleViewProjectDetails = () => {
     if (assignedProject) {

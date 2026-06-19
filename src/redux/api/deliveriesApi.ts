@@ -129,6 +129,7 @@ type AwardedLoadsApiResponse = ApiResponse<AwardedLoadsListResponse>;
 export const deliveriesApi = createApi({
   reducerPath: "deliveriesApi",
   baseQuery: baseQueryWithReauth,
+  tagTypes: ["DeliveryDetail"],
   endpoints: (builder) => ({
     getFreightStats: builder.query<FreightStats, void>({
       query: () => "/api/plant/deliveries/freight/stats",
@@ -219,6 +220,7 @@ export const deliveriesApi = createApi({
     }),
     getDeliveryDetail: builder.query<ProjectDeliveryResponse, string>({
       query: (deliveryId) => `/api/plant/deliveries/${deliveryId}/detail`,
+      providesTags: (_result, _error, deliveryId) => [{ type: "DeliveryDetail", id: deliveryId }],
       transformResponse: (response: ApiResponse<ProjectDeliveryResponse>) => response.data as ProjectDeliveryResponse,
     }),
     getProjectDeliveriesList: builder.query<PlantDeliveriesListResponse, string>({
