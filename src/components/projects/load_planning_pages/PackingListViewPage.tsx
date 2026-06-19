@@ -21,8 +21,8 @@ const Step4PackingList: React.FC<Step4PackingListProps> = ({
   truckPlan,
   stateData,
 }) => {
-  const projectName = stateData?.project?.projectName || "N/A";
-  const planNumber = stateData?.bundlePlan?.planNumber || "N/A";
+  const projectName = truckPlan?.project?.projectName || "N/A";
+  const planNumber = truckPlan?.packingListPlan?.planNumber || "N/A";
   const totalBundles = stateData?.bundleSummary?.totalBundles ?? truckPlan.summary.totalBundles ?? 0;
   const totalWeight = stateData?.bundleSummary?.totalWeight ?? truckPlan.summary.totalWeight ?? 0;
 
@@ -69,7 +69,7 @@ const Step4PackingList: React.FC<Step4PackingListProps> = ({
         title={`Project: ${projectName} | Truckloads: ${truckPlan.summary.totalPackingLists}`}
         items={[
           { label: "Project", value: projectName },
-          { label: "Upload ID", value: planNumber },
+          { label: "Packing List Plan ID", value: planNumber },
           { label: "Bundles Created", value: totalBundles.toString() },
           { label: "Total Weight", value: `${totalWeight.toLocaleString()} LBS` },
         ]}
@@ -126,7 +126,7 @@ const Step4PackingList: React.FC<Step4PackingListProps> = ({
                 <th className="py-4 px-6">Truck</th>
                 <th className="py-4 px-6">Bundles</th>
                 <th className="py-4 px-6">Weight</th>
-                <th className="py-4 px-6">Destination</th>
+                {/* <th className="py-4 px-6">Destination</th> */}
                 <th className="py-4 px-6">Status</th>
                 <th className="py-4 px-6 text-center"></th>
               </tr>
@@ -153,9 +153,9 @@ const Step4PackingList: React.FC<Step4PackingListProps> = ({
                       <div>LBS</div>
                     </div>
                   </td>
-                  <td className="py-6 px-6 font-normal text-(--text-color-gray-4)">
+                  {/* <td className="py-6 px-6 font-normal text-(--text-color-gray-4)">
                     {projectName} Site A
-                  </td>
+                  </td> */}
                   <td className="py-6 px-6 font-normal text-(--text-color-gray-4) capitalize">
                     {row.status || "Ready"}
                   </td>
@@ -285,8 +285,8 @@ const PackingListViewPage: React.FC = () => {
         }}
         packingList={selectedPackingList}
         bundles={stateData?.bundles}
-        projectName={stateData?.project?.projectName}
-        planNumber={stateData?.bundlePlan?.planNumber}
+        projectName={truckPlan?.project?.projectName}
+        planNumber={truckPlan?.packingListPlan?.planNumber}
         planId={truckPlan?.packingListPlan?._id}
       />
     </div>

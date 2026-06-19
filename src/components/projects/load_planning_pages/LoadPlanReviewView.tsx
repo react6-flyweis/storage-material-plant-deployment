@@ -20,18 +20,18 @@ const Step6LoadPlanReview: React.FC<Step6LoadPlanReviewProps> = ({
   truckPlan,
   stateData,
 }) => {
-  const projectName = stateData?.project?.projectName || "-";
-  const planNumber = stateData?.bundlePlan?.planNumber || "-";
+  const projectName = truckPlan?.project?.projectName || "-";
+  const planNumber = truckPlan?.packingListPlan?.planNumber || "-";
 
   return (
     <div className="space-y-12 bg-white rounded-xl border border-gray-100 shadow-sm p-4 md:p-8">
       {/* Project Header Card */}
       <CommonInfoList
-        title={`Project: ${projectName} | Shipper Ref: ${planNumber}`}
+        title={`Project: ${projectName} | Packing Plan: ${planNumber}`}
         items={[
           { label: "Project", value: projectName },
-          { label: "Load ID", value: planNumber },
-          { label: "Shipper Reference", value: planNumber },
+          { label: "Packing List Plan ID", value: planNumber },
+          // { label: "Shipper Reference", value: planNumber },
           { label: "Status", value: truckPlan.packingListPlan.status || "-" },
         ]}
         labelWidth="min-w-[160px]"
@@ -69,7 +69,6 @@ const Step6LoadPlanReview: React.FC<Step6LoadPlanReviewProps> = ({
                 <th className="py-4 px-6">Load ID</th>
                 <th className="py-4 px-6">Bundle</th>
                 <th className="py-4 px-6">Total Weight</th>
-                <th className="py-4 px-6">Destination</th>
                 <th className="py-4 px-6">Ready</th>
                 <th className="py-4 px-6 text-center">Action</th>
               </tr>
@@ -81,7 +80,6 @@ const Step6LoadPlanReview: React.FC<Step6LoadPlanReviewProps> = ({
                   <td className="py-6 px-6 font-normal text-[#212B36]">{row.packingListNo}</td>
                   <td className="py-6 px-6 font-normal text-[#212B36]">{row.totalBundles}</td>
                   <td className="py-6 px-6 font-normal text-[#919EAB]">{row.totalWeight.toLocaleString()} LBS</td>
-                  <td className="py-6 px-6 font-normal text-[#919EAB]">-</td>
                   <td className="py-6 px-6">
                     {(row.status === "confirmed" || row.status === "Ready" || row.status === "ready") ? (
                       <span className="text-[#212B36] font-normal text-lg">✔</span>
@@ -103,7 +101,7 @@ const Step6LoadPlanReview: React.FC<Step6LoadPlanReviewProps> = ({
               ))}
               {truckPlan.packingLists.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="py-8 text-center text-gray-500">
+                  <td colSpan={6} className="py-8 text-center text-gray-500">
                     No truck loads available.
                   </td>
                 </tr>
@@ -259,8 +257,8 @@ const LoadPlanReviewView: React.FC = () => {
         }}
         packingList={selectedPackingList}
         bundles={stateData?.bundles}
-        projectName={stateData?.project?.projectName}
-        planNumber={stateData?.bundlePlan?.planNumber}
+        projectName={truckPlan?.project?.projectName}
+        planNumber={truckPlan?.packingListPlan?.planNumber}
         planId={truckPlan?.packingListPlan?._id}
       />
     </div>
