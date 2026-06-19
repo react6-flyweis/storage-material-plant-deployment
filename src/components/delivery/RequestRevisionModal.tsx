@@ -6,9 +6,11 @@ import Modal from "../Modal";
 interface RequestRevisionModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: (revisionData: any) => void;
+  onConfirm: (revisionData: { targetAmount: string; message: string; allowCounterOffer: boolean }) => void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   carrier: any;
+  isLoading?: boolean;
+  error?: string;
 }
 
 export const RequestRevisionModal: React.FC<RequestRevisionModalProps> = ({
@@ -16,12 +18,17 @@ export const RequestRevisionModal: React.FC<RequestRevisionModalProps> = ({
   onClose,
   onConfirm,
   carrier,
+  isLoading = false,
+  error,
 }) => {
-  const [targetAmount, setTargetAmount] = useState("2,500");
-  const [message, setMessage] = useState("We appreciate your bid. Can you match the lowest bid of $2,850? We're looking to award this load quickly.");
+  const [targetAmount, setTargetAmount] = useState("");
+  const [message, setMessage] = useState("Please revise — pickup window moved to next week.");
   const [allowCounterOffer, setAllowCounterOffer] = useState(false);
 
   if (!isOpen) return null;
+
+  const carrierName = carrier?.carrierName || carrier?.carrier || "QuickFreight Solutions";
+  const currentAmountStr = carrier?.bidAmount !== undefined ? `$${carrier.bidAmount.toLocaleString()}` : (carrier?.amount || "$2,850");
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} hideHeader width="max-w-[620px]">
@@ -41,7 +48,7 @@ export const RequestRevisionModal: React.FC<RequestRevisionModalProps> = ({
         >
           <div className="space-y-1">
             <p className="text-sm font-medium text-[#637381]">Carrier</p>
-            <h3 className="text-base md:text-xl font-semibold text-[#212B36]">{carrier?.carrier || "QuickFreight Solutions"}</h3>
+            <h3 className="text-base md:text-xl font-semibold text-[#212B36]">{carrierName}</h3>
             <div className="flex items-center gap-1.5 pt-1">
               <Star size={16} className="text-[#FFAB00] fill-[#FFAB00]" />
               <span className="text-xs md:text-sm font-normal text-[#212B36]">{carrier?.rating || "4.8"} rating</span>
@@ -50,7 +57,7 @@ export const RequestRevisionModal: React.FC<RequestRevisionModalProps> = ({
           <div className="text-right space-y-1 ml-auto">
             <p className="text-sm font-medium text-[#637381]">Current Bid Amount</p>
             <p className="text-xl md:text-[36px] font-bold text-[#D08700] leading-none">
-              {carrier?.amount || "$2,850"}
+              {currentAmountStr}
             </p>
           </div>
         </div>
@@ -58,7 +65,7 @@ export const RequestRevisionModal: React.FC<RequestRevisionModalProps> = ({
         {/* Notification Header */}
         <div className="space-y-1">
           <h3 className="text-base font-bold text-[#212B36]">Send revision request email to carrier</h3>
-          <p className="text-sm text-[#637381] font-medium">Notify {carrier?.carrier || "QuickFreight Solutions"} that a revision is requested</p>
+          <p className="text-sm text-[#637381] font-medium">Notify {carrierName} that a revision is requested</p>
         </div>
 
         {/* Blue Info Box */}
@@ -67,7 +74,7 @@ export const RequestRevisionModal: React.FC<RequestRevisionModalProps> = ({
           <div className="space-y-1">
             <h4 className="text-sm md:text-base font-bold text-[#0052CC]">Ready to Send Revision</h4>
             <p className="text-xs md:text-sm text-[#0052CC] font-medium leading-relaxed">
-              This will send a revision request to {carrier?.carrier || "QuickFreight Solutions"} with the specified target amount and message.
+              This will send a revision request to {carrierName} with the specified target amount and message.
             </p>
           </div>
         </div>
@@ -79,9 +86,12 @@ export const RequestRevisionModal: React.FC<RequestRevisionModalProps> = ({
             <div className="relative group">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#919EAB] font-medium">$</span>
               <input
-                type="text"
+                type="number"
                 value={targetAmount}
                 onChange={(e) => setTargetAmount(e.target.value)}
+                disabled={isLoading}
+                min="0"
+                step="any"
                 className="w-full h-14 pl-8 pr-4 bg-white border border-[#D1D5DB] rounded-[10px] text-lg font-bold text-[#212B36] focus:outline-none focus:ring-2 focus:ring-[#D08700]/20 focus:border-[#D08700] transition-all"
               />
             </div>
@@ -93,6 +103,7 @@ export const RequestRevisionModal: React.FC<RequestRevisionModalProps> = ({
             <textarea
               value={message}
               onChange={(e) => setMessage(e.target.value)}
+              disabled={isLoading}
               className="w-full min-h-[140px] p-2 md:p-5 bg-white border border-[#D1D5DB] rounded-[10px] text-base font-medium text-[#212B36] focus:outline-none transition-all resize-none leading-relaxed"
             />
             <p className="text-xs text-[#919EAB] font-medium">Explain what changes you'd like the carrier to consider</p>
@@ -104,6 +115,7 @@ export const RequestRevisionModal: React.FC<RequestRevisionModalProps> = ({
               id="counter-offer"
               checked={allowCounterOffer}
               onChange={(e) => setAllowCounterOffer(e.target.checked)}
+              disabled={isLoading}
               className="w-5 h-5 rounded border-gray-300 text-[#D08700] focus:ring-[#D08700]"
             />
             <label htmlFor="counter-offer" className="text-sm font-medium text-[#637381] cursor-pointer">
@@ -112,19 +124,28 @@ export const RequestRevisionModal: React.FC<RequestRevisionModalProps> = ({
           </div>
         </div>
 
+        {/* Error Banner */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 p-2 md:p-3 rounded-[14px] text-red-800 text-sm font-medium">
+            <p className="font-bold">Error Requesting Revision</p>
+            <p className="text-xs mt-1">{error}</p>
+          </div>
+        )}
+
         {/* Actions */}
         <div className="flex flex-wrap justify-center gap-4 pt-4">
           <Button
             variant="gradientOrange"
-            className=""
             onClick={() => onConfirm({ targetAmount, message, allowCounterOffer })}
+            disabled={isLoading || !message.trim()}
           >
             <RefreshCcw size={20} strokeWidth={2} className="mr-3" />
-            Send Revision Request
+            {isLoading ? "Sending Request..." : "Send Revision Request"}
           </Button>
           <Button
             onClick={onClose}
             variant="white"
+            disabled={isLoading}
           >
             Cancel
           </Button>

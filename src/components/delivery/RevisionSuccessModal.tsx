@@ -27,12 +27,12 @@ export const RevisionSuccessModal: React.FC<RevisionSuccessModalProps> = ({
       <div className="p-6 md:p-2 space-y-10 font-inter">
         {/* Success Icon & Title */}
         <div className="flex items-start gap-6">
-          <div className="flex-shrink-0">
+          <div className="shrink-0">
             <img src={successIcon} alt="Success" className="w-20 h-20 object-cover" />
           </div>
           <div className="pt-2">
             <h2 className="text-lg md:text-2xl font-bold text-[#111827] leading-tight">
-              Revision request sent to {carrier?.carrier || "QuickFreight Solutions"}!
+              Revision request sent to {carrier?.carrierName || carrier?.carrier || "QuickFreight Solutions"}!
             </h2>
           </div>
         </div>

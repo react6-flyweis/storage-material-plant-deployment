@@ -21,9 +21,9 @@ export const AwardSuccessModal: React.FC<AwardSuccessModalProps> = ({
   carrier,
   projectName = "",
   deliveryId = "",
-  deliveryDate = "",
-  poc = "",
-  location = "",
+  // deliveryDate = "",
+  // poc = "",
+  // location = "",
 }) => {
   if (!isOpen) return null;
 
@@ -73,7 +73,7 @@ export const AwardSuccessModal: React.FC<AwardSuccessModalProps> = ({
           <p>
             <span className="font-bold">Delivery Company:</span> {carrierName}
           </p>
-          <p>
+          {/* <p>
             <span className="font-bold">Date:</span> {deliveryDate}
           </p>
           <p>
@@ -81,7 +81,7 @@ export const AwardSuccessModal: React.FC<AwardSuccessModalProps> = ({
           </p>
           <p>
             <span className="font-bold">Location:</span> {location}
-          </p>
+          </p> */}
         </div>
 
         {/* Navigation & Email Info */}
