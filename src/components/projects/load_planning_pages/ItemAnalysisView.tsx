@@ -35,8 +35,8 @@ const Step1ItemAnalysis: React.FC = () => {
     setErrorMsg(null);
     try {
       await generateBundlePlan(approvedRequest.requestId).unwrap();
-      if (shipperDoc?.leadId) {
-        navigate(`/load_planning/${shipperDoc.leadId}/bundle-planner`);
+      if (projectId) {
+        navigate(`/load_planning/${projectId}/bundle-planner`);
       }
     } catch (err: unknown) {
       console.error("Failed to generate bundle plan:", err);
