@@ -210,10 +210,10 @@ const BundlePlannerView: React.FC = () => {
           {/* Project header */}
           <div className="bg-[#F8F9FB] rounded-xl p-4 border border-gray-100">
             <CommonInfoList
-              title={`Project: ${projectDetail?.projectName || "N/A"} | Upload ID: ${bpDetails.planNumber}`}
+              title={`Project: ${projectDetail?.projectName || "N/A"} | Bundle Plan ID: ${bpDetails.planNumber}`}
               items={[
                 { label: "Project ID", value: projectDetail?.projectId || "" },
-                { label: "Upload Id", value: bpDetails.planNumber },
+                { label: "Bundle Plan Id", value: bpDetails.planNumber },
                 // { label: "Shipper Refrence", value: bpDetails.shipperRequestId },
                 // { label: "Vendor", value: bpDetails.generatedBy },
               ]}

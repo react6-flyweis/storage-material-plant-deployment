@@ -290,7 +290,7 @@ const Step7FreightSelection: React.FC<Step7FreightSelectionProps> = ({
   const handleSelectDelivery = (delivery: DeliveryItem) => {
     setSavedDeliveryId(delivery._id);
     setShowForm(false);
-    
+
     // Parse dimensions if nested
     let dimensionsStr = "";
     if (delivery.dimensions) {
@@ -376,6 +376,12 @@ const Step7FreightSelection: React.FC<Step7FreightSelectionProps> = ({
       ? [{ label: autofillData.metalType, value: autofillData.metalType }]
       : []),
   ];
+
+  const getMinDateTime = () => {
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    return now.toISOString().slice(0, 16);
+  };
 
   const handleSendToCarriers: SubmitHandler<FreightFormValues> = (data) => {
     const finalData: FreightFormData = {
@@ -581,11 +587,10 @@ const Step7FreightSelection: React.FC<Step7FreightSelectionProps> = ({
                     setUploadedFiles([]);
                   }
                 }}
-                className={`min-w-[280px] max-w-[320px] p-4 rounded-xl border-2 transition-all cursor-pointer flex flex-col justify-center items-center gap-2 text-center ${
-                  selectedType === "new"
-                    ? "border-[#1E51A4] bg-[#F4F8FF]"
-                    : "border-dashed border-gray-300 bg-white hover:border-gray-400"
-                }`}
+                className={`min-w-[280px] max-w-[320px] p-4 rounded-xl border-2 transition-all cursor-pointer flex flex-col justify-center items-center gap-2 text-center ${selectedType === "new"
+                  ? "border-[#1E51A4] bg-[#F4F8FF]"
+                  : "border-dashed border-gray-300 bg-white hover:border-gray-400"
+                  }`}
               >
                 <div className="w-10 h-10 bg-[#E8F1FF] rounded-full flex items-center justify-center text-[#1E51A4]">
                   <Plus size={20} />
@@ -633,11 +638,10 @@ const Step7FreightSelection: React.FC<Step7FreightSelectionProps> = ({
                         handleSelectDelivery(delivery);
                       }
                     }}
-                    className={`min-w-[280px] max-w-[320px] p-4 rounded-xl border-2 transition-all cursor-pointer flex flex-col justify-between ${
-                      isSelected
-                        ? "border-[#1E51A4] bg-[#F4F8FF]"
-                        : "border-gray-100 bg-white hover:border-gray-200"
-                    }`}
+                    className={`min-w-[280px] max-w-[320px] p-4 rounded-xl border-2 transition-all cursor-pointer flex flex-col justify-between ${isSelected
+                      ? "border-[#1E51A4] bg-[#F4F8FF]"
+                      : "border-gray-100 bg-white hover:border-gray-200"
+                      }`}
                   >
                     <div className="space-y-2">
                       <div className="flex justify-between items-start">
@@ -869,6 +873,7 @@ const Step7FreightSelection: React.FC<Step7FreightSelectionProps> = ({
                           </span>
                           <input
                             type="datetime-local"
+                            min={getMinDateTime()}
                             {...field}
                             className="w-full pl-12 pr-4 py-3 bg-white border border-[#E2E4E6] rounded-md text-sm font-inter focus:outline-none focus:ring-1 focus:ring-[#0043CE]"
                           />
@@ -1225,9 +1230,9 @@ const Step7FreightSelection: React.FC<Step7FreightSelectionProps> = ({
               onClick={
                 selectedType === "existing"
                   ? () => {
-                      const values = getValues() as FreightFormValues;
-                      handleSendToCarriers(values);
-                    }
+                    const values = getValues() as FreightFormValues;
+                    handleSendToCarriers(values);
+                  }
                   : handleSubmit(handleSendToCarriers)
               }
               className="w-full"
@@ -1320,8 +1325,8 @@ const FreightSelectionView: React.FC = () => {
 
   const activeFreightDeliveries = hasCarrierSelected
     ? allActiveFreight.filter(
-        (delivery: any) => delivery.status?.toLowerCase().replace(/[\s_-]+/g, "") === "carrierselected"
-      )
+      (delivery: any) => delivery.status?.toLowerCase().replace(/[\s_-]+/g, "") === "carrierselected"
+    )
     : allActiveFreight;
 
   const hasActiveFreight = activeFreightDeliveries.length > 0;

@@ -18,6 +18,7 @@ import Heading from "../common_component/Heading";
 import FilterDropdown from "../common_component/FilterDropdown";
 import {
   useGetProjectShipperRequestsQuery,
+  useGetProjectShipperStatsQuery,
   type ShipperRequestEntry,
 } from "@/redux/api/shipperApi";
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -39,6 +40,8 @@ const ShipperFilesView: React.FC = () => {
     isLoading,
     error,
   } = useGetProjectShipperRequestsQuery(projectId || "");
+
+  const { data: statsData } = useGetProjectShipperStatsQuery(projectId || "");
 
   // All shipper files (merge all filter buckets for this page)
 
@@ -86,10 +89,10 @@ const ShipperFilesView: React.FC = () => {
 
 
   const stats = useMemo(() => {
-    const total = allFiles.length;
-    const received = allFiles.filter(f => f.fileStatus === "submitted").length;
-    const sent = allFiles.filter(f => f.fileStatus === "sent" || f.fileStatus === "order sent").length;
-    const revision = allFiles.filter(f => f.fileStatus === "revision sent" || f.fileStatus === "revision").length;
+    const total = statsData?.totalFiles ?? 0;
+    const received = statsData?.filesReceived ?? 0;
+    const sent = statsData?.ordersSent ?? 0;
+    const revision = statsData?.revisionsSent ?? 0;
 
     return [
       {
@@ -117,7 +120,7 @@ const ShipperFilesView: React.FC = () => {
         color: "bg-[#FD8D5B]",
       },
     ];
-  }, [allFiles]);
+  }, [statsData]);
 
   if (isLoading) {
     return (
