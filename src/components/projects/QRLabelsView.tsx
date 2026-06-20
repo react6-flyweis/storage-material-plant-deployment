@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 // import Button from "../common_component/Button";
 import TitleSubtitle from "../common_component/TitleSubtitle";
-import { useGetLoadPlanningProjectsQuery } from "@/redux/api/shipperApi";
+import { useGetPackingListProjectsQuery } from "@/redux/api/shipperApi";
 import { projectDisplayName } from "@/lib/utils";
 
 const QRLabelsView: React.FC = () => {
@@ -24,7 +24,7 @@ const QRLabelsView: React.FC = () => {
   const [selectedProjIds, setSelectedProjIds] = useState<string[]>([]);
 
   // Query
-  const { data: projData, isLoading: isProjLoading } = useGetLoadPlanningProjectsQuery({
+  const { data: projData, isLoading: isProjLoading } = useGetPackingListProjectsQuery({
     search: searchTermProj || undefined,
     limit: rowsPerPageProj,
     page: currentPageProj,
@@ -137,12 +137,12 @@ const QRLabelsView: React.FC = () => {
                 </th>
                 <th className="p-3 md:p-4 text-[#212B36] font-inter font-bold text-sm">
                   <div className="flex items-center gap-1 cursor-pointer select-none">
-                    File Received <ArrowDownUp size={14} className="text-[#919EAB]" />
+                    List Generated Date <ArrowDownUp size={14} className="text-[#919EAB]" />
                   </div>
                 </th>
                 <th className="p-3 md:p-4 text-[#212B36] font-inter font-bold text-sm">
                   <div className="flex items-center gap-1 cursor-pointer select-none">
-                    Total load planning <ArrowDownUp size={14} className="text-[#919EAB]" />
+                    Total Packing List <ArrowDownUp size={14} className="text-[#919EAB]" />
                   </div>
                 </th>
                 <th className="p-3 md:p-4 w-20 text-center"></th>
@@ -194,10 +194,10 @@ const QRLabelsView: React.FC = () => {
 
                     </td>
                     <td className="p-3 md:p-4 text-sm font-inter text-[#637381]">
-                      {formatDate(item.fileReceivedAt)}
+                      {formatDate(item.listGeneratedAt)}
                     </td>
                     <td className="p-3 md:p-4 text-sm font-inter text-[#212B36] font-medium">
-                      {item.totalLoadPlanning}
+                      {item.totalPackingList}
                     </td>
                     <td className="p-3 md:p-4 text-center">
                       <button

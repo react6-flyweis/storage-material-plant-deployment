@@ -50,7 +50,7 @@ const QRCodeDataModal: React.FC<QRCodeDataModalProps> = ({ isOpen, onClose, data
 
         <div className="flex flex-col md:flex-row items-center md:items-start gap-5">
           {/* QR Code Dynamic Image */}
-          <div className="w-48 h-48 md:w-56 md:h-56 shrink-0 bg-white border border-gray-150 flex items-center justify-center p-2 rounded-lg">
+          <div className="w-48 h-48 md:size-52 shrink-0 bg-white border border-gray-150 flex items-center justify-center p-2 rounded-lg">
             <img
               src={qrCodeUrl}
               alt="QR Code"
@@ -64,10 +64,10 @@ const QRCodeDataModal: React.FC<QRCodeDataModalProps> = ({ isOpen, onClose, data
               project={qrDataObj.project}
             </h3>
             <div className="space-y-1 text-sm md:text-base font-normal">
-              <p className="flex gap-2">
+              {/* <p className="flex gap-2">
                 <span className="text-(--text-color-gray-4) min-w-[80px]">Shipper :</span>
                 <span className="text-(--text-color-gray-5) font-medium">shipper={qrDataObj.shipper}</span>
-              </p>
+              </p> */}
               <p className="flex gap-2">
                 <span className="text-(--text-color-gray-4) min-w-[80px]">Load :</span>
                 <span className="text-(--text-color-gray-5) font-medium">load_id={qrDataObj.load_id}</span>
