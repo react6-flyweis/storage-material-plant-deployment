@@ -5,7 +5,7 @@ import {
   // Download,
   ArrowDownUp,
   Eye,
-  Filter,
+  // Filter,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
@@ -88,9 +88,9 @@ const LoadPlanningList: React.FC = () => {
             className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1E51A4]/10 transition-all shadow-sm"
           />
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm text-[#212B36] font-medium hover:bg-gray-50 transition-colors shadow-sm">
+        {/* <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm text-[#212B36] font-medium hover:bg-gray-50 transition-colors shadow-sm">
           <Filter size={16} className="text-gray-400" /> Filter
-        </button>
+        </button> */}
       </div>
 
       {/* Load Planning Table */}
@@ -120,7 +120,12 @@ const LoadPlanningList: React.FC = () => {
                 </th>
                 <th className="p-3 md:p-4 text-[#212B36] font-inter font-bold text-sm">
                   <div className="flex items-center gap-1 cursor-pointer select-none">
-                    Total load planning <ArrowDownUp size={14} className="text-[#919EAB]" />
+                    Total loads <ArrowDownUp size={14} className="text-[#919EAB]" />
+                  </div>
+                </th>
+                <th className="p-3 md:p-4 text-[#212B36] font-inter font-bold text-sm">
+                  <div className="flex items-center gap-1 cursor-pointer select-none">
+                    Total Bundles <ArrowDownUp size={14} className="text-[#919EAB]" />
                   </div>
                 </th>
                 <th className="p-3 md:p-4 w-20 text-center"></th>
@@ -157,18 +162,22 @@ const LoadPlanningList: React.FC = () => {
                       {item.projectId}
                     </td>
                     <td className="p-3 md:p-4 text-sm font-inter text-[#212B36] font-semibold">
-                      <div>{projectDisplayName(item)}</div>
-
+                      <div className="whitespace-normal break-words line-clamp-2 max-w-[250px]">
+                        {projectDisplayName(item)}
+                      </div>
                     </td>
                     <td className="p-3 md:p-4 text-sm font-inter text-[#637381]">
                       {formatDate(item.fileReceivedAt)}
                     </td>
                     <td className="p-3 md:p-4 text-sm font-inter text-[#212B36] font-medium">
-                      {item.totalLoadPlanning}
+                      {item.totalLoads ?? "-"}
+                    </td>
+                    <td className="p-3 md:p-4 text-sm font-inter text-[#212B36] font-medium">
+                      {item.totalBundles ?? "-"}
                     </td>
                     <td className="p-3 md:p-4 text-center">
                       <button
-                        onClick={() => navigate(`/load_planning/${item.leadId}/list`)}
+                        onClick={() => navigate(`/load_planning/details/${item.leadId}`)}
                         className="p-1.5 text-gray-400 hover:text-[#1E51A4] rounded-lg hover:bg-gray-50 transition-all"
                         title="View details"
                       >
