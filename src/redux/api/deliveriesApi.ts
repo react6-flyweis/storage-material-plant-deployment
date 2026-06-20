@@ -216,6 +216,10 @@ export const deliveriesApi = createApi({
     }),
     getProjectDelivery: builder.query<ProjectDeliveryResponse, string>({
       query: (leadId) => `/api/plant/projects/${leadId}/delivery`,
+      providesTags: (result) =>
+        result?.delivery?.deliveryId
+          ? [{ type: "DeliveryDetail", id: result.delivery.deliveryId }]
+          : [],
       transformResponse: (response: ApiResponse<ProjectDeliveryResponse>) => response.data as ProjectDeliveryResponse,
     }),
     getDeliveryDetail: builder.query<ProjectDeliveryResponse, string>({
@@ -279,6 +283,62 @@ export const deliveriesApi = createApi({
           limit: 20,
         };
       },
+    }),
+    rescheduleDelivery: builder.mutation<
+      unknown,
+      {
+        deliveryId: string;
+        body: {
+          date: string;
+          timeWindowStart: string;
+          timeWindowEnd: string;
+          rescheduleReason: string;
+          additionalNotes?: string;
+        };
+      }
+    >({
+      query: ({ deliveryId, body }) => ({
+        url: `/api/plant/deliveries/${deliveryId}/reschedule`,
+        method: "PATCH",
+        body,
+      }),
+      invalidatesTags: (_result, _error, { deliveryId }) => [
+        { type: "DeliveryDetail", id: deliveryId },
+      ],
+    }),
+    updateDeliveryStatus: builder.mutation<
+      unknown,
+      {
+        deliveryId: string;
+        body: {
+          status: string;
+        };
+      }
+    >({
+      query: ({ deliveryId, body }) => ({
+        url: `/api/plant/deliveries/${deliveryId}/status`,
+        method: "PATCH",
+        body,
+      }),
+      invalidatesTags: (_result, _error, { deliveryId }) => [
+        { type: "DeliveryDetail", id: deliveryId },
+      ],
+    }),
+    updateDeliveryDetails: builder.mutation<
+      unknown,
+      {
+        deliveryId: string;
+        body: Record<string, unknown>;
+      }
+    >({
+      query: ({ deliveryId, body }) => ({
+        url: `/api/plant/deliveries/${deliveryId}`,
+        method: "PUT",
+        body,
+      }),
+      invalidatesTags: (_result, _error, { deliveryId }) => [
+        { type: "DeliveryDetail", id: deliveryId },
+      ],
     }),
   }),
 });
@@ -410,6 +470,8 @@ export interface CalendarDeliveryItem {
     deliveryDate?: string;
     deliveryTime?: string;
     timings?: string;
+    timeWindowStart?: string;
+    timeWindowEnd?: string;
     receivingPoc?: string;
     pickupContactPhone?: string;
     specialRequirements?: string;
@@ -490,6 +552,8 @@ export interface ProjectDeliveryResponse {
       deliveryDate: string;
       deliveryTime: string;
       timings: string;
+      timeWindowStart?: string;
+      timeWindowEnd?: string;
       receivingPoc: string;
       pickupContactPhone: string;
       specialRequirements: string;
@@ -569,5 +633,8 @@ export const {
   useGetProjectDeliveryQuery,
   useGetProjectDeliveriesListQuery,
   useGetDeliveryDetailQuery,
+  useRescheduleDeliveryMutation,
+  useUpdateDeliveryStatusMutation,
+  useUpdateDeliveryDetailsMutation,
 } = deliveriesApi;
 
