@@ -82,11 +82,14 @@ export const DeliveryCard = ({
   const config = statusConfig[delivery.status];
   const navigate = useNavigate();
 
+  const currentStatus = (delivery.status || "").toLowerCase();
+  const isDelivered = currentStatus === "delivered";
+
   const actions = [
-    { label: "View Details", icon: Van, onClick: () => onViewDetails ? onViewDetails(delivery.id) : navigate(`/delivery/delivery-details/${delivery.id}`) },
-    { label: "Reschedule Delivery", icon: CalendarSync, onClick: () => onReschedule ? onReschedule(delivery.id) : navigate(`/delivery/reschedule-delivery/${delivery.id}`) },
-    { label: "Mark Delivered", icon: ClipboardCheck, onClick: () => onMarkDelivered ? onMarkDelivered(delivery.id) : navigate(`/delivery/mark-delivered/${delivery.id}`) },
-    { label: "Send Reminder Now", icon: Bell, onClick: () => onSendReminder?.(delivery.id) },
+    { label: "View Details", icon: Van, onClick: () => onViewDetails ? onViewDetails(delivery.id) : navigate(`/delivery/delivery-details/${delivery.id}`), disabled: false },
+    { label: "Reschedule Delivery", icon: CalendarSync, onClick: () => onReschedule ? onReschedule(delivery.id) : navigate(`/delivery/reschedule-delivery/${delivery.id}`), disabled: isDelivered },
+    { label: "Mark Delivered", icon: ClipboardCheck, onClick: () => onMarkDelivered ? onMarkDelivered(delivery.id) : navigate(`/delivery/mark-delivered/${delivery.id}`), disabled: isDelivered },
+    { label: "Send Reminder Now", icon: Bell, onClick: () => onSendReminder?.(delivery.id), disabled: false },
   ];
 
   return (
@@ -127,7 +130,7 @@ export const DeliveryCard = ({
 
       <div className="border-t border-gray-50 flex gap-3 flex-wrap items-center p-3">
         {actions.map((action, idx) => (
-          <Button key={idx} variant="white" size="sm" onClick={action.onClick}>
+          <Button key={idx} variant="white" size="sm" onClick={action.onClick} disabled={action.disabled}>
             <action.icon size={18} className="text-[#454F5B] mr-2" />
             {action.label}
           </Button>
