@@ -61,6 +61,13 @@ const LoadPlanDetailsView: React.FC = () => {
       render: (item) => <span className="font-semibold text-[#212B36]">{item.packingListNo}</span>,
     },
     {
+      header: "Truck",
+      key: "truck",
+      render: (item) => (
+        <span className="text-[#212B36] font-medium">{item.truckLabel || item.truckType || item.truckNo || "-"}</span>
+      ),
+    },
+    {
       header: "Bundle",
       key: "bundle",
       render: (item) => <span className="font-semibold text-[#212B36]">{item.totalBundles}</span>,
@@ -70,11 +77,11 @@ const LoadPlanDetailsView: React.FC = () => {
       key: "weight",
       render: (item) => <span className="text-(--text-color-gray-4) font-normal">{item.totalWeight.toLocaleString()} LBS</span>,
     },
-    {
-      header: "Destination",
-      key: "destination",
-      render: () => <span className="text-(--text-color-gray-4) font-normal">{projectName} Site A</span>,
-    },
+    // {
+    //   header: "Destination",
+    //   key: "destination",
+    //   render: () => <span className="text-(--text-color-gray-4) font-normal">{projectName} Site A</span>,
+    // },
     {
       header: "",
       key: "completed",
@@ -150,10 +157,10 @@ const LoadPlanDetailsView: React.FC = () => {
                 {(bundleSummary?.totalWeight ?? 0).toLocaleString()} LBS
               </span>
             </div>
-            <div className="flex justify-between items-center">
+            {/* <div className="flex justify-between items-center">
               <span className="text-(--text-color-gray-4) font-inter font-medium">Estimated Freight Request</span>
               <span className="text-[#212B36] font-inter font-normal">-</span>
-            </div>
+            </div> */}
           </div>
         </div>
 
