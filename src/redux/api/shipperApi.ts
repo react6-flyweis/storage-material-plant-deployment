@@ -31,7 +31,8 @@ export interface LoadPlanningProject {
   location?: string;
   bundlePlanId: string;
   fileReceivedAt: string;
-  totalLoadPlanning: number;
+  totalBundles?: number;
+  totalLoads?: number;
   status: string;
   updatedAt: string;
 }
@@ -754,8 +755,40 @@ export const shipperApi = createApi({
         return response.data;
       },
     }),
+    getPackingListDetails: builder.query<PackingListDetailsResponse, string>({
+      query: (packingListId) => `/api/plant/packing-lists/${packingListId}`,
+      providesTags: (_result, _error, packingListId) => [
+        { type: "BundlePlan", id: packingListId },
+      ],
+      transformResponse: (response: ApiResponse<PackingListDetailsResponse>) => {
+        if (!response.data) {
+          throw new Error("No data returned from API");
+        }
+        return response.data;
+      },
+    }),
   }),
 });
+
+export interface PackingListDetailsResponse {
+  packingList: PackingListEntry;
+  truckInfo: {
+    truckType: string;
+    truckLabel: string;
+    totalWeight: number;
+    maxTruckWeight: number;
+    hardMaxTruckWeight: number;
+    maxTruckLengthFeet: number;
+  };
+  bundles: BundleItem[];
+  loadLayout: {
+    bottomLayerBundleIds: string[];
+    middleLayerBundleIds: string[];
+    topLayerBundleIds: string[];
+    loadingNotes: string;
+  };
+  planStatus: string;
+}
 
 export interface FreightAutofillResponse {
   loadDescription: string;
@@ -988,4 +1021,5 @@ export const {
   usePollCompareJobsStatusMutation,
   useGetShipperStatsQuery,
   useGetProjectShipperStatsQuery,
+  useGetPackingListDetailsQuery,
 } = shipperApi;
