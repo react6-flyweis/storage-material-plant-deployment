@@ -2,19 +2,20 @@ import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   Search,
-  Download,
   ArrowDownUp,
   CircleX,
   CheckCircle2,
   ArrowLeft,
-  Filter,
+  // Download,
+  // Filter,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
 import Button from "../common_component/Button";
 import CommonStatusBadge from "../common_component/CommonStatusBadge";
 import TitleSubtitle from "../common_component/TitleSubtitle";
-import { useGetTruckPlanQuery, useGetLoadPlanningStateQuery } from "@/redux/api/shipperApi";
+import PackingListModal from "./PackingListModal";
+import { useGetTruckPlanQuery, useGetLoadPlanningStateQuery, type PackingListEntry } from "@/redux/api/shipperApi";
 
 const ProjectPackingList: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>();
@@ -23,6 +24,9 @@ const ProjectPackingList: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedPackingList, setSelectedPackingList] = useState<PackingListEntry | null>(null);
 
   const { data: truckPlan, isLoading: isTruckPlanLoading } = useGetTruckPlanQuery(projectId || "", {
     skip: !projectId,
@@ -92,9 +96,9 @@ const ProjectPackingList: React.FC = () => {
             subtitle="View and manage packing lists generated from load planning for plant loading and shipment verification."
           />
         </div>
-        <Button variant="white" size="sm">
+        {/* <Button variant="white" size="sm">
           <Download size={18} className="mr-2" /> Export
-        </Button>
+        </Button> */}
       </div>
 
       {/* Table Controls */}
@@ -110,9 +114,20 @@ const ProjectPackingList: React.FC = () => {
               className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1E51A4]/10 transition-all"
             />
           </div>
-          <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm text-[#212B36] font-medium hover:bg-gray-50 transition-colors shadow-sm">
+          {/* <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm text-[#212B36] font-medium hover:bg-gray-50 transition-colors shadow-sm">
             <Filter size={16} className="text-gray-400" /> Filter
-          </button>
+          </button> */}
+        </div>
+
+        <div>
+          <Button
+            variant="blueFilled"
+            size="sm"
+            onClick={() => navigate(`/load_planning/packing-list/details/${truckPlan?.packingListPlan?._id || ""}`)}
+
+          >
+            View Full Detail
+          </Button>
         </div>
       </div>
 
@@ -131,7 +146,6 @@ const ProjectPackingList: React.FC = () => {
                   />
                 </th>
                 <th className="p-4 text-[#212B36] font-inter font-semibold text-sm">Packing ID</th>
-                <th className="p-4 text-[#212B36] font-inter font-semibold text-sm">Project</th>
                 <th className="p-4 text-[#212B36] font-inter font-semibold text-sm">Load ID</th>
                 <th className="p-4 text-[#212B36] font-inter font-semibold text-sm">
                   <div className="flex items-center gap-1">
@@ -148,11 +162,7 @@ const ProjectPackingList: React.FC = () => {
                     Weight <ArrowDownUp size={14} className="text-[#919EAB]" />
                   </div>
                 </th>
-                <th className="p-4 text-[#212B36] font-inter font-semibold text-sm">
-                  <div className="flex items-center gap-1">
-                    Destination <ArrowDownUp size={14} className="text-[#919EAB]" />
-                  </div>
-                </th>
+
                 <th className="p-4 text-[#212B36] font-inter font-semibold text-sm">Status</th>
                 <th className="p-4 w-20"></th>
               </tr>
@@ -160,13 +170,13 @@ const ProjectPackingList: React.FC = () => {
             <tbody className="divide-y divide-gray-50">
               {isLoading ? (
                 <tr>
-                  <td colSpan={10} className="p-8 text-center text-gray-500 font-inter">
+                  <td colSpan={8} className="p-8 text-center text-gray-500 font-inter">
                     Loading packing lists...
                   </td>
                 </tr>
               ) : paginatedPackingLists.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="p-8 text-center text-gray-500 font-inter">
+                  <td colSpan={8} className="p-8 text-center text-gray-500 font-inter">
                     No packing lists found for this project.
                   </td>
                 </tr>
@@ -182,12 +192,10 @@ const ProjectPackingList: React.FC = () => {
                       />
                     </td>
                     <td className="p-4 text-sm font-inter text-[#212B36] font-medium">{item.packingListNo}</td>
-                    <td className="p-4 text-sm font-inter text-[#212B36] font-semibold">{projectName}</td>
                     <td className="p-4 text-sm font-inter text-[#637381]">{stateData?.bundlePlan?.planNumber || "N/A"}</td>
                     <td className="p-4 text-sm font-inter text-[#212B36] font-semibold">{item.truckLabel || item.truckType || item.truckNo || "N/A"}</td>
                     <td className="p-4 text-sm font-inter text-[#212B36]">{item.totalBundles}</td>
                     <td className="p-4 text-sm font-inter text-[#212B36]">{item.totalWeight.toLocaleString()} LBS</td>
-                    <td className="p-4 text-sm font-inter text-[#212B36]">{projectName} Site A</td>
                     <td className="p-4">
                       <CommonStatusBadge
                         text={item.status || "Ready"}
@@ -208,7 +216,10 @@ const ProjectPackingList: React.FC = () => {
                         variant="gradient"
                         size="sm"
                         className="w-full"
-                        onClick={() => navigate(`/load_planning/packing-list/details/${truckPlan?.packingListPlan?._id || ""}`)}
+                        onClick={() => {
+                          setSelectedPackingList(item);
+                          setIsModalOpen(true);
+                        }}
                       >
                         View
                       </Button>
@@ -275,6 +286,20 @@ const ProjectPackingList: React.FC = () => {
           </button>
         </div>
       </div>
+
+      <PackingListModal
+        showQr={false}
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setSelectedPackingList(null);
+        }}
+        packingList={selectedPackingList}
+        bundles={stateData?.bundles}
+        projectName={projectName}
+        planNumber={truckPlan?.packingListPlan?.planNumber}
+        planId={truckPlan?.packingListPlan?._id}
+      />
     </div>
   );
 };
