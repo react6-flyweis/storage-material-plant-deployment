@@ -86,7 +86,7 @@ const DeliveryFilterModal: React.FC<DeliveryFilterModalProps> = ({
   }));
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} hideHeader width="max-w-[1100px]">
+    <Modal isOpen={isOpen} onClose={onClose} hideHeader width="max-w-[1100px]" overflowVisible>
       <div className="p-4 md:p-6 space-y-8 font-inter">
         {/* Title */}
         <h2 className="text-3xl font-bold text-[#212B36] text-center">Filters</h2>
