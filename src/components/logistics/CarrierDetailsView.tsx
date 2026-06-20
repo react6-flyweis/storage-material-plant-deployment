@@ -111,7 +111,7 @@ const mapCarrierDetail = (
   const bidWinRate = stats?.bidWinRate ?? 0;
 
   const formattedHistory = history.map((item) => ({
-    id: item.deliveryNumber || item.jobId || item._id,
+    id: item.deliveryNumber || item.jobId,
     route: `${item.pickupLocation} → ${item.deliveryLocation}`,
     cargo: item.projectName,
     date: item.selectedAt
@@ -525,7 +525,7 @@ const CarrierDetailsView: React.FC = () => {
                         onClick={() => handleSort("assigned", "cargo")}
                       >
                         <div className="flex items-center gap-1">
-                          Cargo <ArrowUpDown size={14} className={assignedSort?.key === "cargo" ? "text-blue-500" : "text-gray-400"} />
+                          Project <ArrowUpDown size={14} className={assignedSort?.key === "cargo" ? "text-blue-500" : "text-gray-400"} />
                         </div>
                       </th>
                       <th

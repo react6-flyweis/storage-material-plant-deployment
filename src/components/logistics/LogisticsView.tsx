@@ -102,15 +102,7 @@ const LogisticsView: React.FC = () => {
       status: vendor.status,
       vendorType: vendor.vendorType,
       pickupLocation: vendor.pickupLocation,
-      onTimeDeliveries: `${Math.min(
-        99,
-        Math.max(
-          70,
-          Math.round(
-            (vendor.activeOrders / Math.max(vendor.totalOrders, 1)) * 100,
-          ),
-        ),
-      )}%`,
+      onTimeDeliveries: "-"
     }));
   }, [vendorsResponse]);
 

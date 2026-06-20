@@ -27,47 +27,6 @@ import {
   useGetPlantVendorQuery,
   type PlantVendorDetailResponse,
 } from "@/redux/api/logisticsApi";
-
-
-interface VendorViewData {
-  id: string;
-  vendorId: string;
-  name: string;
-  status: string;
-  rating: number;
-  address: string;
-  email: string;
-  phone: string;
-  shop: string;
-  website: string;
-  vendorType: string;
-  serviceCategory: string;
-  yearsWorking: string;
-  metrics: {
-    totalOrders: number;
-    completedDeliveries: number;
-    activeOrders: number;
-    avgDeliveryTime: string;
-    onTimeRate: string;
-  };
-  notes: string;
-  contactRoles: Array<{ role: string; name: string; phone: string }>;
-  purchaseHistory: Array<{
-    id: string;
-    material: string;
-    quantity: string;
-    value: string;
-    status: string;
-  }>;
-  complianceDocs: Array<{
-    name: string;
-    size: string;
-    type: string;
-    expiry: string;
-  }>;
-  materialTypes: string[];
-}
-
 interface PurchaseHistoryRow {
   id: string;
   material: string;
@@ -107,83 +66,6 @@ const formatAddress = (
     .join(", ");
 };
 
-const mapVendorDetail = (
-  response?: PlantVendorDetailResponse,
-): VendorViewData => {
-  const vendor = response?.vendor;
-  const stats = response?.stats;
-  const orderHistory = response?.orderHistory ?? [];
-  const totalOrders = stats?.totalOrders ?? 0;
-  const completedDeliveries = stats?.completedDeliveries ?? 0;
-
-  return {
-    id: vendor?._id || "",
-    name: vendor?.vendorName || "",
-    vendorId: vendor?.vendorCode || "",
-    status: vendor?.status ? toTitleCase(vendor.status) : "",
-    rating:
-      totalOrders > 0
-        ? Math.min(
-          5,
-          Number(((completedDeliveries / totalOrders) * 5).toFixed(1)),
-        )
-        : 0,
-    address: formatAddress(vendor?.address),
-    email: vendor?.email || "",
-    phone: vendor?.phone || "",
-    shop: vendor?.pickupLocation || "",
-    website: "",
-    vendorType: vendor?.vendorType || "",
-    serviceCategory: vendor?.serviceCategory || "",
-    yearsWorking: vendor?.yearsWithCompany
-      ? `${vendor.yearsWithCompany} Years`
-      : "",
-    metrics: {
-      totalOrders,
-      completedDeliveries,
-      activeOrders: stats?.activeOrders ?? 0,
-      avgDeliveryTime: "—",
-      onTimeRate:
-        totalOrders > 0
-          ? `${Math.round((completedDeliveries / totalOrders) * 100)}%`
-          : "—",
-    },
-    notes: vendor?.internalNotes || "",
-    contactRoles: [
-      {
-        role: "Primary Contact",
-        name: vendor?.contactName || "",
-        phone: vendor?.phone || "",
-      },
-      {
-        role: "Pickup Location",
-        name: vendor?.pickupLocation || "",
-        phone: vendor?.phone || "",
-      },
-    ].filter((contact) => contact.name || contact.phone),
-    purchaseHistory: orderHistory.map((order) => ({
-      id: order.jobId || order._id,
-      material: getLeadProjectName(order),
-      quantity: "—",
-      value: formatCurrency(order.quoteValue),
-      status: order.status,
-    })),
-    complianceDocs: (vendor?.documents ?? []).map((document) => {
-      const isPdf =
-        document.name.toLowerCase().endsWith(".pdf") ||
-        document.url.toLowerCase().includes(".pdf");
-
-      return {
-        name: document.name,
-        size: "—",
-        type: isPdf ? "PDF" : "Document",
-        expiry: "—",
-      };
-    }),
-    materialTypes: vendor?.materialTypes ?? [],
-  };
-};
-
 const VendorDetailsView: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -200,10 +82,48 @@ const VendorDetailsView: React.FC = () => {
   });
   const vendorLoading = !vendorResponse && Boolean(id);
 
-  const vendorData = useMemo(
-    () => mapVendorDetail(vendorResponse),
-    [vendorResponse],
-  );
+  const purchaseHistory = useMemo(() => {
+    const orderHistory = vendorResponse?.orderHistory ?? [];
+    return orderHistory.map((order) => ({
+      id: order.jobId || "-",
+      material: getLeadProjectName(order) || "-",
+      quantity: "-",
+      value: order.quoteValue !== undefined ? formatCurrency(order.quoteValue) : "-",
+      status: order.status || "-",
+    }));
+  }, [vendorResponse]);
+
+  const complianceDocs = useMemo(() => {
+    const vendor = vendorResponse?.vendor;
+    return (vendor?.documents ?? []).map((document) => {
+      const isPdf =
+        document.name?.toLowerCase().endsWith(".pdf") ||
+        document.url?.toLowerCase().includes(".pdf");
+
+      return {
+        name: document.name || "-",
+        size: "-",
+        type: isPdf ? "PDF" : "Document",
+        expiry: "-",
+      };
+    });
+  }, [vendorResponse]);
+
+  const contactRoles = useMemo(() => {
+    const vendor = vendorResponse?.vendor;
+    return [
+      {
+        role: "Primary Contact",
+        name: vendor?.contactName || "-",
+        phone: vendor?.phone || "-",
+      },
+      {
+        role: "Pickup Location",
+        name: vendor?.pickupLocation || "-",
+        // phone: vendor?.phone || "-",
+      },
+    ].filter((contact) => contact.name !== "-" || contact.phone !== "-");
+  }, [vendorResponse]);
 
   const handleSort = (field: keyof PurchaseHistoryRow) => {
     if (sortField === field) {
@@ -215,7 +135,7 @@ const VendorDetailsView: React.FC = () => {
   };
 
   const sortedHistory = useMemo(() => {
-    const data = [...vendorData.purchaseHistory];
+    const data = [...purchaseHistory];
     return data.sort((a: PurchaseHistoryRow, b: PurchaseHistoryRow) => {
       let valA: string | number = a[sortField];
       let valB: string | number = b[sortField];
@@ -238,7 +158,7 @@ const VendorDetailsView: React.FC = () => {
       if (valA > valB) return sortOrder === "asc" ? 1 : -1;
       return 0;
     });
-  }, [sortField, sortOrder, vendorData.purchaseHistory]);
+  }, [sortField, sortOrder, purchaseHistory]);
 
   const paginatedHistory = useMemo(() => {
     const startIndex = (currentPage - 1) * rowsPerPage;
@@ -246,7 +166,7 @@ const VendorDetailsView: React.FC = () => {
   }, [currentPage, rowsPerPage, sortedHistory]);
 
   const sortedDocs = useMemo(() => {
-    const data = [...vendorData.complianceDocs];
+    const data = [...complianceDocs];
     if (docSort === "Name") {
       return data.sort((a, b) => a.name.localeCompare(b.name));
     } else if (docSort === "Size") {
@@ -259,7 +179,7 @@ const VendorDetailsView: React.FC = () => {
       return data.sort((a, b) => a.type.localeCompare(b.type));
     }
     return data;
-  }, [docSort, vendorData.complianceDocs]);
+  }, [docSort, complianceDocs]);
 
   if (vendorLoading) {
     return (
@@ -387,30 +307,30 @@ const VendorDetailsView: React.FC = () => {
                 <div className="space-y-1.5 text-center sm:text-left flex-1 min-w-62.5">
                   <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-3 gap-y-1 text-sm">
                     <span className="text-[#7539FF] font-normal">
-                      {vendorData.vendorId}
+                      {vendorResponse?.vendor?.vendorCode || "-"}
                     </span>
                     {/* <div className="flex items-center gap-2 text-[#051321]">
                       ⭐
                       <span className="font-normal">
-                        {vendorData.rating} / 5
+                        {vendorResponse?.vendor?.rating || "-"} / 5
                       </span>
                     </div> */}
                   </div>
                   <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
                     <h2 className="text-lg md:text-xl lg:text-2xl font-semibold text-[#051321] truncate">
-                      {vendorData.name}
+                      {vendorResponse?.vendor?.vendorName || "-"}
                     </h2>
 
                     <div className="flex flex-wrap items-center gap-2 ml-4">
                       <img src={verify} alt="verify" className="size-4" />
                       <p className="text-[#34C759] font-medium text-sm">
-                        {vendorData.status}
+                        {vendorResponse?.vendor?.status ? toTitleCase(vendorResponse.vendor.status) : "-"}
                       </p>
                     </div>
                   </div>
                   <p className="text-sm text-[#5D6772] flex items-center justify-center sm:justify-start gap-1">
                     <MapPin size={14} className="shrink-0" />{" "}
-                    <span className="truncate">{vendorData.address}</span>
+                    <span className="truncate">{formatAddress(vendorResponse?.vendor?.address) || "-"}</span>
                   </p>
                 </div>
                 <Button
@@ -429,36 +349,30 @@ const VendorDetailsView: React.FC = () => {
               <InfoTile
                 icon={<Mail size={18} />}
                 label="Email Address"
-                value={vendorData.email}
+                value={vendorResponse?.vendor?.email || "-"}
               />
               <InfoTile
                 icon={<Phone size={18} />}
                 label="Phone"
-                value={vendorData.phone}
+                value={vendorResponse?.vendor?.phone || "-"}
               />
               {/* <InfoTile
                 icon={<ShoppingBag size={18} />}
                 label="Shop"
-                value={vendorData.shop}
-              /> */}
-              {/* <InfoTile
-                icon={<Globe size={18} />}
-                label="Website"
-                value={vendorData.website}
-                isLink
+                value={vendorResponse?.vendor?.pickupLocation || "-"}
               /> */}
             </div>
 
             {/* Details Section */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mt-8 pt-8 border-t border-gray-100">
-              <DetailItem label="Vendor Type" value={vendorData.vendorType} />
+              <DetailItem label="Vendor Type" value={vendorResponse?.vendor?.vendorType || "-"} />
               <DetailItem
                 label="Service Category"
-                value={vendorData.serviceCategory}
+                value={vendorResponse?.vendor?.serviceCategory || "-"}
               />
               <DetailItem
                 label="Years Working With Company"
-                value={vendorData.yearsWorking}
+                value={vendorResponse?.vendor?.yearsWithCompany ? `${vendorResponse.vendor.yearsWithCompany} Years` : "-"}
               />
             </div>
 
@@ -466,23 +380,24 @@ const VendorDetailsView: React.FC = () => {
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-y-6 gap-x-4 p-4 md:p-6 mt-8 bg-[#F8F9FA] rounded-[14px]">
               <MetricItem
                 label="Total Orders"
-                value={vendorData.metrics.totalOrders}
+                value={vendorResponse?.stats?.totalOrders ?? "-"}
               />
               <MetricItem
                 label="Completed Deliveries"
-                value={vendorData.metrics.completedDeliveries}
+                value={vendorResponse?.stats?.completedDeliveries ?? "-"}
               />
               <MetricItem
                 label="Active Orders"
-                value={vendorData.metrics.activeOrders}
+                value={vendorResponse?.stats?.activeOrders ?? "-"}
               />
               <MetricItem
                 label="Average Delivery Time"
-                value={vendorData.metrics.avgDeliveryTime}
+                value="-"
               />
               <MetricItem
                 label="On-time Delivery Rate"
-                value={vendorData.metrics.onTimeRate}
+                value="-"
+
               />
             </div>
           </div>
@@ -502,7 +417,7 @@ const VendorDetailsView: React.FC = () => {
                       onClick={() => handleSort("material")}
                     >
                       <div className="flex items-center gap-1">
-                        Material{" "}
+                        Project{" "}
                         <ArrowUpDown
                           size={14}
                           className={
@@ -513,7 +428,7 @@ const VendorDetailsView: React.FC = () => {
                         />
                       </div>
                     </th>
-                    <th
+                    {/* <th
                       className="p-3 text-xs font-semibold text-[#5D6772] uppercase tracking-wider border-b border-r border-[#E2E4E6] cursor-pointer hover:bg-gray-100 transition-colors"
                       onClick={() => handleSort("quantity")}
                     >
@@ -528,7 +443,7 @@ const VendorDetailsView: React.FC = () => {
                           }
                         />
                       </div>
-                    </th>
+                    </th> */}
                     <th
                       className="p-3 text-xs font-semibold text-[#5D6772] uppercase tracking-wider border-b border-r border-[#E2E4E6] cursor-pointer hover:bg-gray-100 transition-colors"
                       onClick={() => handleSort("value")}
@@ -579,9 +494,9 @@ const VendorDetailsView: React.FC = () => {
                         <td className="px-6 py-4 text-sm text-[#051321] font-medium whitespace-nowrap border-r border-[#E2E4E6]">
                           {order.material}
                         </td>
-                        <td className="px-6 py-4 text-sm text-[#5D6772] whitespace-nowrap border-r border-[#E2E4E6]">
+                        {/* <td className="px-6 py-4 text-sm text-[#5D6772] whitespace-nowrap border-r border-[#E2E4E6]">
                           {order.quantity}
-                        </td>
+                        </td> */}
                         <td className="px-6 py-4 text-sm text-[#051321] font-medium whitespace-nowrap border-r border-[#E2E4E6]">
                           {order.value}
                         </td>
@@ -614,7 +529,7 @@ const VendorDetailsView: React.FC = () => {
             <Pagination
               currentPage={currentPage}
               onPageChange={setCurrentPage}
-              totalItems={vendorData.purchaseHistory.length}
+              totalItems={purchaseHistory.length}
               itemsPerPage={rowsPerPage}
               rowsPerPage={rowsPerPage}
               onRowsPerPageChange={setRowsPerPage}
@@ -627,7 +542,7 @@ const VendorDetailsView: React.FC = () => {
             <div className="pt-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                 <p className="text-sm font-semibold text-[#051321]">
-                  Total No of Documents : {vendorData.complianceDocs.length}
+                  Total No of Documents : {complianceDocs.length}
                 </p>
                 <div className="flex flex-wrap items-center gap-3">
                   <FilterDropdown
@@ -730,9 +645,9 @@ const VendorDetailsView: React.FC = () => {
           <div className="bg-white rounded-[14px] p-3 md:p-5 shadow-sm ">
             <SubHeading text="Notes" />
             <div className="w-full h-px bg-gray-100 mb-6" />
-            {vendorData.notes && vendorData.notes.trim() ? (
+            {vendorResponse?.vendor?.internalNotes && vendorResponse.vendor.internalNotes.trim() ? (
               <p className="text-sm text-[#637381] leading-relaxed font-inter">
-                {vendorData.notes}
+                {vendorResponse.vendor.internalNotes}
               </p>
             ) : (
               <p className="text-sm text-[#919EAB] italic font-inter">
@@ -746,7 +661,7 @@ const VendorDetailsView: React.FC = () => {
             <SubHeading text="Vendor Contact Roles" />
             <div className="w-full h-px bg-gray-100 mb-6" />
             <div className="space-y-8">
-              {vendorData.contactRoles.map((contact, i) => (
+              {contactRoles.map((contact, i) => (
                 <div key={i} className="space-y-1.5">
                   <h4 className="text-sm font-semibold text-[#051321]">
                     {contact.role}
