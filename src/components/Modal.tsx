@@ -9,6 +9,7 @@ interface ModalProps {
   width?: string;
   height?: string;
   hideHeader?: boolean;
+  overflowVisible?: boolean;
 }
 
 const Modal: React.FC<ModalProps> = ({
@@ -19,6 +20,7 @@ const Modal: React.FC<ModalProps> = ({
   width = "max-w-2xl",
   height = "max-h-[90vh]",
   hideHeader = false,
+  overflowVisible = false,
 }) => {
   const modalRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -65,7 +67,7 @@ const Modal: React.FC<ModalProps> = ({
             </h2>
           </div>
         )}
-        <div className="xl:p-6 p-2 overflow-y-auto">{children}</div>
+        <div className={`xl:p-6 p-2 ${overflowVisible ? "overflow-visible" : "overflow-y-auto"}`}>{children}</div>
       </div>
     </div>,
     document.body

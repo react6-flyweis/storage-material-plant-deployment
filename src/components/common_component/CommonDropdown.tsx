@@ -28,6 +28,8 @@ const CommonDropdown: React.FC<CommonDropdownProps> = ({
   error,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [openUpward, setOpenUpward] = useState(false);
+  const [maxHeight, setMaxHeight] = useState("240px");
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const selectedOption = options.find((opt) => opt.value === value);
@@ -44,6 +46,28 @@ const CommonDropdown: React.FC<CommonDropdownProps> = ({
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    if (isOpen && dropdownRef.current) {
+      const buttonEl = dropdownRef.current.querySelector("button");
+      if (buttonEl) {
+        const rect = buttonEl.getBoundingClientRect();
+        const spaceBelow = window.innerHeight - rect.bottom;
+        const spaceAbove = rect.top;
+
+        // Standard dropdown height is around 240px (max-h-60) plus some buffer (20px) = 260px
+        if (spaceBelow < 260 && spaceAbove > spaceBelow) {
+          setOpenUpward(true);
+          const calculatedMaxHeight = Math.max(120, spaceAbove - 20);
+          setMaxHeight(`${calculatedMaxHeight}px`);
+        } else {
+          setOpenUpward(false);
+          const calculatedMaxHeight = Math.max(120, spaceBelow - 20);
+          setMaxHeight(`${calculatedMaxHeight}px`);
+        }
+      }
+    }
+  }, [isOpen]);
 
   return (
     <div className={`flex flex-col gap-2 ${className}`} ref={dropdownRef}>
@@ -73,8 +97,8 @@ const CommonDropdown: React.FC<CommonDropdownProps> = ({
         </button>
 
         {isOpen && (
-          <div className="absolute z-50 w-full mt-2 bg-white border border-gray-100 rounded-md shadow-sm overflow-hidden animate-in fade-in zoom-in duration-200">
-            <div className="max-h-60 overflow-y-auto">
+          <div className={`absolute z-50 w-full ${openUpward ? "bottom-full mb-2" : "top-full mt-2"} bg-white border border-gray-100 rounded-md shadow-sm overflow-hidden animate-in fade-in zoom-in duration-200`}>
+            <div style={{ maxHeight }} className="overflow-y-auto">
               {options.map((option) => (
                 <button
                   key={option.value}
