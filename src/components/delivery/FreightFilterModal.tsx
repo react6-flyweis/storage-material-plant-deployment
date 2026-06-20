@@ -3,7 +3,7 @@ import Modal from "../Modal";
 import Button from "../common_component/Button";
 import CommonDropdown from "../common_component/CommonDropdown";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useGetPlantProjectsQuery } from "@/redux/api/projectApi";
+import { useGetPlantProjectsQuery, useGetCustomersQuery } from "@/redux/api/projectApi";
 import { useGetPlantCarriersQuery } from "@/redux/api/logisticsApi";
 
 export interface FreightFilters {
@@ -47,6 +47,7 @@ const FreightFilterModal: React.FC<FreightFilterModalProps> = ({
 
   const { data: projectsData } = useGetPlantProjectsQuery({ limit: 100 }, { skip: !isOpen });
   const { data: carriersData } = useGetPlantCarriersQuery({ limit: 100 }, { skip: !isOpen });
+  const { data: customersData } = useGetCustomersQuery({ limit: 100 }, { skip: !isOpen });
 
   const handleFilterChange = (key: keyof FreightFilters, value: string) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
@@ -85,7 +86,16 @@ const FreightFilterModal: React.FC<FreightFilterModalProps> = ({
     return options;
   }, [carriersData]);
 
-  const customerOptions = [{ label: "All Customers", value: "" }];
+  const customerOptions = useMemo(() => {
+    const options = [{ label: "All Customers", value: "" }];
+    if (customersData?.customers) {
+      customersData.customers.forEach((c) => {
+        const fullName = `${c.firstName} ${c.lastName}`.trim();
+        options.push({ label: fullName, value: c._id });
+      });
+    }
+    return options;
+  }, [customersData]);
 
   const statusOptions = [
     { label: "All Statuses", value: "" },
@@ -116,7 +126,7 @@ const FreightFilterModal: React.FC<FreightFilterModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} hideHeader width="max-w-[750px]">
+    <Modal isOpen={isOpen} onClose={onClose} hideHeader width="max-w-[750px]" overflowVisible>
       <div className="p-4 md:p-6 space-y-6 font-inter">
         {/* Header */}
         <h2 className="text-xl md:text-2xl font-bold text-[#212B36] text-center">
