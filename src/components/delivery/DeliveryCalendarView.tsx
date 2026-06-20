@@ -19,11 +19,14 @@ import { type Delivery, statusConfig, DeliveryCard } from "./DeliveryComponents"
 import DailyDeliveriesModal from "./DailyDeliveriesModal";
 import RescheduleDeliveryModal from "./RescheduleDeliveryModal";
 import SuccessModal from "../common_component/SuccessModal";
+import { RescheduleSuccessModal } from "./DeliveryActionModals";
 import TitleSubtitle from "../common_component/TitleSubtitle";
 import PageWrapper from "../common_component/PageWrapper";
 import DeliveryFilterModal from "./DeliveryFilterModal";
 import { useGetCalendarDeliveriesQuery, type CalendarDeliveryItem } from "@/redux/api/deliveriesApi";
 import { getLeadProjectName } from "@/lib/utils";
+import { useDeliveryStatusUpdate } from "./useDeliveryStatusUpdate";
+import { AlertTriangle } from "lucide-react";
 
 const mapApiDeliveryToDelivery = (item: CalendarDeliveryItem, dateStr: string): Delivery => {
   const statusMap: Record<string, Delivery["status"]> = {
@@ -47,7 +50,7 @@ const mapApiDeliveryToDelivery = (item: CalendarDeliveryItem, dateStr: string): 
     badges: [],
     project: getLeadProjectName(item.project, item.customer),
     customer: item.customer?.name || "N/A",
-    timeWindow: item.deliveryTime || item.delivery?.deliveryTime || item.delivery?.timings || "N/A",
+    timeWindow: item.delivery?.timings || item.deliveryTime || item.delivery?.deliveryTime || "N/A",
     receivingContact: item.poc?.receivingPoc || item.delivery?.receivingPoc || item.customer?.name || "N/A",
     vendor: item.carrier?.carrierName || item.shipperVendor?.vendorName || "N/A",
     siteLocation: item.deliveryLocation || item.delivery?.deliveryLocation || "N/A",
@@ -260,6 +263,9 @@ const DeliveryCalendarView: React.FC = () => {
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [activeDeliveryId, setActiveDeliveryId] = useState<string>("");
   const [selectedDeliveryForModal, setSelectedDeliveryForModal] = useState<Delivery | null>(null);
+  const [rescheduleData, setRescheduleData] = useState<{ date: string; timeWindowStart: string; timeWindowEnd: string } | null>(null);
+
+  const { updateDeliveryStatus, toastMessage } = useDeliveryStatusUpdate();
 
   useEffect(() => {
     const calendarApi = calendarRef.current?.getApi();
@@ -388,14 +394,17 @@ const DeliveryCalendarView: React.FC = () => {
     setIsRescheduleModalOpen(true);
   };
 
-  const handleRescheduleSubmit = () => {
+  const handleRescheduleSubmit = (data: { date: string; timeWindowStart: string; timeWindowEnd: string }) => {
+    setRescheduleData(data);
     setIsRescheduleModalOpen(false);
     setIsRescheduleSuccessOpen(true);
   };
 
   const handleMarkDelivered = (id: string) => {
     setActiveDeliveryId(id);
-    setIsMarkDeliveredModalOpen(true);
+    updateDeliveryStatus(id, "delivered", () => {
+      setIsMarkDeliveredModalOpen(true);
+    });
   };
 
   const handleSendReminder = (id: string) => {
@@ -433,6 +442,14 @@ const DeliveryCalendarView: React.FC = () => {
 
   return (
     <PageWrapper>
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div className={`fixed top-6 right-6 z-50 text-white font-semibold px-6 py-3.5 rounded-xl shadow-lg flex items-center gap-2 animate-bounce ${toastMessage.includes("Error:") ? "bg-red-500" : "bg-[#10B981]"
+          }`}>
+          <AlertTriangle size={18} strokeWidth={3} />
+          {toastMessage}
+        </div>
+      )}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         <TitleSubtitle title="Delivery Calendar" subtitle="Schedule and track deliveries in calendar view" />
 
@@ -548,12 +565,21 @@ const DeliveryCalendarView: React.FC = () => {
         onSendReminder={handleSendReminder}
       />
 
-      <RescheduleDeliveryModal
-        isOpen={isRescheduleModalOpen}
-        onClose={() => setIsRescheduleModalOpen(false)}
-        deliveryId={activeDeliveryId}
-        onSubmit={handleRescheduleSubmit}
-      />
+      {(() => {
+        const matchedDelivery = deliveries.find(d => d.id === activeDeliveryId);
+        const [timeStart = "", timeEnd = ""] = matchedDelivery ? (matchedDelivery.timeWindow || "").split(/\s*[-–]\s*/) : [];
+        return (
+          <RescheduleDeliveryModal
+            isOpen={isRescheduleModalOpen}
+            onClose={() => setIsRescheduleModalOpen(false)}
+            deliveryId={activeDeliveryId}
+            initialDate={matchedDelivery?.date}
+            initialTimeWindowStart={timeStart}
+            initialTimeWindowEnd={timeEnd}
+            onSubmit={handleRescheduleSubmit}
+          />
+        );
+      })()}
 
       <Modal isOpen={!!selectedDeliveryForModal} onClose={() => setSelectedDeliveryForModal(null)} hideHeader width="max-w-[1000px]">
         <div className="p-4 md:p-6 space-y-6">
@@ -599,25 +625,19 @@ const DeliveryCalendarView: React.FC = () => {
         </div>
       </SuccessModal>
 
-      <SuccessModal
-        isLogoBottom={false}
-        isOpen={isRescheduleSuccessOpen}
-        onClose={() => setIsRescheduleSuccessOpen(false)}
-        title="Your delivery for Primary Frame Steel has been rescheduled."
-        buttonText="Ok"
-      >
-        <div className="space-y-3 pt-2 pb-6">
-          <p className="text-lg font-semibold text-[#212B36]">
-            New Date: <span className="font-normal">March 27</span>
-          </p>
-          <p className="text-lg font-semibold text-[#212B36]">
-            Time Window: <span className="font-normal">10:00 AM – 2:00 PM</span>
-          </p>
-          <p className="text-lg font-semibold text-[#212B36]">
-            Contact: <span className="font-normal">John Site Manager</span>
-          </p>
-        </div>
-      </SuccessModal>
+      {(() => {
+        const matchedDelivery = deliveries.find(d => d.id === activeDeliveryId);
+        return (
+          <RescheduleSuccessModal
+            isOpen={isRescheduleSuccessOpen}
+            onClose={() => setIsRescheduleSuccessOpen(false)}
+            projectName={matchedDelivery?.title || "Delivery"}
+            newDate={rescheduleData ? new Date(rescheduleData.date + "T00:00:00Z").toLocaleDateString("en-US", { month: "long", day: "numeric" }) : undefined}
+            timeWindow={rescheduleData ? `${rescheduleData.timeWindowStart} – ${rescheduleData.timeWindowEnd}` : undefined}
+            contact={matchedDelivery?.receivingContact || "Site Manager"}
+          />
+        );
+      })()}
 
       <SuccessModal
         isLogoBottom={false}
