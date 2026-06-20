@@ -146,6 +146,9 @@ const QRLabelsView = lazy(() => import("./components/projects/QRLabelsView"));
 const ProjectQRLabels = lazy(
   () => import("./components/projects/ProjectQRLabels"),
 );
+const PackingListQRLabels = lazy(
+  () => import("./components/projects/PackingListQRLabels"),
+);
 const FreightLoadsView = lazy(
   () => import("./components/delivery/FreightLoadsView"),
 );
@@ -308,6 +311,10 @@ export const adminRoutes: RouteObject[] = [
           {
             path: "/load_planning/qr-labels/:projectId",
             element: <ProjectQRLabels />,
+          },
+          {
+            path: "/load_planning/qr-labels/packing-list/:packingListId",
+            element: <PackingListQRLabels />,
           },
           {
             path: "/delivery/freight-loads",
