@@ -200,7 +200,7 @@ const QRLabelView: React.FC = () => {
         description="Generate and print QR labels for bundles and pallets to enable scanning and tracking."
         actions={actions}
       />
-      <div className="p-6 pt-0">
+      <div className="md:p-6 p-3 pt-0">
         <Step5QRLabel
           onViewLabel={(packingList) => {
             setSelectedPackingList(packingList);
