@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Star, CheckCircle2, RefreshCcw } from "lucide-react";
+import { CheckCircle2, RefreshCcw } from "lucide-react";
 import Button from "../common_component/Button";
 import Modal from "../Modal";
 
@@ -22,7 +22,7 @@ export const RequestRevisionModal: React.FC<RequestRevisionModalProps> = ({
   error,
 }) => {
   const [targetAmount, setTargetAmount] = useState("");
-  const [message, setMessage] = useState("Please revise — pickup window moved to next week.");
+  const [message, setMessage] = useState("");
   const [allowCounterOffer, setAllowCounterOffer] = useState(false);
 
   if (!isOpen) return null;
@@ -49,10 +49,10 @@ export const RequestRevisionModal: React.FC<RequestRevisionModalProps> = ({
           <div className="space-y-1">
             <p className="text-sm font-medium text-[#637381]">Carrier</p>
             <h3 className="text-base md:text-xl font-semibold text-[#212B36]">{carrierName}</h3>
-            <div className="flex items-center gap-1.5 pt-1">
+            {/* <div className="flex items-center gap-1.5 pt-1">
               <Star size={16} className="text-[#FFAB00] fill-[#FFAB00]" />
               <span className="text-xs md:text-sm font-normal text-[#212B36]">{carrier?.rating || "4.8"} rating</span>
-            </div>
+            </div> */}
           </div>
           <div className="text-right space-y-1 ml-auto">
             <p className="text-sm font-medium text-[#637381]">Current Bid Amount</p>
