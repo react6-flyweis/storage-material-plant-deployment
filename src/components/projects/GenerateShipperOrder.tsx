@@ -152,15 +152,19 @@ const GenerateShipperOrder: React.FC = () => {
           <Heading text="Generate Shipper Order" />
         </div>
 
-        <Button
-          variant="gradient"
-          size="md"
-          className="flex items-center gap-2"
-          onClick={handleSendOrder}
-          disabled={selectedShipperIds.length === 0 || isSending}
-        >
-          <Send size={18} /> {isSending ? "Sending..." : "Send Order"}
-        </Button>
+        <div className="flex justify-end">
+
+
+          <Button
+            variant="gradient"
+            size="md"
+            className="flex items-center gap-2"
+            onClick={handleSendOrder}
+            disabled={selectedShipperIds.length === 0 || isSending}
+          >
+            <Send size={18} /> {isSending ? "Sending..." : "Send Order"}
+          </Button>
+        </div>
       </div>
 
       {/* Select Shipper Card */}
@@ -214,13 +218,12 @@ const GenerateShipperOrder: React.FC = () => {
                 <div
                   key={shipper._id}
                   onClick={() => toggleShipper(shipper._id)}
-                  className={`p-5 rounded-[12px] border-2 transition-all flex flex-col gap-3 relative ${
-                    isAlreadySent
-                      ? "border-gray-200 bg-gray-50/50 opacity-75 cursor-not-allowed select-none"
-                      : isSelected
+                  className={`p-5 rounded-[12px] border-2 transition-all flex flex-col gap-3 relative ${isAlreadySent
+                    ? "border-gray-200 bg-gray-50/50 opacity-75 cursor-not-allowed select-none"
+                    : isSelected
                       ? "border-[#3AB449] bg-white cursor-pointer"
                       : "border-[#E2E4E6] bg-white cursor-pointer"
-                  }`}
+                    }`}
                 >
                   {sentVendor && (
                     <span className="absolute top-2 right-2 bg-blue-50 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-blue-200">
@@ -228,13 +231,12 @@ const GenerateShipperOrder: React.FC = () => {
                     </span>
                   )}
                   <div className="flex items-start gap-3">
-                    <div className={`size-5 rounded border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors ${
-                      isAlreadySent
-                        ? "bg-gray-300 border-gray-300"
-                        : isSelected
+                    <div className={`size-5 rounded border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors ${isAlreadySent
+                      ? "bg-gray-300 border-gray-300"
+                      : isSelected
                         ? "bg-[#3AB449] border-[#3AB449]"
                         : "border-gray-300 bg-white"
-                    }`}>
+                      }`}>
                       {isSelected && (
                         <svg viewBox="0 0 24 24" fill="none" className="size-3.5 text-white" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
                           <polyline points="20 6 9 17 4 12" />
@@ -244,10 +246,10 @@ const GenerateShipperOrder: React.FC = () => {
                     <div className="space-y-1 pr-8">
                       <h4 className="font-bold text-[#212B36] text-sm md:text-base leading-tight">{shipper.vendorName}</h4>
                       <div className="flex items-center gap-1.5">
-                        <div className="flex items-center gap-1">
+                        {/* <div className="flex items-center gap-1">
                           <span className="text-[#FF9409] text-xs font-bold">★ 5.0</span>
                           <span className="text-gray-300 text-xs">•</span>
-                        </div>
+                        </div> */}
                       </div>
                     </div>
                   </div>
