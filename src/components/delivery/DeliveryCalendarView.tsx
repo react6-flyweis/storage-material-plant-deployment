@@ -493,7 +493,7 @@ const DeliveryCalendarView: React.FC = () => {
         </div>
       </div>
 
-      <div className="bg-white rounded-[14px] border border-gray-100 overflow-hidden p-4 calendar-custom">
+      <div className={`bg-white rounded-[14px] border border-gray-100 overflow-auto max-h-[750px] p-4 calendar-custom custom-scrollbar calendar-view-${activeView.toLowerCase()}`}>
         <div className="flex flex-wrap gap-4 mb-8 mt-2">
           <div className="px-5 py-2.5 bg-[#4169B830] text-[#02318C] rounded-[8px] text-sm font-normal">Total Deliveries: {todaysDeliveriesCount} deliveries</div>
           {/* <div className="px-5 py-2.5 bg-[#4169B830] text-[#02318C] rounded-[8px] text-sm font-normal flex items-center gap-2">Weather: ☀ Clear</div> */}
@@ -656,9 +656,19 @@ const DeliveryCalendarView: React.FC = () => {
         .calendar-custom .fc-event { background: transparent; border: none; padding: 0; }
         .fc-h-event { background-color: transparent !important; border: none !important; }
         .calendar-custom .fc-daygrid-day-frame { min-height: 120px; }
+        .calendar-custom.calendar-view-week .fc,
+        .calendar-custom.calendar-view-month .fc {
+          min-width: 1400px;
+        }
+        .calendar-custom.calendar-view-week .fc-col-header-cell,
+        .calendar-custom.calendar-view-week .fc-daygrid-day,
+        .calendar-custom.calendar-view-month .fc-col-header-cell,
+        .calendar-custom.calendar-view-month .fc-daygrid-day {
+          min-width: 200px;
+        }
         .calendar-custom .fc-day-today { background: #F4F6F8 !important; }
         .calendar-custom .fc-day-today .fc-col-header-cell-cushion { color: #2B7FFF; }
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #E2E4E6; border-radius: 10px; }
       `}</style>
