@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Check, ArrowLeft } from "lucide-react";
 import Button from "@/components/common_component/Button";
@@ -82,12 +82,28 @@ const LoadPlanningHeader: React.FC<LoadPlanningHeaderProps> = ({
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const pathStepIndex = stepsConfig.findIndex((step) =>
     location.pathname.includes(step.path)
   );
 
   const currentStepIndex = pathStepIndex !== -1 ? pathStepIndex : 0;
+
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      const activeElement = scrollContainerRef.current.querySelector(
+        '[data-active="true"]'
+      );
+      if (activeElement) {
+        activeElement.scrollIntoView({
+          behavior: "smooth",
+          block: "nearest",
+          inline: "center",
+        });
+      }
+    }
+  }, [currentStepIndex]);
 
   const handleStepClick = (idx: number) => {
     if (!STEPS_CLICKABLE) return;
@@ -109,10 +125,13 @@ const LoadPlanningHeader: React.FC<LoadPlanningHeaderProps> = ({
   return (
     <div className="md:px-4 px-2">
       {/* ── Stepper ─────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-[14px] py-8 px-4 mb-6 border border-gray-100 overflow-x-auto custom-scrollbar shadow-sm">
-        <div className="relative flex items-center justify-between min-w-[900px] md:min-w-0 max-w-6xl mx-auto px-10 md:px-14">
+      <div
+        ref={scrollContainerRef}
+        className="bg-white rounded-[14px] py-8 px-4 mb-6 border border-gray-100 overflow-x-auto custom-scrollbar shadow-sm"
+      >
+        <div className="relative flex items-center justify-between min-w-[1100px] lg:min-w-0 max-w-6xl mx-auto px-10 lg:px-14">
           {/* Progress Line Background */}
-          <div className="absolute top-[13px] left-14 right-14 md:left-[70px] md:right-[70px] h-[2px] bg-gray-100">
+          <div className="absolute top-[13px] left-14 right-14 lg:left-[70px] lg:right-[70px] h-[2px] bg-gray-100">
             {/* Active Progress Line */}
             <div className="h-[4px] bg-[#0043CE] transition-all duration-300 w-full" />
           </div>
@@ -120,6 +139,7 @@ const LoadPlanningHeader: React.FC<LoadPlanningHeaderProps> = ({
           {stepsConfig.map((step, idx) => (
             <div
               key={step.name}
+              data-active={idx === currentStepIndex}
               className="relative z-10 flex flex-col items-center cursor-pointer"
               onClick={() => handleStepClick(idx)}
             >
@@ -165,7 +185,7 @@ const LoadPlanningHeader: React.FC<LoadPlanningHeaderProps> = ({
             subtitle={description}
           />
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           {actions.map((action, idx) => (
             <Button
               key={idx}
