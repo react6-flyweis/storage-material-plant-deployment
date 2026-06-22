@@ -199,7 +199,7 @@ const BundlePlannerView: React.FC = () => {
         description="Group items into optimized bundles or pallets for efficient truck loading and site unloading."
         actions={actions}
       />
-      <div className="p-6 pt-0">
+      <div className="md:p-6 p-3 pt-0">
         {apiError && (
           <div className=" my-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm font-medium">
             {apiError}
@@ -270,9 +270,9 @@ const BundlePlannerView: React.FC = () => {
               </h3>
               <div className="space-y-4 max-w-md">
                 {[
-                  { label: "Target Bundle Weight", value: "5000 lbs" },
-                  { label: "Maximum Bundle Weight", value: "6000 lbs" },
-                  { label: "Length Tolerance", value: "±6 in" },
+                  { label: "Prefered Bundle Weight", value: "3,500 lbs" },
+                  { label: "Maximum Bundle Weight", value: "6,000 lbs" },
+                  { label: "Maximum Bundle Length", value: "53 ft" },
                   { label: "Group by Profile", value: "Enabled" },
                 ].map((ctrl) => (
                   <div
