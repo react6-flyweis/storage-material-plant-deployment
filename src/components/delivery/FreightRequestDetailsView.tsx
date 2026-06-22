@@ -251,7 +251,7 @@ const FreightRequestDetailsView: React.FC = () => {
             />
             <FreightStatCard
               title="Potential Savings"
-              value={bidsResponse?.stats?.potentialSavings !== null ? `$${bidsResponse.stats.potentialSavings.toLocaleString()}` : "-"}
+              value={bidsResponse?.stats?.potentialSavings !== null ? `$${bidsResponse?.stats.potentialSavings.toLocaleString()}` : "-"}
               subtitle="vs highest bid"
               icon={Zap}
               gradient="linear-gradient(135deg, #AD46FF 0%, #9810FA 100%)"
