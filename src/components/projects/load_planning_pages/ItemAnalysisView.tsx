@@ -107,10 +107,10 @@ const Step1ItemAnalysis: React.FC = () => {
         {/* Project Details Header */}
         <div className="bg-[#F8F9FB] rounded-xl p-4 border border-gray-100">
           <CommonInfoList
-            title={`Project: ${shipperDoc.projectName || "N/A"} | Upload ID: ${shipperDoc.fileName}`}
+            title={`Project: ${shipperDoc.projectName || "N/A"} `}
             items={[
               { label: "Project ID", value: shipperDoc.projectId || "" },
-              { label: "Upload Id", value: shipperDoc.fileName },
+              { label: "Vendor Id", value: shipperDoc.vendorCode },
               // { label: "Shipper Refrence", value: shipperDoc.requestId },
               { label: "Vendor", value: shipperDoc.vendorName },
             ]}
@@ -174,7 +174,7 @@ const ItemAnalysisView: React.FC = () => {
         description="Analyze the material list for accuracy and identify any missing or incompatible items."
         actions={[]}
       />
-      <div className="p-6">
+      <div className="md:p-6 p-3 pt-0">
         <Step1ItemAnalysis />
       </div>
     </div>
