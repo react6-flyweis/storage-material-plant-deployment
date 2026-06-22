@@ -587,6 +587,7 @@ export const shipperApi = createApi({
       query: (leadId) => `/api/plant/projects/${leadId}/bundle-plan`,
       providesTags: (_result, _error, leadId) => [
         { type: "BundlePlan", id: leadId },
+        { type: "BundlePlan" },
       ],
       transformResponse: (response: ApiResponse<GetBundlePlanResponse>) => {
         if (!response.data) {
@@ -599,6 +600,7 @@ export const shipperApi = createApi({
       query: (bundleId) => `/api/plant/bundles/${bundleId}`,
       providesTags: (_result, _error, bundleId) => [
         { type: "BundlePlan", id: bundleId },
+        { type: "BundlePlan" },
       ],
       transformResponse: (response: ApiResponse<GetBundleDetailsResponse>) => {
         if (!response.data) {
@@ -637,6 +639,7 @@ export const shipperApi = createApi({
       query: (projectId) => `/api/plant/projects/${projectId}/load-planning`,
       providesTags: (_result, _error, projectId) => [
         { type: "BundlePlan", id: projectId },
+        { type: "BundlePlan" },
       ],
       transformResponse: (response: ApiResponse<LoadPlanningStateResponse>) => {
         if (!response.data) {
