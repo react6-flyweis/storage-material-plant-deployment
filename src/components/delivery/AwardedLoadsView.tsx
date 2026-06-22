@@ -144,7 +144,7 @@ const AwardedLoadsView: React.FC = () => {
       </div>
 
       {/* Stats Section */}
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {statsData.map((stat, idx) => (
           <LoadStatCard key={idx} {...stat} />
         ))}
