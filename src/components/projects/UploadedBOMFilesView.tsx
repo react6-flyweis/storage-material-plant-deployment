@@ -176,18 +176,18 @@ const UploadedBOMFilesView: React.FC = () => {
       {/* ── Header ────────────────────────────────────────────────────── */}
       <div className="flex flex-wrap items-center justify-between gap-4 mt-2">
         <Heading text="Uploaded BOM Files" />
-        <Button
+        {/* <Button
           variant="primary"
           size="sm"
           className="px-8 py-3"
           onClick={() => setIsModalOpen(true)}
         >
           Upload BOM File
-        </Button>
+        </Button> */}
       </div>
 
       {/* ── Stats ─────────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((stat, idx) => (
           <StatCard
             key={idx}
