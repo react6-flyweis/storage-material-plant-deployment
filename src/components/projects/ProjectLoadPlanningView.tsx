@@ -14,7 +14,14 @@ const ProjectLoadPlanningView: React.FC = () => {
   useEffect(() => {
     if (!projectId) return;
 
-    // console.log({ isLoading, isError, stateData })
+    // Check if we are at the root level of load planning
+    const isRootPath =
+      location.pathname === `/load_planning/${projectId}` ||
+      location.pathname === `/load_planning/${projectId}/` ||
+      location.pathname === `/load_planning/${projectId}/start-load-planning` ||
+      location.pathname === `/load_planning/${projectId}/start-load-planning/`;
+
+    if (!isRootPath) return;
 
     if (!isLoading && !stateData) {
       navigate(`/load_planning/${projectId}/item-analysis`, { replace: true });
@@ -23,32 +30,19 @@ const ProjectLoadPlanningView: React.FC = () => {
 
     if (isLoading || isError || !stateData) return;
 
-    // Check if we are at the root level of load planning
-    const isRootPath =
-      location.pathname === `/load_planning/${projectId}` ||
-      location.pathname === `/load_planning/${projectId}/` ||
-      location.pathname === `/load_planning/${projectId}/start-load-planning` ||
-      location.pathname === `/load_planning/${projectId}/start-load-planning/`;
-
-    // const REDIRECT_TO_STATE = import.meta.env.DEV ? false : true;
-    if (isRootPath) {
-
-      if (stateData.packingListPlan?.status === "confirmed") {
-        navigate(`/load_planning/${projectId}/load-plan-review`, { replace: true });
-        return;
-      }
-      if (stateData.packingListPlan) {
-        navigate(`/load_planning/${projectId}/truck-optimizer`, { replace: true });
-        return;
-      }
-      if (stateData.bundlePlan) {
-        navigate(`/load_planning/${projectId}/bundle-planner`, { replace: true });
-        return;
-      }
-      navigate(`/load_planning/${projectId}/item-analysis`, { replace: true });
+    if (stateData.packingListPlan?.status === "confirmed") {
+      navigate(`/load_planning/${projectId}/load-plan-review`, { replace: true });
+      return;
     }
-
-
+    if (stateData.packingListPlan) {
+      navigate(`/load_planning/${projectId}/truck-optimizer`, { replace: true });
+      return;
+    }
+    if (stateData.bundlePlan) {
+      navigate(`/load_planning/${projectId}/bundle-planner`, { replace: true });
+      return;
+    }
+    navigate(`/load_planning/${projectId}/item-analysis`, { replace: true });
 
   }, [projectId, stateData, isLoading, isError, location.pathname, navigate]);
 
