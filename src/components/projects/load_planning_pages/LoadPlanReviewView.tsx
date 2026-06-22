@@ -239,7 +239,7 @@ const LoadPlanReviewView: React.FC = () => {
         description="Final check of the entire load plan, including bundles, trucks, and weights, before selecting freight carriers."
         actions={actions}
       />
-      <div className="p-6 pt-0">
+      <div className="md:p-6 p-3 pt-0">
         <Step6LoadPlanReview
           onViewPackingList={(row) => {
             setSelectedPackingList(row);
