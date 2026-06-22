@@ -4,42 +4,51 @@ import Sidebar from "@/components/common_component/Sidebar";
 import Header from "@/components/common_component/Header";
 import SidePanel from "@/components/SidePanel";
 import { NAV_ITEMS } from "@/config/navigation.config";
-import { UploadModal } from "@/components/projects/ProjectUploadModals";
 import GlobalSocketListener from "@/components/GlobalSocketListener";
 
 export function MainLayout() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(() => {
+    if (typeof window !== "undefined") {
+      return window.innerWidth >= 1024;
+    }
+    return true;
+  });
   const [activeTab, setActiveTab] = useState(0);
   const [activeSubTab, setActiveSubTab] = useState<string>("");
-  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
-
-
 
   const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
 
   // 🔹 Main tab click
   const handleTabChange = (index: number) => {
-    setIsSidebarOpen(true);
+    const isMobileOrTab = typeof window !== "undefined" && window.innerWidth < 1024;
+
+    if (!isMobileOrTab) {
+      setIsSidebarOpen(true);
+    }
     const tab = NAV_ITEMS[index];
     setActiveTab(index);
     localStorage.setItem("activeTab", index.toString());
 
     if (tab.items?.length) {
       const firstNavigableItem = tab.items.find(item => !item.isAction) || tab.items[0];
-      
+
       setActiveSubTab(firstNavigableItem.label);
       localStorage.setItem("activeSubTab", firstNavigableItem.label);
-      
-      if (!firstNavigableItem.isAction) {
+
+      // On mobile and tablet, do not navigate or close sidebar when clicking a category with sub-items
+      if (!isMobileOrTab && !firstNavigableItem.isAction) {
         navigate(firstNavigableItem.path);
       }
     } else if (tab.path) {
       setActiveSubTab("");
       localStorage.removeItem("activeSubTab");
       navigate(tab.path);
+      if (isMobileOrTab) {
+        setIsSidebarOpen(false);
+      }
     }
   };
 
@@ -49,15 +58,15 @@ export function MainLayout() {
     const subItem = currentNav.items?.find(item => item.label === label);
 
     if (subItem?.isAction) {
-      if (label === "Upload BOM File") {
-        setIsUploadModalOpen(true);
-      }
       return; // 🔹 Exit early without updating activeSubTab
     }
 
     setActiveSubTab(label);
     localStorage.setItem("activeSubTab", label);
     navigate(path);
+    if (typeof window !== "undefined" && window.innerWidth < 1024) {
+      setIsSidebarOpen(false);
+    }
   };
 
   // 🔹 Sync with URL (AUTO)
@@ -81,7 +90,7 @@ export function MainLayout() {
     <div className="flex h-screen bg-[#E5ECFF] relative overflow-hidden">
       {isSidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-30 md:hidden"
+          className="fixed inset-0 bg-black/50 z-30 lg:hidden"
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
@@ -99,30 +108,17 @@ export function MainLayout() {
         onSubTabClick={handleSubTabChange}
       />
 
-      <div 
-        className={`flex-1 min-w-0 flex flex-col h-screen transition-all duration-300 ease-in-out ${
-          isSidebarOpen 
-            ? "md:ml-[287px] lg:ml-[334px]" 
-            : "md:ml-16 lg:ml-20"
-        }`}
+      <div
+        className={`flex-1 min-w-0 flex flex-col h-screen transition-all duration-300 ease-in-out ${isSidebarOpen
+            ? "lg:ml-[334px]"
+            : "lg:ml-20"
+          }`}
       >
         <Header onMenuToggle={toggleSidebar} isMenuOpen={isSidebarOpen} />
-        <main className="flex-1 overflow-y-auto mt-1 xl:pb-3 xl:pr-3">
+        <main className="flex-1 overflow-y-auto mt-1 p-2 xl:pb-3 xl:pr-3">
           <Outlet />
         </main>
       </div>
-
-      <UploadModal 
-        isOpen={isUploadModalOpen}
-        onClose={() => setIsUploadModalOpen(false)}
-        title="Upload BOM File"
-        subtitle="Please upload your BOM file to continue."
-        fileLabel="BOM File"
-        onUpload={() => {
-          setIsUploadModalOpen(false);
-          // Handle upload success logic
-        }}
-      />
 
       <GlobalSocketListener />
     </div>
