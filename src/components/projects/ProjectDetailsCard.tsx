@@ -66,7 +66,7 @@ const ProjectDetailsCard: React.FC<ProjectDetailsCardProps> = ({
       </div>
 
       {/* Middle Grid: Core Info */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 border-b border-[#0000004D]">
+      <div className="grid grid-cols-2 lg:grid-cols-4 border-b border-[#0000004D]">
         <div className="p-3 lg:p-6 flex items-start gap-4 last:border-r-0">
           <div className="text-[#637381] mt-1">
             <Building size={20} />
