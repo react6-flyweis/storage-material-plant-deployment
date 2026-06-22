@@ -63,6 +63,21 @@ const formatStatusText = (status: string) => {
     .join(" ");
 };
 
+const getStatusRank = (status: string) => {
+  const norm = status?.toLowerCase().replace(/[\s_-]+/g, "") || "";
+  const ranks: Record<string, number> = {
+    draft: 0,
+    biddingsent: 1,
+    carrierselected: 2,
+    scheduled: 3,
+    confirmed: 4,
+    intransit: 5,
+    delayed: 5,
+    delivered: 6,
+  };
+  return ranks[norm] ?? 0;
+};
+
 const freightFormSchema = z.object({
   description: z.string().default("Project outbound freight"),
   loadDescription: z.string().trim().min(1, "Load description is required"),
@@ -1302,34 +1317,28 @@ const FreightSelectionView: React.FC = () => {
     { skip: !projectId }
   );
 
-  useEffect(() => {
-    if (deliveriesData?.deliveries && projectId) {
-      const hasConfirmed = deliveriesData.deliveries.some((delivery: any) => {
-        const norm = delivery.status?.toLowerCase().replace(/[\s_-]+/g, "");
-        return norm === "confirmed";
-      });
-      if (hasConfirmed) {
-        navigate(`/projects/${projectId}/material-delivery`);
-      }
-    }
-  }, [deliveriesData, projectId, navigate]);
-
   const allActiveFreight = (deliveriesData?.deliveries || []).filter(
     (delivery: any) => {
       const norm = delivery.status?.toLowerCase().replace(/[\s_-]+/g, "");
-      return norm === "biddingsent" || norm === "carrierselected";
+      return [
+        "biddingsent",
+        "carrierselected",
+        "scheduled",
+        "confirmed",
+        "intransit",
+        "delivered",
+        "delayed",
+      ].includes(norm);
     }
   );
 
-  const hasCarrierSelected = allActiveFreight.some(
-    (delivery: any) => delivery.status?.toLowerCase().replace(/[\s_-]+/g, "") === "carrierselected"
-  );
-
-  const activeFreightDeliveries = hasCarrierSelected
-    ? allActiveFreight.filter(
-      (delivery: any) => delivery.status?.toLowerCase().replace(/[\s_-]+/g, "") === "carrierselected"
-    )
-    : allActiveFreight;
+  const activeFreightDeliveries = React.useMemo(() => {
+    if (allActiveFreight.length === 0) return [];
+    const sorted = [...allActiveFreight].sort(
+      (a: any, b: any) => getStatusRank(b.status) - getStatusRank(a.status)
+    );
+    return [sorted[0]];
+  }, [allActiveFreight]);
 
   const hasActiveFreight = activeFreightDeliveries.length > 0;
 
@@ -1494,7 +1503,7 @@ const FreightSelectionView: React.FC = () => {
         description="Request freight pricing from carriers and compare competitive bids"
         actions={[]}
       />
-      <div className="p-6 pt-0">
+      <div className="md:p-6 p-3 pt-0">
         {hasActiveFreight ? (
           <div className="bg-white rounded-[20px] border border-gray-100 shadow-sm p-4 md:p-6 space-y-6">
             <div className="flex items-center justify-between flex-wrap gap-4">
@@ -1550,7 +1559,11 @@ const FreightSelectionView: React.FC = () => {
                   return (
                     <div
                       key={delivery._id}
-                      className="min-w-[280px] max-w-[320px] p-4 rounded-xl border border-gray-100 bg-white flex flex-col justify-between"
+                      onClick={() => {
+                        const navId = delivery.requestId || delivery._id || projectId;
+                        navigate(`/delivery/freight-request/${navId}`);
+                      }}
+                      className="min-w-[280px] max-w-[320px] p-4 rounded-xl border border-gray-100 bg-white flex flex-col justify-between cursor-pointer hover:border-gray-300 transition-all"
                     >
                       <div className="space-y-2">
                         <div className="flex justify-between items-start">
