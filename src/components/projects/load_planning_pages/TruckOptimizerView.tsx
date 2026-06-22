@@ -126,7 +126,7 @@ const TruckOptimizerView: React.FC = () => {
           description="Optimize bundle assignments into truckloads to maximize utilization and prepare shipments for dispatch."
           actions={actions}
         />
-        <div className="p-6 pt-0">
+        <div className="md:p-6 p-3 pt-0">
           <div className="flex flex-col items-center justify-center min-h-[400px] gap-3 bg-white rounded-xl border border-gray-100 p-5 shadow-sm animate-fade-in">
             <p className="text-red-500 font-inter font-bold text-lg">Error loading truck plan</p>
             <p className="text-gray-500 font-inter text-sm max-w-md text-center">
@@ -202,7 +202,7 @@ const TruckOptimizerView: React.FC = () => {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-10">
+            <div className="grid md:grid-cols-2 gap-10">
               {/* Optimization Summary Card */}
               <div className="space-y-4 max-w-lg">
                 <SubHeading text="Optimization Summary Card" />
