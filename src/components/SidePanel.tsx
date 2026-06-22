@@ -37,8 +37,8 @@ const SidePanel: React.FC<SidePanelProps> = ({
         transition-all duration-300 ease-in-out
         overflow-y-auto
         shrink-0
-        ${isOpen ? "translate-x-0" : "-translate-x-[200%] md:-translate-x-full"}
-        bg-[#E5ECFF] p-3 pt-6 md:pr-0
+        ${isOpen ? "translate-x-0" : "translate-x-[-200%] lg:-translate-x-full"}
+        bg-[#E5ECFF] p-3 pt-6 lg:pr-0
       `}
     >
       <div className="flex flex-col h-full fade-in duration-300">
