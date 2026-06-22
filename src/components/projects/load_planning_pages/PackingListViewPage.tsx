@@ -267,7 +267,7 @@ const PackingListViewPage: React.FC = () => {
         description="Generate and manage packing lists for truckloads and bundles."
         actions={actions}
       />
-      <div className="p-6">
+      <div className="md:p-6 p-3 pt-0">
         <Step4PackingList
           onViewPackingList={(row) => {
             setSelectedPackingList(row);
