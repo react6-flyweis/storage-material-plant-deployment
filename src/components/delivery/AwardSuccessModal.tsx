@@ -20,7 +20,7 @@ export const AwardSuccessModal: React.FC<AwardSuccessModalProps> = ({
   onOk,
   carrier,
   projectName = "",
-  deliveryId = "",
+  // deliveryId = "",
   // deliveryDate = "",
   // poc = "",
   // location = "",
@@ -57,9 +57,9 @@ export const AwardSuccessModal: React.FC<AwardSuccessModalProps> = ({
           <p>
             <span className="font-bold">Amount:</span> {carrierAmountDetail}
           </p>
-          <p>
+          {/* <p>
             <span className="font-bold">Delivery created:</span> {deliveryId}
-          </p>
+          </p> */}
         </div>
 
         {/* Divider */}
