@@ -238,7 +238,7 @@ const CostingView: React.FC = () => {
       </div>
 
       {/* Stat Cards */}
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
         <FreightStatCard
           title="Total Item Cost"
           value={isStatsLoading ? "..." : `$${(statsData?.totalItemCost ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
