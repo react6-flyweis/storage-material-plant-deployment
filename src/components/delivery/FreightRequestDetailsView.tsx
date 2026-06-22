@@ -135,7 +135,7 @@ const FreightRequestDetailsView: React.FC = () => {
 
       await requestFreightBidRevision({
         bidId: selectedCarrier.bidId,
-        body: { 
+        body: {
           note: data.message,
           bidAmount,
         },
@@ -227,7 +227,7 @@ const FreightRequestDetailsView: React.FC = () => {
       ) : (
         <>
           {/* Stats Grid */}
-          <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-4">
             <FreightStatCard
               title="Total Bids"
               value={bidsResponse?.stats?.totalBids ?? 0}
@@ -251,7 +251,7 @@ const FreightRequestDetailsView: React.FC = () => {
             />
             <FreightStatCard
               title="Potential Savings"
-              value={bidsResponse?.stats?.potentialSavings ? `$${bidsResponse.stats.potentialSavings.toLocaleString()}` : "N/A"}
+              value={bidsResponse?.stats?.potentialSavings !== null ? `$${bidsResponse.stats.potentialSavings.toLocaleString()}` : "-"}
               subtitle="vs highest bid"
               icon={Zap}
               gradient="linear-gradient(135deg, #AD46FF 0%, #9810FA 100%)"
