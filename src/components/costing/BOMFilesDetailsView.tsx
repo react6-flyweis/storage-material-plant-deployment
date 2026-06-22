@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, ArrowUpDown, Check } from "lucide-react";
+import { ArrowLeft, ArrowUpDown, Check, Inbox } from "lucide-react";
 import Button from "../common_component/Button";
 import Heading from "../common_component/Heading";
 import SuccessModal from "../common_component/SuccessModal";
@@ -23,7 +23,7 @@ const BOMFilesDetailsView: React.FC = () => {
   const [successSubtitle, setSuccessSubtitle] = useState("");
   const limit = 50;
 
-  const { data, isLoading, error } = useGetBOMDetailsQuery(
+  const { data, isLoading, isFetching, error } = useGetBOMDetailsQuery(
     {
       jobId: id || "",
       filter,
@@ -75,7 +75,7 @@ const BOMFilesDetailsView: React.FC = () => {
     }
   };
 
-  if (isLoading) {
+  if (isLoading && !data) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1E51A4]"></div>
@@ -123,6 +123,10 @@ const BOMFilesDetailsView: React.FC = () => {
   );
 
   const totalPages = Math.ceil(data.total / data.limit);
+
+  const hasItems = data?.itemsByCategory
+    ? Object.values(data.itemsByCategory).some((items) => items && items.length > 0)
+    : false;
 
   return (
     <div className="xl:pr-2 md:px-4 px-2 pb-10 space-y-6 font-inter">
@@ -294,7 +298,7 @@ const BOMFilesDetailsView: React.FC = () => {
           </div>
 
           {/* Filter Tabs */}
-          <div className="flex border-b border-gray-200">
+          <div className="flex overflow-x-auto whitespace-nowrap border-b border-gray-200 scrollbar-none">
             {(["all", "unpriced", "bom_priced", "frames", "matched"] as const).map((tab) => (
               <button
                 key={tab}
@@ -302,7 +306,7 @@ const BOMFilesDetailsView: React.FC = () => {
                   setFilter(tab);
                   setPage(1);
                 }}
-                className={`py-3 px-6 text-sm font-semibold border-b-2 transition-colors capitalize ${filter === tab
+                className={`py-3 px-6 text-sm font-semibold border-b-2 transition-colors capitalize shrink-0 ${filter === tab
                   ? "border-[#1E51A4] text-[#1E51A4]"
                   : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                   }`}
@@ -318,108 +322,127 @@ const BOMFilesDetailsView: React.FC = () => {
             ))}
           </div>
 
-          {/* Main Data Table */}
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse min-w-[1000px]">
-              <thead>
-                <tr className="bg-[#F9FAFB] border-y border-gray-200">
-                  <th className="py-4 px-4 text-xs font-semibold text-[#212B36] uppercase tracking-wider">
-                    <div className="flex items-center gap-1">
-                      QTY <ArrowUpDown size={14} className="text-gray-400" />
-                    </div>
-                  </th>
-                  <th className="py-4 px-4 text-xs font-semibold text-[#212B36] uppercase tracking-wider">
-                    <div className="flex items-center gap-1">
-                      Mark <ArrowUpDown size={14} className="text-gray-400" />
-                    </div>
-                  </th>
-                  <th className="py-4 px-4 text-xs font-semibold text-[#212B36] uppercase tracking-wider">
-                    Description
-                  </th>
-                  <th className="py-4 px-4 text-xs font-semibold text-[#212B36] uppercase tracking-wider">
-                    Part
-                  </th>
-                  <th className="py-4 px-4 text-xs font-semibold text-[#212B36] uppercase tracking-wider">
-                    Color
-                  </th>
-                  <th className="py-4 px-4 text-xs font-semibold text-[#212B36] uppercase tracking-wider">
-                    Thick
-                  </th>
-                  <th className="py-4 px-4 text-xs font-semibold text-[#212B36] uppercase tracking-wider">
-                    <div className="flex items-center gap-1 text-nowrap">
-                      Length <ArrowUpDown size={14} className="text-gray-400" />
-                    </div>
-                  </th>
-                  <th className="py-4 px-4 text-xs font-semibold text-[#212B36] uppercase tracking-wider">
-                    <div className="flex items-center gap-1 text-nowrap">
-                      Weight <ArrowUpDown size={14} className="text-gray-400" />
-                    </div>
-                  </th>
-                  <th className="py-4 px-4 text-xs font-semibold text-[#212B36] uppercase tracking-wider">
-                    <div className="flex items-center gap-1">
-                      Amount <ArrowUpDown size={14} className="text-gray-400" />
-                    </div>
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {Object.entries(data.itemsByCategory).map(([category, items]) => {
-                  if (!items || items.length === 0) return null;
-                  return (
-                    <React.Fragment key={category}>
-                      <tr className="bg-gray-50 border-y border-gray-100">
-                        <td
-                          colSpan={9}
-                          className="py-2.5 px-4 text-xs font-bold text-[#1E51A4] uppercase tracking-wider"
-                        >
-                          {category.replace(/_/g, " ")} ({items.length})
-                        </td>
-                      </tr>
-                      {items.map((item) => (
-                        <tr key={item._id} className="hover:bg-gray-50 transition-colors">
-                          <td className="py-4 px-4 text-sm font-medium text-[#212B36]">
-                            {item.quantity}
-                          </td>
-                          <td className="py-4 px-4 text-sm font-medium text-[#212B36]">
-                            {item.markId}
-                          </td>
-                          <td className="py-4 px-4 text-sm font-medium text-[#637381]">
-                            {item.description}
-                          </td>
-                          <td className="py-4 px-4 text-sm font-medium text-[#212B36]">
-                            {item.partCode}
-                          </td>
-                          <td className="py-4 px-4 text-sm font-medium text-[#637381]">
-                            {item.partColor}
-                          </td>
-                          <td className="py-4 px-4 text-sm font-medium text-[#637381]">
-                            {item.gauge || item.type || "--"}
-                          </td>
-                          <td className="py-4 px-4 text-sm font-medium text-[#212B36]">
-                            {item.lengthRaw || (item.lengthFeet ? `${item.lengthFeet}'` : "--")}
-                          </td>
-                          <td className="py-4 px-4 text-sm font-medium text-[#637381]">
-                            {item.weight}
-                          </td>
+          {/* Main Data Content */}
+          {isFetching ? (
+            <div className="flex flex-col items-center justify-center py-24 text-center border border-gray-100 rounded-xl bg-[#F9FAFB]/50">
+              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#1E51A4] mb-3"></div>
+              <p className="text-sm text-gray-500 font-inter font-medium">Updating items...</p>
+            </div>
+          ) : !hasItems ? (
+            <div className="flex flex-col items-center justify-center py-16 text-center border-2 border-dashed border-gray-200 rounded-xl bg-white">
+              <div className="size-14 rounded-full bg-gray-50 flex items-center justify-center mb-4 text-[#919EAB]">
+                <Inbox className="size-8" />
+              </div>
+              <h3 className="text-base font-bold text-[#212B36] font-inter">No BOM items found</h3>
+              <p className="text-sm text-[#637381] font-inter mt-1 max-w-sm px-4">
+                {filter === "all"
+                  ? "There are no line items in this BOM file."
+                  : `There are no line items matching the "${filter.replace("_", " ")}" filter.`}
+              </p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse min-w-[1000px]">
+                <thead>
+                  <tr className="bg-[#F9FAFB] border-y border-gray-200">
+                    <th className="py-4 px-4 text-xs font-semibold text-[#212B36] uppercase tracking-wider">
+                      <div className="flex items-center gap-1">
+                        QTY <ArrowUpDown size={14} className="text-gray-400" />
+                      </div>
+                    </th>
+                    <th className="py-4 px-4 text-xs font-semibold text-[#212B36] uppercase tracking-wider">
+                      <div className="flex items-center gap-1">
+                        Mark <ArrowUpDown size={14} className="text-gray-400" />
+                      </div>
+                    </th>
+                    <th className="py-4 px-4 text-xs font-semibold text-[#212B36] uppercase tracking-wider">
+                      Description
+                    </th>
+                    <th className="py-4 px-4 text-xs font-semibold text-[#212B36] uppercase tracking-wider">
+                      Part
+                    </th>
+                    <th className="py-4 px-4 text-xs font-semibold text-[#212B36] uppercase tracking-wider">
+                      Color
+                    </th>
+                    <th className="py-4 px-4 text-xs font-semibold text-[#212B36] uppercase tracking-wider">
+                      Thick
+                    </th>
+                    <th className="py-4 px-4 text-xs font-semibold text-[#212B36] uppercase tracking-wider">
+                      <div className="flex items-center gap-1 text-nowrap">
+                        Length <ArrowUpDown size={14} className="text-gray-400" />
+                      </div>
+                    </th>
+                    <th className="py-4 px-4 text-xs font-semibold text-[#212B36] uppercase tracking-wider">
+                      <div className="flex items-center gap-1 text-nowrap">
+                        Weight <ArrowUpDown size={14} className="text-gray-400" />
+                      </div>
+                    </th>
+                    <th className="py-4 px-4 text-xs font-semibold text-[#212B36] uppercase tracking-wider">
+                      <div className="flex items-center gap-1">
+                        Amount <ArrowUpDown size={14} className="text-gray-400" />
+                      </div>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {Object.entries(data.itemsByCategory).map(([category, items]) => {
+                    if (!items || items.length === 0) return null;
+                    return (
+                      <React.Fragment key={category}>
+                        <tr className="bg-gray-50 border-y border-gray-100">
                           <td
-                            className={`py-4 px-4 text-sm font-semibold ${!item.isPriced ? "text-[#919EAB]" : "text-[#212B36]"
-                              }`}
+                            colSpan={9}
+                            className="py-2.5 px-4 text-xs font-bold text-[#1E51A4] uppercase tracking-wider"
                           >
-                            {item.isPriced
-                              ? `$${item.finalTotalCost.toLocaleString(undefined, {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2,
-                              })}`
-                              : "Unpriced"}
+                            {category.replace(/_/g, " ")} ({items.length})
                           </td>
                         </tr>
-                      ))}
-                    </React.Fragment>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                        {items.map((item) => (
+                          <tr key={item._id} className="hover:bg-gray-50 transition-colors">
+                            <td className="py-4 px-4 text-sm font-medium text-[#212B36]">
+                              {item.quantity}
+                            </td>
+                            <td className="py-4 px-4 text-sm font-medium text-[#212B36]">
+                              {item.markId}
+                            </td>
+                            <td className="py-4 px-4 text-sm font-medium text-[#637381]">
+                              {item.description}
+                            </td>
+                            <td className="py-4 px-4 text-sm font-medium text-[#212B36]">
+                              {item.partCode}
+                            </td>
+                            <td className="py-4 px-4 text-sm font-medium text-[#637381]">
+                              {item.partColor}
+                            </td>
+                            <td className="py-4 px-4 text-sm font-medium text-[#637381]">
+                              {item.gauge || item.type || "--"}
+                            </td>
+                            <td className="py-4 px-4 text-sm font-medium text-[#212B36]">
+                              {item.lengthRaw || (item.lengthFeet ? `${item.lengthFeet}'` : "--")}
+                            </td>
+                            <td className="py-4 px-4 text-sm font-medium text-[#637381]">
+                              {item.weight}
+                            </td>
+                            <td
+                              className={`py-4 px-4 text-sm font-semibold ${!item.isPriced ? "text-[#919EAB]" : "text-[#212B36]"
+                                }`}
+                            >
+                              {item.isPriced
+                                ? `$${item.finalTotalCost.toLocaleString(undefined, {
+                                  minimumFractionDigits: 2,
+                                  maximumFractionDigits: 2,
+                                })}`
+                                : "Unpriced"}
+                            </td>
+                          </tr>
+                        ))}
+                      </React.Fragment>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
 
           {/* Pagination Controls */}
           {totalPages > 1 && (
