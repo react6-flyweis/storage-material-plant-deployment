@@ -107,9 +107,9 @@ const QRLabelsView: React.FC = () => {
             className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1E51A4]/10 transition-all shadow-sm"
           />
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm text-[#212B36] font-medium hover:bg-gray-50 transition-colors shadow-sm">
-          <Filter size={16} className="text-gray-400" /> Filter
-        </button>
+        {/* <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm text-[#212B36] font-medium hover:bg-gray-50 transition-colors shadow-sm"> */}
+        {/* <Filter size={16} className="text-gray-400" /> Filter */}
+        {/* </button> */}
       </div>
 
       {/* Projects Table */}
@@ -271,7 +271,7 @@ const QRLabelsView: React.FC = () => {
           </button>
         </div>
       </div>
-    </div>
+    </div >
   );
 };
 
