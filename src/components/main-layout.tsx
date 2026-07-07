@@ -5,6 +5,7 @@ import Header from "@/components/common_component/Header";
 import SidePanel from "@/components/SidePanel";
 import { NAV_ITEMS } from "@/config/navigation.config";
 import GlobalSocketListener from "@/components/GlobalSocketListener";
+import { PageActivityTracker } from "@/components/PageActivityTracker";
 
 export function MainLayout() {
   const navigate = useNavigate();
@@ -121,6 +122,7 @@ export function MainLayout() {
       </div>
 
       <GlobalSocketListener />
+      <PageActivityTracker />
     </div>
   );
 }
