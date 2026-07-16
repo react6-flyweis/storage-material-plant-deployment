@@ -27,7 +27,6 @@ const Step4PackingList: React.FC<Step4PackingListProps> = ({
   const totalWeight = stateData?.bundleSummary?.totalWeight ?? truckPlan.summary.totalWeight ?? 0;
 
   const handlePdfDownload = (row: PackingListEntry) => {
-    const planId = truckPlan?.packingListPlan?._id;
     const bundles = stateData?.bundles || [];
     const resolvedBundles = bundles.filter((b) =>
       (row.bundleIds || []).includes(b._id)
@@ -60,7 +59,7 @@ const Step4PackingList: React.FC<Step4PackingListProps> = ({
       status: b.status || "Ready",
     }));
 
-    exportPackingListToPDF(loadInfo, summary, bundleList, true, planId);
+    exportPackingListToPDF(loadInfo, summary, bundleList, true, row._id);
   };
 
   return (
