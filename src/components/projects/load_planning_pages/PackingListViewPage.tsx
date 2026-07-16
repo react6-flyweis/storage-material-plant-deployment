@@ -286,7 +286,6 @@ const PackingListViewPage: React.FC = () => {
         bundles={stateData?.bundles}
         projectName={truckPlan?.project?.projectName}
         planNumber={truckPlan?.packingListPlan?.planNumber}
-        planId={truckPlan?.packingListPlan?._id}
       />
     </div>
   );
