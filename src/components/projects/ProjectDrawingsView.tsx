@@ -6,7 +6,6 @@ import { customersData } from "@/data/productionMockData";
 import Heading from "../common_component/Heading";
 import Button from "../common_component/Button";
 import ViewDrawingModal from "../leads/ViewDrawingModal";
-import { SuccessModal } from "./ProjectUploadModals";
 import FilterDropdown from "../common_component/FilterDropdown";
 import filePdf from "../../assets/icon/file-pdf.svg";
 import { useGetProjectDrawingsQuery, useGetPlantProjectDetailQuery } from "@/redux/api/projectApi";
@@ -122,7 +121,6 @@ const ProjectDrawingsView: React.FC = () => {
   const [selectedDrawing, setSelectedDrawing] = useState<any>(null);
 
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
-  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
 
   const { data: drawingsData, isLoading, error } = useGetProjectDrawingsQuery(projectId || "");
   const { data: projectDetail } = useGetPlantProjectDetailQuery(projectId || "");
@@ -138,11 +136,6 @@ const ProjectDrawingsView: React.FC = () => {
     { label: "Revision Requested", value: "revision-requested" },
     { label: "Pending", value: "pending" },
   ];
-
-  const onUpload = () => {
-    setIsUploadModalOpen(false);
-    setIsSuccessModalOpen(true);
-  };
 
   const handleOpenDrawing = (file: any) => {
     setSelectedDrawing({
@@ -347,15 +340,6 @@ const ProjectDrawingsView: React.FC = () => {
         isOpen={isUploadModalOpen}
         onClose={() => setIsUploadModalOpen(false)}
         leadId={projectId || ""}
-        onUpload={onUpload}
-      />
-
-      <SuccessModal
-        isOpen={isSuccessModalOpen}
-        onClose={() => setIsSuccessModalOpen(false)}
-        title="Building Drawings & Photos Uploaded Successfully"
-        buttonLabel="Go to Drawings"
-        onButtonClick={() => setIsSuccessModalOpen(false)}
       />
     </div>
   );
