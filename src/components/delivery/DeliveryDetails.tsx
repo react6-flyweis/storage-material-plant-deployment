@@ -16,8 +16,7 @@ import {
   SquarePen,
   RotateCcw,
   CalendarSync,
-  Van,
-  BookCheck,
+  // ChevronRight,
   AlertTriangle
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -27,45 +26,26 @@ import SuccessModal from "../common_component/SuccessModal";
 import {
   RescheduleSuccessModal,
   InTransitSuccessModal,
-  DeliveredSuccessModal
+  DeliveredSuccessModal,
+  StatusUpdatedSuccessModal,
 } from "./DeliveryActionModals";
 import RescheduleDeliveryModal from "./RescheduleDeliveryModal";
 import EditDeliveryModal from "./EditDeliveryModal";
 import { useDeliveryStatusUpdate } from "./useDeliveryStatusUpdate";
 import { type ProjectDeliveryResponse } from "@/redux/api/deliveriesApi";
+import StatusConfirmationModal from "./StatusConfirmationModal";
+import StatusBadge from "./StatusBadge";
+import {
+  formatStatusLabel,
+  getStatusBadgeStyle,
+  isFinalStatus,
+} from "./deliveryStatusConstants";
 
 // --- Sub-components ---
 
 const formatStatusText = (status: string) => {
   if (!status) return "";
-  return status
-    .split("_")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
-};
-
-const statusConfig: Record<string, { bg: string; text: string; border: string }> = {
-  Scheduled: { bg: "bg-[#E6F0FF]", text: "text-[#155DFC]", border: "border-[#E6F0FF]" },
-  Confirmed: { bg: "bg-[#E6FFEF]", text: "text-[#00C853]", border: "border-[#E6FFEF]" },
-  "In Transit": { bg: "bg-[#F4F6F8]", text: "text-[#4A5565]", border: "border-[#F4F6F8]" },
-  Delivered: { bg: "bg-[#E6FFEF]", text: "text-[#00C853]", border: "border-[#E6FFEF]" },
-  Rescheduled: { bg: "bg-[#FFF9E6]", text: "text-[#D08700]", border: "border-[#FFF9E6]" },
-  carrier_selected: { bg: "bg-[#E6F0FF]", text: "text-[#155DFC]", border: "border-[#E6F0FF]" },
-  scheduled: { bg: "bg-[#E6F0FF]", text: "text-[#155DFC]", border: "border-[#E6F0FF]" },
-  confirmed: { bg: "bg-[#E6FFEF]", text: "text-[#00C853]", border: "border-[#E6FFEF]" },
-  in_transit: { bg: "bg-[#F4F6F8]", text: "text-[#4A5565]", border: "border-[#F4F6F8]" },
-  delivered: { bg: "bg-[#E6FFEF]", text: "text-[#00C853]", border: "border-[#E6FFEF]" },
-  rescheduled: { bg: "bg-[#FFF9E6]", text: "text-[#D08700]", border: "border-[#FFF9E6]" },
-};
-
-const StatusBadge = ({ status }: { status: string }) => {
-  const formatted = statusConfig[status] ? status : status.toLowerCase();
-  const cfg = statusConfig[formatted] || statusConfig[status] || statusConfig["Scheduled"];
-  return (
-    <span className={`px-4 py-1.5 rounded-full text-xs font-normal uppercase tracking-wider ${cfg.bg} ${cfg.text}`}>
-      {formatStatusText(status)}
-    </span>
-  );
+  return formatStatusLabel(status);
 };
 
 interface InfoRowProps {
@@ -150,12 +130,55 @@ const QuickActionButton = ({
   <button
     onClick={onClick}
     disabled={disabled}
-    className="w-full flex items-center gap-5 px-5 py-3 bg-white border-[0.7px] border-[#0000001A] rounded-[8px] transition-all group shadow-xs md:text-left disabled:opacity-50 disabled:cursor-not-allowed"
+    className="w-full flex items-center gap-5 px-5 py-3 bg-white border-[0.7px] border-[#0000001A] rounded-[8px] transition-all group shadow-xs md:text-left disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50/80"
   >
     <Icon size={20} className="text-[#0A0A0A] shrink-0" />
     <span className="text-sm md:text-base font-medium text-[#0A0A0A]">{label}</span>
   </button>
 );
+
+const DeliveryStatusActionButton = ({
+  status,
+  onClick,
+  disabled,
+}: {
+  status: string;
+  onClick: () => void;
+  disabled?: boolean;
+}) => {
+  const currentLabel = formatStatusLabel(status || "material_prepared");
+  const isDelivered = isFinalStatus(status);
+  const badgeStyle = getStatusBadgeStyle(status);
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled || isDelivered}
+      className="w-full flex items-center justify-between px-5 py-3 bg-white border-[0.7px] border-[#0000001A] rounded-[8px] transition-all group shadow-xs md:text-left disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50/80"
+    >
+      <div className="flex items-center gap-5 min-w-0">
+        <RotateCcw size={20} className="text-[#0A0A0A] shrink-0" />
+        <span className={`text-sm md:text-base font-medium ${badgeStyle.text} truncate`}>
+          Status: {currentLabel}
+        </span>
+      </div>
+
+      <div className="shrink-0 flex items-center">
+        {!isDelivered ? (
+          <SquarePen
+            size={18}
+            className="text-[#637381] group-hover:text-[#1E51A4] group-hover:scale-110 transition-all shrink-0"
+          />
+        ) : (
+          <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200">
+            Completed
+          </span>
+        )}
+      </div>
+    </button>
+  );
+};
 
 const TimelineItem = ({ status, date, description, isLast }: { status: string; date: string; description: string; isLast?: boolean }) => (
   <div className="flex gap-4 relative">
@@ -189,8 +212,9 @@ const DeliveryDetails: React.FC<DeliveryDetailsProps> = ({
   // Modal States
   const [activeModal, setActiveModal] = useState<string | null>(null);
   const [rescheduleData, setRescheduleData] = useState<{ date: string; timeWindowStart: string; timeWindowEnd: string } | null>(null);
+  const [lastUpdatedStatusLabel, setLastUpdatedStatusLabel] = useState<string>("");
 
-  const { updateDeliveryStatus, toastMessage } = useDeliveryStatusUpdate();
+  const { updateDeliveryStatus, isLoading: isUpdatingStatus, toastMessage } = useDeliveryStatusUpdate();
 
   const openModal = (name: string) => setActiveModal(name);
   const closeModal = () => setActiveModal(null);
@@ -526,28 +550,20 @@ const DeliveryDetails: React.FC<DeliveryDetailsProps> = ({
 
           {showQuickActions && (() => {
             const currentStatus = (delivery?.status || "").toLowerCase();
-            const isInTransit = currentStatus === "in_transit" || currentStatus === "in transit";
-            const isDelivered = currentStatus === "delivered";
+            const isDelivered = currentStatus === "delivered" || currentStatus === "dispatched_to_site";
             return (
               <div className="bg-white border border-[#0000001A] rounded-[14px] p-5 shadow-sm space-y-4">
                 <h2 className="text-base font-semibold text-[#212B36]">Quick Actions</h2>
-                <div className="space-y-2">
+                <div className="space-y-3">
+                  <DeliveryStatusActionButton
+                    status={delivery?.status || ""}
+                    onClick={() => openModal("status-confirm")}
+                    disabled={isUpdatingStatus}
+                  />
                   <QuickActionButton
                     icon={CalendarSync}
                     label="Reschedule Delivery"
                     onClick={() => openModal("reschedule")}
-                    disabled={isDelivered}
-                  />
-                  <QuickActionButton
-                    icon={Van}
-                    label="Mark In Transit"
-                    onClick={() => updateDeliveryStatus(deliveryId, "in_transit", () => openModal("in-transit-success"))}
-                    disabled={isInTransit || isDelivered}
-                  />
-                  <QuickActionButton
-                    icon={BookCheck}
-                    label="Mark Delivered"
-                    onClick={() => updateDeliveryStatus(deliveryId, "delivered", () => openModal("delivered-success"))}
                     disabled={isDelivered}
                   />
                   <QuickActionButton icon={Bell} label="Send Reminder Now" />
@@ -631,6 +647,28 @@ const DeliveryDetails: React.FC<DeliveryDetailsProps> = ({
         onSaveSuccess={() => {
           openModal("save-success");
         }}
+      />
+      <StatusConfirmationModal
+        isOpen={activeModal === "status-confirm"}
+        onClose={closeModal}
+        projectName={delivery?.formDetails?.description || delivery?.project?.projectName || "Delivery"}
+        deliveryId={deliveryId}
+        currentStatus={delivery?.status || "material_prepared"}
+        isLoading={isUpdatingStatus}
+        onConfirm={(targetStatus) => {
+          const targetLabel = formatStatusLabel(targetStatus);
+          setLastUpdatedStatusLabel(targetLabel);
+          updateDeliveryStatus(deliveryId, targetStatus, () => {
+            closeModal();
+            openModal("status-success");
+          });
+        }}
+      />
+      <StatusUpdatedSuccessModal
+        isOpen={activeModal === "status-success"}
+        onClose={closeModal}
+        projectName={delivery?.formDetails?.description || delivery?.project?.projectName || "Delivery"}
+        statusLabel={lastUpdatedStatusLabel}
       />
       <InTransitSuccessModal
         isOpen={activeModal === "in-transit-success"}
