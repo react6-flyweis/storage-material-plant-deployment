@@ -19,7 +19,12 @@ import { type Delivery, statusConfig, DeliveryCard } from "./DeliveryComponents"
 import DailyDeliveriesModal from "./DailyDeliveriesModal";
 import RescheduleDeliveryModal from "./RescheduleDeliveryModal";
 import SuccessModal from "../common_component/SuccessModal";
-import { RescheduleSuccessModal } from "./DeliveryActionModals";
+import { RescheduleSuccessModal, StatusUpdatedSuccessModal } from "./DeliveryActionModals";
+import StatusConfirmationModal from "./StatusConfirmationModal";
+import {
+  formatStatusLabel,
+  type DeliveryStatusType,
+} from "./deliveryStatusConstants";
 import TitleSubtitle from "../common_component/TitleSubtitle";
 import PageWrapper from "../common_component/PageWrapper";
 import DeliveryFilterModal from "./DeliveryFilterModal";
@@ -29,7 +34,7 @@ import { useDeliveryStatusUpdate } from "./useDeliveryStatusUpdate";
 import { AlertTriangle } from "lucide-react";
 
 const mapApiDeliveryToDelivery = (item: CalendarDeliveryItem, dateStr: string): Delivery => {
-  const statusMap: Record<string, Delivery["status"]> = {
+  const statusMap: Record<string, string> = {
     scheduled: "Scheduled",
     confirmed: "Confirmed",
     in_transit: "In Transit",
@@ -39,8 +44,13 @@ const mapApiDeliveryToDelivery = (item: CalendarDeliveryItem, dateStr: string): 
     draft: "Draft",
     bidding_sent: "Bidding Sent",
     carrier_selected: "Carrier Selected",
+    material_prepared: "material_prepared",
+    loaded: "loaded",
+    picked_up: "picked_up",
+    staged: "staged",
+    dispatched_to_site: "dispatched_to_site",
   };
-  const uiStatus = statusMap[item.status] || "Scheduled";
+  const uiStatus = statusMap[item.status] || item.status || "Scheduled";
 
   return {
     id: item._id || item.delivery?._id || item.requestId || "",
@@ -264,8 +274,11 @@ const DeliveryCalendarView: React.FC = () => {
   const [activeDeliveryId, setActiveDeliveryId] = useState<string>("");
   const [selectedDeliveryForModal, setSelectedDeliveryForModal] = useState<Delivery | null>(null);
   const [rescheduleData, setRescheduleData] = useState<{ date: string; timeWindowStart: string; timeWindowEnd: string } | null>(null);
+  const [isStatusConfirmModalOpen, setIsStatusConfirmModalOpen] = useState(false);
+  const [isStatusSuccessOpen, setIsStatusSuccessOpen] = useState(false);
+  const [lastUpdatedStatusLabel, setLastUpdatedStatusLabel] = useState<string>("");
 
-  const { updateDeliveryStatus, toastMessage } = useDeliveryStatusUpdate();
+  const { updateDeliveryStatus, isLoading: isUpdatingStatus, toastMessage } = useDeliveryStatusUpdate();
 
   useEffect(() => {
     const calendarApi = calendarRef.current?.getApi();
@@ -400,6 +413,21 @@ const DeliveryCalendarView: React.FC = () => {
     setIsRescheduleSuccessOpen(true);
   };
 
+  const handleStatusUpdate = (id: string) => {
+    setActiveDeliveryId(id);
+    setIsStatusConfirmModalOpen(true);
+  };
+
+  const confirmStatusUpdate = (targetStatus: DeliveryStatusType) => {
+    if (!activeDeliveryId || !targetStatus) return;
+    const label = formatStatusLabel(targetStatus);
+    setLastUpdatedStatusLabel(label);
+    updateDeliveryStatus(activeDeliveryId, targetStatus, () => {
+      setIsStatusConfirmModalOpen(false);
+      setIsStatusSuccessOpen(true);
+    });
+  };
+
   const handleMarkDelivered = (id: string) => {
     setActiveDeliveryId(id);
     updateDeliveryStatus(id, "delivered", () => {
@@ -419,6 +447,7 @@ const DeliveryCalendarView: React.FC = () => {
         <DeliveryCard
           delivery={delivery}
           onReschedule={handleReschedule}
+          onStatusUpdate={handleStatusUpdate}
           onMarkDelivered={handleMarkDelivered}
           onSendReminder={handleSendReminder}
         />
@@ -561,6 +590,7 @@ const DeliveryCalendarView: React.FC = () => {
         date={selectedDay}
         deliveries={filteredDeliveries}
         onReschedule={handleReschedule}
+        onStatusUpdate={handleStatusUpdate}
         onMarkDelivered={handleMarkDelivered}
         onSendReminder={handleSendReminder}
       />
@@ -590,6 +620,10 @@ const DeliveryCalendarView: React.FC = () => {
                 setSelectedDeliveryForModal(null);
                 handleReschedule(id);
               }}
+              onStatusUpdate={(id) => {
+                setSelectedDeliveryForModal(null);
+                handleStatusUpdate(id);
+              }}
               onMarkDelivered={(id) => {
                 setSelectedDeliveryForModal(null);
                 handleMarkDelivered(id);
@@ -604,6 +638,29 @@ const DeliveryCalendarView: React.FC = () => {
           )}
         </div>
       </Modal>
+
+      {(() => {
+        const matchedDelivery = deliveries.find(d => d.id === activeDeliveryId) || selectedDeliveryForModal;
+        return (
+          <>
+            <StatusConfirmationModal
+              isOpen={isStatusConfirmModalOpen}
+              onClose={() => setIsStatusConfirmModalOpen(false)}
+              projectName={matchedDelivery?.title || "Delivery"}
+              deliveryId={activeDeliveryId}
+              currentStatus={matchedDelivery?.status || "material_prepared"}
+              isLoading={isUpdatingStatus}
+              onConfirm={confirmStatusUpdate}
+            />
+            <StatusUpdatedSuccessModal
+              isOpen={isStatusSuccessOpen}
+              onClose={() => setIsStatusSuccessOpen(false)}
+              projectName={matchedDelivery?.title || "Delivery"}
+              statusLabel={lastUpdatedStatusLabel}
+            />
+          </>
+        );
+      })()}
 
       <SuccessModal
         isLogoBottom={false}
