@@ -1,6 +1,6 @@
 import React from "react";
 import { X, Image as ImageIcon, FileText, Download, Loader2 } from "lucide-react";
-import type { TeamAttachment } from "@/lib/socket";
+import type { TeamAttachment } from "@/types/communication";
 import type { ChatGroupDetails } from "@/redux/api/teamChatApi";
 import { type ActiveChatState, getDepartmentIcon } from "./types";
 

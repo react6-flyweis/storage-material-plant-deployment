@@ -1,5 +1,6 @@
 import { createContext } from "react";
-import type { Socket, SendTeamMessagePayload } from "@/lib/socket";
+import type { Socket } from "@/lib/socket";
+import type { SendTeamMessagePayload } from "@/types/communication";
 
 export interface SocketContextValue {
   socket: Socket | null;

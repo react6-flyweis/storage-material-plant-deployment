@@ -7,7 +7,7 @@ import {
   FileText,
   Download,
 } from "lucide-react";
-import type { TeamMessage } from "@/lib/socket";
+import type { TeamMessage } from "@/types/communication";
 import { formatMessageTime, formatMessageDateHeader } from "./types";
 
 interface ChatMessageListProps {

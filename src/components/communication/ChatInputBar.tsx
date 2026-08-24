@@ -1,7 +1,7 @@
 import React, { useRef } from "react";
 import { Paperclip, Loader2, Send, X, Image as ImageIcon, FileText } from "lucide-react";
 import Button from "../common_component/Button";
-import type { TeamAttachment } from "@/lib/socket";
+import type { TeamAttachment } from "@/types/communication";
 
 interface ChatInputBarProps {
   chatName: string;

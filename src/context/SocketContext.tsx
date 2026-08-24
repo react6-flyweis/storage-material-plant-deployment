@@ -7,14 +7,13 @@ import React, {
 } from "react";
 import { useAppSelector, useAppDispatch } from "@/redux/hooks";
 import type { RootState } from "@/redux/store";
-import {
-  createAdminSocket,
-  type Socket,
-  type SendTeamMessagePayload,
-  type TeamDmNotice,
-  type TeamGroupNotice,
-  type GroupMembersUpdatedEvent,
-} from "@/lib/socket";
+import { createAdminSocket, type Socket } from "@/lib/socket";
+import type {
+  SendTeamMessagePayload,
+  TeamDmNotice,
+  TeamGroupNotice,
+  GroupMembersUpdatedEvent,
+} from "@/types/communication";
 import { teamChatApi, type ChatGroupDetails } from "@/redux/api/teamChatApi";
 import { SocketContext } from "./socketContextInstance";
 

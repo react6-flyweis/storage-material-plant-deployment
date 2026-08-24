@@ -15,7 +15,7 @@ import type {
   TeamAttachment,
   TeamTypingEvent,
   TeamMessagesReadEvent,
-} from "@/lib/socket";
+} from "@/types/communication";
 
 import { type ActiveChatState } from "./types";
 import { ChatSidebar } from "./ChatSidebar";

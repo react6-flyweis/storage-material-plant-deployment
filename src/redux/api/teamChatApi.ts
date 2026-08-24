@@ -1,6 +1,6 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithReauth } from "./baseQueryWithReauth";
-import type { TeamMessage } from "@/lib/socket";
+import type { TeamMessage } from "@/types/communication";
 
 export interface ChatUser {
   _id: string;
