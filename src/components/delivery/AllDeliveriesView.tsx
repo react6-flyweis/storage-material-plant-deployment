@@ -244,7 +244,12 @@ const AllDeliveriesView: React.FC = () => {
     if (s.includes("bidding") || s.includes("carrier")) return "text-[#155DFC] bg-[#E6F0FF]";
     if (s.includes("scheduled")) return "text-[#155DFC] bg-[#E6F0FF]";
     if (s.includes("confirmed")) return "text-[#00C853] bg-[#E6FFEF]";
-    if (s.includes("transit")) return "text-[#4A5565] bg-[#F4F6F8]";
+    if (s.includes("material_prepared")) return "text-[#4F46E5] bg-[#EEF2FF]";
+    if (s.includes("loaded")) return "text-[#C026D3] bg-[#FDF4FF]";
+    if (s.includes("picked_up")) return "text-[#EA580C] bg-[#FFF7ED]";
+    if (s.includes("transit")) return "text-[#2563EB] bg-[#EFF6FF]";
+    if (s.includes("staged")) return "text-[#CA8A04] bg-[#FEFCE8]";
+    if (s.includes("dispatched_to_site")) return "text-[#059669] bg-[#ECFDF5]";
     if (s.includes("delivered")) return "text-[#00C853] bg-[#E6FFEF]";
     if (s.includes("delayed")) return "text-[#FF4842] bg-[#FFE9E9]";
     if (s.includes("cancelled")) return "text-[#FF4842] bg-[#FFE9E9]";
@@ -255,7 +260,7 @@ const AllDeliveriesView: React.FC = () => {
     const s = status.toLowerCase();
     if (s.includes("delayed")) return AlertTriangle;
     if (s.includes("cancelled")) return X;
-    if (s.includes("confirmed") || s.includes("delivered")) return CheckCircle2;
+    if (s.includes("confirmed") || s.includes("delivered") || s.includes("dispatched_to_site")) return CheckCircle2;
     if (s.includes("scheduled") || s.includes("calendar")) return Calendar;
     return Truck;
   };
@@ -275,7 +280,7 @@ const AllDeliveriesView: React.FC = () => {
 
   const DELIVERY_STATUSES = [
     'draft', 'bidding_sent', 'carrier_selected', 'scheduled',
-    'confirmed', 'in_transit', 'delayed', 'delivered', 'cancelled',
+    'confirmed', 'material_prepared', 'loaded', 'picked_up', 'in_transit', 'staged', 'dispatched_to_site', 'delayed', 'delivered', 'cancelled',
   ];
 
   const projectOptions = [
