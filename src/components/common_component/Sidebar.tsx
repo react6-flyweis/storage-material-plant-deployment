@@ -1,6 +1,7 @@
 import React from "react";
 import iconBg from "../../assets/sideBarIconBg.svg";
 import { NAV_ITEMS } from "@/config/navigation.config";
+import { useGetUnreadCountQuery } from "@/redux/api/teamChatApi";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -13,6 +14,9 @@ const Sidebar: React.FC<SidebarProps> = ({
   activeTab,
   setActiveTab,
 }) => {
+  const { data: unreadData } = useGetUnreadCountQuery();
+  const unreadCount = unreadData?.count ?? unreadData?.total ?? 0;
+
   return (
     <div
       className={`
@@ -28,47 +32,63 @@ const Sidebar: React.FC<SidebarProps> = ({
       <div className="mb-2 h-32 w-full "></div>
 
       <div className="flex flex-col w-full">
-        {NAV_ITEMS.map((item, index) => (
-          <div
-            className="relative w-full h-19 flex items-center justify-end pr-3"
-            key={index}
-          >
-            {activeTab === index && (
-              <div className="absolute inset-y-0 right-0 h-full w-full z-10 pointer-events-none flex justify-end">
-                <img
-                  src={iconBg}
-                  alt=""
-                  className="h-full w-auto object-contain"
-                />
-              </div>
-            )}
+        {NAV_ITEMS.map((item, index) => {
+          const isCommunication = item.title === "Communication";
+          const showBadge = isCommunication && unreadCount > 0;
 
-            <button
-              onClick={() => setActiveTab(index)}
-              className="relative z-20 p-0 flex items-center group focus:outline-none"
+          return (
+            <div
+              className="relative w-full h-19 flex items-center justify-end pr-3"
+              key={index}
             >
-              {/* Hover Label Pill */}
-              <div className="absolute left-[-4px] flex items-center bg-white rounded-full py-1 pl-1 pr-6 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none whitespace-nowrap shadow-[0_10px_20px_-5px_rgba(0,0,0,0.1),0_8px_8px_-6px_rgba(0,0,0,0.1)] z-10 -translate-x-1 group-hover:translate-x-0">
-                {/* Spacer to keep text to the right of the icon */}
-                <div className="w-10 h-10 shrink-0" />
-                <span className="ml-4 font-normal text-black text-base lg:text-[17px] tracking-tight">
-                  {item.title}
-                </span>
-              </div>
+              {activeTab === index && (
+                <div className="absolute inset-y-0 right-0 h-full w-full z-10 pointer-events-none flex justify-end">
+                  <img
+                    src={iconBg}
+                    alt=""
+                    className="h-full w-auto object-contain"
+                  />
+                </div>
+              )}
 
-              {/* Icon Container */}
-              <div
-                className={`relative z-30 w-10 h-10 p-1.5 rounded-full flex items-center justify-center transition-all duration-300 group-hover:scale-105 ${item.color} shadow-lg`}
+              <button
+                onClick={() => setActiveTab(index)}
+                className="relative z-20 p-0 flex items-center group focus:outline-none"
               >
-                <img
-                  src={item.icon}
-                  alt={item.title}
-                  className="w-5.5 h-5.5 object-contain"
-                />
-              </div>
-            </button>
-          </div>
-        ))}
+                {/* Hover Label Pill */}
+                <div className="absolute left-[-4px] flex items-center bg-white rounded-full py-1 pl-1 pr-6 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none whitespace-nowrap shadow-[0_10px_20px_-5px_rgba(0,0,0,0.1),0_8px_8px_-6px_rgba(0,0,0,0.1)] z-10 -translate-x-1 group-hover:translate-x-0">
+                  {/* Spacer to keep text to the right of the icon */}
+                  <div className="w-10 h-10 shrink-0" />
+                  <span className="ml-4 font-normal text-black text-base lg:text-[17px] tracking-tight">
+                    {item.title}
+                  </span>
+                  {showBadge && (
+                    <span className="ml-2 px-1.5 py-0.5 text-xs font-bold text-white bg-red-500 rounded-full">
+                      {unreadCount > 99 ? "99+" : unreadCount}
+                    </span>
+                  )}
+                </div>
+
+                {/* Icon Container */}
+                <div
+                  className={`relative z-30 w-10 h-10 p-1.5 rounded-full flex items-center justify-center transition-all duration-300 group-hover:scale-105 ${item.color} shadow-lg`}
+                >
+                  <img
+                    src={item.icon}
+                    alt={item.title}
+                    className="w-5.5 h-5.5 object-contain"
+                  />
+
+                  {showBadge && (
+                    <span className="absolute -top-1 -right-1 flex h-5 min-w-[20px] px-1 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white shadow-sm ring-2 ring-white animate-pulse">
+                      {unreadCount > 99 ? "99+" : unreadCount}
+                    </span>
+                  )}
+                </div>
+              </button>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

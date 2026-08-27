@@ -9,6 +9,7 @@ import { costingApi } from "./api/costingApi";
 import { shipperApi } from "./api/shipperApi";
 import { deliveriesApi } from "./api/deliveriesApi";
 import { pageActivityApi } from "./api/pageActivityApi";
+import { teamChatApi } from "./api/teamChatApi";
 import authReducer from "./slices/authSlice";
 
 const authPersistConfig = {
@@ -30,6 +31,7 @@ export const store = configureStore({
     [shipperApi.reducerPath]: shipperApi.reducer,
     [deliveriesApi.reducerPath]: deliveriesApi.reducer,
     [pageActivityApi.reducerPath]: pageActivityApi.reducer,
+    [teamChatApi.reducerPath]: teamChatApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
@@ -52,6 +54,7 @@ export const store = configureStore({
       shipperApi.middleware,
       deliveriesApi.middleware,
       pageActivityApi.middleware,
+      teamChatApi.middleware,
     ),
 });
 
