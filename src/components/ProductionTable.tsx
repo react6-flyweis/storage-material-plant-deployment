@@ -6,6 +6,9 @@ import {
   // FileText,
   ArrowUpToLine,
   ArrowDownToLine,
+  FolderOpen,
+  SearchX,
+  RotateCcw,
 } from "lucide-react";
 import Pagination from "./Pagination";
 import BuildingTypeSelector from "./common_component/BuildingTypeSelector";
@@ -33,6 +36,16 @@ const ProductionTable = () => {
   const [assignment, setAssignment] = useState<string>("all");
   const [status, setStatus] = useState<string>("all");
   const navigate = useNavigate();
+
+  const hasActiveFilters =
+    buildingType !== "all" || assignment !== "all" || status !== "all";
+
+  const handleResetFilters = () => {
+    setBuildingType("all");
+    setAssignment("all");
+    setStatus("all");
+    setCurrentPage(1);
+  };
 
   // If data prop provided, skip internal fetching
   const queryArgs = useMemo(
@@ -121,6 +134,7 @@ const ProductionTable = () => {
           />
 
           <Select
+            value={status}
             onValueChange={(value) => {
               setCurrentPage(1);
               setStatus(value);
@@ -148,7 +162,8 @@ const ProductionTable = () => {
                 <th className="p-2 md:p-4 w-12 text-center">
                   <input
                     type="checkbox"
-                    className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    disabled={!loading && filteredLeads.length === 0}
+                    className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 disabled:opacity-40 disabled:cursor-not-allowed"
                   />
                 </th>
                 <th className="md:p-4 p-2 text-(--text-color-gray-3) font-inter font-semibold uppercase text-xs tracking-wider">
@@ -175,8 +190,8 @@ const ProductionTable = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {loading
-                ? Array.from({ length: itemsPerPage }).map((_, index) => (
+              {loading ? (
+                Array.from({ length: itemsPerPage }).map((_, index) => (
                   <tr key={`skeleton-${index}`} className="bg-white">
                     <td className="p-2 md:p-4 text-center">
                       <div className="mx-auto h-4 w-4 rounded border border-gray-200 bg-gray-100 animate-pulse" />
@@ -213,7 +228,42 @@ const ProductionTable = () => {
                     </td>
                   </tr>
                 ))
-                : filteredLeads.map((row, index) => (
+              ) : filteredLeads.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="py-16 px-4 text-center bg-white">
+                    <div className="flex flex-col items-center justify-center max-w-sm mx-auto">
+                      <div className="w-14 h-14 bg-gray-50 border border-gray-100 rounded-2xl flex items-center justify-center text-gray-400 mb-3 shadow-xs">
+                        {hasActiveFilters ? (
+                          <SearchX className="w-7 h-7 text-gray-400" />
+                        ) : (
+                          <FolderOpen className="w-7 h-7 text-gray-400" />
+                        )}
+                      </div>
+                      <h3 className="text-base font-semibold text-[#212B36] font-inter">
+                        {hasActiveFilters
+                          ? "No matching projects"
+                          : "No projects found"}
+                      </h3>
+                      <p className="text-xs md:text-sm text-[#637381] font-inter mt-1 max-w-xs">
+                        {hasActiveFilters
+                          ? "No projects match the selected filter criteria. Try resetting or adjusting your filters."
+                          : "There are currently no production projects available."}
+                      </p>
+                      {hasActiveFilters && (
+                        <button
+                          type="button"
+                          onClick={handleResetFilters}
+                          className="mt-4 px-4 py-2 text-xs font-semibold text-[#1E51A4] bg-[#F2F6FF] hover:bg-blue-100 rounded-lg transition-colors inline-flex items-center gap-1.5 border border-[#DBEAFE] font-inter"
+                        >
+                          <RotateCcw size={13} />
+                          Reset Filters
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                filteredLeads.map((row, index) => (
                   <tr
                     key={index}
                     className="hover:bg-gray-50 transition-colors bg-white"
@@ -235,12 +285,12 @@ const ProductionTable = () => {
                       </div>
                     </td>
                     <td
-                      className="p-2 md:p-4 cursor-pointer hover:bg-gray-50 transition-colors"
-                      onClick={() =>
-                        navigate(
-                          `/projects/customerinfo/${row.customer?.firstName}`,
-                        )
-                      }
+                      className="p-2 md:p-4  hover:bg-gray-50 transition-colors"
+                      // onClick={() =>
+                      //   navigate(
+                      //     `/projects/customerinfo/${row.customer?.firstName}`,
+                      //   )
+                      // }
                     >
                       <div className="flex items-center gap-2">
                         {/* {row.customer?.image ? (
@@ -312,11 +362,12 @@ const ProductionTable = () => {
                       </div>
                     </td>
                   </tr>
-                ))}
+                ))
+              )}
             </tbody>
           </table>
         </div>
-        {!loading && (
+        {!loading && filteredLeads.length > 0 && (
           <Pagination
             totalItems={projectsResponse?.total ?? filteredLeads.length}
             itemsPerPage={itemsPerPage}
