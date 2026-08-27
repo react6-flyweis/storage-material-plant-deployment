@@ -2,6 +2,7 @@ import React from "react";
 import Modal from "../Modal";
 import { format } from "date-fns";
 import { type Delivery, DeliveryCard } from "./DeliveryComponents";
+import { type DeliveryStatusType } from "./deliveryStatusConstants";
 
 interface DailyDeliveriesModalProps {
   isOpen: boolean;
@@ -9,6 +10,7 @@ interface DailyDeliveriesModalProps {
   date: Date | null;
   deliveries: Delivery[];
   onReschedule?: (id: string) => void;
+  onStatusUpdate?: (id: string, targetStatus: DeliveryStatusType) => void;
   onMarkDelivered?: (id: string) => void;
   onViewDetails?: (id: string) => void;
   onSendReminder?: (id: string) => void;
@@ -20,6 +22,7 @@ const DailyDeliveriesModal: React.FC<DailyDeliveriesModalProps> = ({
   date,
   deliveries,
   onReschedule,
+  onStatusUpdate,
   onMarkDelivered,
   onViewDetails,
   onSendReminder,
@@ -40,6 +43,7 @@ const DailyDeliveriesModal: React.FC<DailyDeliveriesModalProps> = ({
                 key={delivery.id}
                 delivery={delivery}
                 onReschedule={onReschedule}
+                onStatusUpdate={onStatusUpdate}
                 onMarkDelivered={onMarkDelivered}
                 onViewDetails={onViewDetails}
                 onSendReminder={onSendReminder}
