@@ -11,6 +11,7 @@ import { deliveriesApi } from "./api/deliveriesApi";
 import { pageActivityApi } from "./api/pageActivityApi";
 import { teamChatApi } from "./api/teamChatApi";
 import { notificationsApi } from "./api/notificationsApi";
+import { plantDashboardApi } from "./api/plantDashboardApi";
 import authReducer from "./slices/authSlice";
 
 const authPersistConfig = {
@@ -34,6 +35,7 @@ export const store = configureStore({
     [pageActivityApi.reducerPath]: pageActivityApi.reducer,
     [teamChatApi.reducerPath]: teamChatApi.reducer,
     [notificationsApi.reducerPath]: notificationsApi.reducer,
+    [plantDashboardApi.reducerPath]: plantDashboardApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
@@ -58,6 +60,7 @@ export const store = configureStore({
       pageActivityApi.middleware,
       teamChatApi.middleware,
       notificationsApi.middleware,
+      plantDashboardApi.middleware,
     ),
 });
 
