@@ -2,7 +2,7 @@ import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Search,
-  Filter,
+  // Filter,
   Plus,
   Mail,
   Phone,
@@ -171,13 +171,13 @@ const FreightCarriersView: React.FC = () => {
           />
         </div>
         <div className="flex flex-wrap ml-auto items-center gap-2">
-          <Button
+          {/* <Button
             variant="grayFilled"
             size="sm"
             onClick={() => setIsFilterModalOpen(true)}
           >
             <Filter size={18} /> Filter
-          </Button>
+          </Button> */}
           <Button variant="gradient" size="sm" onClick={handleAddCarrier}>
             <Plus size={18} /> Add Carrier
           </Button>
@@ -311,7 +311,7 @@ const FreightCarriersView: React.FC = () => {
                         <button
                           className="p-1 rounded text-gray-600 transition-colors"
                           onClick={() =>
-                             navigate(`/logistics/carrier/${carrier.id}`)
+                            navigate(`/logistics/carrier/${carrier.id}`)
                           }
                         >
                           <Eye size={18} />

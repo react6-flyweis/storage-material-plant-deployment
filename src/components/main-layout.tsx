@@ -5,6 +5,8 @@ import Header from "@/components/common_component/Header";
 import SidePanel from "@/components/SidePanel";
 import { NAV_ITEMS } from "@/config/navigation.config";
 import GlobalSocketListener from "@/components/GlobalSocketListener";
+import { PageActivityTracker } from "@/components/PageActivityTracker";
+import { SocketProvider } from "@/context/SocketContext";
 
 export function MainLayout() {
   const navigate = useNavigate();
@@ -87,40 +89,43 @@ export function MainLayout() {
   }, [location.pathname]);
 
   return (
-    <div className="flex h-screen bg-[#E5ECFF] relative overflow-hidden">
-      {isSidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-30 lg:hidden"
-          onClick={() => setIsSidebarOpen(false)}
+    <SocketProvider>
+      <div className="flex h-screen bg-[#E5ECFF] relative overflow-hidden">
+        {isSidebarOpen && (
+          <div
+            className="fixed inset-0 bg-black/50 z-30 lg:hidden"
+            onClick={() => setIsSidebarOpen(false)}
+          />
+        )}
+
+        <Sidebar
+          isOpen={isSidebarOpen}
+          activeTab={activeTab}
+          setActiveTab={handleTabChange}
         />
-      )}
 
-      <Sidebar
-        isOpen={isSidebarOpen}
-        activeTab={activeTab}
-        setActiveTab={handleTabChange}
-      />
+        <SidePanel
+          isOpen={isSidebarOpen}
+          activeTab={activeTab}
+          activeSubTab={activeSubTab}
+          onSubTabClick={handleSubTabChange}
+        />
 
-      <SidePanel
-        isOpen={isSidebarOpen}
-        activeTab={activeTab}
-        activeSubTab={activeSubTab}
-        onSubTabClick={handleSubTabChange}
-      />
+        <div
+          className={`flex-1 min-w-0 flex flex-col h-screen transition-all duration-300 ease-in-out ${isSidebarOpen
+              ? "lg:ml-[334px]"
+              : "lg:ml-20"
+            }`}
+        >
+          <Header onMenuToggle={toggleSidebar} isMenuOpen={isSidebarOpen} />
+          <main className="flex-1 overflow-y-auto mt-1 p-2 xl:pb-3 xl:pr-3">
+            <Outlet />
+          </main>
+        </div>
 
-      <div
-        className={`flex-1 min-w-0 flex flex-col h-screen transition-all duration-300 ease-in-out ${isSidebarOpen
-            ? "lg:ml-[334px]"
-            : "lg:ml-20"
-          }`}
-      >
-        <Header onMenuToggle={toggleSidebar} isMenuOpen={isSidebarOpen} />
-        <main className="flex-1 overflow-y-auto mt-1 p-2 xl:pb-3 xl:pr-3">
-          <Outlet />
-        </main>
+        <GlobalSocketListener />
+        <PageActivityTracker />
       </div>
-
-      <GlobalSocketListener />
-    </div>
+    </SocketProvider>
   );
 }

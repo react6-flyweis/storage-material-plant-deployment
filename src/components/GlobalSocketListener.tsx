@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAppSelector, useAppDispatch } from "@/redux/hooks";
-import type { RootState } from "@/redux/store";
-import { createAdminSocket } from "@/lib/socket";
+import { useAppDispatch } from "@/redux/hooks";
+import { useSocket } from "@/context/useSocket";
 import ProjectAssignedDialog from "@/components/ProjectAssignedDialog";
 import Modal from "@/components/Modal";
 import Button from "@/components/common_component/Button";
@@ -42,7 +41,7 @@ interface FreightBidSubmittedPayload {
 export default function GlobalSocketListener() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const accessToken = useAppSelector((state: RootState) => state.auth.accessToken);
+  const { socket } = useSocket();
 
   // States for Modals
   const [assignedProject, setAssignedProject] = useState<{ leadId: string; poOrderId: string; projectName: string } | null>(null);
@@ -58,65 +57,58 @@ export default function GlobalSocketListener() {
   const [isFreightBidOpen, setIsFreightBidOpen] = useState(false);
 
   useEffect(() => {
-    if (!accessToken) return;
-
-    const socket = createAdminSocket(accessToken);
     if (!socket) return;
 
-    socket.on("connect", () => {
-      console.log("Global Socket.io listener connected to /admin namespace");
-    });
-
     // 1. project_assigned
-    socket.on("project_assigned", (data: { leadId: string; poOrderId: string; projectName: string }) => {
+    const onProjectAssigned = (data: { leadId: string; poOrderId: string; projectName: string }) => {
       console.log("socket event: project_assigned", data);
       setAssignedProject(data);
       setIsAssignedDialogOpen(true);
       window.dispatchEvent(new CustomEvent("socket_project_assigned", { detail: data }));
-    });
+    };
 
     // 2. bom_extraction_complete
-    socket.on("bom_extraction_complete", (data: { jobId: string; buildingNumber: number; totalItems: number }) => {
+    const onBomExtractionComplete = (data: { jobId: string; buildingNumber: number; totalItems: number }) => {
       console.log("socket event: bom_extraction_complete", data);
       window.dispatchEvent(new CustomEvent("socket_bom_extraction_complete", { detail: data }));
-    });
+    };
 
     // 3. bom_extraction_failed
-    socket.on("bom_extraction_failed", (data: { jobId: string; buildingNumber: number; error: string }) => {
+    const onBomExtractionFailed = (data: { jobId: string; buildingNumber: number; error: string }) => {
       console.log("socket event: bom_extraction_failed", data);
       window.dispatchEvent(new CustomEvent("socket_bom_extraction_failed", { detail: data }));
-    });
+    };
 
     // 4. shipper_file_submitted
-    socket.on("shipper_file_submitted", (data: ShipperFilePayload) => {
+    const onShipperFileSubmitted = (data: ShipperFilePayload) => {
       console.log("socket event: shipper_file_submitted", data);
       setShipperFile(data);
       setIsShipperFileOpen(true);
       window.dispatchEvent(new CustomEvent("socket_shipper_file_submitted", { detail: data }));
-    });
+    };
 
     // 5. all_shipper_files_submitted
-    socket.on("all_shipper_files_submitted", (data: { leadId: string; consolidatedBOMId: string; vendorCount: number }) => {
+    const onAllShipperFilesSubmitted = (data: { leadId: string; consolidatedBOMId: string; vendorCount: number }) => {
       console.log("socket event: all_shipper_files_submitted", data);
       window.dispatchEvent(new CustomEvent("socket_all_shipper_files_submitted", { detail: data }));
-    });
+    };
 
     // 6. shipper_comparison_complete
-    socket.on("shipper_comparison_complete", (data: ShipperComparisonPayload) => {
+    const onShipperComparisonComplete = (data: ShipperComparisonPayload) => {
       console.log("socket event: shipper_comparison_complete", data);
       setComparison(data);
       setIsComparisonOpen(true);
       window.dispatchEvent(new CustomEvent("socket_shipper_comparison_complete", { detail: data }));
-    });
+    };
 
     // 7. shipper_comparison_failed
-    socket.on("shipper_comparison_failed", (data: { jobId: string; requestId: string; leadId: string; vendorId: string; error: string }) => {
+    const onShipperComparisonFailed = (data: { jobId: string; requestId: string; leadId: string; vendorId: string; error: string }) => {
       console.log("socket event: shipper_comparison_failed", data);
       window.dispatchEvent(new CustomEvent("socket_shipper_comparison_failed", { detail: data }));
-    });
+    };
 
     // 8. freight_bid_submitted
-    socket.on("freight_bid_submitted", (data: FreightBidSubmittedPayload) => {
+    const onFreightBidSubmitted = (data: FreightBidSubmittedPayload) => {
       console.log("socket event: freight_bid_submitted", data);
       setFreightBid(data);
       setIsFreightBidOpen(true);
@@ -125,12 +117,28 @@ export default function GlobalSocketListener() {
         dispatch(logisticsApi.util.invalidateTags([{ type: "DeliveryFreightBids", id: data.deliveryId }]));
       }
       window.dispatchEvent(new CustomEvent("socket_freight_bid_submitted", { detail: data }));
-    });
+    };
+
+    socket.on("project_assigned", onProjectAssigned);
+    socket.on("bom_extraction_complete", onBomExtractionComplete);
+    socket.on("bom_extraction_failed", onBomExtractionFailed);
+    socket.on("shipper_file_submitted", onShipperFileSubmitted);
+    socket.on("all_shipper_files_submitted", onAllShipperFilesSubmitted);
+    socket.on("shipper_comparison_complete", onShipperComparisonComplete);
+    socket.on("shipper_comparison_failed", onShipperComparisonFailed);
+    socket.on("freight_bid_submitted", onFreightBidSubmitted);
 
     return () => {
-      socket.disconnect();
+      socket.off("project_assigned", onProjectAssigned);
+      socket.off("bom_extraction_complete", onBomExtractionComplete);
+      socket.off("bom_extraction_failed", onBomExtractionFailed);
+      socket.off("shipper_file_submitted", onShipperFileSubmitted);
+      socket.off("all_shipper_files_submitted", onAllShipperFilesSubmitted);
+      socket.off("shipper_comparison_complete", onShipperComparisonComplete);
+      socket.off("shipper_comparison_failed", onShipperComparisonFailed);
+      socket.off("freight_bid_submitted", onFreightBidSubmitted);
     };
-  }, [accessToken, dispatch]);
+  }, [socket, dispatch]);
 
   const handleViewProjectDetails = () => {
     if (assignedProject) {

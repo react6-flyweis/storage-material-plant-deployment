@@ -29,6 +29,41 @@ export interface LoginSession {
   role: string;
 }
 
+export interface ForgotPasswordRequest {
+  email: string;
+}
+
+export interface ForgotPasswordResponse {
+  success: boolean;
+  message: string;
+  data?: Record<string, unknown>;
+}
+
+export interface VerifyOtpRequest {
+  email: string;
+  otp: string;
+}
+
+export interface VerifyOtpResponseData {
+  resetToken: string;
+}
+
+export interface VerifyOtpResponse {
+  success: boolean;
+  message: string;
+  data: VerifyOtpResponseData;
+}
+
+export interface ResetPasswordRequest {
+  resetToken: string;
+  newPassword: string;
+}
+
+export interface ResetPasswordResponse {
+  success: boolean;
+  message: string;
+}
+
 export const authApi = createApi({
   reducerPath: "authApi",
   baseQuery: baseQueryWithReauth,
@@ -50,7 +85,34 @@ export const authApi = createApi({
       transformResponse: (response: LoginApiResponse) =>
         response.data as LoginSession,
     }),
+    forgotPassword: builder.mutation<ForgotPasswordResponse, ForgotPasswordRequest>({
+      query: (body) => ({
+        url: "/api/auth/forgot-password",
+        method: "POST",
+        body,
+      }),
+    }),
+    verifyOtp: builder.mutation<VerifyOtpResponse, VerifyOtpRequest>({
+      query: (body) => ({
+        url: "/api/auth/verify-otp",
+        method: "POST",
+        body,
+      }),
+    }),
+    resetPassword: builder.mutation<ResetPasswordResponse, ResetPasswordRequest>({
+      query: (body) => ({
+        url: "/api/auth/reset-password",
+        method: "POST",
+        body,
+      }),
+    }),
   }),
 });
 
-export const { useLoginMutation } = authApi;
+export const {
+  useLoginMutation,
+  useForgotPasswordMutation,
+  useVerifyOtpMutation,
+  useResetPasswordMutation,
+} = authApi;
+

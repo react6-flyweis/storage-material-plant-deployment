@@ -12,6 +12,7 @@ import {
 
 const Login = lazy(() => import("@/pages/Login"));
 const ForgotPassword = lazy(() => import("@/pages/ForgotPassword"));
+const ResetPassword = lazy(() => import("@/pages/ResetPassword"));
 
 const Dashboard = lazy(() => import("@/pages/plantDashboard/PlantDashboard"));
 const EquipmentView = lazy(() => import("./components/EquipmentView"));
@@ -496,6 +497,7 @@ export const adminRoutes: RouteObject[] = [
     children: [
       { path: "/login", element: <Login /> },
       { path: "/forgot-password", element: <ForgotPassword /> },
+      { path: "/reset-password", element: <ResetPassword /> },
     ],
   },
   { path: "/", element: <RootRedirect /> },
