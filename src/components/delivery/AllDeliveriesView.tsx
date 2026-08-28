@@ -323,7 +323,7 @@ const AllDeliveriesView: React.FC = () => {
     const options = [{ label: "All Customers", value: "all" }];
     if (customersData?.customers) {
       customersData.customers.forEach((c) => {
-        const name = `${c.firstName || ""} ${c.lastName || ""}`.trim() || c.name || c.email || c._id;
+        const name = `${c.firstName || ""} ${c.lastName || ""}`.trim() || c.email || c._id;
         options.push({ label: name, value: c._id });
       });
     }
