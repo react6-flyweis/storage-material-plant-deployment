@@ -13,7 +13,7 @@ import {
   Check,
   ArrowUpDown,
   Phone,
-
+  Loader2,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import TitleSubtitle from "../common_component/TitleSubtitle";
@@ -22,7 +22,15 @@ import CommonDropdown from "../common_component/CommonDropdown";
 import CommonInput from "../common_component/CommonInput";
 import Pagination from "../Pagination";
 import PageWrapper from "../common_component/PageWrapper";
-import { useGetPlantDeliveriesStatsQuery, useGetPlantDeliveriesQuery } from "@/redux/api/deliveriesApi";
+import {
+  useGetPlantDeliveriesStatsQuery,
+  useGetPlantDeliveriesQuery,
+  exportPlantDeliveries,
+  type PlantDeliveriesQueryParams,
+} from "@/redux/api/deliveriesApi";
+import { useGetPlantProjectsQuery, useGetCustomersQuery } from "@/redux/api/projectApi";
+import { useGetPlantCarriersQuery, useGetPlantVendorsQuery } from "@/redux/api/logisticsApi";
+import { useAppSelector } from "@/redux/hooks";
 
 const StatCard = ({ title, value, icon: Icon, color, bgColor }: any) => (
   <div className="bg-white p-3 md:p-4 rounded-[14px] flex items-center justify-between shadow-sm transition-all">
@@ -44,7 +52,23 @@ const StatCard = ({ title, value, icon: Icon, color, bgColor }: any) => (
 
 const AllDeliveriesView: React.FC = () => {
   const navigate = useNavigate();
+  const accessToken = useAppSelector((state) => state.auth.accessToken);
   const { data: stats } = useGetPlantDeliveriesStatsQuery();
+
+  const { data: projectsData } = useGetPlantProjectsQuery({ limit: 100 });
+  const { data: customersData } = useGetCustomersQuery({ limit: 100 });
+  const { data: carriersData } = useGetPlantCarriersQuery({ limit: 100 });
+  const { data: vendorsData } = useGetPlantVendorsQuery({ limit: 100 });
+
+  const [isExporting, setIsExporting] = useState(false);
+  const [toastMessage, setToastMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
+  const showToast = (type: "success" | "error", text: string) => {
+    setToastMessage({ type, text });
+    setTimeout(() => {
+      setToastMessage(null);
+    }, 4000);
+  };
 
   const statsData = useMemo(() => [
     {
@@ -135,17 +159,19 @@ const AllDeliveriesView: React.FC = () => {
     toDate: "",
   });
 
-  const queryParams = useMemo(() => {
+  const queryParams: PlantDeliveriesQueryParams = useMemo(() => {
     return {
       page: currentPage,
       limit: parseInt(itemsPerPage) || 10,
-      search: searchTerm || undefined,
-      status: filters.status !== "all" ? filters.status : undefined,
+      search: searchTerm.trim() || undefined,
       projectId: filters.project !== "all" ? filters.project : undefined,
+      materialType: filters.category !== "all" ? filters.category : undefined,
+      deliveryStatus: filters.status !== "all" ? filters.status : undefined,
+      startDate: filters.fromDate || undefined,
+      endDate: filters.toDate || undefined,
       customerId: filters.customer !== "all" ? filters.customer : undefined,
       carrierId: filters.carrier !== "all" ? filters.carrier : undefined,
-      fromDate: filters.fromDate || undefined,
-      toDate: filters.toDate || undefined,
+      equipment: filters.equipment !== "all" ? filters.equipment : undefined,
     };
   }, [currentPage, itemsPerPage, searchTerm, filters]);
 
@@ -283,49 +309,63 @@ const AllDeliveriesView: React.FC = () => {
     'confirmed', 'material_prepared', 'loaded', 'picked_up', 'in_transit', 'staged', 'dispatched_to_site', 'delayed', 'delivered', 'cancelled',
   ];
 
-  const projectOptions = [
-    { label: "All Project", value: "all" },
-    { label: "ABC Logistics Warehouse", value: "abc-logistics" },
-    { label: "Metro Cast Factory Shed", value: "metro-cast" },
-    { label: "Warehouse Complex Phase 2", value: "warehouse-p2" },
-    { label: "Industrial Park Building A", value: "industrial-park-a" },
-  ];
+  const projectOptions = useMemo(() => {
+    const options = [{ label: "All Projects", value: "all" }];
+    if (projectsData?.projects) {
+      projectsData.projects.forEach((p) => {
+        options.push({ label: p.projectName || p.jobId || p._id, value: p._id });
+      });
+    }
+    return options;
+  }, [projectsData]);
 
-  const customerOptions = [
-    { label: "All Customer", value: "all" },
-    { label: "Austic McClum", value: "austic" },
-    { label: "Sarah Industries", value: "sarah" },
-    { label: "BuildRight corp", value: "buildright" },
-    { label: "Johnson Manufacturing", value: "johnson" },
-  ];
+  const customerOptions = useMemo(() => {
+    const options = [{ label: "All Customers", value: "all" }];
+    if (customersData?.customers) {
+      customersData.customers.forEach((c) => {
+        const name = `${c.firstName || ""} ${c.lastName || ""}`.trim() || c.email || c._id;
+        options.push({ label: name, value: c._id });
+      });
+    }
+    return options;
+  }, [customersData]);
 
-  const vendorOptions = [
-    { label: "All Vendor", value: "all" },
-    { label: "Climate Control Inc.", value: "climate" },
-    { label: "Concrete Works Ltd.", value: "concrete" },
-    { label: "Door Solutions Ltd.", value: "door" },
-    { label: "ElectroSupply Co.", value: "electro" },
-  ];
+  const vendorOptions = useMemo(() => {
+    const options = [{ label: "All Vendors", value: "all" }];
+    if (vendorsData?.vendors) {
+      vendorsData.vendors.forEach((v) => {
+        options.push({ label: v.vendorName || v._id, value: v._id });
+      });
+    }
+    return options;
+  }, [vendorsData]);
 
-  const carrierOptions = [
-    { label: "All Carriers", value: "all" },
-    { label: "FastFreight Logistics", value: "fastfreight" },
-    { label: "Premier Transport Co.", value: "premier" },
-    { label: "Rapid Delivery Services", value: "rapid" },
-    { label: "Quick Services", value: "quick" },
-  ];
+  const carrierOptions = useMemo(() => {
+    const options = [{ label: "All Carriers", value: "all" }];
+    if (carriersData?.carriers) {
+      carriersData.carriers.forEach((c) => {
+        options.push({ label: c.carrierName || c._id, value: c._id });
+      });
+    }
+    return options;
+  }, [carriersData]);
 
   const categoryOptions = [
-    { label: "All Categories", value: "all" },
-    { label: "Category 1", value: "1" },
+    { label: "All Material Types", value: "all" },
+    { label: "Primary Steel", value: "Primary Steel" },
+    { label: "Secondary Steel", value: "Secondary Steel" },
+    { label: "Doors", value: "Doors" },
+    { label: "Trim", value: "Trim" },
+    { label: "Hardware", value: "Hardware" },
   ];
 
   const equipmentOptions = [
     { label: "All Equipment", value: "all" },
-    { label: "Concrete", value: "concrete" },
-    { label: "Doors & Windows", value: "doors" },
-    { label: "Electrical", value: "electrical" },
-    { label: "HVAC", value: "hvac" },
+    { label: "Crane", value: "Crane" },
+    { label: "Forklift", value: "Forklift" },
+    { label: "Flatbed Truck", value: "Flatbed Truck" },
+    { label: "Hydraulic Lift", value: "Hydraulic Lift" },
+    { label: "Pallet Jack", value: "Pallet Jack" },
   ];
 
   const statusOptions = [
@@ -336,13 +376,31 @@ const AllDeliveriesView: React.FC = () => {
     }))
   ];
 
-  const ownerOptions = [
-    { label: "All Internal Owner", value: "all" },
-    { label: "Climate Control Inc.", value: "climate" },
-    { label: "Concrete Works Ltd.", value: "concrete" },
-    { label: "Door Solutions Ltd.", value: "door" },
-    { label: "ElectroSupply Co.", value: "electro" },
-  ];
+  const handleExport = async () => {
+    try {
+      setIsExporting(true);
+      await exportPlantDeliveries(
+        {
+          search: searchTerm.trim() || undefined,
+          projectId: filters.project !== "all" ? filters.project : undefined,
+          materialType: filters.category !== "all" ? filters.category : undefined,
+          deliveryStatus: filters.status !== "all" ? filters.status : undefined,
+          startDate: filters.fromDate || undefined,
+          endDate: filters.toDate || undefined,
+          customerId: filters.customer !== "all" ? filters.customer : undefined,
+          carrierId: filters.carrier !== "all" ? filters.carrier : undefined,
+          equipment: filters.equipment !== "all" ? filters.equipment : undefined,
+        },
+        accessToken
+      );
+      showToast("success", "Export completed successfully!");
+    } catch (err: any) {
+      console.error("Export error:", err);
+      showToast("error", err?.message || "Failed to export deliveries");
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   const tableHeaders = [
     { label: "ID", key: "ID", sortable: true },
@@ -368,6 +426,19 @@ const AllDeliveriesView: React.FC = () => {
         title="All Deliveries"
         subtitle="Comprehensive delivery management and tracking"
       />
+
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div
+          className={`fixed bottom-6 right-6 z-50 px-4 py-3 rounded-lg shadow-lg text-sm font-medium flex items-center gap-2 animate-in fade-in slide-in-from-bottom-2 ${
+            toastMessage.type === "success"
+              ? "bg-[#00C853] text-white"
+              : "bg-[#FF4842] text-white"
+          }`}
+        >
+          {toastMessage.text}
+        </div>
+      )}
 
       {/* Stats Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
@@ -412,9 +483,15 @@ const AllDeliveriesView: React.FC = () => {
             <Button
               variant="outlineGreen"
               size="sm"
+              onClick={handleExport}
+              disabled={isExporting}
             >
-              <Download className="mr-3 size-4 xl:size-5 text-[#00C853]" />{" "}
-              Export CSV
+              {isExporting ? (
+                <Loader2 className="mr-3 size-4 xl:size-5 animate-spin text-[#00C853]" />
+              ) : (
+                <Download className="mr-3 size-4 xl:size-5 text-[#00C853]" />
+              )}
+              {isExporting ? "Exporting..." : "Export"}
             </Button>
           </div>
         </div>
@@ -442,21 +519,21 @@ const AllDeliveriesView: React.FC = () => {
                 value={filters.project}
                 onChange={(v) => handleFilterChange("project", v)}
                 options={projectOptions}
-                placeholder="All Project"
+                placeholder="All Projects"
               />
               <CommonDropdown
                 label="Customer"
                 value={filters.customer}
                 onChange={(v) => handleFilterChange("customer", v)}
                 options={customerOptions}
-                placeholder="All Customer"
+                placeholder="All Customers"
               />
               <CommonDropdown
                 label="Vendor"
                 value={filters.vendor}
                 onChange={(v) => handleFilterChange("vendor", v)}
                 options={vendorOptions}
-                placeholder="All Vendor"
+                placeholder="All Vendors"
               />
               <CommonDropdown
                 label="Delivery Company"
@@ -466,13 +543,12 @@ const AllDeliveriesView: React.FC = () => {
                 placeholder="All Carriers"
               />
               <CommonDropdown
-                label="Material Category"
+                label="Material Type / Category"
                 value={filters.category}
                 onChange={(v) => handleFilterChange("category", v)}
                 options={categoryOptions}
-                placeholder="All Categories"
+                placeholder="All Material Types"
               />
-              <div className="hidden lg:block" /> {/* Spacer */}
               <CommonDropdown
                 label="Equipment Required"
                 value={filters.equipment}
@@ -480,24 +556,10 @@ const AllDeliveriesView: React.FC = () => {
                 options={equipmentOptions}
                 placeholder="All Equipment"
               />
-              <CommonDropdown
-                label="Status"
-                value={filters.status}
-                onChange={(v) => handleFilterChange("status", v)}
-                options={statusOptions}
-                placeholder="All Status"
-              />
-              <CommonDropdown
-                label="Internal Owner"
-                value={filters.internalOwner}
-                onChange={(v) => handleFilterChange("internalOwner", v)}
-                options={ownerOptions}
-                placeholder="All Internal Owner"
-              />
-              <div className="flex items-end">
+              <div className="flex items-end sm:col-span-2 xl:col-span-4 justify-end pt-2">
                 <Button
                   variant="white"
-                  onClick={() =>
+                  onClick={() => {
                     setFilters({
                       status: "all",
                       project: "all",
@@ -509,8 +571,10 @@ const AllDeliveriesView: React.FC = () => {
                       internalOwner: "all",
                       fromDate: "",
                       toDate: "",
-                    })
-                  }
+                    });
+                    setSearchTerm("");
+                    setCurrentPage(1);
+                  }}
                   size="md"
                 >
                   <RotateCcw className="mr-3 size-4 xl:size-5" /> Clear All
