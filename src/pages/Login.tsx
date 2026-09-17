@@ -1,12 +1,14 @@
 import Button from "../components/Button";
 import Input from "../components/Input";
 import bgImage from "../assets/AuthBackgroundImg.jpg";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import * as Sentry from "@sentry/react";
 import { useLoginMutation } from "../redux/api/authApi";
 import { getApiErrorMessage } from "../redux/utils/apiError";
+import { getAuthRedirectPath } from "../lib/authRedirect";
 
 const isPhoneNumber = (value: string) => {
   const normalizedValue = value.replace(/[\s()-]/g, "");
@@ -32,6 +34,7 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 
 function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [login] = useLoginMutation();
   const {
     register,
@@ -49,9 +52,19 @@ function Login() {
   const onSubmit = async (values: LoginFormValues) => {
     try {
       await login(values).unwrap();
-      navigate("/dashboard");
-    } catch (unknownError) {
-      setError("root", { message: getApiErrorMessage(unknownError) });
+      navigate(getAuthRedirectPath(location), { replace: true });
+    } catch (error) {
+      const errorMessage = getApiErrorMessage(error);
+      setError("root", { message: errorMessage });
+      Sentry.captureMessage("Failed sign-in attempt", {
+        level: "warning",
+        extra: {
+          statusCode: 200,
+          authProvider: "local",
+          email: values.email,
+          responseMessage: errorMessage,
+        },
+      });
     }
   };
 

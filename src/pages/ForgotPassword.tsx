@@ -25,12 +25,14 @@ const otpSchema = z.object({
     .string()
     .trim()
     .min(1, "OTP is required.")
-    .min(4, "OTP must be at least 4 digits.")
+    // .min(4, "OTP must be at least 4 digits.")
     .max(6, "OTP cannot exceed 6 digits."),
 });
 
 type EmailFormValues = z.infer<typeof emailSchema>;
 type OtpFormValues = z.infer<typeof otpSchema>;
+
+const PANEL_ROLE = "plant";
 
 function ForgotPassword() {
   const navigate = useNavigate();
@@ -45,6 +47,7 @@ function ForgotPassword() {
     register: registerEmail,
     handleSubmit: handleEmailSubmit,
     setError: setEmailError,
+    clearErrors: clearEmailErrors,
     formState: { errors: emailErrors, isSubmitting: isEmailSubmitting },
   } = useForm<EmailFormValues>({
     resolver: zodResolver(emailSchema),
@@ -55,6 +58,7 @@ function ForgotPassword() {
     register: registerOtp,
     handleSubmit: handleOtpSubmit,
     setError: setOtpError,
+    clearErrors: clearOtpErrors,
     formState: { errors: otpErrors, isSubmitting: isOtpSubmitting },
   } = useForm<OtpFormValues>({
     resolver: zodResolver(otpSchema),
@@ -64,7 +68,10 @@ function ForgotPassword() {
   const onRequestOtp = async (values: EmailFormValues) => {
     try {
       setSuccessMsg("");
-      const res = await forgotPassword({ email: values.email }).unwrap();
+      const res = await forgotPassword({
+        email: values.email,
+        role: PANEL_ROLE,
+      }).unwrap();
       setSubmittedEmail(values.email);
       setSuccessMsg(res.message || "An OTP has been sent to your email.");
       setStep("verify");
@@ -100,7 +107,10 @@ function ForgotPassword() {
     if (!submittedEmail) return;
     try {
       setSuccessMsg("");
-      const res = await forgotPassword({ email: submittedEmail }).unwrap();
+      const res = await forgotPassword({
+        email: submittedEmail,
+        role: PANEL_ROLE,
+      }).unwrap();
       setSuccessMsg(res.message || "A new OTP has been sent to your email.");
     } catch (err) {
       setOtpError("root", { message: getApiErrorMessage(err) });
@@ -133,7 +143,11 @@ function ForgotPassword() {
                 label="E-mail address"
                 type="email"
                 placeholder="Enter your email"
-                {...registerEmail("email")}
+                {...registerEmail("email", {
+                  onChange: () => {
+                    if (emailErrors.root) clearEmailErrors("root");
+                  },
+                })}
               />
               {emailErrors.email && (
                 <p className="text-sm text-red-600">
@@ -142,9 +156,9 @@ function ForgotPassword() {
               )}
 
               {emailErrors.root && (
-                <p className="text-sm text-red-600">
+                <div className="p-3 bg-red-50 border border-red-200 rounded text-sm text-red-600 text-center font-medium">
                   {emailErrors.root.message}
-                </p>
+                </div>
               )}
 
               <Button type="submit" disabled={isEmailSubmitting}>
@@ -181,10 +195,7 @@ function ForgotPassword() {
               </div>
             )}
 
-            <form
-              onSubmit={handleOtpSubmit(onVerifyOtp)}
-              className="space-y-6"
-            >
+            <form onSubmit={handleOtpSubmit(onVerifyOtp)} className="space-y-6">
               <Input
                 id="otp"
                 label="OTP Code"
@@ -195,18 +206,20 @@ function ForgotPassword() {
                     e.currentTarget.value = e.currentTarget.value.slice(0, 6);
                   }
                 }}
-                {...registerOtp("otp")}
+                {...registerOtp("otp", {
+                  onChange: () => {
+                    if (otpErrors.root) clearOtpErrors("root");
+                  },
+                })}
               />
               {otpErrors.otp && (
-                <p className="text-sm text-red-600">
-                  {otpErrors.otp.message}
-                </p>
+                <p className="text-sm text-red-600">{otpErrors.otp.message}</p>
               )}
 
               {otpErrors.root && (
-                <p className="text-sm text-red-600 font-medium">
+                <div className="p-3 bg-red-50 border border-red-200 rounded text-sm text-red-600 text-center font-medium">
                   {otpErrors.root.message}
-                </p>
+                </div>
               )}
 
               <Button type="submit" disabled={isOtpSubmitting}>
@@ -216,7 +229,11 @@ function ForgotPassword() {
               <div className="flex items-center justify-between pt-2">
                 <button
                   type="button"
-                  onClick={() => setStep("request")}
+                  onClick={() => {
+                    setSuccessMsg("");
+                    clearOtpErrors();
+                    setStep("request");
+                  }}
                   className="text-sm font-normal text-gray-500 hover:text-gray-700 transition-colors"
                 >
                   Change Email
