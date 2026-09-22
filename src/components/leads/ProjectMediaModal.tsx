@@ -91,20 +91,20 @@ const ProjectMediaModal: React.FC<ProjectMediaModalProps> = ({
     {
       name: "Architectural Plans.pdf",
       size: "15.2 MB",
-      status: "Pending Review",
+      status: "Pending",
       statusColor: "bg-[#FEFAE2] text-[#F0CC16] border-[#FEFAE2]",
     },
     {
       name: "Structural Drawings.dwg",
       size: "15.2 MB",
       status: "Approved",
-      statusColor: "bg-emerald-50 text-emerald-600 border-emerald-100",
+      statusColor: "bg-[#DCFCE7] text-[#16A34A] border-[#BBF7D0]",
     },
     {
       name: "Specifications.docx",
       size: "15.2 MB",
-      status: "Revision Required",
-      statusColor: "bg-red-50 text-red-600 border-red-100",
+      status: "Revision Requested",
+      statusColor: "bg-[#FFF7ED] text-[#FF9409] border-[#FFEDD5]",
     },
   ];
 
@@ -112,20 +112,20 @@ const ProjectMediaModal: React.FC<ProjectMediaModalProps> = ({
     {
       name: "Architectural Plans.pdf",
       size: "15.2 MB",
-      status: "Pending Review",
-      statusColor: "bg-[#FEFAE2] text-orange-600 border-orange-100",
+      status: "Pending",
+      statusColor: "bg-[#FEFAE2] text-[#F0CC16] border-[#FEFAE2]",
     },
     {
       name: "Structural Building.dwg",
       size: "15.2 MB",
       status: "Approved",
-      statusColor: "bg-emerald-50 text-emerald-600 border-emerald-100",
+      statusColor: "bg-[#DCFCE7] text-[#16A34A] border-[#BBF7D0]",
     },
     {
       name: "Specifications.docx",
       size: "15.2 MB",
-      status: "Revision Required",
-      statusColor: "bg-red-50 text-red-600 border-red-100",
+      status: "Revision Requested",
+      statusColor: "bg-[#FFF7ED] text-[#FF9409] border-[#FFEDD5]",
     },
   ];
 

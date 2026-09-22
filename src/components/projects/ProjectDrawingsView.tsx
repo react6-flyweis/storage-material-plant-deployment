@@ -6,7 +6,6 @@ import { customersData } from "@/data/productionMockData";
 import Heading from "../common_component/Heading";
 import Button from "../common_component/Button";
 import ViewDrawingModal from "../leads/ViewDrawingModal";
-import { SuccessModal } from "./ProjectUploadModals";
 import FilterDropdown from "../common_component/FilterDropdown";
 import filePdf from "../../assets/icon/file-pdf.svg";
 import { useGetProjectDrawingsQuery, useGetPlantProjectDetailQuery } from "@/redux/api/projectApi";
@@ -83,8 +82,8 @@ const mapStatus = (apiStatus: string) => {
   const statusLower = apiStatus ? apiStatus.toLowerCase() : "";
   if (statusLower.includes("pending")) {
     return {
-      text: "Pending Review",
-      value: "pending-review",
+      text: "Pending",
+      value: "pending",
       color: "bg-[#FEFAE2] text-[#F0CC16] border-[#FEFAE2]"
     };
   }
@@ -92,21 +91,14 @@ const mapStatus = (apiStatus: string) => {
     return {
       text: "Approved",
       value: "approved",
-      color: "bg-emerald-50 text-emerald-600 border-emerald-100"
+      color: "bg-[#DCFCE7] text-[#16A34A] border-[#BBF7D0]"
     };
   }
-  if (statusLower.includes("revision") || statusLower.includes("required")) {
+  if (statusLower.includes("revision") || statusLower.includes("required") || statusLower.includes("rejected")) {
     return {
-      text: "Revision Required",
+      text: "Revision Requested",
       value: "revision-requested",
-      color: "bg-red-50 text-red-600 border-[#FCA5A5]"
-    };
-  }
-  if (statusLower.includes("rejected")) {
-    return {
-      text: "Rejected",
-      value: "rejected",
-      color: "bg-red-50 text-red-600 border-[#FCA5A5]"
+      color: "bg-[#FFF7ED] text-[#FF9409] border-[#FFEDD5]"
     };
   }
   return {
@@ -129,7 +121,6 @@ const ProjectDrawingsView: React.FC = () => {
   const [selectedDrawing, setSelectedDrawing] = useState<any>(null);
 
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
-  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
 
   const { data: drawingsData, isLoading, error } = useGetProjectDrawingsQuery(projectId || "");
   const { data: projectDetail } = useGetPlantProjectDetailQuery(projectId || "");
@@ -143,14 +134,8 @@ const ProjectDrawingsView: React.FC = () => {
     { label: "All Status", value: "all" },
     { label: "Approved", value: "approved" },
     { label: "Revision Requested", value: "revision-requested" },
-    { label: "Rejected", value: "rejected" },
-    { label: "Pending Review", value: "pending-review" },
+    { label: "Pending", value: "pending" },
   ];
-
-  const onUpload = () => {
-    setIsUploadModalOpen(false);
-    setIsSuccessModalOpen(true);
-  };
 
   const handleOpenDrawing = (file: any) => {
     setSelectedDrawing({
@@ -160,6 +145,8 @@ const ProjectDrawingsView: React.FC = () => {
       uploadedBy: "Admin",
       receivedDate: file.original?.uploadedAt ? new Date(file.original.uploadedAt).toLocaleDateString() : "2026-05-01",
       imageUrl: file.imageUrl || "https://via.placeholder.com/800x600?text=Project+Drawing+Preview",
+      rejectionReason: file.original?.rejectionReason || file.rejectionReason,
+      comments: file.original?.comments || file.comments,
     });
     setIsViewDrawingOpen(true);
   };
@@ -353,15 +340,6 @@ const ProjectDrawingsView: React.FC = () => {
         isOpen={isUploadModalOpen}
         onClose={() => setIsUploadModalOpen(false)}
         leadId={projectId || ""}
-        onUpload={onUpload}
-      />
-
-      <SuccessModal
-        isOpen={isSuccessModalOpen}
-        onClose={() => setIsSuccessModalOpen(false)}
-        title="Building Drawings & Photos Uploaded Successfully"
-        buttonLabel="Go to Drawings"
-        onButtonClick={() => setIsSuccessModalOpen(false)}
       />
     </div>
   );

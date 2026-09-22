@@ -259,6 +259,25 @@ export interface PlantProjectDetail {
 
 type PlantProjectDetailApiResponse = ApiResponse<PlantProjectDetail>;
 
+export interface DrawingCommentUser {
+  _id?: string;
+  name?: string;
+  email?: string;
+  role?: string;
+  firstName?: string;
+  lastName?: string;
+}
+
+export interface DrawingComment {
+  _id: string;
+  text: string;
+  commentedBy?: string | DrawingCommentUser | null;
+  commentedByCustomer?: DrawingCommentUser | null;
+  authorName?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export interface Drawing {
   versionNumber: number;
   fileUrl: string;
@@ -267,6 +286,7 @@ export interface Drawing {
   uploadedAt: string;
   reviewedAt: string | null;
   rejectionReason: string;
+  comments?: DrawingComment[];
 }
 
 export interface BuildingDrawingInfo {
@@ -290,6 +310,7 @@ export interface BuildingLatestDrawing {
   uploadedAt: string;
   reviewedAt?: string | null;
   rejectionReason?: string;
+  comments?: DrawingComment[];
 }
 
 export interface BuildingLatestBomJob {
