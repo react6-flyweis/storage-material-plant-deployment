@@ -4,7 +4,7 @@ import {
   Search,
   // Filter,
   Plus,
-  Mail,
+  // Mail,
   Phone,
   Eye,
   Edit2,
@@ -134,8 +134,8 @@ const FreightCarriersView: React.FC = () => {
 
   const headers = [
     "Carrier",
-    "Contact",
-    "Email",
+    // "Contact",
+    // "Email",
     "Phone",
     "Bids",
     "Awarded",
@@ -243,7 +243,7 @@ const FreightCarriersView: React.FC = () => {
                         </div>
                       </div>
                     </td>
-                    <td className="p-2 md:p-4 text-sm text-[#212B36] font-medium">
+                    {/* <td className="p-2 md:p-4 text-sm text-[#212B36] font-medium">
                       {carrier.contact}
                     </td>
                     <td className="p-2 md:p-4">
@@ -253,7 +253,7 @@ const FreightCarriersView: React.FC = () => {
                           {carrier.email}
                         </span>
                       </div>
-                    </td>
+                    </td> */}
                     <td className="p-2 md:p-4">
                       <div className="flex items-center gap-2 text-[#2563EB] text-sm whitespace-nowrap">
                         <Phone size={16} />
