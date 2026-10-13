@@ -362,11 +362,64 @@ export interface ProjectInvoicesResponse {
 
 type ProjectInvoicesApiResponse = ApiResponse<ProjectInvoicesResponse>;
 
+export interface ProjectMediaItem {
+  _id: string;
+  url: string;
+  name: string;
+  type: "photo" | "video";
+  uploadedAt: string;
+  approvalStatus?: string;
+  reviewedAt?: string | null;
+  uploadedBy?: {
+    _id: string;
+    name: string;
+    email: string;
+    role: string;
+  } | null;
+}
+
+export interface ProjectMediaResponse {
+  leadId: string;
+  projectId: string;
+  projectName: string;
+  documents: ProjectMediaItem[];
+  photos: ProjectMediaItem[];
+  videos: ProjectMediaItem[];
+  total: number;
+  photoCount: number;
+  videoCount: number;
+}
+
+type ProjectMediaApiResponse = ApiResponse<ProjectMediaResponse>;
+
 export const projectApi = createApi({
   reducerPath: "projectApi",
   baseQuery: baseQueryWithReauth,
-  tagTypes: ["ProjectDetail", "ProjectDrawings", "ProjectInvoices", "ProjectBuildings", "ConsolidatedBOM", "BOMProjects"],
+  tagTypes: ["ProjectDetail", "ProjectDrawings", "ProjectInvoices", "ProjectBuildings", "ConsolidatedBOM", "BOMProjects", "ProjectMedia"],
   endpoints: (builder) => ({
+    getPlantProjectMedia: builder.query<
+      ProjectMediaResponse,
+      { leadId: string; type?: "photo" | "video" } | string
+    >({
+      query: (arg) => {
+        const leadId = typeof arg === "string" ? arg : arg.leadId;
+        const type = typeof arg === "object" ? arg.type : undefined;
+        return {
+          url: `/api/plant/projects/${leadId}/media`,
+          params: type ? { type } : undefined,
+        };
+      },
+      providesTags: (_result, _error, arg) => {
+        const leadId = typeof arg === "string" ? arg : arg.leadId;
+        return [{ type: "ProjectMedia", id: leadId }];
+      },
+      transformResponse: (response: ProjectMediaApiResponse) => {
+        if (!response.data) {
+          throw new Error("No data returned from API");
+        }
+        return response.data;
+      },
+    }),
     getProjectBuildings: builder.query<ProjectBuildingsResponse, string>({
       query: (leadId) => `/api/plant/projects/${leadId}/buildings`,
       providesTags: (_result, _error, leadId) => [
@@ -978,6 +1031,7 @@ export interface BOMStats {
 }
 
 export const {
+  useGetPlantProjectMediaQuery,
   useGetProjectStatsQuery,
   useGetPlantProjectsQuery,
   useGetCustomersQuery,

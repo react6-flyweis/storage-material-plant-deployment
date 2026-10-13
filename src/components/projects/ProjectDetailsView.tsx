@@ -209,8 +209,8 @@ const ProjectDetailsView = () => {
         notes={mappedNotes}
       />
 
-      {/* Project Photos Section */}
-      <ProjectPhotos />
+      {/* Project Photos & Media Section */}
+      <ProjectPhotos projectId={projectId || ""} />
 
       {/* Modals */}
       <UploadBOMModal
