@@ -22,21 +22,24 @@ export interface DrawingComment {
   updatedAt?: string;
 }
 
+export interface ViewDrawingFileItem {
+  name: string;
+  id: string;
+  location: string;
+  uploadedBy: string;
+  receivedDate: string;
+  imageUrl: string;
+  status: string;
+  type?: "drawing" | "photo" | "video";
+  rejectionReason?: string;
+  customerSuggestions?: string;
+  comments?: DrawingComment[];
+}
+
 interface ViewDrawingModalProps {
   isOpen: boolean;
   onClose: () => void;
-  drawing: {
-    name: string;
-    id: string;
-    location: string;
-    uploadedBy: string;
-    receivedDate: string;
-    imageUrl: string;
-    status: string;
-    rejectionReason?: string;
-    customerSuggestions?: string;
-    comments?: DrawingComment[];
-  } | null;
+  drawing: ViewDrawingFileItem | null;
 }
 
 const ViewDrawingModal: React.FC<ViewDrawingModalProps> = ({
@@ -60,10 +63,18 @@ const ViewDrawingModal: React.FC<ViewDrawingModalProps> = ({
 
   const customerSuggestionText = getLatestCommentText();
 
-  const isImage = (fileName?: string) => {
+  const isImageFile = (fileName?: string) => {
     const ext = fileName ? fileName.split(".").pop()?.toLowerCase() : "";
     return ["png", "jpg", "jpeg", "webp", "gif", "svg"].includes(ext || "");
   };
+
+  const isVideoFile = (fileName?: string) => {
+    const ext = fileName ? fileName.split(".").pop()?.toLowerCase() : "";
+    return ["mp4", "mov", "webm", "mkv", "avi", "ogg"].includes(ext || "");
+  };
+
+  const isVideo = drawing.type === "video" || isVideoFile(drawing.name);
+  const isImage = isImageFile(drawing.name);
 
   const getStatusBadgeStyle = (status?: string) => {
     const s = (status || "").toLowerCase();
@@ -96,7 +107,7 @@ const ViewDrawingModal: React.FC<ViewDrawingModalProps> = ({
     Boolean(customerSuggestionText);
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="" width="max-w-5xl" height="max-h-[80vh]">
+    <Modal isOpen={isOpen} onClose={onClose} title="" width="max-w-5xl" height="max-h-[85vh]">
       <div className="flex flex-col gap-3">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between pb-3 border-b border-gray-100 gap-3 relative">
@@ -104,7 +115,7 @@ const ViewDrawingModal: React.FC<ViewDrawingModalProps> = ({
             <h2 className="text-base md:text-lg font-bold text-gray-900 leading-tight">
               {drawing.name}
             </h2>
-            <p className="text-gray-500 font-medium text-xs mt-0.5">
+            <p className="text-gray-400 font-medium text-xs mt-0.5">
               {drawing.id}
             </p>
           </div>
@@ -144,8 +155,7 @@ const ViewDrawingModal: React.FC<ViewDrawingModalProps> = ({
 
           <button
             onClick={onClose}
-            aria-label="Close modal"
-            className="rounded-full hover:bg-gray-100 p-1.5 text-gray-500 hover:text-gray-900 transition-colors absolute top-0 right-0 md:static"
+            className="absolute top-0 right-0 p-1 hover:bg-gray-100 rounded-full transition-colors text-gray-400 hover:text-gray-600"
           >
             <X className="w-5 h-5" />
           </button>
@@ -153,7 +163,16 @@ const ViewDrawingModal: React.FC<ViewDrawingModalProps> = ({
 
         {/* Content - File Preview */}
         <div className="bg-gray-50/70 rounded-xl border border-gray-200 flex items-center justify-center overflow-hidden w-full min-h-[300px]">
-          {isImage(drawing.name) ? (
+          {isVideo ? (
+            <video
+              src={drawing.imageUrl}
+              controls
+              autoPlay
+              className="w-full h-full max-h-[65vh] object-contain bg-black"
+            >
+              Your browser does not support playing this video.
+            </video>
+          ) : isImage ? (
             <img
               src={drawing.imageUrl}
               alt={drawing.name}
