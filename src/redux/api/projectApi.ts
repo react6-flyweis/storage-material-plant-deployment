@@ -766,6 +766,57 @@ export const projectApi = createApi({
       invalidatesTags: (_result, _error, { jobId }) =>
         jobId ? [{ type: "ConsolidatedBOM", id: jobId }] : ["ConsolidatedBOM"],
     }),
+
+    getAdditionalMaterialRequests: builder.query<
+      AdditionalMaterialRequestsResponse,
+      { leadId: string; page?: number; limit?: number }
+    >({
+      query: ({ leadId, page = 1, limit = 20 }) => {
+        const params = new URLSearchParams();
+        if (page) params.append("page", page.toString());
+        if (limit) params.append("limit", limit.toString());
+        return {
+          url: `/api/plant/projects/${leadId}/additional-material-requests?${params.toString()}`,
+        };
+      },
+      providesTags: (_result, _error, { leadId }) => [
+        { type: "ProjectDetail", id: `AdditionalMaterialRequests-${leadId}` },
+      ],
+      transformResponse: (
+        response: ApiResponse<AdditionalMaterialRequestsResponse>,
+      ) => {
+        if (!response.data) {
+          throw new Error("No data returned from API");
+        }
+        return response.data;
+      },
+    }),
+
+    getMismatchOrders: builder.query<
+      MismatchOrdersResponse,
+      { leadId: string; page?: number; limit?: number; status?: string }
+    >({
+      query: ({ leadId, page = 1, limit = 20, status }) => {
+        const params = new URLSearchParams();
+        if (page) params.append("page", page.toString());
+        if (limit) params.append("limit", limit.toString());
+        if (status && status !== "all") params.append("status", status);
+        return {
+          url: `/api/plant/projects/${leadId}/mismatch-orders?${params.toString()}`,
+        };
+      },
+      providesTags: (_result, _error, { leadId }) => [
+        { type: "ProjectDetail", id: `MismatchOrders-${leadId}` },
+      ],
+      transformResponse: (
+        response: ApiResponse<MismatchOrdersResponse>,
+      ) => {
+        if (!response.data) {
+          throw new Error("No data returned from API");
+        }
+        return response.data;
+      },
+    }),
   }),
 });
 
@@ -1030,6 +1081,82 @@ export interface BOMStats {
   issuesDetected: number;
 }
 
+export interface AdditionalMaterialRequestItem {
+  name: string;
+  quantity: number;
+  unit: string;
+  deliveryStatus: string;
+}
+
+export interface AdditionalMaterialRequest {
+  requestId: string;
+  _id: string;
+  source: string;
+  project?: {
+    leadId: string;
+    projectName: string;
+    jobId: string;
+  };
+  requestedByCustomer?: {
+    customerId: string;
+    name: string;
+    email: string;
+  };
+  requestedItems: AdditionalMaterialRequestItem[];
+  status: string;
+  priority?: string;
+  requestDate: string;
+}
+
+export interface AdditionalMaterialRequestsResponse {
+  leadId: string;
+  additionalMaterialRequests: AdditionalMaterialRequest[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+export interface MismatchOrderItem {
+  itemId: string;
+  expectedQty: number;
+  receivedQty: number;
+  status: string;
+}
+
+export interface MismatchOrderPhoto {
+  name: string;
+  url: string;
+}
+
+export interface MismatchOrder {
+  mismatchId: string;
+  mismatchOrderId: string;
+  status: string;
+  reason: string;
+  notes: string;
+  actionNotes?: string;
+  bundleId?: string;
+  bundleNo?: string;
+  items: MismatchOrderItem[];
+  photos?: MismatchOrderPhoto[];
+  reportedBy?: {
+    _id: string;
+    name: string;
+    email: string;
+  };
+  createdAt: string;
+}
+
+export interface MismatchOrdersResponse {
+  leadId: string;
+  projectName?: string;
+  jobId?: string;
+  mismatchOrders: MismatchOrder[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
 export const {
   useGetPlantProjectMediaQuery,
   useGetProjectStatsQuery,
@@ -1055,4 +1182,6 @@ export const {
   useGetBOMDetailsQuery,
   useConfirmBuildingBOMMutation,
   useUpdateBOMItemPriceMutation,
+  useGetAdditionalMaterialRequestsQuery,
+  useGetMismatchOrdersQuery,
 } = projectApi;
