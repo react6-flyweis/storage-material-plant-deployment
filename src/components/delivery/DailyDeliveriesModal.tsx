@@ -29,14 +29,19 @@ const DailyDeliveriesModal: React.FC<DailyDeliveriesModalProps> = ({
 }) => {
   if (!isOpen || !date) return null;
 
+  const handleViewDetails = (id: string) => {
+    onClose();
+    onViewDetails?.(id);
+  };
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} hideHeader width="max-w-[1000px] max-h-[85vh] overflow-y-auto">
-      <div className="p-4 md:p-6 space-y-6">
-        <h2 className="text-xl md:text-2xl font-bold text-[#212B36]">
+      <div className="space-y-4">
+        <h2 className="text-lg md:text-xl font-bold text-[#212B36]">
           {format(date, "EEEE, MMMM d, yyyy")}
         </h2>
 
-        <div className="space-y-4 pr-2">
+        <div className="space-y-3">
           {deliveries.length > 0 ? (
             deliveries.map((delivery) => (
               <DeliveryCard
@@ -45,7 +50,7 @@ const DailyDeliveriesModal: React.FC<DailyDeliveriesModalProps> = ({
                 onReschedule={onReschedule}
                 onStatusUpdate={onStatusUpdate}
                 onMarkDelivered={onMarkDelivered}
-                onViewDetails={onViewDetails}
+                onViewDetails={handleViewDetails}
                 onSendReminder={onSendReminder}
               />
             ))
