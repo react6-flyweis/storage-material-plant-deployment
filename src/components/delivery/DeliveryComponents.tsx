@@ -11,7 +11,7 @@ import {
   RotateCcw,
 } from "lucide-react";
 import Button from "../common_component/Button";
-import { formatStatusLabel } from "./deliveryStatusConstants";
+import { formatStatusLabel, isFinalStatus } from "./deliveryStatusConstants";
 
 export interface Delivery {
   id: string;
@@ -102,9 +102,14 @@ export const DeliveryCard = ({
   const navigate = useNavigate();
 
   const currentStatus = (delivery.status || "").toLowerCase();
-  const isDelivered = currentStatus === "delivered" || currentStatus === "dispatched_to_site";
+  const isDelivered =
+    isFinalStatus(delivery.status) ||
+    currentStatus === "delivered" ||
+    currentStatus === "dispatched_to_site" ||
+    currentStatus === "cancelled";
 
-  const handleStatusClick = () => {
+  const handleStatusClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (onOpenStatusModal) {
       onOpenStatusModal(delivery.id);
     } else if (onStatusUpdate) {
@@ -114,6 +119,29 @@ export const DeliveryCard = ({
     }
   };
 
+  const handleViewDetails = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onViewDetails) {
+      onViewDetails(delivery.id);
+    } else {
+      navigate(`/delivery/delivery-details/${delivery.id}`);
+    }
+  };
+
+  const handleReschedule = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onReschedule) {
+      onReschedule(delivery.id);
+    } else {
+      navigate(`/delivery/reschedule-delivery/${delivery.id}`);
+    }
+  };
+
+  const handleSendReminder = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onSendReminder?.(delivery.id);
+  };
+
   const actions = [
     {
       label: `Status: ${formatStatusLabel(delivery.status)} (Update)`,
@@ -121,9 +149,28 @@ export const DeliveryCard = ({
       onClick: handleStatusClick,
       disabled: isDelivered,
     },
-    { label: "View Details", icon: Van, onClick: () => onViewDetails ? onViewDetails(delivery.id) : navigate(`/delivery/delivery-details/${delivery.id}`), disabled: false },
-    { label: "Reschedule Delivery", icon: CalendarSync, onClick: () => onReschedule ? onReschedule(delivery.id) : navigate(`/delivery/reschedule-delivery/${delivery.id}`), disabled: isDelivered },
-    { label: "Send Reminder Now", icon: Bell, onClick: () => onSendReminder?.(delivery.id), disabled: false },
+    {
+      label: "View Details",
+      icon: Van,
+      onClick: handleViewDetails,
+      disabled: false,
+    },
+    {
+      label: "Reschedule Delivery",
+      icon: CalendarSync,
+      onClick: handleReschedule,
+      disabled: isDelivered,
+    },
+    ...(!isDelivered
+      ? [
+          {
+            label: "Send Reminder Now",
+            icon: Bell,
+            onClick: handleSendReminder,
+            disabled: false,
+          },
+        ]
+      : []),
   ];
 
   return (

@@ -22,6 +22,35 @@ export interface PlantDeliveriesStats {
   cancelledCount: number;
 }
 
+export interface SendReminderChannels {
+  email: boolean;
+  sms: boolean;
+  inApp: boolean;
+}
+
+export interface SendReminderResponse {
+  success: boolean;
+  message: string;
+  data?: {
+    deliveryId: string;
+    channels: SendReminderChannels;
+  };
+}
+
+export interface DeliveryDocumentItem {
+  name: string;
+  type: "pdf" | "file";
+  url: string;
+}
+
+export interface DeliveryDocumentsResponse {
+  success: boolean;
+  message: string;
+  data: {
+    documents: DeliveryDocumentItem[];
+  };
+}
+
 export interface AwardedStats {
   totalAwarded: number;
   inTransit: number;
@@ -457,6 +486,32 @@ export const deliveriesApi = createApi({
         { type: "DeliveryDetail", id: deliveryId },
       ],
     }),
+    sendDeliveryReminder: builder.mutation<
+      SendReminderResponse,
+      {
+        deliveryId: string;
+        message?: string;
+        note?: string;
+      }
+    >({
+      query: ({ deliveryId, message, note }) => ({
+        url: `/api/plant/deliveries/${deliveryId}/send-reminder`,
+        method: "POST",
+        body: {
+          ...(message ? { message } : {}),
+          ...(note ? { note } : {}),
+        },
+      }),
+      invalidatesTags: (_result, _error, { deliveryId }) => [
+        { type: "DeliveryDetail", id: deliveryId },
+      ],
+    }),
+    getDeliveryDocuments: builder.query<DeliveryDocumentsResponse, string>({
+      query: (deliveryId) => `/api/plant/deliveries/${deliveryId}/documents`,
+      providesTags: (_result, _error, deliveryId) => [
+        { type: "DeliveryDetail", id: `DOCS_${deliveryId}` },
+      ],
+    }),
   }),
 });
 
@@ -754,6 +809,8 @@ export const {
   useRescheduleDeliveryMutation,
   useUpdateDeliveryStatusMutation,
   useUpdateDeliveryDetailsMutation,
+  useSendDeliveryReminderMutation,
+  useGetDeliveryDocumentsQuery,
 } = deliveriesApi;
 
 export async function exportNotificationDetails(
@@ -860,6 +917,64 @@ export async function exportPlantDeliveries(
   document.body.removeChild(a);
   window.URL.revokeObjectURL(blobUrl);
 }
+
+export async function downloadDeliveryPdf({
+  deliveryId,
+  relativeUrl,
+  fallbackFilename,
+  token,
+}: {
+  deliveryId?: string;
+  relativeUrl?: string;
+  fallbackFilename?: string;
+  token: string | null;
+}): Promise<void> {
+  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "";
+  const targetPath = relativeUrl
+    ? relativeUrl.startsWith("/")
+      ? relativeUrl
+      : `/${relativeUrl}`
+    : `/api/plant/deliveries/${deliveryId}/download`;
+
+  const fullUrl = targetPath.startsWith("http")
+    ? targetPath
+    : `${apiBaseUrl}${targetPath}`;
+
+  const response = await fetch(fullUrl, {
+    method: "GET",
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text().catch(() => "");
+    throw new Error(
+      errorText || `Download failed with status ${response.status}`
+    );
+  }
+
+  const blob = await response.blob();
+  const contentDisposition = response.headers.get("content-disposition");
+  let filename = fallbackFilename || `delivery-${deliveryId || "details"}.pdf`;
+
+  if (contentDisposition) {
+    const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+    if (match && match[1]) {
+      filename = match[1].replace(/['"]/g, "").trim();
+    }
+  }
+
+  const blobUrl = window.URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = blobUrl;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  window.URL.revokeObjectURL(blobUrl);
+}
+
 
 
 
