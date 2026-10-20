@@ -673,6 +673,7 @@ export interface CalendarQueryParams {
 
 export interface ProjectDeliveryResponse {
   delivery: {
+    _id?: string;
     deliveryId: string;
     deliveryNumber: string;
     status: string;
@@ -728,6 +729,7 @@ export interface ProjectDeliveryResponse {
       timeWindowEnd?: string;
       receivingPoc: string;
       pickupContactPhone: string;
+      pickupContactEmail?: string;
       specialRequirements: string;
       additionalNotes: string;
     };
@@ -790,6 +792,8 @@ export interface ProjectDeliveryResponse {
     receivingPocDetails: {
       receivingPoc: string;
       pickupContactPhone: string;
+      receivingPocEmail?: string;
+      email?: string;
     };
   };
 }
