@@ -17,9 +17,12 @@ import {
   RotateCcw,
   CalendarSync,
   // ChevronRight,
-  AlertTriangle
+  AlertTriangle,
+  UserCheck,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/redux/store";
 import Button from "../common_component/Button";
 import Heading from "../common_component/Heading";
 import SuccessModal from "../common_component/SuccessModal";
@@ -31,8 +34,11 @@ import {
 } from "./DeliveryActionModals";
 import RescheduleDeliveryModal from "./RescheduleDeliveryModal";
 import EditDeliveryModal from "./EditDeliveryModal";
+import ContactPocModal from "./ContactPocModal";
+import SendReminderModal from "./SendReminderModal";
+import DeliveryDocumentsModal from "./DeliveryDocumentsModal";
 import { useDeliveryStatusUpdate } from "./useDeliveryStatusUpdate";
-import { type ProjectDeliveryResponse } from "@/redux/api/deliveriesApi";
+import { type ProjectDeliveryResponse, downloadDeliveryPdf } from "@/redux/api/deliveriesApi";
 import StatusConfirmationModal from "./StatusConfirmationModal";
 import StatusBadge from "./StatusBadge";
 import {
@@ -208,11 +214,39 @@ const DeliveryDetails: React.FC<DeliveryDetailsProps> = ({
   showQuickActions = true
 }) => {
   const navigate = useNavigate();
+  const token = useSelector((state: RootState) => state.auth.accessToken);
+
+  // Resolved Mongo delivery ID
+  const effectiveDeliveryId = delivery?._id || delivery?.deliveryId || deliveryId;
 
   // Modal States
   const [activeModal, setActiveModal] = useState<string | null>(null);
   const [rescheduleData, setRescheduleData] = useState<{ date: string; timeWindowStart: string; timeWindowEnd: string } | null>(null);
   const [lastUpdatedStatusLabel, setLastUpdatedStatusLabel] = useState<string>("");
+  const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
+  const [downloadError, setDownloadError] = useState<string | null>(null);
+  const [reminderSuccessMessage, setReminderSuccessMessage] = useState<string>("");
+
+  const handleDownloadDetails = async () => {
+    if (!effectiveDeliveryId) {
+      return;
+    }
+    try {
+      setIsDownloadingPdf(true);
+      await downloadDeliveryPdf({
+        deliveryId: effectiveDeliveryId,
+        fallbackFilename: `delivery-${delivery?.deliveryNumber || effectiveDeliveryId}-details.pdf`,
+        token,
+      });
+      openModal("download-success");
+    } catch (err: unknown) {
+      const errorObj = err as { message?: string };
+      setDownloadError(errorObj?.message || "Failed to download delivery details PDF");
+      openModal("download-error");
+    } finally {
+      setIsDownloadingPdf(false);
+    }
+  };
 
   const { updateDeliveryStatus, isLoading: isUpdatingStatus, toastMessage } = useDeliveryStatusUpdate();
 
@@ -533,7 +567,16 @@ const DeliveryDetails: React.FC<DeliveryDetailsProps> = ({
         {/* Right Column */}
         <div className="space-y-6">
           <div className="bg-white border border-gray-100 rounded-[14px] p-5 shadow-xs space-y-4">
-            <h2 className="text-base font-semibold text-[#212B36]">Receiving Point of Contact</h2>
+            <div className="flex items-center justify-between">
+              <h2 className="text-base font-semibold text-[#212B36]">Receiving Point of Contact</h2>
+              <button
+                type="button"
+                onClick={() => openModal("contact-poc")}
+                className="text-xs font-semibold text-[#1E51A4] hover:text-[#173e7c] flex items-center gap-1 hover:underline transition-colors"
+              >
+                <Phone size={12} /> Contact
+              </button>
+            </div>
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-[#F4F6F8] text-[#1E51A4] flex items-center justify-center font-semibold text-sm shrink-0">
                 {getPocInitials()}
@@ -550,7 +593,11 @@ const DeliveryDetails: React.FC<DeliveryDetailsProps> = ({
 
           {showQuickActions && (() => {
             const currentStatus = (delivery?.status || "").toLowerCase();
-            const isDelivered = currentStatus === "delivered" || currentStatus === "dispatched_to_site";
+            const isDelivered =
+              isFinalStatus(delivery?.status) ||
+              currentStatus === "delivered" ||
+              currentStatus === "dispatched_to_site" ||
+              currentStatus === "cancelled";
             return (
               <div className="bg-white border border-[#0000001A] rounded-[14px] p-5 shadow-sm space-y-4">
                 <h2 className="text-base font-semibold text-[#212B36]">Quick Actions</h2>
@@ -566,9 +613,29 @@ const DeliveryDetails: React.FC<DeliveryDetailsProps> = ({
                     onClick={() => openModal("reschedule")}
                     disabled={isDelivered}
                   />
-                  <QuickActionButton icon={Bell} label="Send Reminder Now" />
-                  <QuickActionButton icon={Download} label="Download Details" />
-                  <QuickActionButton icon={FileText} label="View Documents" />
+                  <QuickActionButton
+                    icon={UserCheck}
+                    label="Contact POC"
+                    onClick={() => openModal("contact-poc")}
+                  />
+                  {!isDelivered && (
+                    <QuickActionButton
+                      icon={Bell}
+                      label="Send Reminder Now"
+                      onClick={() => openModal("send-reminder")}
+                    />
+                  )}
+                  <QuickActionButton
+                    icon={Download}
+                    label={isDownloadingPdf ? "Downloading Details..." : "Download Details"}
+                    onClick={handleDownloadDetails}
+                    disabled={isDownloadingPdf}
+                  />
+                  <QuickActionButton
+                    icon={FileText}
+                    label="View Documents"
+                    onClick={() => openModal("view-documents")}
+                  />
                 </div>
               </div>
             );
@@ -683,6 +750,58 @@ const DeliveryDetails: React.FC<DeliveryDetailsProps> = ({
         isOpen={activeModal === "save-success"}
         onClose={closeModal}
         title="Delivery Save Successfully"
+        buttonText="Ok"
+      />
+      <ContactPocModal
+        isOpen={activeModal === "contact-poc"}
+        onClose={closeModal}
+        pocName={delivery?.receivingPocDetails?.receivingPoc || delivery?.formDetails?.receivingPoc}
+        phone={delivery?.receivingPocDetails?.pickupContactPhone || delivery?.formDetails?.pickupContactPhone}
+        email={(delivery?.receivingPocDetails as any)?.receivingPocEmail || (delivery?.receivingPocDetails as any)?.email || delivery?.formDetails?.pickupContactEmail}
+        projectName={delivery?.project?.projectName || delivery?.formDetails?.description}
+        deliveryNumber={delivery?.deliveryNumber || effectiveDeliveryId}
+        siteLocation={delivery?.formDetails?.deliveryLocation || delivery?.deliverySchedule?.dropoffAddress}
+      />
+      <SendReminderModal
+        isOpen={activeModal === "send-reminder"}
+        onClose={closeModal}
+        deliveryId={effectiveDeliveryId}
+        deliveryNumber={delivery?.deliveryNumber}
+        projectName={delivery?.project?.projectName || delivery?.formDetails?.description}
+        recipientName={delivery?.receivingPocDetails?.receivingPoc || delivery?.formDetails?.receivingPoc}
+        onSuccess={(channelSummary) => {
+          setReminderSuccessMessage(channelSummary);
+          openModal("reminder-success");
+        }}
+      />
+      <DeliveryDocumentsModal
+        isOpen={activeModal === "view-documents"}
+        onClose={closeModal}
+        deliveryId={effectiveDeliveryId}
+        deliveryNumber={delivery?.deliveryNumber}
+      />
+      <SuccessModal
+        isLogoBottom={false}
+        isOpen={activeModal === "download-success"}
+        onClose={closeModal}
+        title="Delivery Details Downloaded"
+        subTitle="The PDF document has been downloaded successfully to your device."
+        buttonText="Ok"
+      />
+      <SuccessModal
+        isLogoBottom={false}
+        isOpen={activeModal === "download-error"}
+        onClose={closeModal}
+        title="Download Failed"
+        subTitle={downloadError || "An error occurred while downloading the PDF."}
+        buttonText="Close"
+      />
+      <SuccessModal
+        isLogoBottom={false}
+        isOpen={activeModal === "reminder-success"}
+        onClose={closeModal}
+        title="Reminder Sent Successfully"
+        subTitle={reminderSuccessMessage}
         buttonText="Ok"
       />
     </div>
