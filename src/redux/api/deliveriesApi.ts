@@ -193,7 +193,7 @@ const defaultFreightLoadFilters: FreightLoadFiltersData = {
   siteLocations: [],
 };
 
-const cleanQueryParams = <T extends Record<string, any>>(params?: T): Partial<T> | undefined => {
+const cleanQueryParams = <T extends Record<string, any>>(params?: T | void): Partial<T> | undefined => {
   if (!params) return undefined;
   const cleaned: Record<string, any> = {};
   for (const [key, val] of Object.entries(params)) {
