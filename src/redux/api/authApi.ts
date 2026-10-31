@@ -31,6 +31,7 @@ export interface LoginSession {
 
 export interface ForgotPasswordRequest {
   email: string;
+  role?: string;
 }
 
 export interface ForgotPasswordResponse {
@@ -82,14 +83,25 @@ export const authApi = createApi({
           // Login errors are handled by the caller.
         }
       },
-      transformResponse: (response: LoginApiResponse) =>
-        response.data as LoginSession,
+      transformResponse: (response: LoginApiResponse) => {
+        const userRole = response?.data?.role || response?.data?.user?.role;
+        if (userRole?.toLowerCase() !== "plant") {
+          throw new Error(
+            "Access denied. Only plant accounts are allowed to log in.",
+          );
+        }
+
+        return response.data as LoginSession;
+      },
     }),
     forgotPassword: builder.mutation<ForgotPasswordResponse, ForgotPasswordRequest>({
       query: (body) => ({
         url: "/api/auth/forgot-password",
         method: "POST",
-        body,
+        body: {
+          role: body.role || import.meta.env.VITE_APP_ROLE || "plant",
+          ...body,
+        },
       }),
     }),
     verifyOtp: builder.mutation<VerifyOtpResponse, VerifyOtpRequest>({

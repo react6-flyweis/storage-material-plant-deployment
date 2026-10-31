@@ -1,5 +1,5 @@
 import type { BundleItem } from "@/redux/api/shipperApi";
-import { getQRCodeUrl, getPackingListQRDataStr } from "./utils";
+import { getPackingListUrl, getPackingListQRCodeUrl } from "./utils";
 
 export interface ExportLoadInfo {
   packingListNo: string;
@@ -42,10 +42,7 @@ export const exportPackingListToPDF = (
   showQr: boolean = true,
   planId?: string
 ) => {
-  const standaloneBase = import.meta.env.VITE_STANDLONE_PAGE_BASE || "";
-  const qrDataStr = getPackingListQRDataStr(planId);
-
-  const qrCodeUrl = getQRCodeUrl(qrDataStr, "200x200");
+  const qrCodeUrl = getPackingListQRCodeUrl(planId, "200x200");
 
   const printWindow = window.open("", "_blank");
   if (!printWindow) return;
@@ -229,7 +226,7 @@ export const exportPackingListToPDF = (
                 <strong>Load:</strong> ${loadInfo.packingListNo}<br/>
                 <strong>Weight:</strong> ${formatWeight(summary.totalWeight)}<br/>
                 <strong>Length:</strong> ${formatLength(summary.maxLengthFeet || 0)}${planId
-        ? `<br/><strong>URL:</strong> ${standaloneBase.replace(/\/+$/, "")}/packing-list-plan/${planId}`
+        ? `<br/><strong>URL:</strong> ${getPackingListUrl(planId)}`
         : ""
       }
               </div>

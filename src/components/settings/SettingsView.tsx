@@ -1,7 +1,14 @@
-import { MoveLeft } from "lucide-react";
-import React, { useState } from "react";
+import { MoveLeft, Loader2 } from "lucide-react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import TitleSubtitle from "../common_component/TitleSubtitle";
+import SuccessModal from "../common_component/SuccessModal";
+import {
+  useGetProfileQuery,
+  useUpdateNotificationSettingsMutation,
+  DEFAULT_NOTIFICATION_SETTINGS,
+  type NotificationSettings,
+} from "../../redux/api/profileApi";
 
 interface SettingsViewProps {
   onNavigate?: (view: "profile") => void;
@@ -9,33 +16,82 @@ interface SettingsViewProps {
 
 const SettingsView: React.FC<SettingsViewProps> = () => {
   const navigate = useNavigate();
-  const [accountSettings, setAccountSettings] = useState({
-    twoFactorAuth: true,
-    emailNotifications: true,
-    smsNotifications: false,
-  });
 
-  const [notificationSettings, setNotificationSettings] = useState({
-    dashboardNotifications: true,
-    weeklyEmailReports: true,
-    systemAlerts: true,
-    loginAlerts: false,
-  });
+  const { data: profile, isLoading: isProfileLoading } = useGetProfileQuery();
+  const [updateNotificationSettings, { isLoading: isSaving }] =
+    useUpdateNotificationSettingsMutation();
 
-  const toggleAccountSetting = (key: keyof typeof accountSettings) => {
-    setAccountSettings((prev) => ({
+  const [settings, setSettings] = useState<Required<NotificationSettings>>(
+    DEFAULT_NOTIFICATION_SETTINGS
+  );
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (profile?.notificationSettings) {
+      const ns = profile.notificationSettings;
+      setSettings({
+        twoFactorAuth: Boolean(
+          ns.twoFactorAuth ?? DEFAULT_NOTIFICATION_SETTINGS.twoFactorAuth
+        ),
+        emailNotification: Boolean(
+          ns.emailNotification ??
+            DEFAULT_NOTIFICATION_SETTINGS.emailNotification
+        ),
+        smsNotification: Boolean(
+          ns.smsNotification ?? DEFAULT_NOTIFICATION_SETTINGS.smsNotification
+        ),
+        dashboardNotifications: Boolean(
+          ns.dashboardNotifications ??
+            DEFAULT_NOTIFICATION_SETTINGS.dashboardNotifications
+        ),
+        weeklyEmailReports: Boolean(
+          ns.weeklyEmailReports ??
+            DEFAULT_NOTIFICATION_SETTINGS.weeklyEmailReports
+        ),
+        systemAlerts: Boolean(
+          ns.systemAlerts ?? DEFAULT_NOTIFICATION_SETTINGS.systemAlerts
+        ),
+        loginAlertsViaMail: Boolean(
+          ns.loginAlertsViaMail ??
+            DEFAULT_NOTIFICATION_SETTINGS.loginAlertsViaMail
+        ),
+      });
+    }
+  }, [profile]);
+
+  const toggleSetting = (key: keyof NotificationSettings) => {
+    setSettings((prev) => ({
       ...prev,
       [key]: !prev[key],
     }));
   };
 
-  const toggleNotificationSetting = (
-    key: keyof typeof notificationSettings
-  ) => {
-    setNotificationSettings((prev) => ({
-      ...prev,
-      [key]: !prev[key],
-    }));
+  const handleSaveSettings = async () => {
+    setErrorMessage(null);
+    const payload: NotificationSettings = {
+      twoFactorAuth: settings.twoFactorAuth,
+      emailNotification: settings.emailNotification,
+      smsNotification: settings.smsNotification,
+      dashboardNotifications: settings.dashboardNotifications,
+      weeklyEmailReports: settings.weeklyEmailReports,
+      systemAlerts: settings.systemAlerts,
+      loginAlertsViaMail: settings.loginAlertsViaMail,
+    };
+
+    try {
+      await updateNotificationSettings(payload).unwrap();
+      setIsSuccessModalOpen(true);
+    } catch (err: unknown) {
+      const msg =
+        err && typeof err === "object" && "data" in err
+          ? ((err as { data?: { message?: string } }).data?.message ??
+            "Failed to save settings")
+          : err instanceof Error
+          ? err.message
+          : "Failed to save settings";
+      setErrorMessage(msg);
+    }
   };
 
   return (
@@ -55,10 +111,27 @@ const SettingsView: React.FC<SettingsViewProps> = () => {
             subtitle="Manage your account preferences and system configuration"
           />
         </div>
-        <button className="md:px-4 ml-auto md:mt-0 mt-4 py-2.5 bg-(--button-bg-primary-color) text-white rounded-lg hover:opacity-90 transition-opacity md:text-sm text-xs font-normal min-w-[128px] w-fit">
-          Save All Settings
+        <button
+          onClick={handleSaveSettings}
+          disabled={isSaving || isProfileLoading}
+          className="flex items-center justify-center gap-2 md:px-4 ml-auto md:mt-0 mt-4 py-2.5 bg-(--button-bg-primary-color) text-white rounded-lg hover:opacity-90 disabled:opacity-50 transition-opacity md:text-sm text-xs font-normal min-w-[128px] w-fit"
+        >
+          {isSaving ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              <span>Saving...</span>
+            </>
+          ) : (
+            <span>Save All Settings</span>
+          )}
         </button>
       </div>
+
+      {errorMessage && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
+          {errorMessage}
+        </div>
+      )}
 
       {/* Account Settings */}
       <h3 className="md:text-lg font-semibold text-gray-900 my-1">
@@ -76,16 +149,15 @@ const SettingsView: React.FC<SettingsViewProps> = () => {
             </p>
           </div>
           <button
-            onClick={() => toggleAccountSetting("twoFactorAuth")}
+            type="button"
+            onClick={() => toggleSetting("twoFactorAuth")}
             className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-              accountSettings.twoFactorAuth ? "bg-blue-600" : "bg-gray-200"
+              settings.twoFactorAuth ? "bg-blue-600" : "bg-gray-200"
             }`}
           >
             <span
               className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                accountSettings.twoFactorAuth
-                  ? "translate-x-6"
-                  : "translate-x-1"
+                settings.twoFactorAuth ? "translate-x-6" : "translate-x-1"
               }`}
             />
           </button>
@@ -102,16 +174,15 @@ const SettingsView: React.FC<SettingsViewProps> = () => {
             </p>
           </div>
           <button
-            onClick={() => toggleAccountSetting("emailNotifications")}
+            type="button"
+            onClick={() => toggleSetting("emailNotification")}
             className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-              accountSettings.emailNotifications ? "bg-blue-600" : "bg-gray-200"
+              settings.emailNotification ? "bg-blue-600" : "bg-gray-200"
             }`}
           >
             <span
               className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                accountSettings.emailNotifications
-                  ? "translate-x-6"
-                  : "translate-x-1"
+                settings.emailNotification ? "translate-x-6" : "translate-x-1"
               }`}
             />
           </button>
@@ -128,16 +199,15 @@ const SettingsView: React.FC<SettingsViewProps> = () => {
             </p>
           </div>
           <button
-            onClick={() => toggleAccountSetting("smsNotifications")}
+            type="button"
+            onClick={() => toggleSetting("smsNotification")}
             className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-              accountSettings.smsNotifications ? "bg-blue-600" : "bg-gray-200"
+              settings.smsNotification ? "bg-blue-600" : "bg-gray-200"
             }`}
           >
             <span
               className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                accountSettings.smsNotifications
-                  ? "translate-x-6"
-                  : "translate-x-1"
+                settings.smsNotification ? "translate-x-6" : "translate-x-1"
               }`}
             />
           </button>
@@ -160,16 +230,15 @@ const SettingsView: React.FC<SettingsViewProps> = () => {
             </p>
           </div>
           <button
-            onClick={() => toggleNotificationSetting("dashboardNotifications")}
+            type="button"
+            onClick={() => toggleSetting("dashboardNotifications")}
             className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-              notificationSettings.dashboardNotifications
-                ? "bg-blue-600"
-                : "bg-gray-200"
+              settings.dashboardNotifications ? "bg-blue-600" : "bg-gray-200"
             }`}
           >
             <span
               className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                notificationSettings.dashboardNotifications
+                settings.dashboardNotifications
                   ? "translate-x-6"
                   : "translate-x-1"
               }`}
@@ -188,18 +257,15 @@ const SettingsView: React.FC<SettingsViewProps> = () => {
             </p>
           </div>
           <button
-            onClick={() => toggleNotificationSetting("weeklyEmailReports")}
+            type="button"
+            onClick={() => toggleSetting("weeklyEmailReports")}
             className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-              notificationSettings.weeklyEmailReports
-                ? "bg-blue-600"
-                : "bg-gray-200"
+              settings.weeklyEmailReports ? "bg-blue-600" : "bg-gray-200"
             }`}
           >
             <span
               className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                notificationSettings.weeklyEmailReports
-                  ? "translate-x-6"
-                  : "translate-x-1"
+                settings.weeklyEmailReports ? "translate-x-6" : "translate-x-1"
               }`}
             />
           </button>
@@ -216,16 +282,15 @@ const SettingsView: React.FC<SettingsViewProps> = () => {
             </p>
           </div>
           <button
-            onClick={() => toggleNotificationSetting("systemAlerts")}
+            type="button"
+            onClick={() => toggleSetting("systemAlerts")}
             className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-              notificationSettings.systemAlerts ? "bg-blue-600" : "bg-gray-200"
+              settings.systemAlerts ? "bg-blue-600" : "bg-gray-200"
             }`}
           >
             <span
               className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                notificationSettings.systemAlerts
-                  ? "translate-x-6"
-                  : "translate-x-1"
+                settings.systemAlerts ? "translate-x-6" : "translate-x-1"
               }`}
             />
           </button>
@@ -235,28 +300,34 @@ const SettingsView: React.FC<SettingsViewProps> = () => {
         <div className="flex items-center justify-between">
           <div>
             <h4 className="text-sm font-semibold text-gray-900">
-              Login Alerts wia Mail
+              Login Alerts via Mail
             </h4>
             <p className="text-xs text-gray-500">
               Get notified when new Login register
             </p>
           </div>
           <button
-            onClick={() => toggleNotificationSetting("loginAlerts")}
+            type="button"
+            onClick={() => toggleSetting("loginAlertsViaMail")}
             className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-              notificationSettings.loginAlerts ? "bg-blue-600" : "bg-gray-200"
+              settings.loginAlertsViaMail ? "bg-blue-600" : "bg-gray-200"
             }`}
           >
             <span
               className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                notificationSettings.loginAlerts
-                  ? "translate-x-6"
-                  : "translate-x-1"
+                settings.loginAlertsViaMail ? "translate-x-6" : "translate-x-1"
               }`}
             />
           </button>
         </div>
       </div>
+
+      <SuccessModal
+        isOpen={isSuccessModalOpen}
+        onClose={() => setIsSuccessModalOpen(false)}
+        title="Settings Updated"
+        subTitle="Your notification settings have been updated successfully."
+      />
     </div>
   );
 };

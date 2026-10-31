@@ -259,6 +259,25 @@ export interface PlantProjectDetail {
 
 type PlantProjectDetailApiResponse = ApiResponse<PlantProjectDetail>;
 
+export interface DrawingCommentUser {
+  _id?: string;
+  name?: string;
+  email?: string;
+  role?: string;
+  firstName?: string;
+  lastName?: string;
+}
+
+export interface DrawingComment {
+  _id: string;
+  text: string;
+  commentedBy?: string | DrawingCommentUser | null;
+  commentedByCustomer?: DrawingCommentUser | null;
+  authorName?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export interface Drawing {
   versionNumber: number;
   fileUrl: string;
@@ -267,6 +286,7 @@ export interface Drawing {
   uploadedAt: string;
   reviewedAt: string | null;
   rejectionReason: string;
+  comments?: DrawingComment[];
 }
 
 export interface BuildingDrawingInfo {
@@ -290,6 +310,7 @@ export interface BuildingLatestDrawing {
   uploadedAt: string;
   reviewedAt?: string | null;
   rejectionReason?: string;
+  comments?: DrawingComment[];
 }
 
 export interface BuildingLatestBomJob {
@@ -341,11 +362,64 @@ export interface ProjectInvoicesResponse {
 
 type ProjectInvoicesApiResponse = ApiResponse<ProjectInvoicesResponse>;
 
+export interface ProjectMediaItem {
+  _id: string;
+  url: string;
+  name: string;
+  type: "photo" | "video";
+  uploadedAt: string;
+  approvalStatus?: string;
+  reviewedAt?: string | null;
+  uploadedBy?: {
+    _id: string;
+    name: string;
+    email: string;
+    role: string;
+  } | null;
+}
+
+export interface ProjectMediaResponse {
+  leadId: string;
+  projectId: string;
+  projectName: string;
+  documents: ProjectMediaItem[];
+  photos: ProjectMediaItem[];
+  videos: ProjectMediaItem[];
+  total: number;
+  photoCount: number;
+  videoCount: number;
+}
+
+type ProjectMediaApiResponse = ApiResponse<ProjectMediaResponse>;
+
 export const projectApi = createApi({
   reducerPath: "projectApi",
   baseQuery: baseQueryWithReauth,
-  tagTypes: ["ProjectDetail", "ProjectDrawings", "ProjectInvoices", "ProjectBuildings", "ConsolidatedBOM", "BOMProjects"],
+  tagTypes: ["ProjectDetail", "ProjectDrawings", "ProjectInvoices", "ProjectBuildings", "ConsolidatedBOM", "BOMProjects", "ProjectMedia"],
   endpoints: (builder) => ({
+    getPlantProjectMedia: builder.query<
+      ProjectMediaResponse,
+      { leadId: string; type?: "photo" | "video" } | string
+    >({
+      query: (arg) => {
+        const leadId = typeof arg === "string" ? arg : arg.leadId;
+        const type = typeof arg === "object" ? arg.type : undefined;
+        return {
+          url: `/api/plant/projects/${leadId}/media`,
+          params: type ? { type } : undefined,
+        };
+      },
+      providesTags: (_result, _error, arg) => {
+        const leadId = typeof arg === "string" ? arg : arg.leadId;
+        return [{ type: "ProjectMedia", id: leadId }];
+      },
+      transformResponse: (response: ProjectMediaApiResponse) => {
+        if (!response.data) {
+          throw new Error("No data returned from API");
+        }
+        return response.data;
+      },
+    }),
     getProjectBuildings: builder.query<ProjectBuildingsResponse, string>({
       query: (leadId) => `/api/plant/projects/${leadId}/buildings`,
       providesTags: (_result, _error, leadId) => [
@@ -692,6 +766,57 @@ export const projectApi = createApi({
       invalidatesTags: (_result, _error, { jobId }) =>
         jobId ? [{ type: "ConsolidatedBOM", id: jobId }] : ["ConsolidatedBOM"],
     }),
+
+    getAdditionalMaterialRequests: builder.query<
+      AdditionalMaterialRequestsResponse,
+      { leadId: string; page?: number; limit?: number }
+    >({
+      query: ({ leadId, page = 1, limit = 20 }) => {
+        const params = new URLSearchParams();
+        if (page) params.append("page", page.toString());
+        if (limit) params.append("limit", limit.toString());
+        return {
+          url: `/api/plant/projects/${leadId}/additional-material-requests?${params.toString()}`,
+        };
+      },
+      providesTags: (_result, _error, { leadId }) => [
+        { type: "ProjectDetail", id: `AdditionalMaterialRequests-${leadId}` },
+      ],
+      transformResponse: (
+        response: ApiResponse<AdditionalMaterialRequestsResponse>,
+      ) => {
+        if (!response.data) {
+          throw new Error("No data returned from API");
+        }
+        return response.data;
+      },
+    }),
+
+    getMismatchOrders: builder.query<
+      MismatchOrdersResponse,
+      { leadId: string; page?: number; limit?: number; status?: string }
+    >({
+      query: ({ leadId, page = 1, limit = 20, status }) => {
+        const params = new URLSearchParams();
+        if (page) params.append("page", page.toString());
+        if (limit) params.append("limit", limit.toString());
+        if (status && status !== "all") params.append("status", status);
+        return {
+          url: `/api/plant/projects/${leadId}/mismatch-orders?${params.toString()}`,
+        };
+      },
+      providesTags: (_result, _error, { leadId }) => [
+        { type: "ProjectDetail", id: `MismatchOrders-${leadId}` },
+      ],
+      transformResponse: (
+        response: ApiResponse<MismatchOrdersResponse>,
+      ) => {
+        if (!response.data) {
+          throw new Error("No data returned from API");
+        }
+        return response.data;
+      },
+    }),
   }),
 });
 
@@ -956,7 +1081,84 @@ export interface BOMStats {
   issuesDetected: number;
 }
 
+export interface AdditionalMaterialRequestItem {
+  name: string;
+  quantity: number;
+  unit: string;
+  deliveryStatus: string;
+}
+
+export interface AdditionalMaterialRequest {
+  requestId: string;
+  _id: string;
+  source: string;
+  project?: {
+    leadId: string;
+    projectName: string;
+    jobId: string;
+  };
+  requestedByCustomer?: {
+    customerId: string;
+    name: string;
+    email: string;
+  };
+  requestedItems: AdditionalMaterialRequestItem[];
+  status: string;
+  priority?: string;
+  requestDate: string;
+}
+
+export interface AdditionalMaterialRequestsResponse {
+  leadId: string;
+  additionalMaterialRequests: AdditionalMaterialRequest[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+export interface MismatchOrderItem {
+  itemId: string;
+  expectedQty: number;
+  receivedQty: number;
+  status: string;
+}
+
+export interface MismatchOrderPhoto {
+  name: string;
+  url: string;
+}
+
+export interface MismatchOrder {
+  mismatchId: string;
+  mismatchOrderId: string;
+  status: string;
+  reason: string;
+  notes: string;
+  actionNotes?: string;
+  bundleId?: string;
+  bundleNo?: string;
+  items: MismatchOrderItem[];
+  photos?: MismatchOrderPhoto[];
+  reportedBy?: {
+    _id: string;
+    name: string;
+    email: string;
+  };
+  createdAt: string;
+}
+
+export interface MismatchOrdersResponse {
+  leadId: string;
+  projectName?: string;
+  jobId?: string;
+  mismatchOrders: MismatchOrder[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
 export const {
+  useGetPlantProjectMediaQuery,
   useGetProjectStatsQuery,
   useGetPlantProjectsQuery,
   useGetCustomersQuery,
@@ -980,4 +1182,6 @@ export const {
   useGetBOMDetailsQuery,
   useConfirmBuildingBOMMutation,
   useUpdateBOMItemPriceMutation,
+  useGetAdditionalMaterialRequestsQuery,
+  useGetMismatchOrdersQuery,
 } = projectApi;

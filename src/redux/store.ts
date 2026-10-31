@@ -1,4 +1,5 @@
 import { configureStore } from "@reduxjs/toolkit";
+import { setupListeners } from "@reduxjs/toolkit/query";
 import { persistReducer, persistStore } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import { authApi } from "./api/authApi";
@@ -9,6 +10,10 @@ import { costingApi } from "./api/costingApi";
 import { shipperApi } from "./api/shipperApi";
 import { deliveriesApi } from "./api/deliveriesApi";
 import { pageActivityApi } from "./api/pageActivityApi";
+import { teamChatApi } from "./api/teamChatApi";
+import { notificationsApi } from "./api/notificationsApi";
+import { plantDashboardApi } from "./api/plantDashboardApi";
+import { profileApi } from "./api/profileApi";
 import authReducer from "./slices/authSlice";
 
 const authPersistConfig = {
@@ -30,6 +35,10 @@ export const store = configureStore({
     [shipperApi.reducerPath]: shipperApi.reducer,
     [deliveriesApi.reducerPath]: deliveriesApi.reducer,
     [pageActivityApi.reducerPath]: pageActivityApi.reducer,
+    [teamChatApi.reducerPath]: teamChatApi.reducer,
+    [notificationsApi.reducerPath]: notificationsApi.reducer,
+    [plantDashboardApi.reducerPath]: plantDashboardApi.reducer,
+    [profileApi.reducerPath]: profileApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
@@ -52,8 +61,14 @@ export const store = configureStore({
       shipperApi.middleware,
       deliveriesApi.middleware,
       pageActivityApi.middleware,
+      teamChatApi.middleware,
+      notificationsApi.middleware,
+      plantDashboardApi.middleware,
+      profileApi.middleware,
     ),
 });
+
+setupListeners(store.dispatch);
 
 export const persistor = persistStore(store);
 

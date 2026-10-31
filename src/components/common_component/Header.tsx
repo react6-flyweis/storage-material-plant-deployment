@@ -3,9 +3,11 @@ import logo from "../../assets/logo.png";
 import bellIcon from "../../assets/bellIcon.svg";
 import { useNavigate } from "react-router-dom";
 import UserIcon from "../../assets/icon/UserIcon";
-import { ChevronLeft, Search } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
+import HeaderSearch from "./HeaderSearch";
 import { useAppDispatch } from "../../redux/hooks";
 import { logout } from "../../redux/slices/authSlice";
+import { useGetUnreadCountQuery } from "../../redux/api/notificationsApi";
 
 interface HeaderProps {
   onMenuToggle: () => void;
@@ -19,6 +21,13 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle, isMenuOpen }) => {
   const profileRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+
+  // Poll unread notification count every 30 seconds
+  const { data: unreadData } = useGetUnreadCountQuery(undefined, {
+    pollingInterval: 30000,
+  });
+
+  const unreadCount = unreadData?.unread ?? 0;
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -55,14 +64,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle, isMenuOpen }) => {
         </button>
 
         {/* Search Bar */}
-        <div className="hidden md:flex items-center bg-[#FFFFFF80] rounded-md px-4 xl:py-2 py-1.5 flex-1 max-w-lg border border-[#D1D5DB] focus-within:border-[#D1D5DB] focus-within:ring-2 focus-within:ring-blue-100 transition-all">
-          <Search className="w-5 h-5 text-[#9CA3AF] mr-2 mb-1.5" />
-          <input
-            type="text"
-            placeholder="Search by equipment name, ID, category, project, or material…"
-            className="bg-transparent border-none outline-none text-sm w-full text-gray-700 placeholder-gray-400"
-          />
-        </div>
+        <HeaderSearch />
       </div>
 
       <div className="flex items-center gap-4 lg:gap-6">
@@ -70,10 +72,13 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle, isMenuOpen }) => {
           <button
             onClick={() => navigate("/notification")}
             className="text-gray-500 hover:text-gray-700 relative p-1 rounded-full hover:bg-gray-50 transition-colors"
+            title="Notifications"
           >
-            <span className="absolute top-0 right-0 h-5 w-5 bg-red-500 rounded-full text-[10px] font-bold text-white flex items-center justify-center border-2 border-white">
-              3
-            </span>
+            {unreadCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 min-w-5 h-5 px-1 bg-red-500 rounded-full text-[10px] font-bold text-white flex items-center justify-center border-2 border-white shadow-xs">
+                {unreadCount > 99 ? "99+" : unreadCount}
+              </span>
+            )}
             <img
               src={bellIcon}
               alt="notifications"

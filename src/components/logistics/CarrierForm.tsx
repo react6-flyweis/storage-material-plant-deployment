@@ -494,9 +494,15 @@ const CarrierForm: React.FC<CarrierFormProps> = ({
                       label="Average Fleet Age"
                       required
                       type="number"
-                      step="0.1"
+                      step="1"
+                      min="0"
                       value={field.value as string | number | undefined}
                       onChange={field.onChange}
+                      onKeyDown={(e) => {
+                        if (e.key === "." || e.key === "e" || e.key === "-" || e.key === "+") {
+                          e.preventDefault();
+                        }
+                      }}
                       onBlur={field.onBlur}
                       ref={field.ref}
                       inputClassName={

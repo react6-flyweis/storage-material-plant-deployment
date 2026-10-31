@@ -116,6 +116,9 @@ const UploadDrawingModal: React.FC<UploadDrawingModalProps> = ({
               <div className="border border-gray-100 rounded-xl overflow-hidden divide-y divide-gray-100 bg-[#F8FAFC]">
                 {buildings.map((b) => {
                   const badge = mapDrawingStatusBadge(b.latestDrawingStatus || b.status);
+                  const statusStr = (b.latestDrawingStatus || b.status || "").toLowerCase();
+                  const isApproved = statusStr.includes("approved") || statusStr.includes("accept");
+
                   return (
                     <div key={b.buildingId} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white hover:bg-gray-50 transition-colors">
                       <div className="space-y-1.5 flex-1 min-w-0">
@@ -172,10 +175,11 @@ const UploadDrawingModal: React.FC<UploadDrawingModalProps> = ({
                         <Button
                           variant={b.hasDrawing ? "secondary" : "primary"}
                           size="sm"
+                          disabled={isApproved}
                           className="w-full sm:w-auto font-inter text-xs"
                           onClick={() => setUploadingBuilding(b)}
                         >
-                          {b.hasDrawing ? "Replace file" : "Upload file"}
+                          {b.hasDrawing ? "Add another" : "Upload file"}
                         </Button>
                       </div>
                     </div>

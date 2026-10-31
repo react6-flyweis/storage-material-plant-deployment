@@ -15,7 +15,7 @@ const MaterialDeliveryView = () => {
       delivery={delivery}
       isLoading={isLoading}
       deliveryId={deliveryId}
-      showQuickActions={false}
+      showQuickActions={!!delivery}
     />
   );
 };

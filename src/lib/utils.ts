@@ -19,10 +19,15 @@ export const getQRCodeUrl = (data: string | object, size = "250x250") => {
   return `https://api.qrserver.com/v1/create-qr-code/?size=${size}&data=${encodeURIComponent(dataStr)}`;
 };
 
-export const getPackingListQRDataStr = (planId?: string): string => {
-  if (!planId) return "";
+export const getPackingListUrl = (packingListId?: string): string => {
+  if (!packingListId) return "";
   const standaloneBase = import.meta.env.VITE_STANDLONE_PAGE_BASE || "";
-  return `${standaloneBase.replace(/\/+$/, "")}/packing-list-plan/${planId}`;
+  return `${standaloneBase.replace(/\/+$/, "")}/packing-list/${packingListId}`;
+};
+
+export const getPackingListQRCodeUrl = (packingListId?: string, size = "250x250"): string => {
+  const url = getPackingListUrl(packingListId);
+  return url ? getQRCodeUrl(url, size) : "";
 };
 
 export interface QRModalData {

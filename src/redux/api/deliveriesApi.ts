@@ -22,6 +22,35 @@ export interface PlantDeliveriesStats {
   cancelledCount: number;
 }
 
+export interface SendReminderChannels {
+  email: boolean;
+  sms: boolean;
+  inApp: boolean;
+}
+
+export interface SendReminderResponse {
+  success: boolean;
+  message: string;
+  data?: {
+    deliveryId: string;
+    channels: SendReminderChannels;
+  };
+}
+
+export interface DeliveryDocumentItem {
+  name: string;
+  type: "pdf" | "file";
+  url: string;
+}
+
+export interface DeliveryDocumentsResponse {
+  success: boolean;
+  message: string;
+  data: {
+    documents: DeliveryDocumentItem[];
+  };
+}
+
 export interface AwardedStats {
   totalAwarded: number;
   inTransit: number;
@@ -117,6 +146,125 @@ export interface FreightLoadsQueryParams {
   projectId?: string;
   customerId?: string;
   carrierId?: string;
+  materialType?: string;
+  siteLocation?: string;
+  fromDate?: string;
+  toDate?: string;
+  startDate?: string;
+  endDate?: string;
+}
+
+export interface FreightLoadFilterProject {
+  _id: string;
+  projectName: string;
+  jobId: string;
+}
+
+export interface FreightLoadFilterCustomer {
+  _id: string;
+  name: string;
+}
+
+export interface FreightLoadFilterCarrier {
+  _id: string;
+  carrierName: string;
+}
+
+export interface FreightLoadFiltersData {
+  statuses: string[];
+  bidStatuses: string[];
+  deliveryStatuses: string[];
+  carriers: FreightLoadFilterCarrier[];
+  projects: FreightLoadFilterProject[];
+  customers: FreightLoadFilterCustomer[];
+  materialTypes: string[];
+  siteLocations: string[];
+  note?: string;
+}
+
+const defaultFreightLoadFilters: FreightLoadFiltersData = {
+  statuses: [],
+  bidStatuses: [],
+  deliveryStatuses: [],
+  carriers: [],
+  projects: [],
+  customers: [],
+  materialTypes: [],
+  siteLocations: [],
+};
+
+const cleanQueryParams = <T extends Record<string, any>>(params?: T | void): Partial<T> | undefined => {
+  if (!params) return undefined;
+  const cleaned: Record<string, any> = {};
+  for (const [key, val] of Object.entries(params)) {
+    if (val !== undefined && val !== null && val !== "") {
+      cleaned[key] = val;
+    }
+  }
+  return Object.keys(cleaned).length > 0 ? (cleaned as Partial<T>) : undefined;
+};
+
+export interface DeliveryNotificationItem {
+  notificationId: string;
+  deliveryId: string;
+  deliveryNumber?: string;
+  notificationType: string;
+  channel: "Email" | "SMS" | string;
+  recipient: string;
+  recipientContact: string;
+  recipientType: "Customer" | "Internal Staff" | string;
+  deliveryStatus: string;
+  sentAt: string;
+  project: string;
+  leadId: string;
+  materialType: string;
+  deliveryDate: string;
+  timeWindowStart?: string;
+  timeWindowEnd?: string;
+  status?: "Sent" | "Delivered" | "Pending" | "Failed" | string;
+}
+
+export interface DeliveryNotificationStats {
+  total: number;
+  sent: number;
+  delivered: number;
+  pending: number;
+  failed: number;
+}
+
+export interface DeliveryNotificationsData {
+  notifications: DeliveryNotificationItem[];
+  total: number;
+  page: number;
+  limit: number;
+  stats: DeliveryNotificationStats;
+}
+
+export interface DeliveryNotificationsQueryParams {
+  page?: number;
+  limit?: number;
+  startDate?: string;
+  endDate?: string;
+  search?: string;
+  leadId?: string;
+  status?: string;
+  channel?: string;
+  deliveryId?: string;
+}
+
+export interface PlantDeliveriesQueryParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  projectId?: string;
+  materialType?: string;
+  deliveryStatus?: string;
+  startDate?: string;
+  endDate?: string;
+  customerId?: string;
+  carrierId?: string;
+  equipment?: string;
+  status?: string;
   fromDate?: string;
   toDate?: string;
 }
@@ -129,8 +277,34 @@ type AwardedLoadsApiResponse = ApiResponse<AwardedLoadsListResponse>;
 export const deliveriesApi = createApi({
   reducerPath: "deliveriesApi",
   baseQuery: baseQueryWithReauth,
-  tagTypes: ["DeliveryDetail"],
+  tagTypes: ["DeliveryDetail", "NotificationDetails"],
   endpoints: (builder) => ({
+    getNotificationDetails: builder.query<
+      DeliveryNotificationsData,
+      DeliveryNotificationsQueryParams | void
+    >({
+      query: (params) => ({
+        url: "/api/plant/notification-details",
+        params: params ?? undefined,
+      }),
+      providesTags: ["NotificationDetails"],
+      transformResponse: (
+        response: ApiResponse<DeliveryNotificationsData>,
+      ) =>
+        response.data ?? {
+          notifications: [],
+          total: 0,
+          page: 1,
+          limit: 20,
+          stats: {
+            total: 0,
+            sent: 0,
+            delivered: 0,
+            pending: 0,
+            failed: 0,
+          },
+        },
+    }),
     getFreightStats: builder.query<FreightStats, void>({
       query: () => "/api/plant/deliveries/freight/stats",
       transformResponse: (response: FreightStatsApiResponse) =>
@@ -170,7 +344,7 @@ export const deliveriesApi = createApi({
     getFreightLoads: builder.query<FreightLoadsListResponse, FreightLoadsQueryParams | void>({
       query: (params) => ({
         url: "/api/plant/deliveries/freight",
-        params: params ?? undefined,
+        params: cleanQueryParams(params),
       }),
       transformResponse: (response: FreightLoadsApiResponse) =>
         response.data ?? {
@@ -183,7 +357,7 @@ export const deliveriesApi = createApi({
     getAwardedLoads: builder.query<AwardedLoadsListResponse, FreightLoadsQueryParams | void>({
       query: (params) => ({
         url: "/api/plant/deliveries/awarded",
-        params: params ?? undefined,
+        params: cleanQueryParams(params),
       }),
       transformResponse: (response: AwardedLoadsApiResponse) =>
         response.data ?? {
@@ -193,6 +367,16 @@ export const deliveriesApi = createApi({
           limit: 20,
         },
     }),
+    getFreightLoadFilters: builder.query<FreightLoadFiltersData, void>({
+      query: () => "/api/plant/freight-loads/filters",
+      transformResponse: (response: ApiResponse<FreightLoadFiltersData>) =>
+        response.data ?? defaultFreightLoadFilters,
+    }),
+    getAwardedLoadFilters: builder.query<FreightLoadFiltersData, void>({
+      query: () => "/api/plant/awarded-loads/filters",
+      transformResponse: (response: ApiResponse<FreightLoadFiltersData>) =>
+        response.data ?? defaultFreightLoadFilters,
+    }),
     getCalendarDeliveries: builder.query<CalendarApiResponse, CalendarQueryParams | void>({
       query: (params) => ({
         url: "/api/plant/deliveries/calendar",
@@ -201,18 +385,44 @@ export const deliveriesApi = createApi({
       transformResponse: (response: ApiResponse<CalendarApiResponse>) =>
         response.data ?? { dates: [] },
     }),
-    getPlantDeliveries: builder.query<PlantDeliveriesListResponse, FreightLoadsQueryParams | void>({
+    getPlantDeliveries: builder.query<PlantDeliveriesListResponse, PlantDeliveriesQueryParams | void>({
       query: (params) => ({
-        url: "/api/plant/deliveries",
+        url: "/api/plant/all-deliveries",
         params: params ?? undefined,
       }),
-      transformResponse: (response: ApiResponse<PlantDeliveriesListResponse>) =>
-        response.data ?? {
+      transformResponse: (response: ApiResponse<PlantDeliveriesListResponse | PlantDeliveryItem[] | { requests?: PlantDeliveryItem[]; deliveries?: PlantDeliveryItem[]; total?: number; page?: number; limit?: number }>) => {
+        const data = response?.data || response;
+        if (Array.isArray(data)) {
+          return {
+            deliveries: data,
+            total: data.length,
+            page: 1,
+            limit: data.length,
+          };
+        }
+        if (data && Array.isArray((data as any).deliveries)) {
+          return {
+            deliveries: (data as any).deliveries,
+            total: (data as any).total ?? (data as any).deliveries.length,
+            page: (data as any).page ?? 1,
+            limit: (data as any).limit ?? (data as any).deliveries.length,
+          };
+        }
+        if (data && Array.isArray((data as any).requests)) {
+          return {
+            deliveries: (data as any).requests,
+            total: (data as any).total ?? (data as any).requests.length,
+            page: (data as any).page ?? 1,
+            limit: (data as any).limit ?? (data as any).requests.length,
+          };
+        }
+        return {
           deliveries: [],
           total: 0,
           page: 1,
           limit: 20,
-        },
+        };
+      },
     }),
     getProjectDelivery: builder.query<ProjectDeliveryResponse, string>({
       query: (leadId) => `/api/plant/projects/${leadId}/delivery`,
@@ -338,6 +548,32 @@ export const deliveriesApi = createApi({
       }),
       invalidatesTags: (_result, _error, { deliveryId }) => [
         { type: "DeliveryDetail", id: deliveryId },
+      ],
+    }),
+    sendDeliveryReminder: builder.mutation<
+      SendReminderResponse,
+      {
+        deliveryId: string;
+        message?: string;
+        note?: string;
+      }
+    >({
+      query: ({ deliveryId, message, note }) => ({
+        url: `/api/plant/deliveries/${deliveryId}/send-reminder`,
+        method: "POST",
+        body: {
+          ...(message ? { message } : {}),
+          ...(note ? { note } : {}),
+        },
+      }),
+      invalidatesTags: (_result, _error, { deliveryId }) => [
+        { type: "DeliveryDetail", id: deliveryId },
+      ],
+    }),
+    getDeliveryDocuments: builder.query<DeliveryDocumentsResponse, string>({
+      query: (deliveryId) => `/api/plant/deliveries/${deliveryId}/documents`,
+      providesTags: (_result, _error, deliveryId) => [
+        { type: "DeliveryDetail", id: `DOCS_${deliveryId}` },
       ],
     }),
   }),
@@ -501,6 +737,7 @@ export interface CalendarQueryParams {
 
 export interface ProjectDeliveryResponse {
   delivery: {
+    _id?: string;
     deliveryId: string;
     deliveryNumber: string;
     status: string;
@@ -556,6 +793,7 @@ export interface ProjectDeliveryResponse {
       timeWindowEnd?: string;
       receivingPoc: string;
       pickupContactPhone: string;
+      pickupContactEmail?: string;
       specialRequirements: string;
       additionalNotes: string;
     };
@@ -618,16 +856,21 @@ export interface ProjectDeliveryResponse {
     receivingPocDetails: {
       receivingPoc: string;
       pickupContactPhone: string;
+      receivingPocEmail?: string;
+      email?: string;
     };
   };
 }
 
 export const {
+  useGetNotificationDetailsQuery,
   useGetFreightStatsQuery,
   useGetAwardedStatsQuery,
   useGetPlantDeliveriesStatsQuery,
   useGetFreightLoadsQuery,
   useGetAwardedLoadsQuery,
+  useGetFreightLoadFiltersQuery,
+  useGetAwardedLoadFiltersQuery,
   useGetCalendarDeliveriesQuery,
   useGetPlantDeliveriesQuery,
   useGetProjectDeliveryQuery,
@@ -636,5 +879,280 @@ export const {
   useRescheduleDeliveryMutation,
   useUpdateDeliveryStatusMutation,
   useUpdateDeliveryDetailsMutation,
+  useSendDeliveryReminderMutation,
+  useGetDeliveryDocumentsQuery,
 } = deliveriesApi;
+
+export async function exportNotificationDetails(
+  params: DeliveryNotificationsQueryParams,
+  token: string | null
+): Promise<void> {
+  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "";
+  const query = new URLSearchParams();
+  if (params.startDate) query.append("startDate", params.startDate);
+  if (params.endDate) query.append("endDate", params.endDate);
+  if (params.search) query.append("search", params.search);
+  if (params.leadId) query.append("leadId", params.leadId);
+  if (params.status) query.append("status", params.status);
+  if (params.channel) query.append("channel", params.channel);
+  if (params.deliveryId) query.append("deliveryId", params.deliveryId);
+
+  const queryString = query.toString();
+  const url = `${apiBaseUrl}/api/plant/notification-details/export${queryString ? `?${queryString}` : ""}`;
+
+  const response = await fetch(url, {
+    method: "GET",
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Export failed with status ${response.status}`);
+  }
+
+  const blob = await response.blob();
+  const contentDisposition = response.headers.get("content-disposition");
+  let filename = "notifications_export.xlsx";
+  if (contentDisposition) {
+    const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+    if (match && match[1]) {
+      filename = match[1].replace(/['"]/g, "");
+    }
+  }
+
+  const blobUrl = window.URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = blobUrl;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  window.URL.revokeObjectURL(blobUrl);
+}
+
+export async function exportPlantDeliveries(
+  params: PlantDeliveriesQueryParams,
+  token: string | null
+): Promise<void> {
+  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "";
+  const query = new URLSearchParams();
+  if (params.page) query.append("page", String(params.page));
+  if (params.limit) query.append("limit", String(params.limit));
+  if (params.search) query.append("search", params.search);
+  if (params.projectId) query.append("projectId", params.projectId);
+  if (params.materialType) query.append("materialType", params.materialType);
+  if (params.deliveryStatus) query.append("deliveryStatus", params.deliveryStatus);
+  if (params.startDate) query.append("startDate", params.startDate);
+  if (params.endDate) query.append("endDate", params.endDate);
+  if (params.customerId) query.append("customerId", params.customerId);
+  if (params.carrierId) query.append("carrierId", params.carrierId);
+  if (params.equipment) query.append("equipment", params.equipment);
+
+  const queryString = query.toString();
+  const url = `${apiBaseUrl}/api/plant/all-deliveries/export${queryString ? `?${queryString}` : ""}`;
+
+  const response = await fetch(url, {
+    method: "GET",
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Export failed with status ${response.status}`);
+  }
+
+  const blob = await response.blob();
+  const contentDisposition = response.headers.get("content-disposition");
+  let filename = "all_deliveries_export.xlsx";
+  if (contentDisposition) {
+    const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+    if (match && match[1]) {
+      filename = match[1].replace(/['"]/g, "");
+    }
+  } else {
+    const contentType = response.headers.get("content-type");
+    if (contentType?.includes("csv")) {
+      filename = "all_deliveries_export.csv";
+    }
+  }
+
+  const blobUrl = window.URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = blobUrl;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  window.URL.revokeObjectURL(blobUrl);
+}
+
+export async function downloadDeliveryPdf({
+  deliveryId,
+  relativeUrl,
+  fallbackFilename,
+  token,
+}: {
+  deliveryId?: string;
+  relativeUrl?: string;
+  fallbackFilename?: string;
+  token: string | null;
+}): Promise<void> {
+  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "";
+  const targetPath = relativeUrl
+    ? relativeUrl.startsWith("/")
+      ? relativeUrl
+      : `/${relativeUrl}`
+    : `/api/plant/deliveries/${deliveryId}/download`;
+
+  const fullUrl = targetPath.startsWith("http")
+    ? targetPath
+    : `${apiBaseUrl}${targetPath}`;
+
+  const response = await fetch(fullUrl, {
+    method: "GET",
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text().catch(() => "");
+    throw new Error(
+      errorText || `Download failed with status ${response.status}`
+    );
+  }
+
+  const blob = await response.blob();
+  const contentDisposition = response.headers.get("content-disposition");
+  let filename = fallbackFilename || `delivery-${deliveryId || "details"}.pdf`;
+
+  if (contentDisposition) {
+    const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+    if (match && match[1]) {
+      filename = match[1].replace(/['"]/g, "").trim();
+    }
+  }
+
+  const blobUrl = window.URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = blobUrl;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  window.URL.revokeObjectURL(blobUrl);
+}
+
+export async function exportFreightLoads(
+  params: FreightLoadsQueryParams,
+  token: string | null
+): Promise<void> {
+  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "";
+  const query = new URLSearchParams();
+  if (params.page) query.append("page", String(params.page));
+  if (params.limit) query.append("limit", String(params.limit));
+  if (params.search) query.append("search", params.search);
+  if (params.status) query.append("status", params.status);
+  if (params.projectId) query.append("projectId", params.projectId);
+  if (params.customerId) query.append("customerId", params.customerId);
+  if (params.carrierId) query.append("carrierId", params.carrierId);
+  if (params.materialType) query.append("materialType", params.materialType);
+  if (params.siteLocation) query.append("siteLocation", params.siteLocation);
+  if (params.startDate) query.append("startDate", params.startDate);
+  if (params.endDate) query.append("endDate", params.endDate);
+  if (params.fromDate) query.append("fromDate", params.fromDate);
+  if (params.toDate) query.append("toDate", params.toDate);
+
+  const queryString = query.toString();
+  const url = `${apiBaseUrl}/api/plant/freight-loads/export${queryString ? `?${queryString}` : ""}`;
+
+  const response = await fetch(url, {
+    method: "GET",
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Export failed with status ${response.status}`);
+  }
+
+  const blob = await response.blob();
+  const contentDisposition = response.headers.get("content-disposition");
+  let filename = "freight_loads_export.xlsx";
+  if (contentDisposition) {
+    const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+    if (match && match[1]) {
+      filename = match[1].replace(/['"]/g, "");
+    }
+  }
+
+  const blobUrl = window.URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = blobUrl;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  window.URL.revokeObjectURL(blobUrl);
+}
+
+export async function exportAwardedLoads(
+  params: FreightLoadsQueryParams,
+  token: string | null
+): Promise<void> {
+  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "";
+  const query = new URLSearchParams();
+  if (params.page) query.append("page", String(params.page));
+  if (params.limit) query.append("limit", String(params.limit));
+  if (params.search) query.append("search", params.search);
+  if (params.status) query.append("status", params.status);
+  if (params.projectId) query.append("projectId", params.projectId);
+  if (params.customerId) query.append("customerId", params.customerId);
+  if (params.carrierId) query.append("carrierId", params.carrierId);
+  if (params.materialType) query.append("materialType", params.materialType);
+  if (params.siteLocation) query.append("siteLocation", params.siteLocation);
+  if (params.startDate) query.append("startDate", params.startDate);
+  if (params.endDate) query.append("endDate", params.endDate);
+  if (params.fromDate) query.append("fromDate", params.fromDate);
+  if (params.toDate) query.append("toDate", params.toDate);
+
+  const queryString = query.toString();
+  const url = `${apiBaseUrl}/api/plant/awarded-loads/export${queryString ? `?${queryString}` : ""}`;
+
+  const response = await fetch(url, {
+    method: "GET",
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Export failed with status ${response.status}`);
+  }
+
+  const blob = await response.blob();
+  const contentDisposition = response.headers.get("content-disposition");
+  let filename = "awarded_loads_export.xlsx";
+  if (contentDisposition) {
+    const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+    if (match && match[1]) {
+      filename = match[1].replace(/['"]/g, "");
+    }
+  }
+
+  const blobUrl = window.URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = blobUrl;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  window.URL.revokeObjectURL(blobUrl);
+}
+
+
+
 

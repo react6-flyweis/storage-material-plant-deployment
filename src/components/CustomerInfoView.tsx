@@ -1,25 +1,103 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { 
-  ArrowLeft, 
-  Hammer, 
-  CircleCheck, 
-  CircleDollarSign, 
+import {
+  ArrowLeft,
+  Hammer,
+  CircleCheck,
+  CircleDollarSign,
   TrendingUp,
 } from "lucide-react";
 import StatCard from "./ui/stat-card";
-import { customersData, type CustomerInfo } from "@/data/productionMockData";
 import CustomerProjectsTable from "./projects/CustomerProjectsTable";
 import CustomerInvoicesTable from "./projects/CustomerInvoicesTable";
 import CustomerProfileCard from "./projects/CustomerProfileCard";
 import Heading from "./common_component/Heading";
 import Button from "./common_component/Button";
 
+export interface CustomerInfo {
+  location: string;
+  id: string;
+  name: string;
+  joinedDate: string;
+  status: string;
+  phone: string;
+  email: string;
+  address: string;
+  image: string;
+  projects: {
+    id: string;
+    name: string;
+    building: string;
+    amount: string;
+    status: string;
+    stage: string;
+    progress: number;
+    startDate: string;
+    endDate: string;
+    buildingType?: string;
+    quoteValue: string;
+    createdOn: string;
+    location?: string;
+    salesPerson?: string;
+    contractDate?: string;
+  }[];
+  invoices: { number: string; dueDate: string; amount: string; paid: string; dueAmount: string; status: string; }[];
+  recentActivity?: { building: string; action: string; date: string; }[];
+  notes: string[];
+}
+
 const CustomerInfoView = () => {
   const navigate = useNavigate();
   const { id } = useParams();
 
   // Find customer data by ID, fallback to John Doe if not found (for demo)
-  const customerData: CustomerInfo = customersData[id || ""] || customersData["ID-2025-1047"];
+  const customerData: CustomerInfo = {
+    id: id || "CUST-001",
+    name: "John Doe",
+    email: "[EMAIL_ADDRESS]",
+    phone: "1234567890",
+    address: "123 Main St, Anytown, USA",
+    location: "Anytown, USA",
+    joinedDate: "2022-01-01",
+    status: "Active",
+    image: "https://randomuser.me/api/portraits/men/32.jpg",
+    projects: [
+      {
+        id: "1",
+        name: "Project 1",
+        building: "Building 1",
+        amount: "123",
+        status: "Completed",
+        stage: "Stage 1",
+        progress: 100,
+        startDate: "2022-01-01",
+        endDate: "2022-12-31",
+        buildingType: "Building Type 1",
+        quoteValue: "123",
+        createdOn: "2022-01-01",
+        location: "Anytown, USA",
+        salesPerson: "Sales Person 1",
+        contractDate: "2022-01-01",
+      },
+    ],
+    invoices: [
+      {
+        number: "1",
+        dueDate: "2022-01-01",
+        amount: "123",
+        paid: "123",
+        dueAmount: "123",
+        status: "Paid",
+      },
+    ],
+    recentActivity: [
+      {
+        building: "Building 1",
+        action: "Action 1",
+        date: "2022-01-01",
+      },
+    ],
+    notes: ["Note 1", "Note 2"],
+  }
 
   if (!customerData) {
     return <div className="p-10 text-center font-inter text-gray-500">Customer not found</div>;
@@ -91,7 +169,7 @@ const CustomerInfoView = () => {
 
       {/* Invoice List Table */}
       <CustomerInvoicesTable invoices={invoices} />
-        </div>
+    </div>
   );
 };
 
