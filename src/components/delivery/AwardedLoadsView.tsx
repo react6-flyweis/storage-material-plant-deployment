@@ -6,16 +6,24 @@ import {
   DollarSign,
   Phone,
   Eye,
+  Download,
 } from "lucide-react";
 import TitleSubtitle from "../common_component/TitleSubtitle";
 import Button from "../common_component/Button";
 import CommonStatusBadge, { type BadgeVariant } from "../common_component/CommonStatusBadge";
 import { useNavigate } from "react-router-dom";
-import FreightFilterModal, { type FreightFilters } from "./FreightFilterModal";
+import FreightFilterModal, { type FreightFilters, formatStatusLabel } from "./FreightFilterModal";
 import SearchFilterBar from "../common_component/SearchFilterBar";
 import PageWrapper from "../common_component/PageWrapper";
+import useDebounce from "@/hooks/useDebounce";
+import { useAppSelector } from "@/redux/hooks";
 
-import { useGetAwardedStatsQuery, useGetAwardedLoadsQuery } from "@/redux/api/deliveriesApi";
+import {
+  useGetAwardedStatsQuery,
+  useGetAwardedLoadsQuery,
+  useGetAwardedLoadFiltersQuery,
+  exportAwardedLoads,
+} from "@/redux/api/deliveriesApi";
 import LoadStatCard from "./LoadStatCard";
 
 const formatCurrency = (val: number) => {
@@ -28,24 +36,71 @@ const formatCurrency = (val: number) => {
 
 
 const AwardedLoadsView: React.FC = () => {
+  const token = useAppSelector((state) => state.auth.accessToken);
   const [searchTerm, setSearchTerm] = useState("");
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [page, setPage] = useState(1);
   const [filters, setFilters] = useState<FreightFilters>({});
+  const [isExporting, setIsExporting] = useState(false);
   const navigate = useNavigate();
 
+  const debouncedSearch = useDebounce(searchTerm, 300);
+
+  // Preload filter options on mount (alias endpoint for awarded loads)
+  const { data: filtersData } = useGetAwardedLoadFiltersQuery();
   const { data: stats } = useGetAwardedStatsQuery();
   const { data: loadsData, isLoading } = useGetAwardedLoadsQuery({
     page,
     limit: 20,
-    search: searchTerm || undefined,
+    search: debouncedSearch.trim() || undefined,
     status: filters.status || undefined,
     projectId: filters.projectId || undefined,
     customerId: filters.customerId || undefined,
     carrierId: filters.carrierId || undefined,
+    materialType: filters.materialType || undefined,
+    siteLocation: filters.siteLocation || undefined,
     fromDate: filters.fromDate || undefined,
     toDate: filters.toDate || undefined,
+    startDate: filters.startDate || undefined,
+    endDate: filters.endDate || undefined,
   });
+
+  const isAnyFilterApplied = Boolean(
+    searchTerm.trim() || Object.values(filters).some((val) => Boolean(val))
+  );
+
+  const handleClearFilters = () => {
+    setSearchTerm("");
+    setFilters({});
+    setPage(1);
+    setIsFilterModalOpen(false);
+  };
+
+  const handleExport = async () => {
+    try {
+      setIsExporting(true);
+      await exportAwardedLoads(
+        {
+          search: debouncedSearch.trim() || undefined,
+          status: filters.status || undefined,
+          projectId: filters.projectId || undefined,
+          customerId: filters.customerId || undefined,
+          carrierId: filters.carrierId || undefined,
+          materialType: filters.materialType || undefined,
+          siteLocation: filters.siteLocation || undefined,
+          fromDate: filters.fromDate || undefined,
+          toDate: filters.toDate || undefined,
+          startDate: filters.startDate || undefined,
+          endDate: filters.endDate || undefined,
+        },
+        token
+      );
+    } catch (err) {
+      console.error("Export error:", err);
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   const statsData = [
     {
@@ -79,21 +134,16 @@ const AwardedLoadsView: React.FC = () => {
   ];
 
   const getBadgeVariant = (status: string): BadgeVariant => {
-    const s = status.toLowerCase();
-    if (s.includes("awarded")) return "green";
-    if (s.includes("requested")) return "yellow";
-    if (s.includes("bids") || s.includes("pending")) return "blue";
-    if (s.includes("transit")) return "yellow";
-    if (s.includes("delivered")) return "green";
+    const s = (status || "").toLowerCase();
+    if (s === "selected" || s.includes("awarded") || s === "confirmed" || s === "delivered" || s === "received") return "green";
+    if (s.includes("requested") || s === "resubmit_requested" || s === "delayed" || s === "rescheduled" || s === "partial_received" || s === "loaded" || s === "picked_up" || s.includes("transit") || s === "dispatched_to_site") return "yellow";
+    if (s.includes("bids") || s.includes("pending") || s === "sent" || s === "submitted" || s === "scheduled" || s === "carrier_selected" || s === "bidding_sent" || s === "material_prepared" || s === "staged") return "blue";
+    if (s === "cancelled" || s === "rejected" || s === "expired") return "red";
     return "gray";
   };
 
   const formatStatusText = (status: string) => {
-    if (!status) return "";
-    return status
-      .split("_")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ");
+    return formatStatusLabel(status);
   };
 
   const formatDate = (dateString?: string) => {
@@ -134,13 +184,15 @@ const AwardedLoadsView: React.FC = () => {
           subtitle="Track all awarded freight loads"
         />
 
-        {/* <Button 
+        <Button 
           variant="gradient" 
           size="sm" 
           className="ml-auto"
+          onClick={handleExport}
+          disabled={isExporting}
         >
-          <Download size={18} className="mr-2" /> Export
-        </Button> */}
+          <Download size={18} className="mr-2" /> {isExporting ? "Exporting..." : "Export"}
+        </Button>
       </div>
 
       {/* Stats Section */}
@@ -157,14 +209,10 @@ const AwardedLoadsView: React.FC = () => {
           setSearchTerm(val);
           setPage(1);
         }}
-        placeholder="Search awarded loads..."
+        placeholder="Search by client, project, job ID, delivery #..."
         onFilterClick={() => setIsFilterModalOpen(true)}
-        isFilterApplied={Object.values(filters).some((val) => !!val)}
-        onClearFilters={() => {
-          setFilters({});
-          setPage(1);
-          setIsFilterModalOpen(false);
-        }}
+        isFilterApplied={isAnyFilterApplied}
+        onClearFilters={handleClearFilters}
       />
 
       {/* Awarded Loads Table */}
@@ -333,6 +381,8 @@ const AwardedLoadsView: React.FC = () => {
           isOpen={isFilterModalOpen}
           onClose={() => setIsFilterModalOpen(false)}
           initialFilters={filters}
+          filtersData={filtersData}
+          screenType="awarded"
           onApply={(f) => {
             setFilters(f);
             setPage(1);

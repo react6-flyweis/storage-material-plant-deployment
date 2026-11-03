@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import BlueBellIcon from "@/assets/BlueBellIcon.svg";
 import YellowBellIcon from "@/assets/yellowBellIcon.svg";
 import GreenBellIcon from "@/assets/greenBellIcon.svg";
@@ -7,235 +8,338 @@ import StatCard from "../ui/stat-card";
 import TitleSubtitle from "../common_component/TitleSubtitle";
 import Button from "../common_component/Button";
 import PageWrapper from "../common_component/PageWrapper";
+import Pagination from "../Pagination";
+import {
+  useGetNotificationsQuery,
+  useMarkAsReadMutation,
+  useMarkAllAsReadMutation,
+  useDeleteNotificationMutation,
+  type NotificationItem,
+  type NotificationType,
+  type NotificationPriority,
+} from "@/redux/api/notificationsApi";
+import {
+  CheckCheck,
+  Trash2,
+  Bell,
+  Clock,
+  ExternalLink,
+  Loader2,
+  AlertCircle,
+  FileText,
+  Truck,
+  Layers,
+  DollarSign,
+  Calendar,
+  MessageSquare,
+  Sparkles,
+} from "lucide-react";
 
-interface Notification {
-  id: string;
-  type: "update" | "reminder" | "alert" | "schedule";
-  title: string;
-  description: string;
-  time: string;
-  category: "Equipment" | "Finance" | "Meetings" | "General";
-  isUnread: boolean;
-}
-export const equipmentStats = [
-  {
-    title: "Total",
-    value: "12",
-    icon: (
-      <img
-        src={BlueBellIcon}
-        alt="total-maintenance"
-        className="md:size-5 size-4"
-      />
-    ),
-    color: "bg-[#1D51A4]",
-  },
-  {
-    title: "Unread",
-    value: "42",
-    icon: (
-      <img src={GreenBellIcon} alt="breakdown" className="md:size-5 size-4" />
-    ),
-    color: "bg-[#3AB449]",
-  },
-  {
-    title: "High Priority",
-    value: "74",
-    icon: (
-      <img
-        src={YellowBellIcon}
-        alt="due-maintenance"
-        className="md:size-5 size-4"
-      />
-    ),
-    color: "bg-[#F59E0B]",
-  },
-  {
-    title: "Today",
-    value: "12",
-    icon: (
-      <img
-        src={SalmonBellIcon}
-        alt="under-maintenance"
-        className="md:size-5 size-4"
-      />
-    ),
-    color: "bg-[#FD8D5B]",
-  },
-];
+// Format ISO date to human readable relative time or date string
+const formatTimeAgo = (dateString?: string) => {
+  if (!dateString) return "";
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
-const mockNotifications: Notification[] = [
-  {
-    id: "1",
-    type: "update",
-    title: "New Equipment Updated",
-    description:
-      "Alice Johnson from The Steel Company has been Updated a Equipment.",
-    time: "2 minutes ago",
-    category: "Equipment",
-    isUnread: true,
-  },
-  {
-    id: "2",
-    type: "reminder",
-    title: "Task Reminder",
-    description: "Follow up with Bob Smith is due in 30 minutes",
-    time: "30 minutes ago",
-    category: "General",
-    isUnread: true,
-  },
-  {
-    id: "3",
-    type: "alert",
-    title: "AI Equipment Service Overdue",
-    description: "Service Overdue, Pay before 17 April",
-    time: "1 hour ago",
-    category: "Equipment",
-    isUnread: true,
-  },
-  {
-    id: "4",
-    type: "schedule",
-    title: "Meeting scheduled",
-    description: "Meeting with Design studio confirmed for tomorrow at 2 pm",
-    time: "2 hours ago",
-    category: "Meetings",
-    isUnread: false,
-  },
-  {
-    id: "5",
-    type: "update",
-    title: "Invoice Approved",
-    description: "Finance team approved the invoice #INV-2024-001",
-    time: "5 hours ago",
-    category: "Finance",
-    isUnread: false,
-  },
-  {
-    id: "6",
-    type: "schedule",
-    title: "Project Review",
-    description: "Weekly project review meeting starting in 15 minutes",
-    time: "Yesterday",
-    category: "Meetings",
-    isUnread: false,
-  },
-  {
-    id: "7",
-    type: "update",
-    title: "New User Added",
-    description: "John Doe has been added to the team.",
-    time: "2 days ago",
-    category: "General",
-    isUnread: false,
-  },
+  if (diffInSeconds < 60) return "Just now";
+  if (diffInSeconds < 3600) {
+    const mins = Math.floor(diffInSeconds / 60);
+    return `${mins} minute${mins > 1 ? "s" : ""} ago`;
+  }
+  if (diffInSeconds < 86400) {
+    const hours = Math.floor(diffInSeconds / 3600);
+    return `${hours} hour${hours > 1 ? "s" : ""} ago`;
+  }
+  if (diffInSeconds < 172800) return "Yesterday";
+  const days = Math.floor(diffInSeconds / 86400);
+  if (days < 7) return `${days} days ago`;
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+};
+
+const filterTabs = [
+  { label: "All", value: "all" },
+  { label: "Unread", value: "unread" },
+  { label: "High Priority", value: "high_priority" },
+  { label: "Delivery", value: "delivery" },
+  { label: "Drawing", value: "drawing" },
+  { label: "Payment", value: "payment" },
+  { label: "Material Request", value: "material_request" },
+  { label: "Chat", value: "chat" },
 ];
 
 const NotificationsView = () => {
-  const [activeFilter, setActiveFilter] = useState("All");
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("all");
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(20);
 
-  const filters = [
-    { label: "All", value: "All" },
-    { label: "Unread(3)", value: "Unread" },
-    { label: "Equipment", value: "Equipment" },
-    { label: "Finance", value: "Finance" },
-    { label: "Meetings(2)", value: "Meetings" },
+  // Compute API query params from UI tab selection
+  const queryParams = {
+    page,
+    limit,
+    read: (activeTab === "unread" ? "false" : "") as "true" | "false" | "",
+    priority: activeTab === "high_priority" ? "high" : "",
+    type:
+      activeTab !== "all" &&
+        activeTab !== "unread" &&
+        activeTab !== "high_priority"
+        ? activeTab
+        : "",
+  };
+
+  // Poll notifications query every 30 seconds
+  const { data, isLoading, isFetching, isError, error } =
+    useGetNotificationsQuery(queryParams, {
+      pollingInterval: 30000,
+    });
+
+  const [markAsRead, { isLoading: isMarkingRead }] = useMarkAsReadMutation();
+  const [markAllAsRead, { isLoading: isMarkingAllRead }] =
+    useMarkAllAsReadMutation();
+  const [deleteNotification] = useDeleteNotificationMutation();
+
+  const notifications = data?.notifications || [];
+  const totalItems = data?.total || 0;
+  const stats = data?.stats || {
+    total: 0,
+    unread: 0,
+    highPriority: 0,
+    today: 0,
+  };
+
+  const statCardsData = [
+    {
+      title: "Total Notifications",
+      value: stats.total.toString(),
+      icon: (
+        <img
+          src={BlueBellIcon}
+          alt="total-notifications"
+          className="md:size-5 size-4"
+        />
+      ),
+      color: "bg-[#1D51A4]",
+    },
+    {
+      title: "Unread",
+      value: stats.unread.toString(),
+      icon: (
+        <img
+          src={GreenBellIcon}
+          alt="unread-notifications"
+          className="md:size-5 size-4"
+        />
+      ),
+      color: "bg-[#3AB449]",
+    },
+    {
+      title: "High Priority",
+      value: stats.highPriority.toString(),
+      icon: (
+        <img
+          src={YellowBellIcon}
+          alt="high-priority-notifications"
+          className="md:size-5 size-4"
+        />
+      ),
+      color: "bg-[#F59E0B]",
+    },
+    {
+      title: "Today",
+      value: stats.today.toString(),
+      icon: (
+        <img
+          src={SalmonBellIcon}
+          alt="today-notifications"
+          className="md:size-5 size-4"
+        />
+      ),
+      color: "bg-[#FD8D5B]",
+    },
   ];
 
-  const getFilteredNotifications = () => {
-    if (activeFilter === "All") return mockNotifications;
-    if (activeFilter === "Unread")
-      return mockNotifications.filter((n) => n.isUnread);
-    const categoryMap: { [key: string]: string } = {
-      "Meetings(2)": "Meetings",
-    };
-    const category = categoryMap[activeFilter] || activeFilter;
-    return mockNotifications.filter((n) => n.category === category);
-  };
+  // Map notification type / priority to distinct visual styling & icon
+  const getNotificationVisuals = (
+    type: NotificationType,
+    priority: NotificationPriority
+  ) => {
+    let bg = "bg-blue-50 text-blue-600 border-blue-100";
+    let icon = <Bell className="w-5 h-5" />;
 
-  const filteredData = getFilteredNotifications();
-
-  const getIconStyles = (type: string) => {
     switch (type) {
-      case "update":
-        return { bg: "bg-blue-100", text: "text-blue-600" };
-      case "reminder":
-        return { bg: "bg-yellow-100", text: "text-yellow-600" };
-      case "alert":
-        return { bg: "bg-red-100", text: "text-red-600" };
-      case "schedule":
-        return { bg: "bg-cyan-100", text: "text-cyan-600" };
+      case "delivery":
+      case "freight_bid":
+        bg = "bg-amber-50 text-amber-600 border-amber-100";
+        icon = <Truck className="w-5 h-5" />;
+        break;
+      case "drawing":
+        bg = "bg-purple-50 text-purple-600 border-purple-100";
+        icon = <Layers className="w-5 h-5" />;
+        break;
+      case "payment":
+      case "invoice":
+      case "quotation":
+        bg = "bg-emerald-50 text-emerald-600 border-emerald-100";
+        icon = <DollarSign className="w-5 h-5" />;
+        break;
+      case "material_request":
+        bg = "bg-indigo-50 text-indigo-600 border-indigo-100";
+        icon = <FileText className="w-5 h-5" />;
+        break;
+      case "meeting":
+        bg = "bg-cyan-50 text-cyan-600 border-cyan-100";
+        icon = <Calendar className="w-5 h-5" />;
+        break;
+      case "chat":
+        bg = "bg-sky-50 text-sky-600 border-sky-100";
+        icon = <MessageSquare className="w-5 h-5" />;
+        break;
+      case "escalation":
+        bg = "bg-rose-50 text-rose-600 border-rose-100";
+        icon = <AlertCircle className="w-5 h-5" />;
+        break;
+      case "task":
+      case "followup":
+        bg = "bg-orange-50 text-orange-600 border-orange-100";
+        icon = <Sparkles className="w-5 h-5" />;
+        break;
       default:
-        return { bg: "bg-gray-100", text: "text-gray-600" };
+        bg = "bg-slate-50 text-slate-600 border-slate-100";
+        icon = <Bell className="w-5 h-5" />;
+    }
+
+    if (priority === "high") {
+      bg = "bg-red-50 text-red-600 border-red-100";
+    }
+
+    return { bg, icon };
+  };
+
+  // Route user based on refModel and refId or leadId
+  const handleNotificationClick = async (item: NotificationItem) => {
+    if (!item.isRead) {
+      try {
+        await markAsRead(item._id).unwrap();
+      } catch (err) {
+        console.error("Failed to mark notification as read", err);
+      }
+    }
+
+    const { refModel, refId, leadId } = item;
+    const model = (refModel || "").toLowerCase();
+    const id = refId || leadId;
+
+    if (!id && !leadId) return;
+
+    switch (model) {
+      case "delivery":
+      case "freightload":
+      case "freightrequest":
+        navigate(`/delivery/delivery-details/${id || leadId}`);
+        break;
+      case "project":
+      case "lead":
+        navigate(`/projects/${id || leadId}`);
+        break;
+      case "drawing":
+      case "projectdrawing":
+        navigate(`/projects/${leadId || id}/view-drawings`);
+        break;
+      case "shipperfile":
+      case "shipperquote":
+        navigate(`/projects/${leadId || id}/shipper-files`);
+        break;
+      case "materialrequest":
+        navigate(`/projects/${leadId || id}/material-request`);
+        break;
+      case "loadplan":
+        navigate(`/load_planning/details/${id || leadId}`);
+        break;
+      case "packinglist":
+        navigate(`/load_planning/packing-list/${leadId || id}`);
+        break;
+      case "bom":
+        navigate(`/projects/${leadId || id}/view-bom`);
+        break;
+      case "chat":
+        navigate(`/communication`);
+        break;
+      default:
+        if (leadId) {
+          navigate(`/projects/${leadId}`);
+        }
+        break;
     }
   };
 
-  const renderIcon = (type: string) => {
-    const styles = getIconStyles(type);
-    let path = <path />;
-
-    if (type === "update") {
-      path = (
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3.75 15a2.25 2.25 0 0 1 2.25-2.25h2.25a2.25 2.25 0 0 1 2.25 2.25v1.5a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V15Z"
-        />
-      );
-    } else if (type === "reminder") {
-      path = (
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"
-        />
-      );
-    } else if (type === "alert") {
-      path = (
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"
-        />
-      );
-    } else if (type === "schedule") {
-      path = (
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"
-        />
-      );
+  const handleMarkAsRead = async (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    try {
+      await markAsRead(id).unwrap();
+    } catch (err) {
+      console.error("Failed to mark as read", err);
     }
+  };
 
-    return (
-      <div
-        className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 ${styles.bg} ${styles.text}`}
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          strokeWidth={1.5}
-          stroke="currentColor"
-          className="w-5 h-5"
-        >
-          {path}
-        </svg>
-      </div>
-    );
+  const handleDelete = async (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    try {
+      await deleteNotification(id).unwrap();
+    } catch (err) {
+      console.error("Failed to delete notification", err);
+    }
+  };
+
+  const handleMarkAllAsRead = async () => {
+    try {
+      await markAllAsRead().unwrap();
+    } catch (err) {
+      console.error("Failed to mark all as read", err);
+    }
   };
 
   return (
-   <PageWrapper>
+    <PageWrapper>
+      {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 mt-2">
         <TitleSubtitle
           title="Notifications"
           subtitle="Stay updated with project changes, approvals, drawings, dispatches, billings, and communication."
+
+
         />
+        <div className="flex items-center gap-2">
+          {isFetching && !isLoading && (
+            <div className="flex items-center gap-1.5 text-xs text-blue-600 bg-blue-50 px-2.5 py-1.5 rounded-lg">
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              <span>Updating...</span>
+            </div>
+          )}
+          {stats.unread > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleMarkAllAsRead}
+              disabled={isMarkingAllRead}
+              className="flex items-center gap-2 text-slate-700 hover:text-blue-600 hover:border-blue-300"
+            >
+              <CheckCheck className="w-4 h-4 text-emerald-600" />
+              <span>
+                {isMarkingAllRead ? "Marking..." : "Mark All as Read"}
+              </span>
+            </Button>
+          )}
+        </div>
       </div>
+
+      {/* Stats Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-5">
-        {equipmentStats.map((stat, index) => (
+        {statCardsData.map((stat, index) => (
           <StatCard
             key={index}
             title={stat.title}
@@ -245,55 +349,181 @@ const NotificationsView = () => {
           />
         ))}
       </div>
-      {/* Filters Header */}
-      <div className="bg-white rounded-xl shadow-xs p-4 mb-6 flex flex-wrap items-start lg:items-center gap-4">
-        <span className="text-gray-700 font-medium xl:text-lg mr-2">
-          Filter by:
-        </span>
-        <div className="flex flex-wrap gap-2">
-          {filters.map((filter) => (
-            <Button
-            variant={filter.value === activeFilter ? "blueFilled" : "outline"}
-              key={filter.value}
-              size="sm"
-              onClick={() => setActiveFilter(filter.value)}
-            >
-              {filter.label}
-            </Button>
-          ))}
+
+      {/* Filter Tabs */}
+      <div className="bg-white rounded-xl shadow-xs p-4 mb-6 flex flex-wrap items-center justify-between gap-4">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-gray-700 font-medium text-sm xl:text-base mr-2">
+            Filter:
+          </span>
+          {filterTabs.map((tab) => {
+            const isActive = activeTab === tab.value;
+            return (
+              <Button
+                variant={isActive ? "blueFilled" : "outline"}
+                key={tab.value}
+                size="sm"
+                onClick={() => {
+                  setActiveTab(tab.value);
+                  setPage(1);
+                }}
+                className="capitalize"
+              >
+                {tab.label}
+                {tab.value === "unread" && stats.unread > 0 && (
+                  <span className="ml-1.5 px-1.5 py-0.2 bg-emerald-500 text-white text-[11px] rounded-full font-semibold">
+                    {stats.unread}
+                  </span>
+                )}
+                {tab.value === "high_priority" && stats.highPriority > 0 && (
+                  <span className="ml-1.5 px-1.5 py-0.2 bg-amber-500 text-white text-[11px] rounded-full font-semibold">
+                    {stats.highPriority}
+                  </span>
+                )}
+              </Button>
+            );
+          })}
         </div>
       </div>
 
-      {/* Notifications List */}
-      <div className="bg-white rounded-xl overflow-hidden">
-        {filteredData.length > 0 ? (
-          <div className="divide-y divide-gray-100">
-            {filteredData.map((notification) => (
-              <div
-                key={notification.id}
-                className="p-3 md:p-6 flex flex-col md:flex-row gap-4 hover:bg-gray-50 transition-colors cursor-pointer group"
-              >
-                {/* Icon */}
-                {renderIcon(notification.type)}
-
-                {/* Content */}
-                <div className="flex-1">
-                  <h3 className="text-gray-900 font-semibold text-base mb-1 group-hover:text-blue-600 transition-colors">
-                    {notification.title}
-                  </h3>
-                  <p className="text-gray-500 text-sm leading-relaxed mb-2">
-                    {notification.description}
-                  </p>
-                  <span className="text-gray-400 text-xs font-medium">
-                    {notification.time}
-                  </span>
-                </div>
-              </div>
-            ))}
+      {/* Notifications List Card */}
+      <div className="bg-white rounded-xl shadow-xs border border-gray-100 overflow-hidden">
+        {isLoading ? (
+          <div className="p-16 flex flex-col items-center justify-center text-gray-500 gap-3">
+            <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+            <p className="text-sm">Loading notifications...</p>
           </div>
+        ) : isError ? (
+          <div className="p-12 text-center text-rose-500">
+            <AlertCircle className="w-8 h-8 mx-auto mb-2 text-rose-500" />
+            <p className="font-semibold text-base">
+              Failed to load notifications
+            </p>
+            <p className="text-xs text-gray-500 mt-1">
+              {(error as { data?: { message?: string } })?.data?.message ||
+                "Please check your network connection and try again."}
+            </p>
+          </div>
+        ) : notifications.length > 0 ? (
+          <>
+            <div className="divide-y divide-gray-100">
+              {notifications.map((item) => {
+                const visual = getNotificationVisuals(
+                  item.type,
+                  item.priority
+                );
+                return (
+                  <div
+                    key={item._id}
+                    onClick={() => handleNotificationClick(item)}
+                    className={`p-4 md:p-5 flex items-start gap-4 transition-colors cursor-pointer group relative ${item.isRead
+                      ? "bg-white hover:bg-slate-50/80"
+                      : "bg-blue-50/40 hover:bg-blue-50/70 border-l-4 border-l-blue-600"
+                      }`}
+                  >
+                    {/* Icon */}
+                    <div
+                      className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 border ${visual.bg}`}
+                    >
+                      {visual.icon}
+                    </div>
+
+                    {/* Notification Details */}
+                    <div className="flex-1 min-w-0 pr-2">
+                      <div className="flex flex-wrap items-center gap-2 mb-1">
+                        <h3
+                          className={`text-base font-semibold transition-colors ${item.isRead
+                            ? "text-gray-800 group-hover:text-blue-600"
+                            : "text-gray-900 font-bold group-hover:text-blue-700"
+                            }`}
+                        >
+                          {item.title}
+                        </h3>
+
+                        {/* Priority / Type badges */}
+                        {item.priority === "high" && (
+                          <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-red-100 text-red-700 uppercase tracking-wide">
+                            High Priority
+                          </span>
+                        )}
+                        <span className="px-2 py-0.5 rounded-full text-[11px] font-medium bg-gray-100 text-gray-600 capitalize">
+                          {item.type?.replace(/_/g, " ")}
+                        </span>
+                        {!item.isRead && (
+                          <span className="w-2 h-2 rounded-full bg-blue-600 inline-block"></span>
+                        )}
+                      </div>
+
+                      <p className="text-gray-600 text-sm leading-relaxed mb-2 line-clamp-2">
+                        {item.body}
+                      </p>
+
+                      <div className="flex items-center gap-4 text-xs text-gray-400 font-medium">
+                        <span className="flex items-center gap-1">
+                          <Clock className="w-3.5 h-3.5" />
+                          {formatTimeAgo(item.createdAt)}
+                        </span>
+                        {item.refModel && (
+                          <span className="flex items-center gap-1 text-blue-600/80 hover:text-blue-700">
+                            <ExternalLink className="w-3 h-3" />
+                            <span>View {item.refModel}</span>
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex items-center gap-1 shrink-0 opacity-80 group-hover:opacity-100 transition-opacity">
+                      {!item.isRead && (
+                        <button
+                          type="button"
+                          onClick={(e) => handleMarkAsRead(e, item._id)}
+                          disabled={isMarkingRead}
+                          className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                          title="Mark as read"
+                        >
+                          <CheckCheck className="w-4 h-4" />
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={(e) => handleDelete(e, item._id)}
+                        className="p-1.5 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                        title="Delete notification"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Pagination Controls */}
+            <div className="border-t border-gray-100 px-4 py-2 bg-slate-50/50">
+              <Pagination
+                totalItems={totalItems}
+                itemsPerPage={limit}
+                currentPage={page}
+                onPageChange={(newPage) => setPage(newPage)}
+                rowsPerPage={limit}
+                onRowsPerPageChange={(newLimit) => {
+                  setLimit(newLimit);
+                  setPage(1);
+                }}
+                rowsPerPageOptions={[10, 20, 50, 100]}
+              />
+            </div>
+          </>
         ) : (
-          <div className="p-12 text-center text-gray-500">
-            No notifications found in this category.
+          <div className="p-16 text-center text-gray-500">
+            <Bell className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+            <p className="font-semibold text-gray-700 text-base">
+              No notifications found
+            </p>
+            <p className="text-xs text-gray-400 mt-1">
+              You are all caught up! There are no notifications in this category.
+            </p>
           </div>
         )}
       </div>
@@ -302,3 +532,4 @@ const NotificationsView = () => {
 };
 
 export default NotificationsView;
+

@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 import {
   Search,
-  Filter,
+  // Filter,
   Wrench,
   ShieldCheck,
   CircleDollarSign,
@@ -101,7 +101,7 @@ const ShipperQuotationView: React.FC = () => {
         />
         <div className="p-10 text-center bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col items-center justify-center gap-4">
           <p className="font-semibold text-lg font-inter text-[#212B36]">
-             Error Loading Projects
+            Error Loading Projects
           </p>
           <p className="text-sm text-gray-500 font-inter max-w-md">
             Something went wrong while retrieving projects. Please try again later.
@@ -155,10 +155,10 @@ const ShipperQuotationView: React.FC = () => {
           </div>
 
           {/* Filter button */}
-          <button className="flex items-center gap-2 px-4 py-2.5 border border-[#E2E4E6] rounded-[8px] text-sm font-medium text-[#212B36] bg-white hover:bg-gray-50 transition-colors">
+          {/* <button className="flex items-center gap-2 px-4 py-2.5 border border-[#E2E4E6] rounded-[8px] text-sm font-medium text-[#212B36] bg-white hover:bg-gray-50 transition-colors">
             <Filter size={18} className="text-[#637381]" />
             Filter
-          </button>
+          </button> */}
         </div>
 
         {/* Status Filter */}

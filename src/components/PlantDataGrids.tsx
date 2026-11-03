@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   File,
   Truck,
@@ -6,20 +6,25 @@ import {
   ChartArea,
   FileChartLine,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 // Icons
 import pdfIcon from "@/assets/icon/dashboard/pdfIcon.svg";
 import xlxsIcon from "@/assets/icon/dashboard/xlxs.svg";
 import networkIcon from "@/assets/icon/dashboard/network.svg";
 import gitBranchIcon from "@/assets/icon/dashboard/gitBranch.svg";
-import { useNavigate } from "react-router-dom";
 
-import type { ShipperFile, PlantAlert, FreightCarrier } from "@/data/productionMockData";
+import type {
+  PlantDashboardRecentShipperFile,
+  PlantDashboardAlert,
+  PlantDashboardFreightCarrier,
+} from "@/redux/api/plantDashboardApi";
 
 interface PlantDataGridsProps {
-  shipperFiles?: ShipperFile[];
-  alerts?: PlantAlert[];
-  carriers?: FreightCarrier[];
+  shipperFiles?: PlantDashboardRecentShipperFile[];
+  alerts?: PlantDashboardAlert[];
+  carriers?: PlantDashboardFreightCarrier[];
+  isLoading?: boolean;
 }
 
 type SectionTitleProps = {
@@ -30,117 +35,147 @@ type SectionTitleProps = {
 const SectionTitle = ({ title, className = "" }: SectionTitleProps) => {
   return (
     <h2
-      className={`text-base md:text-lg  font-semibold text-black mb-4 ${className}`}
+      className={`text-base md:text-lg font-semibold text-black mb-4 ${className}`}
     >
       {title}
     </h2>
   );
 };
 
+function formatDisplayDate(dateStr?: string): string {
+  if (!dateStr) return "-";
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return dateStr;
+    return d.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  } catch {
+    return dateStr;
+  }
+}
+
+function formatDisplayTime(dateStr?: string): string {
+  if (!dateStr) return "";
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return "";
+    return d.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+  } catch {
+    return "";
+  }
+}
+
 const PlantDataGrids: React.FC<PlantDataGridsProps> = ({
   shipperFiles = [],
   alerts = [],
   carriers = [],
+  isLoading = false,
 }) => {
   const navigate = useNavigate();
 
-  const [localShipperFiles, setLocalShipperFiles] = useState<ShipperFile[]>(shipperFiles);
-  const [localAlerts, setLocalAlerts] = useState<PlantAlert[]>(alerts);
-  const [localCarriers, setLocalCarriers] = useState<FreightCarrier[]>(carriers);
+  const [socketShipperFiles, setSocketShipperFiles] = useState<PlantDashboardRecentShipperFile[]>([]);
+  const [socketAlerts, setSocketAlerts] = useState<PlantDashboardAlert[]>([]);
 
-  // Sync props to state if they change
-  useEffect(() => {
-    setLocalShipperFiles(shipperFiles);
-  }, [shipperFiles]);
+  const displayedShipperFiles = useMemo(() => {
+    return [...socketShipperFiles, ...shipperFiles];
+  }, [socketShipperFiles, shipperFiles]);
 
-  useEffect(() => {
-    setLocalAlerts(alerts);
-  }, [alerts]);
-
-  useEffect(() => {
-    setLocalCarriers(carriers);
-  }, [carriers]);
+  const displayedAlerts = useMemo(() => {
+    return [...socketAlerts, ...alerts].slice(0, 5);
+  }, [socketAlerts, alerts]);
 
   // Listen to global socket events sent from GlobalSocketListener
   useEffect(() => {
     const handleProjectAssigned = (e: Event) => {
       const data = (e as CustomEvent).detail;
-      const newAlert: PlantAlert = {
-        message: `Project assigned: ${data.projectName} (PO: ${data.poOrderId})`,
-        time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      const newAlert: PlantDashboardAlert = {
+        message: `Project assigned: ${data.projectName || "Project"} (PO: ${data.poOrderId || ""})`,
+        occurredAt: new Date().toISOString(),
         type: "order",
+        projectName: data.projectName,
       };
-      setLocalAlerts((prev) => [newAlert, ...prev]);
+      setSocketAlerts((prev) => [newAlert, ...prev]);
     };
 
     const handleBomExtractionComplete = (e: Event) => {
       const data = (e as CustomEvent).detail;
-      const newAlert: PlantAlert = {
+      const newAlert: PlantDashboardAlert = {
         message: `BOM extraction complete for Building ${data.buildingNumber} (${data.totalItems} items)`,
-        time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        occurredAt: new Date().toISOString(),
         type: "shipper",
       };
-      setLocalAlerts((prev) => [newAlert, ...prev]);
+      setSocketAlerts((prev) => [newAlert, ...prev]);
     };
 
     const handleBomExtractionFailed = (e: Event) => {
       const data = (e as CustomEvent).detail;
-      const newAlert: PlantAlert = {
+      const newAlert: PlantDashboardAlert = {
         message: `BOM extraction failed for Building ${data.buildingNumber}: ${data.error}`,
-        time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        occurredAt: new Date().toISOString(),
         type: "fileLine",
       };
-      setLocalAlerts((prev) => [newAlert, ...prev]);
+      setSocketAlerts((prev) => [newAlert, ...prev]);
     };
 
     const handleShipperFileSubmitted = (e: Event) => {
       const data = (e as CustomEvent).detail;
-      const newFile: ShipperFile = {
-        name: `Quote Request ${data.requestId}`,
-        shpId: data.requestId,
-        company: data.vendorName,
-        items: 0,
-        date: new Date(data.submittedAt).toLocaleDateString(),
-        time: new Date(data.submittedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      const newFile: PlantDashboardRecentShipperFile = {
+        fileName: `Quote Request ${data.requestId}`,
+        requestId: data.requestId,
+        projectId: data.projectId || "PRO-000",
+        projectName: data.projectName || "Project",
+        vendorName: data.vendorName || "Vendor",
+        uploadDate: data.submittedAt || new Date().toISOString(),
+        rate: data.quoteValue || 0,
+        weight: data.weight || 0,
+        status: "file_received",
       };
-      setLocalShipperFiles((prev) => [newFile, ...prev]);
+      setSocketShipperFiles((prev) => [newFile, ...prev]);
 
-      const newAlert: PlantAlert = {
+      const newAlert: PlantDashboardAlert = {
         message: `Vendor ${data.vendorName} submitted shipper quote for request ${data.requestId} ($${data.quoteValue || 0})`,
-        time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        occurredAt: new Date().toISOString(),
         type: "shipper",
       };
-      setLocalAlerts((prev) => [newAlert, ...prev]);
+      setSocketAlerts((prev) => [newAlert, ...prev]);
     };
 
     const handleAllShipperFilesSubmitted = (e: Event) => {
       const data = (e as CustomEvent).detail;
-      const newAlert: PlantAlert = {
+      const newAlert: PlantDashboardAlert = {
         message: `All ${data.vendorCount} vendor quotes submitted for Lead ${data.leadId}`,
-        time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        occurredAt: new Date().toISOString(),
         type: "shipper",
       };
-      setLocalAlerts((prev) => [newAlert, ...prev]);
+      setSocketAlerts((prev) => [newAlert, ...prev]);
     };
 
     const handleShipperComparisonComplete = (e: Event) => {
       const data = (e as CustomEvent).detail;
-      const newAlert: PlantAlert = {
+      const newAlert: PlantDashboardAlert = {
         message: `Shipper comparison complete for request ${data.requestId}`,
-        time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-        type: "shipper",
+        occurredAt: new Date().toISOString(),
+        type: "comparison_completed",
+        refId: data.requestId,
       };
-      setLocalAlerts((prev) => [newAlert, ...prev]);
+      setSocketAlerts((prev) => [newAlert, ...prev]);
     };
 
     const handleShipperComparisonFailed = (e: Event) => {
       const data = (e as CustomEvent).detail;
-      const newAlert: PlantAlert = {
+      const newAlert: PlantDashboardAlert = {
         message: `Shipper comparison failed for request ${data.requestId}: ${data.error}`,
-        time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        occurredAt: new Date().toISOString(),
         type: "fileLine",
       };
-      setLocalAlerts((prev) => [newAlert, ...prev]);
+      setSocketAlerts((prev) => [newAlert, ...prev]);
     };
 
     window.addEventListener("socket_project_assigned", handleProjectAssigned);
@@ -162,53 +197,116 @@ const PlantDataGrids: React.FC<PlantDataGridsProps> = ({
     };
   }, []);
 
+  const getAlertStyles = (type: string) => {
+    switch (type?.toLowerCase()) {
+      case "comparison_completed":
+      case "shipper":
+        return {
+          bg: "bg-[#DFF4FE]",
+          color: "text-[#155DFC]",
+          icon: <File size={20} strokeWidth={1.5} />,
+        };
+      case "order":
+        return {
+          bg: "bg-[#ECF6F1]",
+          color: "text-[#3AB449]",
+          icon: <Truck size={20} strokeWidth={1.5} />,
+        };
+      case "drawing":
+        return {
+          bg: "bg-[#DDD1F6]",
+          color: "text-[#7539FF]",
+          icon: <DraftingCompass size={20} strokeWidth={1.5} />,
+        };
+      case "production":
+        return {
+          bg: "bg-[#FDEEDF]",
+          color: "text-[#B00000]",
+          icon: <ChartArea size={20} strokeWidth={1.5} />,
+        };
+      case "fileline":
+      case "failed":
+        return {
+          bg: "bg-[#FFE7E4]",
+          color: "text-[#EF4444]",
+          icon: <FileChartLine size={20} strokeWidth={1.5} />,
+        };
+      default:
+        return {
+          bg: "bg-[#DFF4FE]",
+          color: "text-[#155DFC]",
+          icon: <FileChartLine size={20} strokeWidth={1.5} />,
+        };
+    }
+  };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3 xl:gap-4 mt-6">
       {/* Card 1: Recent Shipper Files Received */}
       <div className="bg-white rounded-[14px] p-4 md:p-6 shadow-sm border border-[#F4F6F8] flex flex-col">
         <SectionTitle title="Recent Shipper Files Received" />
-        <div className="space-y-0 divide-y divide-[--border-color-secondary]">
-          {localShipperFiles.length === 0 ? (
+        <div className="space-y-0 divide-y divide-[--border-color-secondary] max-h-[380px] overflow-y-auto pb-2">
+          {isLoading ? (
+            <div className="py-8 text-center text-sm text-gray-400 animate-pulse">Loading shipper files...</div>
+          ) : displayedShipperFiles.length === 0 ? (
             <div className="py-8 text-center text-sm text-gray-500">No shipper files received</div>
           ) : (
-            localShipperFiles.map((file, idx) => {
+            displayedShipperFiles.slice(0, 5).map((file, idx) => {
+              const fileNameLower = (file.fileName || "").toLowerCase();
               const isXls =
-                file.name.toLowerCase().includes("tech park") ||
-                idx === 1 ||
-                idx === 3;
+                fileNameLower.endsWith(".xlsx") ||
+                fileNameLower.endsWith(".xls") ||
+                fileNameLower.endsWith(".csv");
+              const isApproved = file.status?.toLowerCase() === "approved";
+              const isRejected = file.status?.toLowerCase() === "rejected";
+
               return (
                 <div
-                  key={idx}
-                  className="flex items-center py-4 first:pt-0 last:pb-0"
+                  key={file.requestId || idx}
+                  className="flex items-center py-3.5 first:pt-0 last:pb-0 cursor-pointer hover:bg-gray-50/70 transition-colors rounded-lg px-1.5"
+                  onClick={() => {
+                    if (file.projectId && file.requestId) {
+                      navigate(`/projects/${file.projectId}/shipper-files/${file.requestId}`);
+                    }
+                  }}
                 >
                   <div
-                    className={`w-12 h-12 rounded-lg flex items-center justify-center shrink-0 mr-4 ${isXls ? "bg-[#F0FDF4]" : "bg-[#FFF1F0]"}`}
+                    className={`w-11 h-11 rounded-lg flex items-center justify-center shrink-0 mr-3.5 ${
+                      isXls ? "bg-[#F0FDF4]" : "bg-[#FFF1F0]"
+                    }`}
                   >
                     <img
                       src={isXls ? xlxsIcon : pdfIcon}
                       alt="file icon"
-                      className="w-6 h-6"
+                      className="w-5 h-5"
                     />
                   </div>
-                  <div className="flex-grow min-w-0">
-                    <h3 className="text-sm  font-medium text-black truncate">
-                      {file.name}
+                  <div className="grow min-w-0 pr-2">
+                    <h3 className="text-sm font-medium text-[#212B36] truncate">
+                      {file.fileName || `Quote Request ${file.requestId}`}
                     </h3>
-                    <p className="text-sm font-inter text-[#637381] mt-1">
-                      {file.shpId} | {file.company}
+                    <p className="text-xs text-[#637381] mt-0.5 truncate">
+                      {file.projectName || file.projectId}
+                      {file.vendorName ? ` | ${file.vendorName}` : ""}
                     </p>
                   </div>
                   <div className="text-right shrink-0">
                     <div
-                      className={`px-3 py-0.5 rounded-full text-xs font-inter font-semibold inline-block mb-1 text-black ${isXls ? "bg-[#ECF6F1]" : "bg-[#FEE2E2]"}`}
+                      className={`px-2.5 py-0.5 rounded-full text-xs font-semibold inline-block mb-1 capitalize ${
+                        isApproved
+                          ? "bg-[#ECF6F1] text-[#00C853]"
+                          : isRejected
+                          ? "bg-[#FEE2E2] text-[#EF4444]"
+                          : "bg-[#FFF6D0] text-[#B78B00]"
+                      }`}
                     >
-                      {file.items} Items
+                      {file.status ? file.status.replace("_", " ") : "Received"}
                     </div>
-                    <p className="text-sm font-inter font-normal text-black leading-tight">
-                      {file.date}
+                    <p className="text-xs font-medium text-black leading-tight">
+                      {formatDisplayDate(file.uploadDate)}
                     </p>
-                    <p className="text-xs font-inter text-(--text-color-gray-3) mt-0.5">
-                      {file.time}
+                    <p className="text-[11px] text-[#919EAB] mt-0.5">
+                      {formatDisplayTime(file.uploadDate)}
                     </p>
                   </div>
                 </div>
@@ -216,8 +314,10 @@ const PlantDataGrids: React.FC<PlantDataGridsProps> = ({
             })
           )}
         </div>
-        <button className="w-full mt-6 py-2.5 border border-[#155DFC] rounded-lg text-[#0088FF] font-semibold text-sm md:text-base hover:bg-blue-50 transition-colors"
-          onClick={() => navigate("/load_planning/shipper-quotation")}>
+        <button
+          className="w-full mt-auto pt-4 py-2.5 border border-[#155DFC] rounded-lg text-[#0088FF] font-semibold text-sm hover:bg-blue-50 transition-colors"
+          onClick={() => navigate("/load_planning/shipper-quotation")}
+        >
           View All Shipper Files
         </button>
       </div>
@@ -225,68 +325,52 @@ const PlantDataGrids: React.FC<PlantDataGridsProps> = ({
       {/* Card 2: Plant Alerts */}
       <div className="bg-white rounded-[14px] p-4 md:p-6 shadow-sm border border-[#F4F6F8] flex flex-col">
         <SectionTitle title="Plant Alerts" />
-        <div className="space-y-0 divide-y divide-[#F4F6F8] max-h-[400px] overflow-y-auto pb-5">
-          {localAlerts.length === 0 ? (
+        <div className="space-y-0 divide-y divide-[#F4F6F8] max-h-[380px] overflow-y-auto pb-2">
+          {isLoading ? (
+            <div className="py-8 text-center text-sm text-gray-400 animate-pulse">Loading alerts...</div>
+          ) : displayedAlerts.length === 0 ? (
             <div className="py-8 text-center text-sm text-gray-500">No plant alerts</div>
           ) : (
-            localAlerts.map((alert, idx) => {
-              const getAlertStyles = () => {
-                switch (alert.type) {
-                  case "shipper":
-                    return {
-                      bg: "bg-[#DFF4FE]",
-                      color: "text-[#155DFC]",
-                      icon: <File size={20} strokeWidth={1.5} />,
-                    };
-                  case "order":
-                    return {
-                      bg: "bg-[#ECF6F1]",
-                      color: "text-[#3AB449]",
-                      icon: <Truck size={20} strokeWidth={1.5} />,
-                    };
-                  case "drawing":
-                    return {
-                      bg: "bg-[#DDD1F6]",
-                      color: "text-[#7539FF]",
-                      icon: <DraftingCompass size={20} strokeWidth={1.5} />,
-                    };
-                  case "production":
-                    return {
-                      bg: "bg-[#FDEEDF]",
-                      color: "text-[#B00000]",
-                      icon: <ChartArea size={20} strokeWidth={1.5} />,
-                    };
-                  case "fileLine":
-                    return {
-                      bg: "bg-[#FFE7E4]",
-                      color: "text-[#EF4444]",
-                      icon: <FileChartLine size={20} strokeWidth={1.5} />,
-                    };
-                  default:
-                    return {
-                      bg: "bg-gray-100",
-                      color: "text-gray-600",
-                      icon: <FileChartLine size={20} strokeWidth={1.5} />,
-                    };
-                }
-              };
-              const styles = getAlertStyles();
+            displayedAlerts.map((alert, idx) => {
+              const styles = getAlertStyles(alert.type);
+              const isComparisonCompleted =
+                alert.type?.toLowerCase() === "comparison_completed" && Boolean(alert.refId);
+
               return (
                 <div
-                  key={idx}
-                  className="flex items-center py-4 first:pt-0 last:pb-0"
+                  key={alert.refId || idx}
+                  className={`flex items-center py-3.5 first:pt-0 last:pb-0 px-1.5 ${
+                    isComparisonCompleted
+                      ? "cursor-pointer hover:bg-blue-50/50 transition-colors rounded-lg"
+                      : ""
+                  }`}
+                  onClick={() => {
+                    if (isComparisonCompleted && alert.refId) {
+                      navigate(`/load_planning/${alert.refId}/comparison-result`);
+                    }
+                  }}
                 >
                   <div
-                    className={`w-11 h-11 rounded-lg flex items-center justify-center shrink-0 mr-4 ${styles.bg} ${styles.color}`}
+                    className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 mr-3.5 ${styles.bg} ${styles.color}`}
                   >
                     {styles.icon}
                   </div>
-                  <div className="flex flex-col md:flex-row md:items-center justify-between grow gap-2 min-w-0">
-                    <p className="text-sm font-normal text-black leading-tight">
+                  <div className="flex flex-col grow min-w-0">
+                    <p className="text-sm font-normal text-[#212B36] leading-tight line-clamp-2">
                       {alert.message}
                     </p>
-                    <span className="text-sm  text-(--text-color-gray-3) md:ml-4 shrink-0">
-                      {alert.time}
+                    {alert.projectName && (
+                      <span className="text-xs text-[#637381] mt-0.5 font-medium">
+                        {alert.projectName}
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-right shrink-0 ml-2">
+                    <span className="text-xs text-[#919EAB] block">
+                      {formatDisplayDate(alert.occurredAt)}
+                    </span>
+                    <span className="text-[11px] text-[#919EAB]">
+                      {formatDisplayTime(alert.occurredAt)}
                     </span>
                   </div>
                 </div>
@@ -294,7 +378,10 @@ const PlantDataGrids: React.FC<PlantDataGridsProps> = ({
             })
           )}
         </div>
-        <button className="w-full mt-auto py-2.5 border border-[#155DFC] rounded-lg text-[#0088FF] font-semibold text-sm md:text-base hover:bg-blue-50 transition-colors" onClick={() => navigate("/notification")}>
+        <button
+          className="w-full mt-auto pt-4 py-2.5 border border-[#155DFC] rounded-lg text-[#0088FF] font-semibold text-sm hover:bg-blue-50 transition-colors"
+          onClick={() => navigate("/notification")}
+        >
           View All Alerts
         </button>
       </div>
@@ -302,34 +389,41 @@ const PlantDataGrids: React.FC<PlantDataGridsProps> = ({
       {/* Card 3: Freight Carriers */}
       <div className="bg-white rounded-[14px] p-4 md:p-6 shadow-sm border border-[#F4F6F8] flex flex-col">
         <SectionTitle title="Freight Carriers" />
-        <div className="space-y-0 divide-y divide-[#F4F6F8] max-[400px] overflow-y-auto pb-5">
-          {localCarriers.length === 0 ? (
+        <div className="space-y-0 divide-y divide-[#F4F6F8] max-h-[380px] overflow-y-auto pb-2">
+          {isLoading ? (
+            <div className="py-8 text-center text-sm text-gray-400 animate-pulse">Loading carriers...</div>
+          ) : carriers.length === 0 ? (
             <div className="py-8 text-center text-sm text-gray-500">No freight carriers registered</div>
           ) : (
-            localCarriers.map((carrier, idx) => {
-              const isDelayed = carrier.status === "Delayed";
+            carriers.slice(0, 5).map((carrier, idx) => {
+              const isDelayed = carrier.status?.toLowerCase().includes("delay");
               const icon = idx % 2 === 0 ? networkIcon : gitBranchIcon;
               return (
                 <div
-                  key={idx}
-                  className="flex items-center py-4 first:pt-0 last:pb-0"
+                  key={carrier.carrierId || idx}
+                  className="flex items-center py-3.5 first:pt-0 last:pb-0 px-1.5"
                 >
-                  <div className="w-11 h-11 bg-[#F4F6F8] rounded-lg flex items-center justify-center shrink-0 mr-4">
-                    <img src={icon} alt="carrier icon" className="w-full h-full" />
+                  <div className="w-10 h-10 bg-[#F4F6F8] rounded-lg flex items-center justify-center shrink-0 mr-3.5">
+                    <img src={icon} alt="carrier icon" className="w-6 h-6" />
                   </div>
                   <div className="grow min-w-0">
-                    <h3 className="text-sm md:text-base  font-medium text-black truncate">
-                      {carrier.name}
+                    <h3 className="text-sm font-medium text-[#212B36] truncate">
+                      {carrier.carrierName}
                     </h3>
-                    <p className="text-sm font-inter text-[#637381] mt-1">
-                      {carrier.loads}
+                    <p className="text-xs text-[#637381] mt-0.5">
+                      {carrier.loadsToday ?? 0} {carrier.loadsToday === 1 ? "Load" : "Loads"} Today
+                      {carrier.delayed ? ` (${carrier.delayed} delayed)` : ""}
                     </p>
                   </div>
                   <div className="shrink-0 ml-2">
                     <span
-                      className={`px-4 py-1.5 rounded-full text-xs font-inter font-medium ${isDelayed ? "bg-[#FFF6D0] text-[#B78B00]" : "bg-(--background-green) text-(--text-color-green-2)"}`}
+                      className={`px-3 py-1 rounded-full text-xs font-medium capitalize ${
+                        isDelayed
+                          ? "bg-[#FFF6D0] text-[#B78B00]"
+                          : "bg-[#ECF6F1] text-[#00C853]"
+                      }`}
                     >
-                      {carrier.status}
+                      {carrier.status || "On Time"}
                     </span>
                   </div>
                 </div>
@@ -337,7 +431,10 @@ const PlantDataGrids: React.FC<PlantDataGridsProps> = ({
             })
           )}
         </div>
-        <button className="w-full mt-auto py-2.5 border border-[#155DFC] rounded-lg text-[#0088FF] font-semibold text-sm md:text-base hover:bg-blue-50 transition-colors" onClick={() => navigate("/logistics/freight-carriers")}>
+        <button
+          className="w-full mt-auto pt-4 py-2.5 border border-[#155DFC] rounded-lg text-[#0088FF] font-semibold text-sm hover:bg-blue-50 transition-colors"
+          onClick={() => navigate("/logistics/freight-carriers")}
+        >
           View All Carriers
         </button>
       </div>

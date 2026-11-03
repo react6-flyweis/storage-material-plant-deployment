@@ -2,14 +2,8 @@ import { io, type Socket } from "socket.io-client";
 
 export function getSocketBaseUrl() {
   const apiBase = import.meta.env.VITE_API_BASE_URL;
-
-  //  trim trailing slash
+  // trim trailing slash
   return (apiBase || "").replace(/\/$/, "");
-  // try {
-  //   return new URL(apiBase).origin;
-  // } catch {
-  //   return apiBase;
-  // }
 }
 
 export function createAdminSocket(
@@ -17,9 +11,8 @@ export function createAdminSocket(
 ): Socket | null {
   if (!accessToken) return null;
 
-  const namespace = "/admin"
+  const namespace = "/admin";
   const base = getSocketBaseUrl();
-  console.log("base", base);
   return io(`${base}${namespace}`, {
     auth: { token: accessToken },
     transports: ["polling"],

@@ -5,13 +5,107 @@ import StatCard from "@/components/ui/stat-card";
 import TitleSubtitle from "./common_component/TitleSubtitle";
 import { equipmenViewText } from "@/data/text/EquipmenViewText";
 import TableActionButtons from "./common_component/TableActionButtons";
-import { equipmentByFilter } from "@/data/mockData";
-import { DashboardStatsByFilter, icons, type TabType } from "@/pages/PlantPage";
+import { equipmentByFilter, type EquipmentItem } from "@/data/mockData";
 import FilterTabs from "./common_component/FilterTabs";
 import SuccessModal from "./common_component/SuccessModal";
+import type { TabType } from "@/pages/PlantPage";
+import HammerIcon from "../assets/hammerIcon.svg";
+import CheckedShieldIcon from "../assets/checkedShieldIcon.svg";
+import YellowDollerIcon from "../assets/yellowDollerIcon.svg";
+import SalmonGraphIcon from "../assets/salmonGraphIcon.svg";
 
 const CATEGORY_SEQUENCE = ["Heavy", "Medium", "All"] as const;
 type CategoryFilter = (typeof CATEGORY_SEQUENCE)[number];
+
+const equipmentStatsByFilter: Record<
+  TabType,
+  {
+    title: string;
+    value: string;
+    icon: React.ReactNode;
+    color: string;
+  }[]
+> = {
+  today: [
+    {
+      title: "Total Equipment",
+      value: "3 units",
+      icon: <img src={HammerIcon} alt="total-maintenance" className="md:size-7 size-5 p-0.5" />,
+      color: "bg-[#1D51A4]",
+    },
+    {
+      title: "Allocated to Sites:",
+      value: "1",
+      icon: <img src={CheckedShieldIcon} alt="breakdown" className="md:size-7 size-5 p-0.5" />,
+      color: "bg-[#3AB449]",
+    },
+    {
+      title: "Available at Yard:",
+      value: "2",
+      icon: <img src={YellowDollerIcon} alt="due-maintenance" className="md:size-7 size-5 p-0.5" />,
+      color: "bg-[#F59E0B]",
+    },
+    {
+      title: "Under Maintenance:",
+      value: "0",
+      icon: <img src={SalmonGraphIcon} alt="under-maintenance" className="md:size-7 size-5 p-0.5" />,
+      color: "bg-[#FD8D5B]",
+    },
+  ],
+  week: [
+    {
+      title: "Total Equipment",
+      value: "6 units",
+      icon: <img src={HammerIcon} alt="total-maintenance" className="md:size-7 size-5 p-0.5" />,
+      color: "bg-[#1D51A4]",
+    },
+    {
+      title: "Allocated to Sites:",
+      value: "3",
+      icon: <img src={CheckedShieldIcon} alt="breakdown" className="md:size-7 size-5 p-0.5" />,
+      color: "bg-[#3AB449]",
+    },
+    {
+      title: "Available at Yard:",
+      value: "2",
+      icon: <img src={YellowDollerIcon} alt="due-maintenance" className="md:size-7 size-5 p-0.5" />,
+      color: "bg-[#F59E0B]",
+    },
+    {
+      title: "Under Maintenance:",
+      value: "1",
+      icon: <img src={SalmonGraphIcon} alt="under-maintenance" className="md:size-7 size-5 p-0.5" />,
+      color: "bg-[#FD8D5B]",
+    },
+  ],
+  month: [
+    {
+      title: "Total Equipment",
+      value: "7 units",
+      icon: <img src={HammerIcon} alt="total-maintenance" className="md:size-7 size-5 p-0.5" />,
+      color: "bg-[#1D51A4]",
+    },
+    {
+      title: "Allocated to Sites:",
+      value: "4",
+      icon: <img src={CheckedShieldIcon} alt="breakdown" className="md:size-7 size-5 p-0.5" />,
+      color: "bg-[#3AB449]",
+    },
+    {
+      title: "Available at Yard:",
+      value: "2",
+      icon: <img src={YellowDollerIcon} alt="due-maintenance" className="md:size-7 size-5 p-0.5" />,
+      color: "bg-[#F59E0B]",
+    },
+    {
+      title: "Under Maintenance:",
+      value: "1",
+      icon: <img src={SalmonGraphIcon} alt="under-maintenance" className="md:size-7 size-5 p-0.5" />,
+      color: "bg-[#FD8D5B]",
+    },
+  ],
+};
+
 const EquipmentView = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState<CategoryFilter>("All");
@@ -27,7 +121,9 @@ const EquipmentView = () => {
     setIsModalOpen(false);
   };
 
-  const columns: Column<(typeof equipmentData)[0]>[] = [
+  const equipmentData = useMemo(() => equipmentByFilter["month"] || [], []);
+
+  const columns: Column<EquipmentItem>[] = [
     {
       header: "Equipment ID",
       accessor: (row) => <span className="text-gray-400">{row.id}</span>,
@@ -113,15 +209,13 @@ const EquipmentView = () => {
     });
   };
 
-  const equipmentData = equipmentByFilter["month"];
-
   const filteredEquipment = useMemo(() => {
     if (activeCategory === "All") return equipmentData;
 
-    return equipmentData.filter((item) => item.category === activeCategory);
+    return equipmentData.filter((item: EquipmentItem) => item.category === activeCategory);
   }, [equipmentData, activeCategory]);
 
-  const stats = DashboardStatsByFilter[activeTab];
+  const stats = equipmentStatsByFilter[activeTab];
   return (
     <div className="xl:pr-5 px-2 pb-10 space-y-6">
       <FilterTabs activeTab={activeTab} onChange={setActiveTab} />
@@ -139,13 +233,13 @@ const EquipmentView = () => {
       </div>
 
       <div className="grid grid-cols-2 xs:grid-cols-2 md:grid-cols-2 xl:grid-cols-4 xl:gap-4 gap-3">
-        {stats.map((stat, index) => (
+        {stats.map((stat) => (
           <StatCard
             key={stat.title}
             title={stat.title}
             value={stat.value}
-            icon={icons[index].icon}
-            color={icons[index].color}
+            icon={stat.icon}
+            color={stat.color}
           />
         ))}
       </div>
