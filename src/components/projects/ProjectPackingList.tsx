@@ -298,7 +298,6 @@ const ProjectPackingList: React.FC = () => {
         bundles={stateData?.bundles}
         projectName={projectName}
         planNumber={truckPlan?.packingListPlan?.planNumber}
-        planId={truckPlan?.packingListPlan?._id}
       />
     </div>
   );

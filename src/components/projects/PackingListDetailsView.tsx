@@ -6,7 +6,7 @@ import Button from "../common_component/Button";
 import { useGetPackingListPlanQuery } from "@/redux/api/shipperApi";
 import type { PackingListEntry } from "@/redux/api/shipperApi";
 import PackingListModal from "./PackingListModal";
-import { getLeadProjectName, getQRCodeUrl, getPackingListQRDataStr } from "@/lib/utils";
+import { getLeadProjectName, getPackingListQRCodeUrl } from "@/lib/utils";
 import {
   exportPackingListToPDF,
   exportBundleListToPDF,
@@ -201,7 +201,7 @@ const PackingListDetailsView: React.FC = () => {
             status: b.status || "Ready",
           }));
 
-          exportPackingListToPDF(loadInfo, summary, bundleList, true, id);
+          exportPackingListToPDF(loadInfo, summary, bundleList, true, item._id);
         };
 
         return (
@@ -372,7 +372,7 @@ const PackingListDetailsView: React.FC = () => {
               {/* QR Code Dynamic Image */}
               <div className="w-40 h-40 shrink-0 flex items-center justify-center p-2 rounded-lg">
                 <img
-                  src={getQRCodeUrl(getPackingListQRDataStr(id), "250x250")}
+                  src={getPackingListQRCodeUrl(packingLists[0]?._id || id, "250x250")}
                   alt="QR Code"
                   className="w-full h-full object-contain"
                 />
@@ -418,7 +418,7 @@ const PackingListDetailsView: React.FC = () => {
                     <p className="flex gap-2">
                       <span className="text-(--text-color-gray-4) min-w-[80px]">URL :</span>
                       <span className="text-(--text-color-gray-5) font-medium break-all">
-                        {`${(import.meta.env.VITE_STANDLONE_PAGE_BASE || "").replace(/\/+$/, "")}/packing-list-plan/${id}`}
+                        {getPackingListUrl(packingLists[0]?._id || id)}
                       </span>
                     </p>
                   )} */}
@@ -489,7 +489,6 @@ const PackingListDetailsView: React.FC = () => {
         bundles={bundles}
         projectName={projectName}
         planNumber={planNumber}
-        planId={id}
       />
     </div>
   );

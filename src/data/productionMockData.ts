@@ -1,207 +1,3 @@
-import type { TabType } from "@/pages/PlantPage";
-
-// ─── Production Overview Metrics ─────────────────────────────────────────────
-export interface ProductionMetric {
-  label: string;
-  value: string;
-  icon: "graph" | "moneybillnote" | "moneybag" | "truck" | "chart";
-}
-
-export const productionMetricsByFilter: Record<TabType, ProductionMetric[]> = {
-  today: [
-    { label: "Planned Tonnage", value: "125.50 MT", icon: "graph" },
-    { label: "Produced Tonnage", value: "78.80 MT", icon: "moneybillnote" },
-    { label: "Utilization", value: "63%", icon: "moneybag" },
-    { label: "On-Time Delivery", value: "92%", icon: "moneybag" },
-    { label: "Rework/Rejection", value: "2.4%", icon: "graph" },
-  ],
-  week: [
-    { label: "Planned Tonnage", value: "875.20 MT", icon: "graph" },
-    { label: "Produced Tonnage", value: "612.40 MT", icon: "moneybillnote" },
-    { label: "Utilization", value: "70%", icon: "moneybag" },
-    { label: "On-Time Delivery", value: "88%", icon: "moneybag" },
-    { label: "Rework/Rejection", value: "3.1%", icon: "graph" },
-  ],
-  month: [
-    { label: "Planned Tonnage", value: "3,480.00 MT", icon: "graph" },
-    { label: "Produced Tonnage", value: "2,856.50 MT", icon: "moneybillnote" },
-    { label: "Utilization", value: "82%", icon: "moneybag" },
-    { label: "On-Time Delivery", value: "91%", icon: "moneybag" },
-    { label: "Rework/Rejection", value: "1.8%", icon: "graph" },
-  ],
-};
-
-// ─── Recent Shipper Files ────────────────────────────────────────────────────
-export interface ShipperFile {
-  name: string;
-  shpId: string;
-  company: string;
-  items: number;
-  date: string;
-  time: string;
-}
-
-export const shipperFilesByFilter: Record<TabType, ShipperFile[]> = {
-  today: [
-    { name: "ABC Warehouse", shpId: "SHP-1044", company: "ABC Steel", items: 120, date: "Mar 15, 2025", time: "05:00:14 PM" },
-    { name: "Tech Park Dev", shpId: "SHP-1044", company: "ABC Steel", items: 95, date: "Jan 8, 2025", time: "08:20:13 PM" },
-    { name: "Downtown Plaza", shpId: "SHP-1044", company: "ABC Steel", items: 50, date: "Aug 6, 2025", time: "04:10:12 PM" },
-    { name: "Riverside Complex", shpId: "SHP-1044", company: "ABC Steel", items: 120, date: "Jan 6, 2025", time: "03:40:14 PM" },
-    { name: "Techpark Dev", shpId: "SHP-1044", company: "ABC Steel", items: 120, date: "Oct 12, 2025", time: "05:00:14 PM" },
-  ],
-  week: [
-    { name: "Metro Station Hub", shpId: "SHP-1052", company: "Metro Corp", items: 200, date: "Mar 10, 2025", time: "09:15:00 AM" },
-    { name: "ABC Warehouse", shpId: "SHP-1044", company: "ABC Steel", items: 120, date: "Mar 15, 2025", time: "05:00:14 PM" },
-    { name: "Industrial Zone A", shpId: "SHP-1048", company: "IZ Steel", items: 180, date: "Mar 12, 2025", time: "11:30:00 AM" },
-    { name: "Tech Park Dev", shpId: "SHP-1044", company: "ABC Steel", items: 95, date: "Jan 8, 2025", time: "08:20:13 PM" },
-    { name: "Skyline Tower", shpId: "SHP-1055", company: "Sky Build", items: 75, date: "Mar 9, 2025", time: "02:45:00 PM" },
-  ],
-  month: [
-    { name: "Highway Bridge #4", shpId: "SHP-1060", company: "Bridge Co", items: 340, date: "Feb 28, 2025", time: "10:00:00 AM" },
-    { name: "Metro Station Hub", shpId: "SHP-1052", company: "Metro Corp", items: 200, date: "Mar 10, 2025", time: "09:15:00 AM" },
-    { name: "ABC Warehouse", shpId: "SHP-1044", company: "ABC Steel", items: 120, date: "Mar 15, 2025", time: "05:00:14 PM" },
-    { name: "Industrial Zone A", shpId: "SHP-1048", company: "IZ Steel", items: 180, date: "Mar 12, 2025", time: "11:30:00 AM" },
-    { name: "Commercial Complex", shpId: "SHP-1058", company: "CC Builders", items: 260, date: "Feb 20, 2025", time: "01:20:00 PM" },
-  ],
-};
-
-// ─── Plant Alerts ────────────────────────────────────────────────────────────
-export interface PlantAlert {
-  message: string;
-  time: string;
-  type: "shipper" | "order" | "drawing" | "production" | "fileLine";
-}
-
-export const plantAlertsByFilter: Record<TabType, PlantAlert[]> = {
-  today: [
-    { message: "New shipper file received for ABC Warehouse (SHP1044)", time: "05:00:14 PM", type: "shipper" },
-    { message: "Oder ORD-1045 Marked as ready to dispatch", time: "08:20:13 PM", type: "order" },
-    { message: "Drawing DRG-098 Uploaded", time: "04:10:12 PM", type: "drawing" },
-    { message: "Production Target for today is 63%", time: "03:40:14 PM", type: "production" },
-    { message: "Oder ORD-1045 Marked as ready to dispatch", time: "05:00:14 PM", type: "fileLine" },
-  ],
-  week: [
-    { message: "Material shortage alert for Steel Rod TMT 16mm", time: "Mon 09:00 AM", type: "production" },
-    { message: "New shipper file received for Metro Station (SHP1052)", time: "Mon 11:30 AM", type: "shipper" },
-    { message: "Drawing DRG-102 revision uploaded", time: "Tue 02:15 PM", type: "drawing" },
-    { message: "Order ORD-1050 dispatched successfully", time: "Wed 04:30 PM", type: "order" },
-    { message: "Production target achieved 82% this week", time: "Fri 06:00 PM", type: "production" },
-  ],
-  month: [
-    { message: "Monthly production report generated", time: "Mar 01, 10:00 AM", type: "production" },
-    { message: "5 new shipper files received this month", time: "Mar 05, 09:00 AM", type: "shipper" },
-    { message: "Quality audit completed — 98.2% pass rate", time: "Mar 10, 03:00 PM", type: "production" },
-    { message: "Drawing batch DRG-090 to DRG-098 approved", time: "Mar 12, 11:00 AM", type: "drawing" },
-    { message: "12 orders dispatched this month", time: "Mar 15, 05:00 PM", type: "order" },
-  ],
-};
-
-// ─── Recent Shipper Files Table ─────────────────────────────────────────────
-export interface RecentShipperFile {
-  projectId: string;
-  projectName: string;
-  shipperName: string;
-  shipperAvatar: string;
-  fileName: string;
-  uploadDate: string;
-  items: number;
-  rates: string;
-  weight: string;
-  status: "File Received" | "Order Sent" | "Revision Sent";
-  quote?: string;
-}
-
-export const recentShipperFilesByFilter: Record<TabType, RecentShipperFile[]> = {
-  today: [
-    { projectId: "PRJ-001", projectName: "ABC Warehouse", shipperName: "ABC Steel", shipperAvatar: "https://i.pravatar.cc/150?u=1", fileName: "SHP-1044", uploadDate: "22 Feb 2025", items: 120, rates: "$2100", weight: "18,500 IBS", status: "File Received", quote: "$1,850" },
-    { projectId: "PRJ-002", projectName: "Tech Park Dev", shipperName: "Steel Works LTD", shipperAvatar: "https://i.pravatar.cc/150?u=2", fileName: "SHP-1045", uploadDate: "07 Feb 2025", items: 95, rates: "$3100", weight: "37,700 IBS", status: "Order Sent", quote: "$2,900" },
-    { projectId: "PRJ-101", projectName: "Metro Cast Factory", shipperName: "Metro Steel", shipperAvatar: "https://i.pravatar.cc/150?u=3", fileName: "SHP-1050", uploadDate: "15 Mar 2025", items: 150, rates: "$4500", weight: "22,000 IBS", status: "File Received", quote: "$4,100" },
-    { projectId: "PRJ-102", projectName: "Skyline Tower", shipperName: "Sky Build", shipperAvatar: "https://i.pravatar.cc/150?u=4", fileName: "SHP-1051", uploadDate: "16 Mar 2025", items: 85, rates: "$2800", weight: "15,200 IBS", status: "Order Sent", quote: "$2,500" },
-    { projectId: "PRJ-103", projectName: "Industrial Zone A", shipperName: "IZ Steel", shipperAvatar: "https://i.pravatar.cc/150?u=5", fileName: "SHP-1052", uploadDate: "17 Mar 2025", items: 210, rates: "$6200", weight: "41,000 IBS", status: "Revision Sent", quote: "$5,800" },
-    { projectId: "PRJ-104", projectName: "Commercial Hub", shipperName: "CH Builders", shipperAvatar: "https://i.pravatar.cc/150?u=6", fileName: "SHP-1053", uploadDate: "18 Mar 2025", items: 130, rates: "$3700", weight: "28,400 IBS", status: "File Received", quote: "$3,300" },
-    { projectId: "PRJ-105", projectName: "Storage Facility C", shipperName: "Store Corp", shipperAvatar: "https://i.pravatar.cc/150?u=7", fileName: "SHP-1054", uploadDate: "19 Mar 2025", items: 75, rates: "$1900", weight: "12,600 IBS", status: "Order Sent", quote: "$1,600" },
-  ],
-  week: [
-    { projectId: "PRJ-003", projectName: "Downtown Plaza", shipperName: "Metro Steel", shipperAvatar: "https://i.pravatar.cc/150?u=3", fileName: "SHP-1046", uploadDate: "30 Jan 2025", items: 50, rates: "$7100", weight: "21,400 IBS", status: "Revision Sent", quote: "$6,500" },
-    { projectId: "PRJ-004", projectName: "Riverside Complex", shipperName: "ABC Steel", shipperAvatar: "https://i.pravatar.cc/150?u=4", fileName: "SHP-1047", uploadDate: "17 Jan 2025", items: 80, rates: "$12100", weight: "18,500 IBS", status: "File Received", quote: "$11,200" },
-  ],
-  month: [
-    { projectId: "PRJ-005", projectName: "Tech Park Dev", shipperName: "Steel Works LTD", shipperAvatar: "https://i.pravatar.cc/150?u=5", fileName: "SHP-1048", uploadDate: "04 Jan 2025", items: 110, rates: "$4100", weight: "37,700 IBS", status: "Order Sent", quote: "$3,800" },
-    { projectId: "PRJ-006", projectName: "Downtown Plaza", shipperName: "Metro Steel", shipperAvatar: "https://i.pravatar.cc/150?u=6", fileName: "SHP-1049", uploadDate: "09 Dec 2024", items: 120, rates: "$8100", weight: "21,400 IBS", status: "Order Sent", quote: "$7,500" },
-  ],
-};
-
-// ─── Freight Carriers ────────────────────────────────────────────────────────
-export interface FreightCarrier {
-  name: string;
-  loads: string;
-  status: "On Time" | "Delayed";
-}
-
-export const freightCarriersByFilter: Record<TabType, FreightCarrier[]> = {
-  today: [
-    { name: "Roadking Logistics", loads: "12 Loads Today", status: "On Time" },
-    { name: "Swift Transport", loads: "08 Loads Today", status: "On Time" },
-    { name: "Global Freight Lines", loads: "12 Loads Today", status: "Delayed" },
-    { name: "Eagle Freight", loads: "08 Loads Today", status: "On Time" },
-    { name: "Prime Carriers", loads: "12 Loads Today", status: "Delayed" },
-  ],
-  week: [
-    { name: "Roadking Logistics", loads: "58 Loads This Week", status: "On Time" },
-    { name: "Swift Transport", loads: "42 Loads This Week", status: "On Time" },
-    { name: "Global Freight Lines", loads: "35 Loads This Week", status: "Delayed" },
-    { name: "Eagle Freight", loads: "28 Loads This Week", status: "On Time" },
-    { name: "Prime Carriers", loads: "45 Loads This Week", status: "On Time" },
-  ],
-  month: [
-    { name: "Roadking Logistics", loads: "210 Loads This Month", status: "On Time" },
-    { name: "Swift Transport", loads: "180 Loads This Month", status: "On Time" },
-    { name: "Global Freight Lines", loads: "145 Loads This Month", status: "Delayed" },
-    { name: "Eagle Freight", loads: "120 Loads This Month", status: "On Time" },
-    { name: "Prime Carriers", loads: "165 Loads This Month", status: "Delayed" },
-  ],
-};
-
-// ─── Drawing Approval Status ────────────────────────────────────────────────
-export interface DrawingApprovalStatus {
-  clientName: string;
-  clientAvatar: string;
-  projectName: string;
-  fileName: string;
-  sentDate: string;
-  status: "Pending" | "Approved" | "Revision Sent";
-  customerId: string;
-  projectId: string;
-}
-
-export const drawingApprovalStatusByFilter: Record<TabType, DrawingApprovalStatus[]> = {
-  today: [
-    { clientName: "ABC Steel", clientAvatar: "https://i.pravatar.cc/150?u=1", projectName: "ABC Warehouse", fileName: "Drawing", sentDate: "22 Feb 2025", status: "Pending", customerId: "ID-2025-1047", projectId: "PRJ-001" },
-    { clientName: "Steel Works LTD", clientAvatar: "https://i.pravatar.cc/150?u=2", projectName: "Tech Park Dev", fileName: "Drawing", sentDate: "07 Feb 2025", status: "Approved", customerId: "ID-2025-1047", projectId: "PRJ-002" },
-    { clientName: "Metro Steel", clientAvatar: "https://i.pravatar.cc/150?u=3", projectName: "Downtown Plaza", fileName: "Drawing", sentDate: "30 Jan 2025", status: "Revision Sent", customerId: "ID-2025-1047", projectId: "PRJ-003" },
-    { clientName: "ABC Steel", clientAvatar: "https://i.pravatar.cc/150?u=4", projectName: "Riverside Complex", fileName: "Drawing", sentDate: "17 Jan 2025", status: "Pending", customerId: "ID-2025-1047", projectId: "PRJ-001" },
-    { clientName: "Steel Works LTD", clientAvatar: "https://i.pravatar.cc/150?u=5", projectName: "Tech Park Dev", fileName: "Drawing", sentDate: "04 Jan 2025", status: "Approved", customerId: "ID-2025-1047", projectId: "PRJ-002" },
-    { clientName: "Metro Steel", clientAvatar: "https://i.pravatar.cc/150?u=6", projectName: "Downtown Plaza", fileName: "Drawing", sentDate: "09 Dec 2024", status: "Approved", customerId: "ID-2025-1047", projectId: "PRJ-003" },
-  ],
-  week: [
-    { clientName: "ABC Steel", clientAvatar: "https://i.pravatar.cc/150?u=1", projectName: "ABC Warehouse", fileName: "Drawing", sentDate: "22 Feb 2025", status: "Pending", customerId: "ID-2025-1047", projectId: "PRJ-001" },
-    { clientName: "Steel Works LTD", clientAvatar: "https://i.pravatar.cc/150?u=2", projectName: "Tech Park Dev", fileName: "Drawing", sentDate: "07 Feb 2025", status: "Approved", customerId: "ID-2025-1047", projectId: "PRJ-002" },
-    { clientName: "Metro Steel", clientAvatar: "https://i.pravatar.cc/150?u=3", projectName: "Downtown Plaza", fileName: "Drawing", sentDate: "30 Jan 2025", status: "Revision Sent", customerId: "ID-2025-1047", projectId: "PRJ-003" },
-    { clientName: "ABC Steel", clientAvatar: "https://i.pravatar.cc/150?u=4", projectName: "Riverside Complex", fileName: "Drawing", sentDate: "17 Jan 2025", status: "Pending", customerId: "ID-2025-1047", projectId: "PRJ-001" },
-    { clientName: "Steel Works LTD", clientAvatar: "https://i.pravatar.cc/150?u=5", projectName: "Tech Park Dev", fileName: "Drawing", sentDate: "04 Jan 2025", status: "Approved", customerId: "ID-2025-1047", projectId: "PRJ-002" },
-    { clientName: "Metro Steel", clientAvatar: "https://i.pravatar.cc/150?u=6", projectName: "Downtown Plaza", fileName: "Drawing", sentDate: "09 Dec 2024", status: "Approved", customerId: "ID-2025-1047", projectId: "PRJ-003" },
-  ],
-  month: [
-    { clientName: "ABC Steel", clientAvatar: "https://i.pravatar.cc/150?u=1", projectName: "ABC Warehouse", fileName: "Drawing", sentDate: "22 Feb 2025", status: "Pending", customerId: "ID-2025-1047", projectId: "PRJ-001" },
-    { clientName: "Steel Works LTD", clientAvatar: "https://i.pravatar.cc/150?u=2", projectName: "Tech Park Dev", fileName: "Drawing", sentDate: "07 Feb 2025", status: "Approved", customerId: "ID-2025-1047", projectId: "PRJ-002" },
-    { clientName: "Metro Steel", clientAvatar: "https://i.pravatar.cc/150?u=3", projectName: "Downtown Plaza", fileName: "Drawing", sentDate: "30 Jan 2025", status: "Revision Sent", customerId: "ID-2025-1047", projectId: "PRJ-003" },
-    { clientName: "ABC Steel", clientAvatar: "https://i.pravatar.cc/150?u=4", projectName: "Riverside Complex", fileName: "Drawing", sentDate: "17 Jan 2025", status: "Pending", customerId: "ID-2025-1047", projectId: "PRJ-001" },
-    { clientName: "Steel Works LTD", clientAvatar: "https://i.pravatar.cc/150?u=5", projectName: "Tech Park Dev", fileName: "Drawing", sentDate: "04 Jan 2025", status: "Approved", customerId: "ID-2025-1047", projectId: "PRJ-002" },
-    { clientName: "Metro Steel", clientAvatar: "https://i.pravatar.cc/150?u=6", projectName: "Downtown Plaza", fileName: "Drawing", sentDate: "09 Dec 2024", status: "Approved", customerId: "ID-2025-1047", projectId: "PRJ-003" },
-  ],
-};
-
-// ─── Customer Data (Dynamic View) ───────────────────────────────────────────
 export interface CustomerInfo {
   location: string;
   id: string;
@@ -212,16 +8,16 @@ export interface CustomerInfo {
   email: string;
   address: string;
   image: string;
-  projects: { 
-    id: string; 
-    name: string; 
+  projects: {
+    id: string;
+    name: string;
     building: string;
-    amount: string; 
-    status: string; 
+    amount: string;
+    status: string;
     stage: string;
     progress: number;
-    startDate: string; 
-    endDate: string; 
+    startDate: string;
+    endDate: string;
     buildingType?: string;
     quoteValue: string;
     createdOn: string;
@@ -229,185 +25,188 @@ export interface CustomerInfo {
     salesPerson?: string;
     contractDate?: string;
   }[];
-  invoices: { number: string; dueDate: string; amount: string; paid: string; dueAmount: string; status: string; }[];
-  recentActivity?: { building: string; action: string; date: string; }[];
-  notes: string[];
+  invoices: {
+    number: string;
+    dueDate: string;
+    amount: string;
+    paid: string;
+    dueAmount: string;
+    status: string;
+  }[];
+  recentActivity?: { building: string; action: string; date: string }[];
+  notes?: string[];
 }
 
-export const customersData: Record<string, CustomerInfo> = {
-  "ID-2025-1047": {
-    id: "ID-2025-1047",
-    location: "Manchester, NJ",
-    name: "John Doe",
-    joinedDate: "January 15, 2023",
-    status: "Active",
-    phone: "(163) 2459 315",
-    email: "john@example.com",
-    address: "1861 Bayonne Ave, Manchester, NJ, 08759",
-    image: "https://i.pravatar.cc/150?u=1",
-    projects: [
-      { 
-        id: "ABC Warehouse", 
-        name: "ABC Warehouse", 
-        building: "2", 
-        amount: "$50,000", 
-        status: "Work in Progress", 
-        stage: "Shipment", 
-        progress: 75, 
-        startDate: "22 Feb 2025", 
-        endDate: "May 02, 2024",
-        buildingType: "Workshop",
-        quoteValue: "$12,500",
-        createdOn: "2024-10-10",
-        location: "1861 Bayone Ave, Manchester, NNJ, 098765",
-        salesPerson: "Sarah Lee",
-        contractDate: "12 April 2025"
-      },
-      { 
-        id: "Tech Park Dev", 
-        name: "Tech Park Dev", 
-        building: "1", 
-        amount: "$15,000", 
-        status: "🟢 Active", 
-        stage: "Engineering", 
-        progress: 30, 
-        startDate: "07 Feb 2025", 
-        endDate: "May 02, 2024",
-        buildingType: "Commercial",
-        quoteValue: "$15,000",
-        createdOn: "2024-11-15",
-        location: "Tech Park, Chicago, IL",
-        salesPerson: "Michael Brown",
-        contractDate: "20 April 2025"
-      },
-      { id: "Downtown Plaza", name: "Downtown Plaza", building: "3", amount: "$25,000", status: "⚫ Completed", stage: "Completed", progress: 100, startDate: "30 Jan 2025", endDate: "May 02, 2024", buildingType: "", quoteValue: "", createdOn: "", location: "", salesPerson: "", contractDate: "" },
-      { id: "Riverside Complex", name: "Riverside Complex", building: "1", amount: "$120,000", status: "Canceled", stage: "Canceled", progress: 0, startDate: "17 Jan 2025", endDate: "May 02, 2024", buildingType: "", quoteValue: "", createdOn: "", location: "", salesPerson: "", contractDate: "" },
-    ],
-    invoices: [
-      { number: "INV001", dueDate: "24 Dec 2024", amount: "$500", paid: "$500", dueAmount: "$0", status: "Paid" },
-      { number: "INV002", dueDate: "10 Dec 2024", amount: "$1500", paid: "$1500", dueAmount: "$0", status: "Paid" },
-      { number: "INV003", dueDate: "27 Nov 2024", amount: "$600", paid: "$600", dueAmount: "$0", status: "Paid" },
-      { number: "INV004", dueDate: "18 Nov 2024", amount: "$1000", paid: "$0", dueAmount: "$1000", status: "Unpaid" },
-    ],
-    recentActivity: [
-      { building: "Building A", action: "Step updated: material request completed", date: "19 Jan 2025" },
-      { building: "Building B", action: "Additional material request #AMR-001 Created", date: "18 Jan 2025" },
-      { building: "Building C", action: "Material Check Completed", date: "18 Jan 2025" },
-      { building: "Building B", action: "BOM Review completed", date: "17 Jan 2025" },
-      { building: "", action: "2 unread messages", date: "17 Jan 2025" },
-    ],
-    notes: [
-      "Reliable for long-distance steel transport. Preferred carrier for Texas routes. Fast response time during bidding.",
-      "Reliable for long-distance steel transport. Preferred carrier for Texas routes. Fast response time during bidding.",
-      "Reliable for long-distance steel transport. Preferred carrier for Texas routes. Fast response time during bidding.",
-      "Reliable for long-distance steel transport. Preferred carrier for Texas routes. Fast response time during bidding.",
-      "Reliable for long-distance steel transport. Preferred carrier for Texas routes. Fast response time during bidding.",
-    ]
-  },
-  "ID-2025-1048": {
-    id: "ID-2025-1048",
-    location: "Springfield, IL",
-    name: "Roahan Sharma",
-    joinedDate: "February 10, 2023",
-    status: "Active",
-    phone: "(163) 2459 999",
-    email: "roahan@example.com",
-    address: "742 Evergreen Terrace, Springfield, IL, 62704",
-    image: "https://i.pravatar.cc/150?u=2",
-    projects: [
-      {
-        id: "Project 1", name: "Tech Park 1", amount: "$120,000", status: "Completed", startDate: "Mar 15, 2024", endDate: "Jun 15, 2024",
-        building: "",
-        stage: "",
-        progress: 0,
-        buildingType: "",
-        quoteValue: "",
-        createdOn: "",
-        location: "",
-        salesPerson: "",
-        contractDate: ""
-      },
-      {
-        id: "Project 2", name: "Tech Park 2", amount: "$85,000", status: "In progress", startDate: "Jun 20, 2024", endDate: "Sep 20, 2024",
-        building: "",
-        stage: "",
-        progress: 0,
-        buildingType: "",
-        quoteValue: "",
-        createdOn: "",
-        location: "",
-        salesPerson: "",
-        contractDate: ""
-      },
-    ],
-    invoices: [
-      { number: "INV101", dueDate: "15 Mar 2024", amount: "$5000", paid: "$5000", dueAmount: "$0", status: "Paid" },
-      { number: "INV102", dueDate: "01 Apr 2024", amount: "$2000", paid: "$0", dueAmount: "$2000", status: "Unpaid" },
-    ],
-    notes: [
-      "Reliable for long-distance steel transport. Preferred carrier for Texas routes. Fast response time during bidding.",
-    ]
-  },
-  "ID-2025-1049": {
-    id: "ID-2025-1049",
-    location: "London, UK",
-    name: "Riyaz Verma",
-    joinedDate: "March 05, 2023",
-    status: "Active",
-    phone: "(163) 2459 888",
-    email: "riyaz@example.com",
-    address: "221B Baker St, London, NW1 6XE",
-    image: "https://i.pravatar.cc/150?u=3",
-    projects: [
-      {
-        id: "Project 1", name: "Mall Complex", amount: "$250,000", status: "Completed", startDate: "Jan 10, 2024", endDate: "Dec 10, 2024",
-        building: "",
-        stage: "",
-        progress: 0,
-        buildingType: "",
-        quoteValue: "",
-        createdOn: "",
-        location: "",
-        salesPerson: "",
-        contractDate: ""
-      },
-    ],
-    invoices: [
-      { number: "INV201", dueDate: "10 Jan 2024", amount: "$25000", paid: "$25000", dueAmount: "$0", status: "Paid" },
-    ],
-    notes: [
-      "Reliable for long-distance steel transport. Preferred carrier for Texas routes. Fast response time during bidding.",
-    ]
-  },
-  "ID-2025-1050": {
-    id: "ID-2025-1050",
-    location: "London, UK",
-    name: "Riya Wellness",
-    joinedDate: "April 12, 2023",
-    status: "Active",
-    phone: "(163) 2459 777",
-    email: "riya@example.com",
-    address: "10 Downing St, London, SW1A 2AA",
-    image: "https://i.pravatar.cc/150?u=4",
-    projects: [
-      {
-        id: "Project 1", name: "Gymnasium", amount: "$45,000", status: "In progress", startDate: "May 01, 2024", endDate: "Aug 01, 2024",
-        building: "",
-        stage: "",
-        progress: 0,
-        buildingType: "",
-        quoteValue: "",
-        createdOn: "",
-        location: "",
-        salesPerson: "",
-        contractDate: ""
-      },
-    ],
-    invoices: [
-      { number: "INV301", dueDate: "01 May 2024", amount: "$4500", paid: "$4500", dueAmount: "$0", status: "Paid" },
-    ],
-    notes: [
-      "Reliable for long-distance steel transport. Preferred carrier for Texas routes. Fast response time during bidding.",
-    ]
-  }
+export interface ShipperFile {
+  name: string;
+  shpId: string;
+  company: string;
+  items: number;
+  date: string;
+  time: string;
+}
+
+export interface PlantAlert {
+  type: "shipper" | "order" | "drawing" | "production" | string;
+  message: string;
+  time: string;
+}
+
+export interface FreightCarrier {
+  name: string;
+  loads: string;
+  status: "On Time" | "Delayed" | string;
+}
+
+export interface ProductionMetric {
+  label: string;
+  value: string;
+  icon: "graph" | "moneybillnote" | "moneybag" | "truck" | "chart";
+}
+
+const defaultCustomer: CustomerInfo = {
+  id: "ID-2025-1047",
+  name: "John Doe",
+  email: "john.doe@example.com",
+  phone: "+1 (555) 234-5678",
+  address: "742 Evergreen Terrace, Springfield, OR 97477",
+  location: "Springfield, OR",
+  joinedDate: "15 Jan 2024",
+  status: "Active",
+  image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+  projects: [
+    {
+      id: "PROJ-101",
+      name: "Industrial Complex A",
+      building: "Building A",
+      amount: "$150,000",
+      status: "Completed",
+      stage: "Delivery",
+      progress: 100,
+      startDate: "2024-01-10",
+      endDate: "2024-03-25",
+      buildingType: "Pre-Engineered Building",
+      quoteValue: "$150,000",
+      createdOn: "2024-01-05",
+      location: "Austin, TX",
+      salesPerson: "Michael Scott",
+      contractDate: "2024-01-08",
+    },
+    {
+      id: "PROJ-102",
+      name: "Warehouse Expansion B",
+      building: "Building B",
+      amount: "$85,000",
+      status: "In Progress",
+      stage: "Fabrication",
+      progress: 65,
+      startDate: "2024-02-15",
+      endDate: "2024-05-10",
+      buildingType: "Steel Warehouse",
+      quoteValue: "$85,000",
+      createdOn: "2024-02-01",
+      location: "Dallas, TX",
+      salesPerson: "Dwight Schrute",
+      contractDate: "2024-02-10",
+    },
+  ],
+  invoices: [
+    {
+      number: "INV-2024-001",
+      dueDate: "2024-04-01",
+      amount: "$50,000",
+      paid: "$50,000",
+      dueAmount: "$0",
+      status: "Paid",
+    },
+    {
+      number: "INV-2024-002",
+      dueDate: "2024-05-01",
+      amount: "$35,000",
+      paid: "$20,000",
+      dueAmount: "$15,000",
+      status: "Partial",
+    },
+  ],
+  recentActivity: [
+    {
+      building: "Building A",
+      action: "Drawings approved by structural engineer",
+      date: "2024-03-20",
+    },
+    {
+      building: "Building B",
+      action: "Shipper file uploaded for review",
+      date: "2024-03-22",
+    },
+  ],
+  notes: ["Client requires site visit confirmation 24h prior to delivery."],
 };
+
+export const customersData: Record<string, CustomerInfo> = {
+  "ID-2025-1047": defaultCustomer,
+  "CUST-001": defaultCustomer,
+};
+
+export const shipperFilesData: ShipperFile[] = [
+  {
+    name: "SHP_Austin_Main_Framing.pdf",
+    shpId: "SHP-9021",
+    company: "Acme Industrial Co",
+    items: 48,
+    date: "24 Mar 2024",
+    time: "10:30 AM",
+  },
+  {
+    name: "SHP_Dallas_Roof_Trusses.pdf",
+    shpId: "SHP-9022",
+    company: "Pinnacle Structures",
+    items: 32,
+    date: "24 Mar 2024",
+    time: "02:15 PM",
+  },
+  {
+    name: "SHP_Houston_Wall_Girts.pdf",
+    shpId: "SHP-9023",
+    company: "Apex Metal Tech",
+    items: 20,
+    date: "23 Mar 2024",
+    time: "11:45 AM",
+  },
+];
+
+export const plantAlertsData: PlantAlert[] = [
+  {
+    type: "shipper",
+    message: "New shipper file received for Job #PEB-1021",
+    time: "10 mins ago",
+  },
+  {
+    type: "drawing",
+    message: "Revision requested on structural drawing DWG-004",
+    time: "1 hour ago",
+  },
+  {
+    type: "production",
+    message: "Cutting machine #2 scheduled for routine maintenance",
+    time: "3 hours ago",
+  },
+];
+
+export const freightCarriersData: FreightCarrier[] = [
+  {
+    name: "FastFreight Express",
+    loads: "12 active loads",
+    status: "On Time",
+  },
+  {
+    name: "TransNational Hauling",
+    loads: "8 active loads",
+    status: "Delayed",
+  },
+  {
+    name: "Apex Logistics",
+    loads: "15 active loads",
+    status: "On Time",
+  },
+];

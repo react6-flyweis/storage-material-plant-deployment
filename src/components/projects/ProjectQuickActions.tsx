@@ -29,7 +29,7 @@ const ProjectQuickActions: React.FC<ProjectQuickActionsProps> = ({
       path: `/projects/${projectId}/shipper-files`,
     },
     {
-      label: "Additional Material Request",
+      label: "Material Orders",
       path: `/projects/${projectId}/material-request`,
     },
   ];

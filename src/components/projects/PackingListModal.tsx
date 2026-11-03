@@ -3,7 +3,7 @@ import Button from "../common_component/Button";
 import Modal from "../Modal";
 import SubHeading from "../common_component/SubHeading";
 import type { PackingListEntry, BundleItem } from "@/redux/api/shipperApi";
-import { getQRCodeUrl, getPackingListQRDataStr } from "@/lib/utils";
+import { getPackingListUrl, getPackingListQRCodeUrl } from "@/lib/utils";
 import {
   exportPackingListToPDF,
   exportPackingListToCSV,
@@ -21,7 +21,6 @@ interface PackingListModalProps {
   bundles?: BundleItem[];
   projectName?: string;
   planNumber?: string;
-  planId?: string;
 }
 
 const PackingListModal: React.FC<PackingListModalProps> = ({
@@ -32,7 +31,6 @@ const PackingListModal: React.FC<PackingListModalProps> = ({
   bundles = [],
   projectName = "N/A",
   planNumber,
-  planId,
 }) => {
 
 
@@ -67,12 +65,11 @@ const PackingListModal: React.FC<PackingListModalProps> = ({
     status: b.status || "Ready",
   }));
 
-  const standaloneBase = import.meta.env.VITE_STANDLONE_PAGE_BASE || "";
-  const qrDataStr = getPackingListQRDataStr(planId);
+
 
   const handlePdfDownload = () => {
     if (packingList) {
-      exportPackingListToPDF(loadInfo, summary, bundleList, !!showQr, planId);
+      exportPackingListToPDF(loadInfo, summary, bundleList, !!showQr, packingList._id);
     }
   };
 
@@ -117,7 +114,7 @@ const PackingListModal: React.FC<PackingListModalProps> = ({
                 {/* QR Code */}
                 <div className="w-48 h-48 md:w-56 md:h-56 shrink-0 bg-white border border-gray-200 flex items-center justify-center p-2 rounded-lg">
                   <img
-                    src={getQRCodeUrl(qrDataStr, "250x250")}
+                    src={getPackingListQRCodeUrl(packingList?._id, "250x250")}
                     alt="QR Code"
                     className="w-full h-full object-contain"
                   />
@@ -153,10 +150,10 @@ const PackingListModal: React.FC<PackingListModalProps> = ({
                       <span className="text-(--text-color-gray-4) min-w-[80px]">Length :</span>
                       <span className="text-(--text-color-gray-5) font-medium">length={summary.maxLengthFeet ? `${summary.maxLengthFeet.toFixed(2)} FT` : "-"}</span>
                     </p>
-                    {planId && (
+                    {packingList?._id && (
                       <p className="flex gap-2">
                         <span className="text-(--text-color-gray-4) min-w-[80px]">URL :</span>
-                        <span className="text-(--text-color-gray-5) font-medium break-all">{`${standaloneBase.replace(/\/+$/, "")}/packing-list-plan/${planId}`}</span>
+                        <span className="text-(--text-color-gray-5) font-medium break-all">{getPackingListUrl(packingList._id)}</span>
                       </p>
                     )}
                   </div>

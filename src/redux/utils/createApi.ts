@@ -6,7 +6,7 @@ import { createApi as rtkCreateApi } from "@reduxjs/toolkit/query/react";
  */
 export const createApi: typeof rtkCreateApi = (options) => {
   return rtkCreateApi({
-    // For demo we are refreshing on mount, later on we have to manually check the flow and tune it according to that.
+    refetchOnFocus: true,
     refetchOnMountOrArgChange: true,
     keepUnusedDataFor: 0,
     ...options,

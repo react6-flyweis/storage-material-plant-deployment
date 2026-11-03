@@ -57,7 +57,7 @@ const ProductionOverview: React.FC<ProductionOverviewProps> = ({
               className="border-2 border-[#3B82F6] rounded-[5px] px-4 py-3 pr-1 flex items-center gap-4 bg-white hover:shadow-lg transition-shadow"
             >
               <div className="xl:w-12 lg:w-10 md:w-10 w-8 xl:h-12 lg:h-10 md:h-10 h-8 p-1.5 rounded-lg bg-[#3B82F6] flex items-center justify-center text-white shrink-0 text">
-                <Icon  />
+                <Icon />
               </div>
               <div className="min-w-0">
                 <p className="xl:text-sm lg:text-sm md:text-xs text-xs text-[#637381] font-normal truncate">

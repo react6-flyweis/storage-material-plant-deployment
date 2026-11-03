@@ -1,6 +1,7 @@
 import { Outlet, Navigate, useLocation } from "react-router-dom";
 
 import { useAppSelector } from "@/redux/hooks";
+import { getAuthRedirectPath } from "@/lib/authRedirect";
 
 function hasAuthSession(authState: {
   isAuthenticated: boolean;
@@ -26,10 +27,11 @@ export function RequireAuth() {
 }
 
 export function RedirectIfAuthenticated() {
+  const location = useLocation();
   const authState = useAppSelector((state) => state.auth);
 
   if (hasAuthSession(authState)) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to={getAuthRedirectPath(location)} replace />;
   }
 
   return <Outlet />;
