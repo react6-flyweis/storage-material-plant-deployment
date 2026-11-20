@@ -50,7 +50,7 @@ const BOMView: React.FC = () => {
   if (bomError || projectError) {
     const is404 = bomError && "status" in bomError && bomError.status === 404;
     return (
-      <div className="xl:pr-5 px-2 pb-10 space-y-6">
+      <div data-tour="project-bom-page" className="xl:pr-5 px-2 pb-10 space-y-6">
         <div className="flex items-center gap-4 mt-2">
           <Button
             variant="blueFilled"
@@ -88,7 +88,7 @@ const BOMView: React.FC = () => {
   };
 
   return (
-    <div className="xl:pr-5 px-2 pb-10 space-y-6">
+    <div data-tour="project-bom-page" className="xl:pr-5 px-2 pb-10 space-y-6">
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mt-2">
         <div className="flex items-center gap-4">
@@ -116,6 +116,7 @@ const BOMView: React.FC = () => {
           <Button
             size="sm"
             variant="purpleFilled"
+            data-tour="project-bom-share-shippers"
             onClick={() => navigate(`/projects/${projectId}/generate-shipper-order`)}
           >
             Share with Shippers
