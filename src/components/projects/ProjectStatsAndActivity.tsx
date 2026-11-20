@@ -32,7 +32,7 @@ const ProjectStatsAndActivity: React.FC<ProjectStatsAndActivityProps> = ({
   const percentage = (stepNumber / totalSteps) * 100;
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 xl:gap-6">
+    <div data-tour="project-stats-activity" className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 xl:gap-6">
       {/* Project Status Card */}
       <div className="bg-white rounded-[14px] border border-[#0513214D] p-4 md:p-6 shadow-sm">
         <SubHeading text="Project Status" />
