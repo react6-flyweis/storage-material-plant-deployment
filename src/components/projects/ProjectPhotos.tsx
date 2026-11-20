@@ -69,7 +69,7 @@ const ProjectPhotos: React.FC<ProjectPhotosProps> = ({ projectId }) => {
   };
 
   return (
-    <div className="bg-white rounded-[14px] border border-[#0513214D] p-4 md:p-6 shadow-sm">
+    <div data-tour="project-photos" className="bg-white rounded-[14px] border border-[#0513214D] p-4 md:p-6 shadow-sm">
       {/* Header & Controls */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-gray-100">
         <div>
