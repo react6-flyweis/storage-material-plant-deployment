@@ -349,6 +349,7 @@ const ProductionTable = () => {
                     <td className="p-4 text-center">
                       <div className="flex items-center justify-center gap-8">
                         <button
+                          data-tour={index === 0 ? "project-row-view" : undefined}
                           onClick={() => {
                             navigate(`/projects/${row._id}`);
                           }}
