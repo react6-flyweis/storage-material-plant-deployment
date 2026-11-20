@@ -145,7 +145,7 @@ const ShipperFileDetailsView: React.FC = () => {
 
   if (error || !shipperDoc) {
     return (
-      <div className="xl:pr-5 px-2 pb-10 space-y-6">
+      <div data-tour="project-shipper-file-details-page" className="xl:pr-5 px-2 pb-10 space-y-6">
         <div className="flex items-center gap-4 mt-2">
           <Button
             variant="blueFilled"
@@ -170,7 +170,7 @@ const ShipperFileDetailsView: React.FC = () => {
   }
 
   return (
-    <div className="xl:pr-5 px-2 pb-10 space-y-6">
+    <div data-tour="project-shipper-file-details-page" className="xl:pr-5 px-2 pb-10 space-y-6">
       {/* ── Header ────────────────────────────────────────────────────── */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mt-2">
         <div className="flex items-center gap-4">
