@@ -132,7 +132,10 @@ const ProjectDetailsView = () => {
   return (
     <PageWrapper>
       {/* Header Section */}
-      <div className="flex flex-wrap md:items-center justify-between gap-4 mt-2">
+      <div
+        data-tour="project-details-header"
+        className="flex flex-wrap md:items-center justify-between gap-4 mt-2"
+      >
         <div className="flex items-center gap-4">
           <Button
             variant="blueFilled"
@@ -150,7 +153,10 @@ const ProjectDetailsView = () => {
           </h1>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3 ml-auto">
+        <div
+          data-tour="project-upload-actions"
+          className="flex flex-wrap items-center gap-3 ml-auto"
+        >
           <Button
             variant="white"
             size="sm"
