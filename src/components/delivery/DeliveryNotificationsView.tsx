@@ -200,7 +200,7 @@ const DeliveryNotificationsView: React.FC = () => {
   };
 
   return (
-    <PageWrapper>
+    <PageWrapper data-tour="delivery-notifications-page">
       {/* Toast message */}
       {toastMessage && (
         <div
