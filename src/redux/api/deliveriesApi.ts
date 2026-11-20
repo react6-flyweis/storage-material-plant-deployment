@@ -22,6 +22,35 @@ export interface PlantDeliveriesStats {
   cancelledCount: number;
 }
 
+export interface SendReminderChannels {
+  email: boolean;
+  sms: boolean;
+  inApp: boolean;
+}
+
+export interface SendReminderResponse {
+  success: boolean;
+  message: string;
+  data?: {
+    deliveryId: string;
+    channels: SendReminderChannels;
+  };
+}
+
+export interface DeliveryDocumentItem {
+  name: string;
+  type: "pdf" | "file";
+  url: string;
+}
+
+export interface DeliveryDocumentsResponse {
+  success: boolean;
+  message: string;
+  data: {
+    documents: DeliveryDocumentItem[];
+  };
+}
+
 export interface AwardedStats {
   totalAwarded: number;
   inTransit: number;
@@ -117,9 +146,63 @@ export interface FreightLoadsQueryParams {
   projectId?: string;
   customerId?: string;
   carrierId?: string;
+  materialType?: string;
+  siteLocation?: string;
   fromDate?: string;
   toDate?: string;
+  startDate?: string;
+  endDate?: string;
 }
+
+export interface FreightLoadFilterProject {
+  _id: string;
+  projectName: string;
+  jobId: string;
+}
+
+export interface FreightLoadFilterCustomer {
+  _id: string;
+  name: string;
+}
+
+export interface FreightLoadFilterCarrier {
+  _id: string;
+  carrierName: string;
+}
+
+export interface FreightLoadFiltersData {
+  statuses: string[];
+  bidStatuses: string[];
+  deliveryStatuses: string[];
+  carriers: FreightLoadFilterCarrier[];
+  projects: FreightLoadFilterProject[];
+  customers: FreightLoadFilterCustomer[];
+  materialTypes: string[];
+  siteLocations: string[];
+  note?: string;
+}
+
+const defaultFreightLoadFilters: FreightLoadFiltersData = {
+  statuses: [],
+  bidStatuses: [],
+  deliveryStatuses: [],
+  carriers: [],
+  projects: [],
+  customers: [],
+  materialTypes: [],
+  siteLocations: [],
+};
+
+const cleanQueryParams = <T extends Record<string, any>>(params?: T | void): Partial<T> | undefined => {
+  if (!params) return undefined;
+  const cleaned: Record<string, any> = {};
+  for (const [key, val] of Object.entries(params)) {
+    if (val !== undefined && val !== null && val !== "") {
+      cleaned[key] = val;
+    }
+  }
+  return Object.keys(cleaned).length > 0 ? (cleaned as Partial<T>) : undefined;
+};
 
 export interface DeliveryNotificationItem {
   notificationId: string;
@@ -261,7 +344,7 @@ export const deliveriesApi = createApi({
     getFreightLoads: builder.query<FreightLoadsListResponse, FreightLoadsQueryParams | void>({
       query: (params) => ({
         url: "/api/plant/deliveries/freight",
-        params: params ?? undefined,
+        params: cleanQueryParams(params),
       }),
       transformResponse: (response: FreightLoadsApiResponse) =>
         response.data ?? {
@@ -274,7 +357,7 @@ export const deliveriesApi = createApi({
     getAwardedLoads: builder.query<AwardedLoadsListResponse, FreightLoadsQueryParams | void>({
       query: (params) => ({
         url: "/api/plant/deliveries/awarded",
-        params: params ?? undefined,
+        params: cleanQueryParams(params),
       }),
       transformResponse: (response: AwardedLoadsApiResponse) =>
         response.data ?? {
@@ -283,6 +366,16 @@ export const deliveriesApi = createApi({
           page: 1,
           limit: 20,
         },
+    }),
+    getFreightLoadFilters: builder.query<FreightLoadFiltersData, void>({
+      query: () => "/api/plant/freight-loads/filters",
+      transformResponse: (response: ApiResponse<FreightLoadFiltersData>) =>
+        response.data ?? defaultFreightLoadFilters,
+    }),
+    getAwardedLoadFilters: builder.query<FreightLoadFiltersData, void>({
+      query: () => "/api/plant/awarded-loads/filters",
+      transformResponse: (response: ApiResponse<FreightLoadFiltersData>) =>
+        response.data ?? defaultFreightLoadFilters,
     }),
     getCalendarDeliveries: builder.query<CalendarApiResponse, CalendarQueryParams | void>({
       query: (params) => ({
@@ -457,6 +550,32 @@ export const deliveriesApi = createApi({
         { type: "DeliveryDetail", id: deliveryId },
       ],
     }),
+    sendDeliveryReminder: builder.mutation<
+      SendReminderResponse,
+      {
+        deliveryId: string;
+        message?: string;
+        note?: string;
+      }
+    >({
+      query: ({ deliveryId, message, note }) => ({
+        url: `/api/plant/deliveries/${deliveryId}/send-reminder`,
+        method: "POST",
+        body: {
+          ...(message ? { message } : {}),
+          ...(note ? { note } : {}),
+        },
+      }),
+      invalidatesTags: (_result, _error, { deliveryId }) => [
+        { type: "DeliveryDetail", id: deliveryId },
+      ],
+    }),
+    getDeliveryDocuments: builder.query<DeliveryDocumentsResponse, string>({
+      query: (deliveryId) => `/api/plant/deliveries/${deliveryId}/documents`,
+      providesTags: (_result, _error, deliveryId) => [
+        { type: "DeliveryDetail", id: `DOCS_${deliveryId}` },
+      ],
+    }),
   }),
 });
 
@@ -618,6 +737,7 @@ export interface CalendarQueryParams {
 
 export interface ProjectDeliveryResponse {
   delivery: {
+    _id?: string;
     deliveryId: string;
     deliveryNumber: string;
     status: string;
@@ -673,6 +793,7 @@ export interface ProjectDeliveryResponse {
       timeWindowEnd?: string;
       receivingPoc: string;
       pickupContactPhone: string;
+      pickupContactEmail?: string;
       specialRequirements: string;
       additionalNotes: string;
     };
@@ -735,6 +856,8 @@ export interface ProjectDeliveryResponse {
     receivingPocDetails: {
       receivingPoc: string;
       pickupContactPhone: string;
+      receivingPocEmail?: string;
+      email?: string;
     };
   };
 }
@@ -746,6 +869,8 @@ export const {
   useGetPlantDeliveriesStatsQuery,
   useGetFreightLoadsQuery,
   useGetAwardedLoadsQuery,
+  useGetFreightLoadFiltersQuery,
+  useGetAwardedLoadFiltersQuery,
   useGetCalendarDeliveriesQuery,
   useGetPlantDeliveriesQuery,
   useGetProjectDeliveryQuery,
@@ -754,6 +879,8 @@ export const {
   useRescheduleDeliveryMutation,
   useUpdateDeliveryStatusMutation,
   useUpdateDeliveryDetailsMutation,
+  useSendDeliveryReminderMutation,
+  useGetDeliveryDocumentsQuery,
 } = deliveriesApi;
 
 export async function exportNotificationDetails(
@@ -860,6 +987,172 @@ export async function exportPlantDeliveries(
   document.body.removeChild(a);
   window.URL.revokeObjectURL(blobUrl);
 }
+
+export async function downloadDeliveryPdf({
+  deliveryId,
+  relativeUrl,
+  fallbackFilename,
+  token,
+}: {
+  deliveryId?: string;
+  relativeUrl?: string;
+  fallbackFilename?: string;
+  token: string | null;
+}): Promise<void> {
+  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "";
+  const targetPath = relativeUrl
+    ? relativeUrl.startsWith("/")
+      ? relativeUrl
+      : `/${relativeUrl}`
+    : `/api/plant/deliveries/${deliveryId}/download`;
+
+  const fullUrl = targetPath.startsWith("http")
+    ? targetPath
+    : `${apiBaseUrl}${targetPath}`;
+
+  const response = await fetch(fullUrl, {
+    method: "GET",
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text().catch(() => "");
+    throw new Error(
+      errorText || `Download failed with status ${response.status}`
+    );
+  }
+
+  const blob = await response.blob();
+  const contentDisposition = response.headers.get("content-disposition");
+  let filename = fallbackFilename || `delivery-${deliveryId || "details"}.pdf`;
+
+  if (contentDisposition) {
+    const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+    if (match && match[1]) {
+      filename = match[1].replace(/['"]/g, "").trim();
+    }
+  }
+
+  const blobUrl = window.URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = blobUrl;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  window.URL.revokeObjectURL(blobUrl);
+}
+
+export async function exportFreightLoads(
+  params: FreightLoadsQueryParams,
+  token: string | null
+): Promise<void> {
+  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "";
+  const query = new URLSearchParams();
+  if (params.page) query.append("page", String(params.page));
+  if (params.limit) query.append("limit", String(params.limit));
+  if (params.search) query.append("search", params.search);
+  if (params.status) query.append("status", params.status);
+  if (params.projectId) query.append("projectId", params.projectId);
+  if (params.customerId) query.append("customerId", params.customerId);
+  if (params.carrierId) query.append("carrierId", params.carrierId);
+  if (params.materialType) query.append("materialType", params.materialType);
+  if (params.siteLocation) query.append("siteLocation", params.siteLocation);
+  if (params.startDate) query.append("startDate", params.startDate);
+  if (params.endDate) query.append("endDate", params.endDate);
+  if (params.fromDate) query.append("fromDate", params.fromDate);
+  if (params.toDate) query.append("toDate", params.toDate);
+
+  const queryString = query.toString();
+  const url = `${apiBaseUrl}/api/plant/freight-loads/export${queryString ? `?${queryString}` : ""}`;
+
+  const response = await fetch(url, {
+    method: "GET",
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Export failed with status ${response.status}`);
+  }
+
+  const blob = await response.blob();
+  const contentDisposition = response.headers.get("content-disposition");
+  let filename = "freight_loads_export.xlsx";
+  if (contentDisposition) {
+    const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+    if (match && match[1]) {
+      filename = match[1].replace(/['"]/g, "");
+    }
+  }
+
+  const blobUrl = window.URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = blobUrl;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  window.URL.revokeObjectURL(blobUrl);
+}
+
+export async function exportAwardedLoads(
+  params: FreightLoadsQueryParams,
+  token: string | null
+): Promise<void> {
+  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "";
+  const query = new URLSearchParams();
+  if (params.page) query.append("page", String(params.page));
+  if (params.limit) query.append("limit", String(params.limit));
+  if (params.search) query.append("search", params.search);
+  if (params.status) query.append("status", params.status);
+  if (params.projectId) query.append("projectId", params.projectId);
+  if (params.customerId) query.append("customerId", params.customerId);
+  if (params.carrierId) query.append("carrierId", params.carrierId);
+  if (params.materialType) query.append("materialType", params.materialType);
+  if (params.siteLocation) query.append("siteLocation", params.siteLocation);
+  if (params.startDate) query.append("startDate", params.startDate);
+  if (params.endDate) query.append("endDate", params.endDate);
+  if (params.fromDate) query.append("fromDate", params.fromDate);
+  if (params.toDate) query.append("toDate", params.toDate);
+
+  const queryString = query.toString();
+  const url = `${apiBaseUrl}/api/plant/awarded-loads/export${queryString ? `?${queryString}` : ""}`;
+
+  const response = await fetch(url, {
+    method: "GET",
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Export failed with status ${response.status}`);
+  }
+
+  const blob = await response.blob();
+  const contentDisposition = response.headers.get("content-disposition");
+  let filename = "awarded_loads_export.xlsx";
+  if (contentDisposition) {
+    const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+    if (match && match[1]) {
+      filename = match[1].replace(/['"]/g, "");
+    }
+  }
+
+  const blobUrl = window.URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = blobUrl;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  window.URL.revokeObjectURL(blobUrl);
+}
+
 
 
 
