@@ -3,7 +3,9 @@ import logo from "../../assets/logo.png";
 import bellIcon from "../../assets/bellIcon.svg";
 import { useNavigate } from "react-router-dom";
 import UserIcon from "../../assets/icon/UserIcon";
-import { ChevronLeft, Search } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
+import HeaderSearch from "./HeaderSearch";
+import { TourHubMenu } from "@/modules/tour/components/tour-hub-menu";
 import { useAppDispatch } from "../../redux/hooks";
 import { logout } from "../../redux/slices/authSlice";
 import { useGetUnreadCountQuery } from "../../redux/api/notificationsApi";
@@ -63,13 +65,8 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle, isMenuOpen }) => {
         </button>
 
         {/* Search Bar */}
-        <div className="hidden md:flex items-center bg-[#FFFFFF80] rounded-md px-4 xl:py-2 py-1.5 flex-1 max-w-lg border border-[#D1D5DB] focus-within:border-[#D1D5DB] focus-within:ring-2 focus-within:ring-blue-100 transition-all">
-          <Search className="w-5 h-5 text-[#9CA3AF] mr-2 mb-1.5" />
-          <input
-            type="text"
-            placeholder="Search by equipment name, ID, category, project, or material…"
-            className="bg-transparent border-none outline-none text-sm w-full text-gray-700 placeholder-gray-400"
-          />
+        <div className="flex-1 min-w-0" data-tour="header-search">
+          <HeaderSearch />
         </div>
       </div>
 
@@ -92,6 +89,9 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle, isMenuOpen }) => {
             />
           </button>
         </div>
+
+        <TourHubMenu />
+
         <div className="relative" ref={profileRef}>
           <button
             className="text-gray-500 hover:text-gray-700 relative focus:outline-none bg-(--button-bg-primary-color) rounded-full p-2"
