@@ -421,7 +421,7 @@ const AllDeliveriesView: React.FC = () => {
   ];
 
   return (
-    <PageWrapper>
+    <PageWrapper data-tour="all-deliveries-page">
       <TitleSubtitle
         title="All Deliveries"
         subtitle="Comprehensive delivery management and tracking"
