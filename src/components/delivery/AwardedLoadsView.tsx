@@ -176,7 +176,7 @@ const AwardedLoadsView: React.FC = () => {
   ];
 
   return (
-    <PageWrapper>
+    <PageWrapper data-tour="awarded-loads-page">
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-2">
         <TitleSubtitle

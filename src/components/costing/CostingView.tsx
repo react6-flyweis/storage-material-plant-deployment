@@ -205,7 +205,7 @@ const CostingView: React.FC = () => {
   };
 
   return (
-    <PageWrapper>
+    <PageWrapper data-tour="costing-tab">
       {/* Toast Notification */}
       {toastMessage && (
         <div className={`fixed top-6 right-6 z-50 text-white font-semibold px-6 py-3.5 rounded-xl shadow-lg flex items-center gap-2 animate-bounce ${toastMessage.includes("Error:") ? "bg-red-500" : "bg-[#10B981]"

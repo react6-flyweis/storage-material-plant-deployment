@@ -330,7 +330,7 @@ const ProjectDrawingsView: React.FC = () => {
   );
 
   return (
-    <div className="xl:pr-5 px-2 pb-10 space-y-6">
+    <div data-tour="project-drawings-page" className="xl:pr-5 px-2 pb-10 space-y-6">
       {/* Header Section */}
       <div className="flex flex-wrap md:items-center justify-between gap-4 mt-2">
         <div className="flex items-center gap-4">

@@ -183,7 +183,7 @@ const FreightLoadsView: React.FC = () => {
   };
 
   return (
-    <PageWrapper>
+    <PageWrapper data-tour="freight-loads-page">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
         <TitleSubtitle

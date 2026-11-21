@@ -53,7 +53,7 @@ const ProjectInvoicesTable: React.FC<ProjectInvoicesTableProps> = ({
   }, [invoicesData]);
 
   return (
-    <div className="bg-white rounded-[10px] border-[0.5px] border-[#00000029] overflow-hidden">
+    <div data-tour="project-invoices" className="bg-white rounded-[10px] border-[0.5px] border-[#00000029] overflow-hidden">
       <div className="p-4 md:p-5 md:pb-3 border-b border-gray-100 flex items-center justify-between bg-white">
         <SubHeading text="Invoice List" />
         <div className="flex gap-2 md:gap-3">

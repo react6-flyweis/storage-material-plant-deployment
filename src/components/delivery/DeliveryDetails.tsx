@@ -255,7 +255,7 @@ const DeliveryDetails: React.FC<DeliveryDetailsProps> = ({
 
   if (isLoading) {
     return (
-      <div className="xl:pr-5 px-2 pb-10 space-y-6 animate-pulse">
+      <div data-tour="delivery-details-page" className="xl:pr-5 px-2 pb-10 space-y-6 animate-pulse">
         {/* Header Skeleton */}
         <div className="flex flex-wrap md:items-center justify-between gap-4 mt-2">
           <div className="flex items-center gap-4">
@@ -358,7 +358,7 @@ const DeliveryDetails: React.FC<DeliveryDetailsProps> = ({
 
   if (!delivery) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 text-center p-8 bg-white border border-gray-100 rounded-[14px] shadow-sm my-12 font-inter">
+      <div data-tour="delivery-details-page" className="flex flex-col items-center justify-center py-16 text-center p-8 bg-white border border-gray-100 rounded-[14px] shadow-sm my-12 font-inter">
         <h3 className="text-lg font-semibold text-[#212B36] mb-2">
           No Delivery Available
         </h3>
@@ -403,7 +403,7 @@ const DeliveryDetails: React.FC<DeliveryDetailsProps> = ({
   };
 
   return (
-    <div className="xl:pr-5 px-2 pb-10 space-y-6 relative">
+    <div data-tour="delivery-details-page" className="xl:pr-5 px-2 pb-10 space-y-6 relative">
       {/* Toast Notification */}
       {toastMessage && (
         <div className={`fixed top-6 right-6 z-50 text-white font-semibold px-6 py-3.5 rounded-xl shadow-lg flex items-center gap-2 animate-bounce ${toastMessage.includes("Error:") ? "bg-red-500" : "bg-[#10B981]"

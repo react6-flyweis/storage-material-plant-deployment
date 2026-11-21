@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import UserIcon from "../../assets/icon/UserIcon";
 import { ChevronLeft } from "lucide-react";
 import HeaderSearch from "./HeaderSearch";
+import { TourHubMenu } from "@/modules/tour/components/tour-hub-menu";
 import { useAppDispatch } from "../../redux/hooks";
 import { logout } from "../../redux/slices/authSlice";
 import { useGetUnreadCountQuery } from "../../redux/api/notificationsApi";
@@ -64,7 +65,9 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle, isMenuOpen }) => {
         </button>
 
         {/* Search Bar */}
-        <HeaderSearch />
+        <div className="flex-1 min-w-0" data-tour="header-search">
+          <HeaderSearch />
+        </div>
       </div>
 
       <div className="flex items-center gap-4 lg:gap-6">
@@ -86,6 +89,9 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle, isMenuOpen }) => {
             />
           </button>
         </div>
+
+        <TourHubMenu />
+
         <div className="relative" ref={profileRef}>
           <button
             className="text-gray-500 hover:text-gray-700 relative focus:outline-none bg-(--button-bg-primary-color) rounded-full p-2"

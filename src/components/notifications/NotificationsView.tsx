@@ -304,7 +304,7 @@ const NotificationsView = () => {
   };
 
   return (
-    <PageWrapper>
+    <PageWrapper data-tour="notifications-tab">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 mt-2">
         <TitleSubtitle

@@ -315,6 +315,7 @@ const ProjectShipperFilesTable: React.FC<Props> = ({ data }) => {
                 <td className="py-3 px-6 text-right">
                   {item.fileName && (
                     <Button
+                      data-tour={idx === 0 ? "project-shipper-file-view" : undefined}
                       onClick={() => handleViewDetails(item)}
                       variant="gradient"
                       size="sm"

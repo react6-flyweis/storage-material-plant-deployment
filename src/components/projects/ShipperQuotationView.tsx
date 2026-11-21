@@ -94,7 +94,7 @@ const ShipperQuotationView: React.FC = () => {
 
   if (error) {
     return (
-      <div className="xl:pr-2 md:px-4 px-2 pb-10 space-y-6">
+      <div data-tour="shipper-quotation-page" className="xl:pr-2 md:px-4 px-2 pb-10 space-y-6">
         <TitleSubtitle
           title="Shipper Files"
           subtitle="Manage vendor shipment files and prepare for validation"
@@ -112,7 +112,7 @@ const ShipperQuotationView: React.FC = () => {
   }
 
   return (
-    <div className="xl:pr-2 md:px-4 px-2 pb-10 space-y-6">
+    <div data-tour="shipper-quotation-page" className="xl:pr-2 md:px-4 px-2 pb-10 space-y-6">
       {/* ── Header ────────────────────────────────────────────────────── */}
       <TitleSubtitle
         title="Shipper Files"

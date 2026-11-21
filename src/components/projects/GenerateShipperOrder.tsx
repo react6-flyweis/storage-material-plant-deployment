@@ -72,7 +72,7 @@ const GenerateShipperOrder: React.FC = () => {
   if (bomError || projectError) {
     const is404 = bomError && "status" in bomError && bomError.status === 404;
     return (
-      <div className="xl:pr-5 px-2 pb-10 space-y-6">
+      <div data-tour="project-generate-shipper-order-page" className="xl:pr-5 px-2 pb-10 space-y-6">
         <div className="flex items-center gap-4 mt-2">
           <Button
             variant="blueFilled"
@@ -137,7 +137,7 @@ const GenerateShipperOrder: React.FC = () => {
   const vendors = vendorsDataResponse?.vendors || [];
 
   return (
-    <div className="xl:pr-5 px-2 pb-10 space-y-6">
+    <div data-tour="project-generate-shipper-order-page" className="xl:pr-5 px-2 pb-10 space-y-6">
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mt-2">
         <div className="flex items-center gap-4">

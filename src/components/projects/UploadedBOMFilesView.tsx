@@ -172,7 +172,7 @@ const UploadedBOMFilesView: React.FC = () => {
   };
 
   return (
-    <PageWrapper>
+    <PageWrapper data-tour="uploaded-bom-files-page">
       {/* ── Header ────────────────────────────────────────────────────── */}
       <div className="flex flex-wrap items-center justify-between gap-4 mt-2">
         <Heading text="Uploaded BOM Files" />

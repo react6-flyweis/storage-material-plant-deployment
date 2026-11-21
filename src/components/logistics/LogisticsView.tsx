@@ -173,7 +173,7 @@ const LogisticsView: React.FC = () => {
   const emptyState = !loading && vendors.length === 0;
 
   return (
-    <PageWrapper>
+    <PageWrapper data-tour="logistics-tab">
       <div className="flex flex-col gap-1 pt-1">
         <TitleSubtitle
           title="Logistics"
