@@ -159,6 +159,7 @@ const DeliveryStatusActionButton = ({
   return (
     <button
       type="button"
+      data-tour="delivery-update-status"
       onClick={onClick}
       disabled={disabled || isDelivered}
       className="w-full flex items-center justify-between px-5 py-3 bg-white border-[0.7px] border-[#0000001A] rounded-[8px] transition-all group shadow-xs md:text-left disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50/80"
@@ -432,6 +433,7 @@ const DeliveryDetails: React.FC<DeliveryDetailsProps> = ({
                 variant="white"
                 size="md"
                 className="px-6 text-[#212B36] font-semibold"
+                data-tour="delivery-reschedule"
                 onClick={() => openModal("reschedule")}
               >
                 <RotateCcw size={16} className="mr-2" /> Reschedule
@@ -599,7 +601,7 @@ const DeliveryDetails: React.FC<DeliveryDetailsProps> = ({
               currentStatus === "dispatched_to_site" ||
               currentStatus === "cancelled";
             return (
-              <div className="bg-white border border-[#0000001A] rounded-[14px] p-5 shadow-sm space-y-4">
+              <div data-tour="delivery-quick-actions" className="bg-white border border-[#0000001A] rounded-[14px] p-5 shadow-sm space-y-4">
                 <h2 className="text-base font-semibold text-[#212B36]">Quick Actions</h2>
                 <div className="space-y-3">
                   <DeliveryStatusActionButton
