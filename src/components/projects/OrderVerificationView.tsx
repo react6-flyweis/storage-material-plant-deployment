@@ -138,7 +138,7 @@ const OrderVerificationView: React.FC = () => {
       </div>
 
       {/* ── Main Card ─────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-[20px] p-4 lg:p-8 shadow-sm border border-[#F4F6F8] max-w-6xl mx-auto">
+      <div data-tour="order-verification-card" className="bg-white rounded-[20px] p-4 lg:p-8 shadow-sm border border-[#F4F6F8] max-w-6xl mx-auto">
         {!requestId && (
           <div className="mb-8 relative max-w-md">
             <CommonDropdown

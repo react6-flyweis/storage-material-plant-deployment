@@ -372,6 +372,7 @@ const RecentShipperFilesTable: React.FC<Props> = ({ data = [], isLoading = false
                   </td>
                   <td className="py-3 px-6 text-right">
                     <Button
+                      data-tour="dashboard-shipper-file-view"
                       onClick={() => handleViewDetails(item)}
                       variant="gradient"
                       size="sm"

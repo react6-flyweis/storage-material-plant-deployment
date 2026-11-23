@@ -201,6 +201,7 @@ const QRLabelsView: React.FC = () => {
                     </td>
                     <td className="p-3 md:p-4 text-center">
                       <button
+                        data-tour="qr-labels-row-view"
                         onClick={() => navigate(`/load_planning/qr-labels/${item.projectId}`)}
                         className="p-1.5 text-gray-400 hover:text-[#1E51A4] rounded-lg hover:bg-gray-50 transition-all"
                         title="View QR Labels"

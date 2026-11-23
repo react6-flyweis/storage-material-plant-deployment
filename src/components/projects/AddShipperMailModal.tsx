@@ -102,6 +102,7 @@ const AddShipperMailModal: React.FC<AddShipperMailModalProps> = ({
       isOpen={isOpen}
       onClose={handleClose}
       title="Add new Shipper mail"
+      tourId="add-shipper-modal"
       width="max-w-md"
     >
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 py-2">

@@ -5,15 +5,17 @@ const AccordionSection = ({
   title,
   children,
   defaultOpen = true,
+  tourId,
 }: {
   title: string;
   children: React.ReactNode;
   defaultOpen?: boolean;
+  tourId?: string;
 }) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100  mb-4">
+    <div data-tour={tourId} className="bg-white rounded-xl shadow-sm border border-gray-100  mb-4">
       <button
         className="w-full flex items-center justify-between p-4 md:p-5 bg-white hover:bg-gray-50/50 transition-colors"
         onClick={() => setIsOpen(!isOpen)}

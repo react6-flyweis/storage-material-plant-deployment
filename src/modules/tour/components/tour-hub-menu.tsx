@@ -1,4 +1,13 @@
-import { FolderOpen, HelpCircle, PlayCircle, RotateCcw, Workflow, Volume2, VolumeX } from "lucide-react";
+import {
+  FolderOpen,
+  HelpCircle,
+  PlayCircle,
+  RotateCcw,
+  Volume2,
+  VolumeX,
+  Workflow,
+  type LucideIcon,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -15,6 +24,38 @@ import type { TourDefinition } from "../tour.types";
 import { plantOperationsTour } from "../tours/plant-operations.tour";
 import { orderFlowTour } from "../tours/order-flow.tour";
 import { projectDetailsTour } from "../tours/project-details.tour";
+
+interface TourMenuEntry {
+  tour: TourDefinition;
+  label: string;
+  hint: string;
+  icon: LucideIcon;
+  iconClassName: string;
+}
+
+const TOUR_MENU: TourMenuEntry[] = [
+  {
+    tour: plantOperationsTour,
+    label: "Start Walkthrough",
+    hint: "Full walkthrough across all operational pages",
+    icon: PlayCircle,
+    iconClassName: "text-[#1D51A4]",
+  },
+  {
+    tour: orderFlowTour,
+    label: "Order Flow Guide",
+    hint: "The complete flow, from project to delivery",
+    icon: Workflow,
+    iconClassName: "text-[#FF8800]",
+  },
+  {
+    tour: projectDetailsTour,
+    label: "Project Details Guide",
+    hint: "Every section, upload modal and sub-page",
+    icon: FolderOpen,
+    iconClassName: "text-[#EAB308]",
+  },
+];
 
 export function TourHubMenu() {
   const navigate = useNavigate();
@@ -92,38 +133,19 @@ export function TourHubMenu() {
 
         <DropdownMenuSeparator />
 
-        <DropdownMenuItem
-          onClick={() => handleLaunchTour(plantOperationsTour)}
-          className="flex items-center gap-2 cursor-pointer py-2 text-sm text-slate-700 hover:bg-slate-50"
-        >
-          <PlayCircle className="size-4 text-[#1D51A4]" />
-          <div>
-            <div className="font-medium">Start Walkthrough</div>
-            <div className="text-xs text-slate-500">Full walkthrough across all operational pages</div>
-          </div>
-        </DropdownMenuItem>
-
-        <DropdownMenuItem
-          onClick={() => handleLaunchTour(orderFlowTour)}
-          className="flex items-center gap-2 cursor-pointer py-2 text-sm text-slate-700 hover:bg-slate-50"
-        >
-          <Workflow className="size-4 text-[#FF8800]" />
-          <div>
-            <div className="font-medium">Order Flow Guide</div>
-            <div className="text-xs text-slate-500">From project assignment to awarding a load</div>
-          </div>
-        </DropdownMenuItem>
-
-        <DropdownMenuItem
-          onClick={() => handleLaunchTour(projectDetailsTour)}
-          className="flex items-center gap-2 cursor-pointer py-2 text-sm text-slate-700 hover:bg-slate-50"
-        >
-          <FolderOpen className="size-4 text-[#EAB308]" />
-          <div>
-            <div className="font-medium">Project Details Guide</div>
-            <div className="text-xs text-slate-500">Every section and sub-page of a project</div>
-          </div>
-        </DropdownMenuItem>
+        {TOUR_MENU.map(({ tour, label, hint, icon: Icon, iconClassName }) => (
+          <DropdownMenuItem
+            key={tour.id}
+            onClick={() => handleLaunchTour(tour)}
+            className="flex items-center gap-2 cursor-pointer py-2 text-sm text-slate-700 hover:bg-slate-50"
+          >
+            <Icon className={`size-4 ${iconClassName}`} />
+            <div>
+              <div className="font-medium">{label}</div>
+              <div className="text-xs text-slate-500">{hint}</div>
+            </div>
+          </DropdownMenuItem>
+        ))}
       </DropdownMenuContent>
     </DropdownMenu>
   );

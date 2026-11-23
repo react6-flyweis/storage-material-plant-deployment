@@ -173,6 +173,7 @@ const BidCard = ({ bid, rank, lowestBidAmount, onAward, onRequestRevision }: Bid
             <>
               {bid.bidAmount !== null && bid.bidAmount !== undefined && (
                 <button
+                  data-tour="bid-award"
                   onClick={() => onAward(bidId)}
                   className="flex items-center gap-2 bg-[#00A76F] hover:bg-[#008F5E] text-white px-4 py-2.5 rounded-[8px] text-sm font-bold shadow-sm transition-all"
                 >
@@ -182,6 +183,7 @@ const BidCard = ({ bid, rank, lowestBidAmount, onAward, onRequestRevision }: Bid
               )}
               {bid.canRequestResubmit !== false && (
                 <button
+                  data-tour="bid-revision"
                   onClick={() => onRequestRevision(bidId)}
                   className="flex items-center gap-2 bg-[#FF6900] hover:bg-[#e05c00] text-white px-4 py-2.5 rounded-[8px] text-sm font-bold shadow-sm transition-all"
                 >

@@ -694,7 +694,7 @@ const AllDeliveriesView: React.FC = () => {
                         navigate(`/delivery/delivery-details/${row.requestId || row._id}`)
                       }
                     >
-                      <td className="px-4 py-2 border border-gray-200">
+                      <td data-tour="all-deliveries-row" className="px-4 py-2 border border-gray-200">
                         <div className="flex flex-col gap-1.5">
                           <span className="font-medium text-[#4A5565] text-sm">
                             {row.deliveryNumber || row.requestId}

@@ -24,7 +24,7 @@ const Step6LoadPlanReview: React.FC<Step6LoadPlanReviewProps> = ({
   const planNumber = truckPlan?.packingListPlan?.planNumber || "-";
 
   return (
-    <div className="space-y-12 bg-white rounded-xl border border-gray-100 shadow-sm p-4 md:p-8">
+    <div data-tour="wizard-review" className="space-y-12 bg-white rounded-xl border border-gray-100 shadow-sm p-4 md:p-8">
       {/* Project Header Card */}
       <CommonInfoList
         title={`Project: ${projectName} | Packing Plan: ${planNumber}`}
@@ -182,6 +182,7 @@ const LoadPlanReviewView: React.FC = () => {
       label: "Approve & Create Freight Request",
       variant: "purpleFilled",
       className: "px-8 py-2.5 font-bold",
+      tourId: "wizard-next",
       onClick: () => {
         if (projectId) {
           navigate(`/load_planning/${projectId}/freight-selection`);

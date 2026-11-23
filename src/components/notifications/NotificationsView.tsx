@@ -473,7 +473,7 @@ const NotificationsView = () => {
                     </div>
 
                     {/* Actions */}
-                    <div className="flex items-center gap-1 shrink-0 opacity-80 group-hover:opacity-100 transition-opacity">
+                    <div data-tour="notification-row-actions" className="flex items-center gap-1 shrink-0 opacity-80 group-hover:opacity-100 transition-opacity">
                       {!item.isRead && (
                         <button
                           type="button"

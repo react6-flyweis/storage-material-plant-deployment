@@ -307,7 +307,7 @@ const BundlePlannerView: React.FC = () => {
             </Button>
           </div> */}
 
-          <div className="space-y-4 pt-4">
+          <div data-tour="wizard-bundles" className="space-y-4 pt-4">
             <h3 className="text-lg font-inter font-bold text-black">
               Bundle Data
             </h3>
@@ -357,7 +357,7 @@ const BundlePlannerView: React.FC = () => {
                         </div>
                       </td>
                       <td className="py-3 px-6 text-sm text-right">
-                        <div className="flex items-center justify-end gap-3">
+                        <div data-tour="wizard-bundle-row-actions" className="flex items-center justify-end gap-3">
                           <button
                             onClick={() => {
                               if (projectId) {
