@@ -129,11 +129,12 @@ const BOMFilesDetailsView: React.FC = () => {
     : false;
 
   return (
-    <div className="xl:pr-2 md:px-4 px-2 pb-10 space-y-6 font-inter">
+    <div data-tour="bom-file-details-page" className="xl:pr-2 md:px-4 px-2 pb-10 space-y-6 font-inter">
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
         <div className="flex items-center gap-4">
           <Button
+            data-tour="bom-file-back"
             variant="primary"
             size="sm"
             className="h-9 px-4 gap-2"
@@ -149,6 +150,7 @@ const BOMFilesDetailsView: React.FC = () => {
               variant="gradientGreen"
               size="sm"
               className="gap-2 h-9 px-4"
+              data-tour="bom-file-confirm"
               onClick={handleConfirm}
               disabled={isConfirming || data.summary.unpricedItems > 0}
               title={data.summary.unpricedItems > 0 ? "Please price all items before confirming" : ""}
@@ -211,7 +213,7 @@ const BOMFilesDetailsView: React.FC = () => {
             </div>
 
             {/* Missing Item Cost list */}
-            <div className="bg-[#F9FAFB] rounded-xl p-6 border border-gray-100 space-y-5">
+            <div data-tour="bom-file-pricing" className="bg-[#F9FAFB] rounded-xl p-6 border border-gray-100 space-y-5">
               <h3 className="text-lg font-inter font-bold text-[#212B36]">Pricing Summary</h3>
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
