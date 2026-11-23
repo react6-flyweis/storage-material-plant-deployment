@@ -63,7 +63,7 @@ export function WelcomeTourDialog() {
             <Sparkles className="size-4 text-amber-500" />
           </DialogTitle>
           <DialogDescription className="text-sm text-slate-600">
-            Would you like a quick 2-minute guided tour across your plant operations,
+            Would you like a {plantOperationsTour.estimatedMinutes}-minute guided tour across your plant operations,
             load planning, delivery, and communication hubs?
           </DialogDescription>
         </DialogHeader>
@@ -88,7 +88,7 @@ export function WelcomeTourDialog() {
             onClick={handleStartTour}
             className="bg-[#1D51A4] hover:bg-[#163f82] text-white"
           >
-            Start Quick Tour (2 min)
+            Start Tour ({plantOperationsTour.estimatedMinutes} min)
           </Button>
           <Button
             variant="outline"
