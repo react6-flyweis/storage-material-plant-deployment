@@ -90,6 +90,18 @@ export const dashboardSteps: TourStepConfig[] = [
     side: "top",
   },
   {
+    id: "dash-step-shipper-file-view",
+    route: "/dashboard",
+    element: '[data-tour="dashboard-shipper-file-view"]',
+    title: "Dashboard: View a Shipper File",
+    description:
+      "The <b>eye</b> button on each row opens that shipper file so you can review it.",
+    speechText: "Use the eye button to open a shipper file.",
+    side: "left",
+    locked: true,
+    optional: true,
+  },
+  {
     id: "dash-step-drawing-approvals",
     route: "/dashboard",
     element: '[data-tour="dashboard-drawing-approvals"]',
@@ -97,7 +109,19 @@ export const dashboardSteps: TourStepConfig[] = [
     description:
       "Track which project drawings are approved, pending, or sent back for revision before fabrication can start.",
     speechText:
-      "Finally, track drawing approvals here before projects move into fabrication.",
+      "Track drawing approvals here before projects move into fabrication.",
     side: "top",
+  },
+  {
+    id: "dash-step-drawing-view",
+    route: "/dashboard",
+    element: '[data-tour="dashboard-drawing-view"]',
+    title: "Dashboard: View Drawings",
+    description:
+      "This button opens the drawings of that row's project.",
+    speechText: "Use this button to open that project's drawings.",
+    side: "left",
+    locked: true,
+    optional: true,
   },
 ];
