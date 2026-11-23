@@ -120,7 +120,7 @@ const FileCard = ({
           </div>
 
           {/* Actions Section */}
-          <div className="flex items-center gap-2.5 shrink-0 ml-auto">
+          <div data-tour="drawing-card-actions" className="flex items-center gap-2.5 shrink-0 ml-auto">
             <button
               onClick={() => downloadFile(file.imageUrl || filePdf, file.name)}
               title="Download"
@@ -129,6 +129,7 @@ const FileCard = ({
               <ArrowDown size={18} />
             </button>
             <button
+              data-tour="drawing-card-preview"
               onClick={() => onView(file)}
               title="Preview"
               className="p-1.5 hover:bg-blue-50 rounded-lg text-[#1E51A4] transition-colors"
@@ -348,6 +349,7 @@ const ProjectDrawingsView: React.FC = () => {
         <Button
           variant="gradient"
           size="sm"
+          data-tour="project-drawings-upload"
           onClick={() => setIsUploadModalOpen(true)}
         >
           Upload Drawing
