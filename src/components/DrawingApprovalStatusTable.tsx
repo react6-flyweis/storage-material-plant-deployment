@@ -266,6 +266,7 @@ const DrawingApprovalStatusTable: React.FC<Props> = ({ data = [], isLoading = fa
                     </td>
                     <td className="py-4 px-4 pr-6 text-right">
                       <Button
+                        data-tour="dashboard-drawing-view"
                         variant="gradient"
                         size="sm"
                         onClick={() => {
