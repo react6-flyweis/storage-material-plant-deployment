@@ -295,6 +295,7 @@ const AwardedLoadsView: React.FC = () => {
                     </td>
                     <td className="p-2 md:p-4 border border-gray-200 text-center">
                       <Button
+                        data-tour="awarded-load-row-view"
                         variant="white"
                         size="sm"
                         onClick={() => navigate(`/delivery/freight-request/${item.requestId}`)}
