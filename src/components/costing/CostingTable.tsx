@@ -211,6 +211,7 @@ const CostingTable: React.FC<CostingTableProps> = ({
                   )}
                   <td className="p-3 md:p-4">
                     <Button
+                      data-tour="costing-row-edit"
                       variant={"gradient"}
                       size="sm"
                       onClick={() => onActionClick(row)}
