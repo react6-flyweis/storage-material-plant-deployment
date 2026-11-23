@@ -63,7 +63,7 @@ const Step4PackingList: React.FC<Step4PackingListProps> = ({
   };
 
   return (
-    <div className="space-y-8 bg-white rounded-[14px] border border-gray-100 shadow-sm p-4 md:p-8">
+    <div data-tour="wizard-packing-lists" className="space-y-8 bg-white rounded-[14px] border border-gray-100 shadow-sm p-4 md:p-8">
       <CommonInfoList
         title={`Project: ${projectName} | Truckloads: ${truckPlan.summary.totalPackingLists}`}
         items={[
@@ -209,6 +209,7 @@ const PackingListViewPage: React.FC = () => {
       label: "Generate QR Label",
       variant: "purpleFilled",
       className: "px-8 py-2.5 font-bold",
+      tourId: "wizard-next",
       onClick: () => {
         if (projectId) {
           navigate(`/load_planning/${projectId}/qr-label`);
