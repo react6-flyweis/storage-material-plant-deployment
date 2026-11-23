@@ -231,7 +231,7 @@ const CostingView: React.FC = () => {
           {/* <Button variant="grayFilled" size="sm" onClick={() => setIsModalOpen(true)}>
             <CirclePlus size={16} /> Check BOM Costing
           </Button> */}
-          <Button variant="gradient" size="sm" onClick={handleAdd}>
+          <Button variant="gradient" size="sm" data-tour="costing-add-part" onClick={handleAdd}>
             <CirclePlus size={16} /> Add New Item/Part Cost
           </Button>
         </div>
