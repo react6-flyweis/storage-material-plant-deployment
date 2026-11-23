@@ -39,10 +39,10 @@ export const UpdateStepStatusModal: React.FC<
 
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40">
-        <div className="bg-white rounded-[14px] w-full max-w-lg p-6 animate-in fade-in zoom-in duration-300">
+        <div data-tour="update-step-modal" className="bg-white rounded-[14px] w-full max-w-lg p-6 animate-in fade-in zoom-in duration-300">
           <div className="flex items-center justify-between mb-8">
             <SubHeading text="Update Step Status" />
-            <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
+            <button data-tour="update-step-close" onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
               <X size={24} />
             </button>
           </div>
@@ -117,6 +117,7 @@ export const AddNotesModal: React.FC<
       isOpen={isOpen}
       onClose={onClose}
       title="Add Notes"
+      tourId="add-note-modal"
       width="max-w-xl"
     >
       <div className="space-y-6 p-1">
