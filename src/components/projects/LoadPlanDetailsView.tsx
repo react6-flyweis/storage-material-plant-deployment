@@ -136,7 +136,7 @@ const LoadPlanDetailsView: React.FC = () => {
         </div>
 
         {/* Load Summary Card */}
-        <div className="space-y-4 max-w-lg">
+        <div data-tour="load-plan-summary" className="space-y-4 max-w-lg">
           <h2 className="text-base md:text-lg font-inter font-semibold text-[#212B36]">Load Summary Card</h2>
           <div className="space-y-3 text-sm md:text-base">
             <div className="flex justify-between items-center">
