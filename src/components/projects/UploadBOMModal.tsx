@@ -61,6 +61,7 @@ const BuildingRow: React.FC<BuildingRowProps> = ({
 
     const replaceBtn = (
       <button
+        data-tour="bom-upload-file"
         className={`font-inter text-xs font-medium px-3 py-1.5 rounded-md transition-all disabled:opacity-60 disabled:cursor-not-allowed ${b.hasBomJob
           ? "bg-white border border-[#446DF6] text-[#446DF6] hover:bg-[#446DF6]/5"
           : "bg-[#1E51A4] text-white hover:bg-[#1E51A4]/90"
@@ -78,6 +79,7 @@ const BuildingRow: React.FC<BuildingRowProps> = ({
           <>
             {replaceBtn}
             <button
+              data-tour="bom-view-file"
               className="font-inter text-xs font-medium px-3 py-1.5 rounded-md transition-all disabled:opacity-60 disabled:cursor-not-allowed bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
               onClick={() => onNavigateToBOM(latestJob.bomJobId)}
               disabled={isLocked}
@@ -93,6 +95,7 @@ const BuildingRow: React.FC<BuildingRowProps> = ({
           <>
             {replaceBtn}
             <button
+              data-tour="bom-view-file"
               className="font-inter text-xs font-medium px-3 py-1.5 rounded-md transition-all disabled:opacity-60 disabled:cursor-not-allowed bg-[#1E51A4] hover:bg-[#1E51A4]/90 text-white"
               onClick={() => onNavigateToBOM(latestJob.bomJobId)}
               disabled={isLocked}
@@ -284,7 +287,7 @@ const UploadBOMModal: React.FC<UploadBOMModalProps> = ({
 
   return (
     <>
-      <Modal isOpen={isOpen} onClose={onClose} width="max-w-2xl" hideHeader>
+      <Modal tourId="upload-bom-modal" isOpen={isOpen} onClose={onClose} width="max-w-2xl" hideHeader>
         <div className="p-1 space-y-6">
           {/* Header */}
           <div className="flex items-center justify-between">
@@ -347,6 +350,7 @@ const UploadBOMModal: React.FC<UploadBOMModalProps> = ({
               {
                 canConsolidate ? (
                   <Button
+                    data-tour="bom-consolidate"
                     variant="primary"
                     size="sm"
                     className="disabled:cursor-not-allowed"
