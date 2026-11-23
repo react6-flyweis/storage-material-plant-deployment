@@ -294,7 +294,7 @@ const VendorDetailsView: React.FC = () => {
         {/* Main Content (Left 2/3) */}
         <div className="lg:col-span-2 space-y-6">
           {/* Profile Card */}
-          <div className="bg-[#F7F8F9] rounded-[14px] p-3 md:p-6 shadow-sm border border-gray-100">
+          <div data-tour="shipper-details-profile" className="bg-[#F7F8F9] rounded-[14px] p-3 md:p-6 shadow-sm border border-gray-100">
             <div className="flex flex-wrap gap-6 items-start justify-between mb-8">
               <div className="flex flex-wrap items-center sm:items-start gap-2 md:gap-4 w-full">
                 {/* <div className="w-20 h-20 lg:w-24 lg:h-24 rounded-full overflow-hidden border-4 border-gray-50 shadow-sm shrink-0">
