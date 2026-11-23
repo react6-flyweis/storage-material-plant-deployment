@@ -225,12 +225,14 @@ const ProjectLifecycle: React.FC<ProjectLifecycleProps> = ({
         <Button
         variant="primary"
         size="md"
+          data-tour="project-update-step"
           onClick={() => setIsUpdateModalOpen(true)}
         >
           Update Step Status
         </Button>
         <Button
         variant="blueOutlined"
+          data-tour="project-add-note"
           onClick={() => setIsNotesModalOpen(true)}
         >
           Add Notes
