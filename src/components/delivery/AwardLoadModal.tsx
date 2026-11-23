@@ -58,7 +58,7 @@ export const AwardLoadModal: React.FC<AwardLoadModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} hideHeader width="max-w-[580px]">
+    <Modal tourId="award-load-modal" isOpen={isOpen} onClose={onClose} hideHeader width="max-w-[580px]">
       <div className="p-2 md:p-0 md:space-y-8 space-y-4">
         {/* Header */}
         <div className="flex items-center gap-4">
