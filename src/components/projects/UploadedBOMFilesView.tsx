@@ -351,6 +351,7 @@ const UploadedBOMFilesView: React.FC = () => {
                     </td>
                     <td className="py-3 px-6 text-right">
                       <Button
+                        data-tour="bom-file-row-view"
                         variant={"gradient"}
                         size={"sm"}
                         onClick={() => handleViewBOM(item)}
