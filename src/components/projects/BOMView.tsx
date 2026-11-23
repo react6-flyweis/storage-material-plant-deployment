@@ -103,7 +103,7 @@ const BOMView: React.FC = () => {
           <Heading text="BOM Files Details" />
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 ml-auto">
+        <div data-tour="project-bom-actions" className="flex flex-wrap items-center gap-2 ml-auto">
           <Button
             variant="white"
             size="sm"
