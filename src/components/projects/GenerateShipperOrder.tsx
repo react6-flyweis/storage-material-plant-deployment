@@ -159,6 +159,7 @@ const GenerateShipperOrder: React.FC = () => {
             variant="gradient"
             size="md"
             className="flex items-center gap-2"
+            data-tour="shipper-order-send"
             onClick={handleSendOrder}
             disabled={selectedShipperIds.length === 0 || isSending}
           >
@@ -194,6 +195,7 @@ const GenerateShipperOrder: React.FC = () => {
             <Button
               variant="grayFilled"
               size="sm"
+              data-tour="shipper-order-add"
               onClick={() => setIsAddShipperModalOpen(true)}
             >
               Add new Shipper
@@ -207,7 +209,7 @@ const GenerateShipperOrder: React.FC = () => {
             <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#1E51A4]"></div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+          <div data-tour="shipper-order-grid" className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
             {vendors.map((shipper) => {
               const isSelected = selectedShipperIds.includes(shipper._id);
               const sentVendor = consolidatedBOM?.sentToVendors?.find(
