@@ -6,7 +6,9 @@ import type { NavigateFunction } from "react-router-dom";
 import { tourSpeech, type SpeechState } from "./tour-speech.service";
 import { useTourStore } from "./tour.store";
 import type {
+  TourClickConfig,
   TourDefinition,
+  TourPanelConfig,
   TourStepBranchConfig,
   TourStepConfig,
   TourId,
@@ -27,6 +29,11 @@ export const TOURS_REGISTRY: Record<TourId, TourDefinition> = {
 const DESKTOP_TOUR_WIDTH = 1024;
 const OPTIONAL_STEP_TIMEOUT_MS = 1500;
 const STEP_TIMEOUT_MS = 4000;
+/** A page the tour just moved to may still be fetching its data. */
+const PAGE_LOAD_TIMEOUT_MS = 8000;
+const NAVIGATION_TIMEOUT_MS = 1500;
+/** Lets a modal's entrance animation finish so the highlight fits it. */
+const PANEL_SETTLE_MS = 350;
 
 function isTourTargetVisible(element: Element): boolean {
   if (!(element instanceof HTMLElement)) return false;
@@ -63,27 +70,14 @@ function routeMatches(currentPath: string, pattern: string): boolean {
   );
 }
 
-/** Reads a route param's value from the current URL, using a route pattern. */
-function readParamFromLocation(param: string, pattern: string): string | null {
-  const patternParts = stripPath(pattern).split("/");
-  const currentParts = stripPath(window.location.pathname).split("/");
-  const i = patternParts.indexOf(`:${param}`);
-  if (i === -1 || currentParts.length <= i) return null;
-  // Every static segment before the param must line up.
-  for (let j = 0; j < i; j++) {
-    if (!patternParts[j].startsWith(":") && patternParts[j] !== currentParts[j]) {
-      return null;
-    }
-  }
-  return currentParts[i] || null;
-}
-
 const PROJECT_ROUTE_PREFIX = "/projects/:projectId";
+/** Params that name the same record on every tour route that uses them. */
+const SHARED_PARAMS = new Set([":requestId", ":planProjectId"]);
 const NON_PROJECT_SEGMENTS = new Set(["customerinfo", "all-projects"]);
 
 function readProjectIdFromLocation(): string | null {
-  const id = readParamFromLocation("projectId", PROJECT_ROUTE_PREFIX);
-  return id && !NON_PROJECT_SEGMENTS.has(id) ? id : null;
+  const [, section, id] = stripPath(window.location.pathname).split("/");
+  return section === "projects" && id && !NON_PROJECT_SEGMENTS.has(id) ? id : null;
 }
 
 async function fetchFirstProjectId(): Promise<string | null> {
@@ -103,11 +97,9 @@ async function fetchFirstProjectId(): Promise<string | null> {
   }
 }
 
-interface NavHint {
-  element: string;
-  title: string;
-  description: string;
-  speechText: string;
+function isSelectorVisible(selector: string): boolean {
+  const element = document.querySelector(selector);
+  return !!element && isTourTargetVisible(element);
 }
 
 /** Finds which sidebar tab (and sub-tab, if any) a route lives under. */
@@ -123,17 +115,20 @@ function findNavLocation(route: string): { tabIndex: number; subPath?: string; s
 }
 
 /**
- * Builds the "click here" steps a user would take in the sidebar to get from
- * the current page to `targetRoute`. Empty when the route isn't in the sidebar.
+ * Builds the "click here" steps a user would take in the sidebar to get to
+ * `targetRoute`. Empty when the route isn't in the sidebar.
  */
-function buildNavHints(currentPath: string, targetRoute: string): NavHint[] {
+function buildNavHints(targetRoute: string): TourClickConfig[] {
   const target = findNavLocation(targetRoute);
   if (!target) return [];
-  const current = findNavLocation(currentPath);
   const tab = NAV_ITEMS[target.tabIndex];
-  const hints: NavHint[] = [];
+  const hints: TourClickConfig[] = [];
 
-  if (!current || current.tabIndex !== target.tabIndex) {
+  // Detail pages keep their section's side panel open, so the sub-tab may
+  // already be one click away.
+  const isSectionOpen =
+    !!target.subPath && isSelectorVisible(`[data-tour-nav-sub="${target.subPath}"]`);
+  if (!isSectionOpen) {
     const opensSection = Boolean(tab.items?.length);
     hints.push({
       element: `[data-tour-nav="${tab.title}"]`,
@@ -169,6 +164,8 @@ interface PopoverConfig {
   index: number;
   nextBtnText: string;
   branch?: TourStepBranchConfig;
+  /** Blocks clicks on the highlighted element, so exploring can't change data. */
+  locked?: boolean;
   onNext: () => void;
   onPrev: () => void;
 }
@@ -194,6 +191,13 @@ export class TourCoordinator {
   private resumeContext: ResumeTourContext | null = null;
   /** Project the current tour is showing, so every step stays on the same one. */
   private tourProjectId: string | null = null;
+  /** Real paths of visited detail pages by route pattern, so Back can return to them. */
+  private visitedPaths = new Map<string, string>();
+  private sharedParams = new Map<string, string>();
+  /** Pages whose click path was missing; their remaining steps are skipped too. */
+  private unreachableRoutes = new Set<string>();
+  /** Modals and tabs the tour has opened, outermost first. */
+  private openPanels: TourPanelConfig[] = [];
 
   private cleanupSpeechSubscription() {
     if (this.currentSpeechUnsub) {
@@ -287,10 +291,11 @@ export class TourCoordinator {
       progressText: "{{current}} of {{total}}",
       onDestroyed: (_element, _step, opts) => {
         if (opts.reason === "replaced") return;
-        this.cleanupSpeechSubscription();
-        tourSpeech.stop();
-        this.currentTour = null;
-        this.driverObj = null;
+        // Closed by driver.js itself (e.g. Escape) rather than through stopTour.
+        if (this.driverObj) {
+          this.driverObj = null;
+          this.stopTour();
+        }
         if (useTourStore.getState().activeTourId) {
           useTourStore.getState().setActiveTour(null);
         }
@@ -300,11 +305,17 @@ export class TourCoordinator {
     await this.goToStep(startIndex);
   }
 
-  /** Fills `:projectId` / `:requestId` in a route. Null if one can't be found. */
+  /** Fills a route's params. Null if they can't be found. */
   private async resolveRoute(pattern: string): Promise<string | null> {
-    let route = pattern;
+    if (!pattern.includes(":")) return pattern;
+    if (routeMatches(currentLocation(), pattern)) return currentLocation();
 
-    if (route.includes(":projectId")) {
+    const visited = this.visitedPaths.get(pattern);
+    if (visited) return visited;
+
+    let route = pattern;
+    // Only /projects/:projectId can be reached without clicking a row first.
+    if (route.startsWith(PROJECT_ROUTE_PREFIX)) {
       const projectId =
         readProjectIdFromLocation() ?? this.tourProjectId ?? (await fetchFirstProjectId());
       if (!projectId) return null;
@@ -312,13 +323,108 @@ export class TourCoordinator {
       route = route.replace(":projectId", projectId);
     }
 
-    if (route.includes(":requestId")) {
-      const requestId = readParamFromLocation("requestId", pattern);
-      if (!requestId) return null;
-      route = route.replace(":requestId", requestId);
+    for (const [param, value] of this.sharedParams) {
+      route = route.replace(param, value);
     }
 
-    return route;
+    return route.includes(":") ? null : route;
+  }
+
+  private rememberRoute(pattern: string) {
+    if (!pattern.includes(":") || !routeMatches(currentLocation(), pattern)) return;
+    this.visitedPaths.set(pattern, window.location.pathname);
+    const currentParts = stripPath(window.location.pathname).split("/");
+    stripPath(pattern).split("/").forEach((part, i) => {
+      if (SHARED_PARAMS.has(part)) this.sharedParams.set(part, currentParts[i]);
+    });
+    if (pattern.startsWith(PROJECT_ROUTE_PREFIX)) {
+      this.tourProjectId = readProjectIdFromLocation() ?? this.tourProjectId;
+    }
+  }
+
+  private async waitForRoute(pattern: string): Promise<void> {
+    const deadline = Date.now() + NAVIGATION_TIMEOUT_MS;
+    while (!routeMatches(currentLocation(), pattern) && Date.now() < deadline) {
+      await delay(50);
+    }
+  }
+
+  private closePanelsFrom(depth: number) {
+    while (this.openPanels.length > depth) {
+      const panel = this.openPanels.pop();
+      const root = panel && document.querySelector(panel.element);
+      if (!panel || !root) continue;
+      const closer = panel.close
+        ? document.querySelector<HTMLElement>(panel.close)
+        : root.closest<HTMLElement>("[data-modal-backdrop]");
+      closer?.click();
+    }
+  }
+
+  /** How many of the `wanted` panels are already open. */
+  private countSharedPanels(wanted: TourPanelConfig[]): number {
+    this.openPanels = this.openPanels.filter((panel) => document.querySelector(panel.element));
+    let shared = 0;
+    while (
+      shared < wanted.length &&
+      shared < this.openPanels.length &&
+      this.openPanels[shared] === wanted[shared]
+    ) {
+      shared++;
+    }
+    return shared;
+  }
+
+  /** Opens the `panels` that aren't open yet, showing the click when `showClicks`. */
+  private async openPanelsUpTo(
+    panels: TourPanelConfig[],
+    index: number,
+    token: number,
+    showClicks: boolean,
+  ): Promise<HintResult> {
+    for (const panel of panels.slice(this.openPanels.length)) {
+      if (!isSelectorVisible(panel.element)) {
+        if (showClicks) {
+          const result = await this.showClickHint(panel.open, index, token);
+          if (result !== "clicked") return result;
+        } else {
+          const trigger = await this.waitForElement(
+            panel.open.element,
+            panel.open.optional ? OPTIONAL_STEP_TIMEOUT_MS : STEP_TIMEOUT_MS,
+          );
+          if (token !== this.stepToken) return "cancelled";
+          if (!(trigger instanceof HTMLElement)) return "missing";
+          trigger.click();
+        }
+
+        const opened = await this.waitForElement(panel.element);
+        if (token !== this.stepToken) return "cancelled";
+        if (!opened) return "missing";
+        this.openPanels.push(panel);
+        await delay(PANEL_SETTLE_MS);
+        if (token !== this.stepToken) return "cancelled";
+        continue;
+      }
+      this.openPanels.push(panel);
+    }
+    return "clicked";
+  }
+
+  /** Passes over a step that has nothing to show, explaining it first if it must not be lost. */
+  private handleMissing(step: TourStepConfig, index: number, direction: "forward" | "backward") {
+    if (!step.whenMissing) {
+      this.skipStep(index, direction);
+      return;
+    }
+    this.presentStep(
+      {
+        ...step,
+        description: `${step.description}<br><br><i>${step.whenMissing}</i>`,
+        speechText: `${step.speechText || step.description} ${step.whenMissing}`,
+      },
+      index,
+      null,
+    );
   }
 
   private skipStep(index: number, direction: "forward" | "backward") {
@@ -345,7 +451,7 @@ export class TourCoordinator {
 
   /** Shows the sidebar clicks that lead to `targetRoute`. False if the tour moved on. */
   private async walkSidebarTo(targetRoute: string, index: number, token: number): Promise<boolean> {
-    const hints = buildNavHints(currentLocation(), targetRoute);
+    const hints = buildNavHints(targetRoute);
     for (let i = 0; i < hints.length; i++) {
       if (i > 0) {
         // The side panel slides its sub-items into place; let it settle
@@ -377,37 +483,67 @@ export class TourCoordinator {
     const isActive = () => token === this.stepToken && !!this.currentTour && !!this.driverObj;
     const showClicks = direction === "forward" && window.innerWidth >= DESKTOP_TOUR_WIDTH;
 
-    if (step.route && !routeMatches(currentLocation(), step.route)) {
+    const needsNavigation = !!step.route && !routeMatches(currentLocation(), step.route);
+
+    // The control that leads to the page may itself be inside a modal.
+    const viaPanels =
+      showClicks && step.via && routeMatches(currentLocation(), step.via.fromRoute)
+        ? step.via.panels
+        : undefined;
+    const sharedPanels = this.countSharedPanels((needsNavigation ? viaPanels : step.panels) ?? []);
+    if (this.openPanels.length > sharedPanels) {
+      this.closePanelsFrom(sharedPanels);
+      await delay(50);
+      if (!isActive()) return;
+    }
+
+    if (needsNavigation && !step.via && this.unreachableRoutes.has(step.route)) {
+      this.handleMissing(step, index, direction);
+      return;
+    }
+
+    if (needsNavigation) {
       // Going forward on desktop, walk the user through the clicks instead of
       // jumping to the page, so they learn where it lives.
       if (showClicks && step.via) {
         const { via } = step;
-        if (!routeMatches(currentLocation(), via.fromRoute)) {
+        const viaNeedsNavigation = !routeMatches(currentLocation(), via.fromRoute);
+        if (viaNeedsNavigation) {
           if (!(await this.walkSidebarTo(via.fromRoute, index, token))) return;
           const fromRoute = await this.resolveRoute(via.fromRoute);
           if (!isActive()) return;
-          if (fromRoute && this.navigate && !routeMatches(currentLocation(), via.fromRoute)) {
+          if (!fromRoute) {
+            this.unreachableRoutes.add(step.route);
+            this.handleMissing(step, index, direction);
+            return;
+          }
+          if (this.navigate && !routeMatches(currentLocation(), via.fromRoute)) {
             this.navigate(fromRoute);
           }
         }
 
-        const result = await this.showClickHint(
-          {
-            element: via.element,
-            title: via.title,
-            description: via.description,
-            speechText: via.speechText || via.title,
-          },
-          index,
-          token,
-        );
+        let result = await this.openPanelsUpTo(via.panels ?? [], index, token, true);
+        if (result === "clicked") {
+          result = await this.showClickHint(
+            via,
+            index,
+            token,
+            viaNeedsNavigation ? PAGE_LOAD_TIMEOUT_MS : undefined,
+          );
+        }
         if (result === "cancelled") return;
         // The control isn't there (no shipper files yet, BOM not generated...),
-        // so this page has nothing to show yet. Skip it.
-        if (result === "missing") {
-          this.skipStep(index, direction);
+        // so this page has nothing to show yet.
+        if (result === "missing" && !via.openAnyway) {
+          this.unreachableRoutes.add(step.route);
+          this.handleMissing(step, index, direction);
           return;
         }
+        this.unreachableRoutes.delete(step.route);
+        if (result === "clicked") await this.waitForRoute(step.route);
+        if (!isActive()) return;
+        // Whatever the control was inside of belongs to the page just left.
+        this.closePanelsFrom(0);
       } else if (showClicks) {
         if (!(await this.walkSidebarTo(step.route, index, token))) return;
       }
@@ -416,31 +552,43 @@ export class TourCoordinator {
       if (!isActive()) return;
 
       if (!targetRoute) {
-        if (step.route.includes(":projectId")) {
+        if (this.currentTour.requiresProject && step.route.startsWith(PROJECT_ROUTE_PREFIX) && !this.tourProjectId) {
           this.abortTour(
-            "The project details guide needs at least one project assigned to your plant.",
+            `The ${this.currentTour.name} needs at least one project assigned to your plant.`,
           );
           return;
         }
         console.info(`[Tour] Route not available for step: ${step.id}. Skipping.`);
-        this.skipStep(index, direction);
+        this.handleMissing(step, index, direction);
         return;
       }
 
       if (this.navigate && !routeMatches(currentLocation(), step.route)) {
         this.navigate(targetRoute);
+        await this.waitForRoute(step.route);
+        if (!isActive()) return;
       }
-    } else if (step.route.includes(":projectId")) {
-      this.tourProjectId = readProjectIdFromLocation() ?? this.tourProjectId;
+    }
+    this.rememberRoute(step.route);
+
+    const panelResult = await this.openPanelsUpTo(step.panels ?? [], index, token, showClicks);
+    if (panelResult === "cancelled" || !isActive()) return;
+    if (panelResult === "missing") {
+      this.handleMissing(step, index, direction);
+      return;
     }
 
-    const timeout = step.optional ? OPTIONAL_STEP_TIMEOUT_MS : STEP_TIMEOUT_MS;
+    const timeout = step.optional
+      ? OPTIONAL_STEP_TIMEOUT_MS
+      : needsNavigation
+        ? PAGE_LOAD_TIMEOUT_MS
+        : STEP_TIMEOUT_MS;
     const element = await this.waitForElement(step.element, timeout);
     if (!isActive()) return;
 
     if (!element) {
       console.warn(`[Tour] Element not found: ${step.element}. Skipping.`);
-      this.skipStep(index, direction);
+      this.handleMissing(step, index, direction);
       return;
     }
 
@@ -451,15 +599,22 @@ export class TourCoordinator {
    * Highlights a control and waits until it is clicked, either by the user or
    * by the Next button.
    */
-  private async showClickHint(hint: NavHint, index: number, token: number): Promise<HintResult> {
-    const element = await this.waitForElement(hint.element, STEP_TIMEOUT_MS);
+  private async showClickHint(
+    hint: TourClickConfig,
+    index: number,
+    token: number,
+    timeoutMs = hint.optional ? OPTIONAL_STEP_TIMEOUT_MS : STEP_TIMEOUT_MS,
+  ): Promise<HintResult> {
+    const element = await this.waitForElement(hint.element, timeoutMs);
     if (token !== this.stepToken || !this.currentTour || !this.driverObj) return "cancelled";
     if (!element || !(element instanceof HTMLElement)) return "missing";
 
     const isSidebar = Boolean(element.closest('[data-tour="sidebar-nav"]'));
 
     return new Promise<HintResult>((resolve) => {
+      let isClicked = false;
       const onClick = () => {
+        isClicked = true;
         element.removeEventListener("click", onClick);
         this.cancelPendingHint = null;
         // Let the app's own click handler run (and navigate) before moving on.
@@ -478,12 +633,15 @@ export class TourCoordinator {
         element: hint.element,
         title: hint.title,
         description: hint.description,
-        speechText: hint.speechText,
+        speechText: hint.speechText || hint.title,
         side: isSidebar ? "right" : "bottom",
         align: "start",
         index,
         nextBtnText: "Next →",
-        onNext: () => element.click(),
+        // A second Next while the page changes must not click it again.
+        onNext: () => {
+          if (!isClicked) element.click();
+        },
         onPrev: () => void this.goToStep(Math.max(0, index - 1), "backward"),
       });
     });
@@ -519,6 +677,7 @@ export class TourCoordinator {
           ? "Finish Tour ✓"
           : "Next →",
       branch: step.branch,
+      locked: step.locked ?? !!step.panels?.length,
       onNext: () => void this.goToStep(index + 1, "forward"),
       onPrev: () => void this.goToStep(Math.max(0, index - 1), "backward"),
     });
@@ -585,6 +744,7 @@ export class TourCoordinator {
 
     this.driverObj.highlight({
       ...(element ? { element } : {}),
+      disableActiveInteraction: config.locked ?? false,
       popover: {
         title: config.title,
         description: config.description,
@@ -699,9 +859,13 @@ export class TourCoordinator {
     tourSpeech.stop();
     this.stepToken += 1;
     this.clearPendingHint();
+    this.closePanelsFrom(0);
     if (clearResume) {
       this.resumeContext = null;
       this.tourProjectId = null;
+      this.visitedPaths.clear();
+      this.sharedParams.clear();
+      this.unreachableRoutes.clear();
     }
     if (this.driverObj) {
       const activeDriver = this.driverObj;
