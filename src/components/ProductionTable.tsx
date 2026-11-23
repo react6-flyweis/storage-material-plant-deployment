@@ -334,6 +334,7 @@ const ProductionTable = () => {
                     </td>
                     <td className="p-2 md:p-4">
                       <button
+                        data-tour={index === 0 ? "project-row-chat" : undefined}
                         onClick={() => navigate(`/communication`)}
                         className="flex items-center gap-2 px-4 py-1.5 bg-[#F2F6FF] text-[#446DF6] rounded-md hover:bg-blue-100 transition-colors text-xs font-semibold relative group border border-[#DBEAFE]"
                       >
