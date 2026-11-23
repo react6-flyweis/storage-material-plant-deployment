@@ -1,6 +1,48 @@
 import type { TourDefinition, TourStepViaConfig } from "../tour.types";
+import { anchor, click, modal, PROJECT_ROUTE as PROJECT } from "./tour-helpers";
+import { bomFileDialog, bomModal, drawingFileDialog, drawingModal } from "./upload-panels";
 
-const PROJECT = "/projects/:projectId";
+const updateStepModal = modal(
+  "update-step-modal",
+  click(anchor("project-update-step"), "Update Step Status", "<b>Update Step Status</b> opens the status form."),
+  anchor("update-step-close"),
+);
+
+const addNoteModal = modal(
+  "add-note-modal",
+  click(anchor("project-add-note"), "Add Notes", "<b>Add Notes</b> opens the note form."),
+);
+
+const addShipperModal = modal(
+  "add-shipper-modal",
+  click(anchor("shipper-order-add"), "Add a New Shipper", "Not in the list? <b>Add new Shipper</b> lets you add one on the spot.", true),
+);
+
+const drawingsPageModal = modal(
+  "upload-drawing-modal",
+  click(anchor("project-drawings-upload"), "Upload from Here Too", "<b>Upload Drawing</b> opens the same building list."),
+);
+
+const drawingPreviewModal = modal(
+  "drawing-preview-modal",
+  click(anchor("drawing-card-preview"), "Preview a File", "Click the <b>eye</b> icon to preview the file.", true),
+);
+
+const materialRequestModal = modal(
+  "material-request-modal",
+  click(anchor("material-request-row-view"), "View a Request", "Click the <b>eye</b> icon to open a material request.", true),
+);
+
+const mismatchTab = {
+  element: anchor("mismatch-orders-panel"),
+  open: click(anchor("mismatch-orders-tab"), "Open Mismatch Orders", "Switch to the <b>Mismatch Orders</b> tab."),
+  close: anchor("material-request-tab"),
+};
+
+const mismatchModal = modal(
+  "mismatch-modal",
+  click(anchor("mismatch-row-view"), "View a Mismatch", "Click the <b>eye</b> icon to open a mismatch.", true),
+);
 
 const quickAction = (label: string, tourId: string): TourStepViaConfig => ({
   fromRoute: PROJECT,
@@ -19,7 +61,8 @@ export const projectDetailsTour: TourDefinition = {
   name: "Project Details Guide",
   description:
     "Every section of a project's details page and each page you can open from it: BOM, drawings, delivery, shipper files and material orders.",
-  estimatedMinutes: 4,
+  estimatedMinutes: 7,
+  requiresProject: true,
   steps: [
     // ── Project details page ────────────────────────────────────────────
     {
@@ -34,6 +77,7 @@ export const projectDetailsTour: TourDefinition = {
       side: "bottom",
       via: {
         fromRoute: "/projects",
+        openAnyway: true,
         element: '[data-tour="project-row-view"]',
         title: "Open a Project",
         description:
@@ -52,6 +96,67 @@ export const projectDetailsTour: TourDefinition = {
         "Use these buttons to upload the bill of materials and the drawings for each building.",
       side: "bottom",
       align: "end",
+    },
+    {
+      id: "pd-drawing-modal",
+      route: PROJECT,
+      element: anchor("upload-drawing-modal"),
+      title: "Building Drawings",
+      description:
+        "Every building with its latest drawing, version and approval status. A rejected drawing shows the reason.",
+      speechText: "Every building is listed with its latest drawing and approval status.",
+      panels: [drawingModal],
+    },
+    {
+      id: "pd-drawing-file",
+      route: PROJECT,
+      element: anchor("upload-file-dropzone"),
+      title: "Choose the Drawing",
+      description:
+        "Drag a file here or browse for it.",
+      speechText: "Drag a file here, or browse for it.",
+      panels: [drawingModal, drawingFileDialog],
+    },
+    {
+      id: "pd-drawing-submit",
+      route: PROJECT,
+      element: anchor("upload-file-submit"),
+      title: "Upload the Drawing",
+      description:
+        "Enabled once a file is chosen. The drawing is uploaded and sent to the customer for approval.",
+      speechText: "Press upload to send the drawing to the customer for approval.",
+      panels: [drawingModal, drawingFileDialog],
+    },
+    {
+      id: "pd-bom-modal",
+      route: PROJECT,
+      element: anchor("upload-bom-modal"),
+      title: "Building BOM Files",
+      description:
+        "Every building with its BOM status and item count. <b>View and Confirm</b> appears after extraction.",
+      speechText: "Every building is listed with the status of its bill of materials.",
+      panels: [bomModal],
+    },
+    {
+      id: "pd-bom-file",
+      route: PROJECT,
+      element: anchor("upload-file-dropzone"),
+      title: "Choose the BOM File",
+      description:
+        "Only <b>.txt</b> and <b>.out</b> files are accepted. Extraction starts right after the upload.",
+      speechText: "Choose a text or out file. Extraction starts right after the upload.",
+      panels: [bomModal, bomFileDialog],
+    },
+    {
+      id: "pd-bom-consolidate",
+      route: PROJECT,
+      element: anchor("bom-consolidate"),
+      title: "Consolidate",
+      description:
+        "Once every building is confirmed, <b>Consolidate</b> merges them into one BOM for shipping.",
+      speechText: "Once every building is confirmed, consolidate them into one.",
+      panels: [bomModal],
+      optional: true,
     },
     {
       id: "pd-quick-actions",
@@ -99,6 +204,26 @@ export const projectDetailsTour: TourDefinition = {
       optional: true,
     },
     {
+      id: "pd-update-step",
+      route: PROJECT,
+      element: anchor("update-step-modal"),
+      title: "Update Step Status",
+      description:
+        "Choose the new stage and add an optional note. Nothing changes until you submit.",
+      speechText: "Choose the new stage and add a note if you like.",
+      panels: [updateStepModal],
+    },
+    {
+      id: "pd-add-note",
+      route: PROJECT,
+      element: anchor("add-note-modal"),
+      title: "Add Notes",
+      description:
+        "Write a note about the project for the rest of the team.",
+      speechText: "Write a note about the project for the team.",
+      panels: [addNoteModal],
+    },
+    {
       id: "pd-invoices",
       route: PROJECT,
       element: '[data-tour="project-invoices"]',
@@ -144,6 +269,19 @@ export const projectDetailsTour: TourDefinition = {
       via: quickAction("View BOM File", "project-action-view-bom"),
     },
     {
+      id: "pd-bom-actions",
+      route: `${PROJECT}/view-bom`,
+      element: anchor("project-bom-actions"),
+      title: "BOM Actions",
+      description:
+        "<b>Download Excel</b> saves the BOM. <b>Share with Shippers</b> sends it out for shipper files.",
+      speechText: "Download the bill of materials, or share it with shippers.",
+      side: "bottom",
+      align: "end",
+      optional: true,
+      locked: true,
+    },
+    {
       id: "pd-generate-shipper-order",
       route: `${PROJECT}/generate-shipper-order`,
       element: '[data-tour="project-generate-shipper-order-page"]',
@@ -162,6 +300,39 @@ export const projectDetailsTour: TourDefinition = {
         speechText: "Click Share with Shippers.",
       },
     },
+    {
+      id: "pd-shipper-grid",
+      route: `${PROJECT}/generate-shipper-order`,
+      element: anchor("shipper-order-grid"),
+      title: "Select Shippers",
+      description:
+        "Click a card to select it. You can choose more than one; shippers already sent the BOM are marked.",
+      speechText: "Select one or more shippers.",
+      side: "top",
+      locked: true,
+    },
+    {
+      id: "pd-shipper-add",
+      route: `${PROJECT}/generate-shipper-order`,
+      element: anchor("add-shipper-modal"),
+      title: "Add a Shipper",
+      description:
+        "A name, email and phone number are enough to add a shipper here.",
+      speechText: "Enter a name, email and phone number to add a shipper.",
+      panels: [addShipperModal],
+    },
+    {
+      id: "pd-shipper-send",
+      route: `${PROJECT}/generate-shipper-order`,
+      element: anchor("shipper-order-send"),
+      title: "Send the Order",
+      description:
+        "<b>Send Order</b> emails the BOM to every selected shipper.",
+      speechText: "Send order emails the bill of materials to every selected shipper.",
+      side: "bottom",
+      align: "end",
+      locked: true,
+    },
 
     // ── Drawings ────────────────────────────────────────────────────────
     {
@@ -176,6 +347,38 @@ export const projectDetailsTour: TourDefinition = {
       side: "top",
       via: quickAction("View Drawings & Photos", "project-action-view-drawings"),
     },
+    {
+      id: "pd-drawing-card",
+      route: `${PROJECT}/view-drawings`,
+      element: anchor("drawing-card-actions"),
+      title: "File Actions",
+      description:
+        "Download a file, or preview it without leaving the page.",
+      speechText: "Download a file, or preview it.",
+      side: "top",
+      optional: true,
+      locked: true,
+    },
+    {
+      id: "pd-drawing-preview",
+      route: `${PROJECT}/view-drawings`,
+      element: anchor("drawing-preview-modal"),
+      title: "Preview",
+      description:
+        "A larger view of the drawing or photo, with its details.",
+      speechText: "Preview the drawing or photo at full size.",
+      panels: [drawingPreviewModal],
+    },
+    {
+      id: "pd-drawings-upload",
+      route: `${PROJECT}/view-drawings`,
+      element: anchor("upload-drawing-modal"),
+      title: "Upload a Missing Drawing",
+      description:
+        "Upload drawings from this page as well as from the project's home page.",
+      speechText: "You can upload drawings from this page too.",
+      panels: [drawingsPageModal],
+    },
 
     // ── Delivery ────────────────────────────────────────────────────────
     {
@@ -189,6 +392,31 @@ export const projectDetailsTour: TourDefinition = {
         "Check, reschedule, or edit the project's material delivery here.",
       side: "top",
       via: quickAction("Material Delivery", "project-action-material-delivery"),
+    },
+    {
+      id: "pd-delivery-actions",
+      route: `${PROJECT}/material-delivery`,
+      element: anchor("delivery-reschedule"),
+      title: "Reschedule the Delivery",
+      description:
+        "Move the delivery to a new date. <b>Edit Delivery</b>, next to it, changes everything else.",
+      speechText: "Reschedule or edit the delivery from here.",
+      side: "bottom",
+      align: "end",
+      optional: true,
+      locked: true,
+    },
+    {
+      id: "pd-delivery-quick",
+      route: `${PROJECT}/material-delivery`,
+      element: anchor("delivery-quick-actions"),
+      title: "Delivery Quick Actions",
+      description:
+        "Update the status, contact the site, send a reminder or view documents. The Delivery Guide covers each one.",
+      speechText: "Quick actions for the delivery are here.",
+      side: "left",
+      optional: true,
+      locked: true,
     },
 
     // ── Shipper files ───────────────────────────────────────────────────
@@ -223,6 +451,19 @@ export const projectDetailsTour: TourDefinition = {
         speechText: "Click view on a shipper file.",
       },
     },
+    {
+      id: "pd-shipper-file-actions",
+      route: `${PROJECT}/shipper-files/:requestId`,
+      element: anchor("shipper-file-actions"),
+      title: "Shipper File Actions",
+      description:
+        "Depending on the file's status: download it, run <b>Order Verification</b>, view the comparison, or <b>Start Load Planning</b>.",
+      speechText: "The actions here depend on the file's status.",
+      side: "bottom",
+      align: "end",
+      optional: true,
+      locked: true,
+    },
 
     // ── Material orders ─────────────────────────────────────────────────
     {
@@ -243,10 +484,41 @@ export const projectDetailsTour: TourDefinition = {
       element: '[data-tour="project-material-orders-tabs"]',
       title: "Requests vs. Mismatches",
       description:
-        "Switch between <b>Additional Material Request</b> and <b>Mismatch Orders</b>. That covers every page of a project.",
+        "Switch between <b>Additional Material Request</b> and <b>Mismatch Orders</b>.",
       speechText:
-        "Switch between additional material requests and mismatch orders. That covers every page of a project.",
+        "Switch between additional material requests and mismatch orders.",
       side: "bottom",
+    },
+    {
+      id: "pd-material-request",
+      route: `${PROJECT}/material-request`,
+      element: anchor("material-request-modal"),
+      title: "Material Request Details",
+      description:
+        "The requested items and quantities, with the request's status.",
+      speechText: "See the requested items, quantities and status.",
+      panels: [materialRequestModal],
+    },
+    {
+      id: "pd-mismatch-tab",
+      route: `${PROJECT}/material-request`,
+      element: anchor("mismatch-orders-panel"),
+      title: "Mismatch Orders",
+      description:
+        "Items whose quantity in the shipper file did not match your BOM. That covers every page of a project.",
+      speechText: "These items did not match your bill of materials. That covers every page of a project.",
+      panels: [mismatchTab],
+      side: "top",
+    },
+    {
+      id: "pd-mismatch-details",
+      route: `${PROJECT}/material-request`,
+      element: anchor("mismatch-modal"),
+      title: "Mismatch Details",
+      description:
+        "Expected and received quantities side by side.",
+      speechText: "Compare the expected and received quantities.",
+      panels: [mismatchTab, mismatchModal],
     },
   ],
 };
