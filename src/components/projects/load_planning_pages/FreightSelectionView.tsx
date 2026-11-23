@@ -449,7 +449,7 @@ const Step7FreightSelection: React.FC<Step7FreightSelectionProps> = ({
   };
 
   const renderCarrierSelection = () => (
-    <div className="bg-white rounded-[14px] border border-gray-100 shadow-sm p-4 md:p-6 space-y-6">
+    <div data-tour="wizard-carriers" className="bg-white rounded-[14px] border border-gray-100 shadow-sm p-4 md:p-6 space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div className="flex items-start md:items-center gap-3">
           <div className="w-8 h-8 md:w-10 md:h-10 bg-[#E8F1FF] rounded-full flex items-center justify-center text-[#1E51A4]">
@@ -1239,7 +1239,7 @@ const Step7FreightSelection: React.FC<Step7FreightSelectionProps> = ({
           {renderCarrierSelection()}
 
           {/* Action Buttons */}
-          <div className="bg-white rounded-[20px] border border-gray-100 shadow-sm p-4 space-y-3 flex flex-col justify-center items-center">
+          <div data-tour="wizard-send-carriers" className="bg-white rounded-[20px] border border-gray-100 shadow-sm p-4 space-y-3 flex flex-col justify-center items-center">
             <Button
               variant="blueFilled"
               onClick={
@@ -1503,7 +1503,7 @@ const FreightSelectionView: React.FC = () => {
         description="Request freight pricing from carriers and compare competitive bids"
         actions={[]}
       />
-      <div className="md:p-6 p-3 pt-0">
+      <div data-tour="wizard-freight" className="md:p-6 p-3 pt-0">
         {hasActiveFreight ? (
           <div className="bg-white rounded-[20px] border border-gray-100 shadow-sm p-4 md:p-6 space-y-6">
             <div className="flex items-center justify-between flex-wrap gap-4">
