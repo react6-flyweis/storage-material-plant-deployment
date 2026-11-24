@@ -65,6 +65,7 @@ const StatusConfirmationModal: React.FC<StatusConfirmationModalProps> = ({
       isOpen={isOpen}
       onClose={handleClose}
       title="Update Delivery Status"
+      tourId="delivery-status-modal"
       width="sm:max-w-xl"
     >
       <div className="space-y-5">

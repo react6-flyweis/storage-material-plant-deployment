@@ -29,7 +29,7 @@ const ProductionOverview: React.FC<ProductionOverviewProps> = ({
   onTabChange,
 }) => {
   return (
-    <div className=" rounded-xl">
+    <div data-tour="dashboard-production-overview" className=" rounded-xl">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
         <h2 className="text-base md:text-lg font-semibold text-[#212B36]">

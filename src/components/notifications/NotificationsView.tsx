@@ -304,7 +304,7 @@ const NotificationsView = () => {
   };
 
   return (
-    <PageWrapper>
+    <PageWrapper data-tour="notifications-tab">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 mt-2">
         <TitleSubtitle
@@ -473,7 +473,7 @@ const NotificationsView = () => {
                     </div>
 
                     {/* Actions */}
-                    <div className="flex items-center gap-1 shrink-0 opacity-80 group-hover:opacity-100 transition-opacity">
+                    <div data-tour="notification-row-actions" className="flex items-center gap-1 shrink-0 opacity-80 group-hover:opacity-100 transition-opacity">
                       {!item.isRead && (
                         <button
                           type="button"

@@ -145,7 +145,7 @@ const ShipperFileDetailsView: React.FC = () => {
 
   if (error || !shipperDoc) {
     return (
-      <div className="xl:pr-5 px-2 pb-10 space-y-6">
+      <div data-tour="project-shipper-file-details-page" className="xl:pr-5 px-2 pb-10 space-y-6">
         <div className="flex items-center gap-4 mt-2">
           <Button
             variant="blueFilled"
@@ -170,7 +170,7 @@ const ShipperFileDetailsView: React.FC = () => {
   }
 
   return (
-    <div className="xl:pr-5 px-2 pb-10 space-y-6">
+    <div data-tour="project-shipper-file-details-page" className="xl:pr-5 px-2 pb-10 space-y-6">
       {/* ── Header ────────────────────────────────────────────────────── */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mt-2">
         <div className="flex items-center gap-4">
@@ -185,7 +185,7 @@ const ShipperFileDetailsView: React.FC = () => {
           <Heading text="Shipper File Details" />
         </div>
 
-        <div className="flex items-center flex-wrap gap-3">
+        <div data-tour="shipper-file-actions" className="flex items-center flex-wrap gap-3">
           {shipperDoc.fileUrl && (
             <Button
               variant="white"
@@ -200,6 +200,7 @@ const ShipperFileDetailsView: React.FC = () => {
             <Button
               variant="purpleFilled"
               size="sm"
+              data-tour="shipper-file-verify"
               onClick={() => navigate(`order-verification`)}
               className="flex items-center gap-2 font-inter font-bold"
               disabled={shipperDoc?.fileStatus === "comparison_processing"}
@@ -211,6 +212,7 @@ const ShipperFileDetailsView: React.FC = () => {
             <Button
               variant="blueFilled"
               size="sm"
+              data-tour="shipper-file-comparison"
               onClick={() => navigate(`/load_planning/${requestId}/comparison-result`)}
               className="flex items-center gap-2 font-inter font-bold"
             >
@@ -221,6 +223,7 @@ const ShipperFileDetailsView: React.FC = () => {
             <Button
               variant="purpleFilled"
               size="sm"
+              data-tour="shipper-file-start-planning"
               onClick={() => navigate(`/load_planning/${shipperDoc.leadId}`)}
               className="flex items-center gap-2 font-inter font-bold"
             >

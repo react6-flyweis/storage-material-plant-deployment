@@ -83,6 +83,7 @@ const MaterialRequestDetailsModal: React.FC<MaterialRequestDetailsModalProps> = 
       isOpen={isOpen}
       onClose={onClose}
       title="Material Request Details"
+      tourId="material-request-modal"
       width="max-w-xl"
     >
       <div className="p-6 space-y-5">

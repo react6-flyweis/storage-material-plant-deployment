@@ -42,7 +42,7 @@ const ProjectDetailsCard: React.FC<ProjectDetailsCardProps> = ({
     : "N/A";
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+    <div data-tour="project-details-card" className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
       {/* Top Section: Project Title & ID */}
       <div className="p-4 lg:p-6 border-b border-[#0000004D] flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-start md:items-center gap-4">

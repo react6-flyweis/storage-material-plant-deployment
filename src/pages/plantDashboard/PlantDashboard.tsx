@@ -1,7 +1,11 @@
 import PlantPage from "../PlantPage";
 
 const PlantDashboard = () => {
-  return <PlantPage />;
+  return (
+    <div data-tour="dashboard-overview">
+      <PlantPage />
+    </div>
+  );
 };
 
 export default PlantDashboard;

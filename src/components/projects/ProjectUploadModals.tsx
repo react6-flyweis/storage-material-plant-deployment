@@ -226,7 +226,7 @@ const UploadModal: React.FC<UploadModalProps> = ({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} width="max-w-xl" hideHeader>
+    <Modal tourId="upload-file-modal" isOpen={isOpen} onClose={onClose} width="max-w-xl" hideHeader>
       {isDraggingActive && (
         <div className="fixed inset-0 z-[9999] bg-[#1849D6]/10 backdrop-blur-md flex items-center justify-center pointer-events-none">
           <div className="absolute inset-6 border-4 border-dashed border-[#1849D6] rounded-2xl flex flex-col items-center justify-center bg-white/90 space-y-4">
@@ -260,6 +260,7 @@ const UploadModal: React.FC<UploadModalProps> = ({
 
         {/* Dropzone */}
         <div
+          data-tour="upload-file-dropzone"
           onDragOver={handleDragOver}
           onDrop={handleDrop}
           className={`border-2 border-dashed border-[#1849D6] rounded-lg p-6 md:p-10 flex flex-col items-center justify-center space-y-4 bg-white transition-opacity ${
@@ -361,6 +362,7 @@ const UploadModal: React.FC<UploadModalProps> = ({
             Cancel
           </Button>
           <Button
+            data-tour="upload-file-submit"
             variant="primary"
             size="sm"
             onClick={handleUpload}

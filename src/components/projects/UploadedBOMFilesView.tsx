@@ -172,7 +172,7 @@ const UploadedBOMFilesView: React.FC = () => {
   };
 
   return (
-    <PageWrapper>
+    <PageWrapper data-tour="uploaded-bom-files-page">
       {/* ── Header ────────────────────────────────────────────────────── */}
       <div className="flex flex-wrap items-center justify-between gap-4 mt-2">
         <Heading text="Uploaded BOM Files" />
@@ -351,6 +351,7 @@ const UploadedBOMFilesView: React.FC = () => {
                     </td>
                     <td className="py-3 px-6 text-right">
                       <Button
+                        data-tour="bom-file-row-view"
                         variant={"gradient"}
                         size={"sm"}
                         onClick={() => handleViewBOM(item)}

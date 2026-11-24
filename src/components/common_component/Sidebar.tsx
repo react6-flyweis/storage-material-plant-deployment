@@ -53,6 +53,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
               <button
                 onClick={() => setActiveTab(index)}
+                data-tour-nav={item.title}
                 className="relative z-20 p-0 flex items-center group focus:outline-none"
               >
                 {/* Hover Label Pill */}

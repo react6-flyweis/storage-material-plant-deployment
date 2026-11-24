@@ -81,6 +81,7 @@ const MismatchOrderDetailsModal: React.FC<MismatchOrderDetailsModalProps> = ({
       isOpen={isOpen}
       onClose={onClose}
       title="Mismatch Order Ticket Details"
+      tourId="mismatch-modal"
       width="max-w-xl"
     >
       <div className="p-6 space-y-5">

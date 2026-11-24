@@ -173,7 +173,7 @@ const LogisticsView: React.FC = () => {
   const emptyState = !loading && vendors.length === 0;
 
   return (
-    <PageWrapper>
+    <PageWrapper data-tour="logistics-tab">
       <div className="flex flex-col gap-1 pt-1">
         <TitleSubtitle
           title="Logistics"
@@ -202,7 +202,7 @@ const LogisticsView: React.FC = () => {
             <Filter size={18} />
             Filter
           </Button>
-          <Button variant="gradient" size="sm" onClick={handleAddVendor}>
+          <Button variant="gradient" size="sm" data-tour="shipper-add" onClick={handleAddVendor}>
             <Plus size={18} /> Add Vendor
           </Button>
         </div>
@@ -337,6 +337,8 @@ const LogisticsView: React.FC = () => {
                     <td className="p-2 md:p-4">
                       <div className="flex items-center gap-3">
                         <button
+                          data-tour="shipper-row-view"
+                          title="View shipper"
                           className="p-1 rounded text-gray-600 transition-colors"
                           onClick={() =>
                             navigate(`/logistics/vendor/${vendor.id}`)
@@ -345,6 +347,7 @@ const LogisticsView: React.FC = () => {
                           <Eye size={18} />
                         </button>
                         <button
+                          title="Edit shipper"
                           className="p-1 rounded text-blue-600 transition-colors"
                           onClick={() => handleEditVendor(vendor)}
                         >

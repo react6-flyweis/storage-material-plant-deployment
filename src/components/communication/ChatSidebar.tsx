@@ -108,12 +108,13 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-gray-100 mb-2 px-2">
+      <div data-tour="chat-tabs" className="flex border-b border-gray-100 mb-2 px-2">
         <button
           className={`flex-1 py-2.5 text-sm font-semibold transition-all relative ${activeTab === "Departments"
             ? "text-[#4285F4]"
             : "text-gray-400 hover:text-gray-600"
             }`}
+          data-tour="chat-groups-tab"
           onClick={() => setActiveTab("Departments")}
         >
           Groups
@@ -126,6 +127,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
             ? "text-[#4285F4]"
             : "text-gray-400 hover:text-gray-600"
             }`}
+          data-tour="chat-direct-tab"
           onClick={() => setActiveTab("Direct")}
         >
           Direct
@@ -308,6 +310,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
       <div className="p-3 border-t border-gray-100 flex flex-col gap-2">
         {activeTab === "Direct" && (
           <button
+            data-tour="chat-new-direct"
             onClick={onOpenNewChat}
             className="w-full flex items-center justify-center gap-2 py-2 bg-[#4285F4] hover:bg-blue-600 active:scale-[0.99] text-white rounded-xl text-xs font-semibold shadow-xs transition-all"
           >

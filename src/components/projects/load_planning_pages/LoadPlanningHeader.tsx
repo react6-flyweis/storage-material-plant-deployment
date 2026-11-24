@@ -11,6 +11,7 @@ export interface HeaderAction {
   icon?: React.ReactNode;
   onClick: () => void;
   disabled?: boolean;
+  tourId?: string;
 }
 
 interface LoadPlanningHeaderProps {
@@ -127,6 +128,7 @@ const LoadPlanningHeader: React.FC<LoadPlanningHeaderProps> = ({
       {/* ── Stepper ─────────────────────────────────────────────────── */}
       <div
         ref={scrollContainerRef}
+        data-tour="load-plan-stepper"
         className="bg-white rounded-[14px] py-8 px-4 mb-6 border border-gray-100 overflow-x-auto custom-scrollbar shadow-sm"
       >
         <div className="relative flex items-center justify-between min-w-[1100px] lg:min-w-0 max-w-6xl mx-auto px-10 lg:px-14">
@@ -185,10 +187,11 @@ const LoadPlanningHeader: React.FC<LoadPlanningHeaderProps> = ({
             subtitle={description}
           />
         </div>
-        <div className="flex flex-wrap items-center gap-3">
+        <div data-tour="load-plan-actions" className="flex flex-wrap items-center gap-3">
           {actions.map((action, idx) => (
             <Button
               key={idx}
+              data-tour={action.tourId}
               variant={action.variant}
               className={action.className}
               onClick={action.onClick}

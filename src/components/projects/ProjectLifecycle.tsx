@@ -103,7 +103,7 @@ const ProjectLifecycle: React.FC<ProjectLifecycleProps> = ({
     : null;
 
   return (
-    <div className="bg-white rounded-[14px] shadow-sm border border-gray-100 p-4 md:p-6 space-y-8">
+    <div data-tour="project-lifecycle" className="bg-white rounded-[14px] shadow-sm border border-gray-100 p-4 md:p-6 space-y-8">
       <h2 className="text-xl font-semibold text-[#212B36]">Project Lifecycle</h2>
 
       {/* Timeline */}
@@ -221,16 +221,18 @@ const ProjectLifecycle: React.FC<ProjectLifecycleProps> = ({
       </div>
 
       {/* Action Buttons */}
-      <div className="flex flex-wrap items-center justify-between md:justify-start gap-4 pt-2">
+      <div data-tour="project-lifecycle-actions" className="flex flex-wrap items-center justify-between md:justify-start gap-4 pt-2">
         <Button
         variant="primary"
         size="md"
+          data-tour="project-update-step"
           onClick={() => setIsUpdateModalOpen(true)}
         >
           Update Step Status
         </Button>
         <Button
         variant="blueOutlined"
+          data-tour="project-add-note"
           onClick={() => setIsNotesModalOpen(true)}
         >
           Add Notes

@@ -490,7 +490,7 @@ const DeliveryCalendarView: React.FC = () => {
     : [];
 
   return (
-    <PageWrapper>
+    <PageWrapper data-tour="delivery-calendar-page">
       {/* Toast Notification */}
       {toastMessage && (
         <div className={`fixed top-6 right-6 z-50 text-white font-semibold px-6 py-3.5 rounded-xl shadow-lg flex items-center gap-2 animate-bounce ${toastMessage.includes("Error:") ? "bg-red-500" : "bg-[#10B981]"
@@ -502,7 +502,7 @@ const DeliveryCalendarView: React.FC = () => {
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         <TitleSubtitle title="Delivery Calendar" subtitle="Schedule and track deliveries in calendar view" />
 
-        <div className="flex flex-wrap items-center gap-4">
+        <div data-tour="delivery-calendar-controls" className="flex flex-wrap items-center gap-4">
           {/* <Button variant="blueFilled" size="sm" onClick={() => setIsFilterModalOpen(true)}>Filters</Button> */}
           <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-lg p-1">
             <button

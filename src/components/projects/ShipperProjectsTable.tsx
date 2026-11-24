@@ -161,7 +161,7 @@ const ShipperProjectsTable: React.FC<Props> = ({ data }) => {
                 <td className="py-4 px-4 text-sm text-[#475467]">{formatDate(item.latestSubmittedAt)}</td>
                 <td className="py-4 px-4 text-sm text-[#475467]">{item.totalShipperFiles}</td>
                 <td className="py-4 px-6 text-right">
-                  <button onClick={() => handleViewDetails(item)} className="text-[#475467] hover:text-black">
+                  <button data-tour="shipper-project-row-view" title="View shipper files" onClick={() => handleViewDetails(item)} className="text-[#475467] hover:text-black">
                     <Eye size={18} />
                   </button>
                 </td>

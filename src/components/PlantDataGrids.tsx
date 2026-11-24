@@ -243,7 +243,7 @@ const PlantDataGrids: React.FC<PlantDataGridsProps> = ({
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3 xl:gap-4 mt-6">
       {/* Card 1: Recent Shipper Files Received */}
-      <div className="bg-white rounded-[14px] p-4 md:p-6 shadow-sm border border-[#F4F6F8] flex flex-col">
+      <div data-tour="dashboard-shipper-files" className="bg-white rounded-[14px] p-4 md:p-6 shadow-sm border border-[#F4F6F8] flex flex-col">
         <SectionTitle title="Recent Shipper Files Received" />
         <div className="space-y-0 divide-y divide-[--border-color-secondary] max-h-[380px] overflow-y-auto pb-2">
           {isLoading ? (
@@ -323,7 +323,7 @@ const PlantDataGrids: React.FC<PlantDataGridsProps> = ({
       </div>
 
       {/* Card 2: Plant Alerts */}
-      <div className="bg-white rounded-[14px] p-4 md:p-6 shadow-sm border border-[#F4F6F8] flex flex-col">
+      <div data-tour="dashboard-plant-alerts" className="bg-white rounded-[14px] p-4 md:p-6 shadow-sm border border-[#F4F6F8] flex flex-col">
         <SectionTitle title="Plant Alerts" />
         <div className="space-y-0 divide-y divide-[#F4F6F8] max-h-[380px] overflow-y-auto pb-2">
           {isLoading ? (
@@ -387,7 +387,7 @@ const PlantDataGrids: React.FC<PlantDataGridsProps> = ({
       </div>
 
       {/* Card 3: Freight Carriers */}
-      <div className="bg-white rounded-[14px] p-4 md:p-6 shadow-sm border border-[#F4F6F8] flex flex-col">
+      <div data-tour="dashboard-freight-carriers" className="bg-white rounded-[14px] p-4 md:p-6 shadow-sm border border-[#F4F6F8] flex flex-col">
         <SectionTitle title="Freight Carriers" />
         <div className="space-y-0 divide-y divide-[#F4F6F8] max-h-[380px] overflow-y-auto pb-2">
           {isLoading ? (

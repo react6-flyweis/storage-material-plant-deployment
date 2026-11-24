@@ -187,7 +187,7 @@ const TruckOptimizerView: React.FC = () => {
       />
       <div className="p-6 pt-0">
         {data && (
-          <div className="space-y-8 bg-white rounded-xl border border-gray-100 shadow-sm p-4 md:p-8">
+          <div data-tour="wizard-trucks" className="space-y-8 bg-white rounded-xl border border-gray-100 shadow-sm p-4 md:p-8">
 
             {/* Project header */}
             <div className="bg-[#F8F9FB] rounded-xl p-4 border border-gray-100">

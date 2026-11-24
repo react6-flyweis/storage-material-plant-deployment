@@ -1,5 +1,9 @@
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { Toaster } from "sonner";
+import { tourCoordinator } from "@/modules/tour/tour.service";
+import { useTourStore } from "@/modules/tour/tour.store";
+import { WelcomeTourDialog } from "@/modules/tour/components/welcome-tour-dialog";
 import Sidebar from "@/components/common_component/Sidebar";
 import Header from "@/components/common_component/Header";
 import SidePanel from "@/components/SidePanel";
@@ -12,6 +16,11 @@ export function MainLayout() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  useEffect(() => {
+    tourCoordinator.init(navigate);
+  }, [navigate]);
+
+  const activeTourId = useTourStore((s) => s.activeTourId);
   const [isSidebarOpen, setIsSidebarOpen] = useState(() => {
     if (typeof window !== "undefined") {
       return window.innerWidth >= 1024;
@@ -20,6 +29,12 @@ export function MainLayout() {
   });
   const [activeTab, setActiveTab] = useState(0);
   const [activeSubTab, setActiveSubTab] = useState<string>("");
+
+  useEffect(() => {
+    if (activeTourId) {
+      setIsSidebarOpen(true);
+    }
+  }, [activeTourId]);
 
   const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
 
@@ -90,6 +105,8 @@ export function MainLayout() {
 
   return (
     <SocketProvider>
+      <Toaster position="top-right" richColors />
+      <WelcomeTourDialog />
       <div className="flex h-screen bg-[#E5ECFF] relative overflow-hidden">
         {isSidebarOpen && (
           <div
@@ -98,18 +115,29 @@ export function MainLayout() {
           />
         )}
 
-        <Sidebar
-          isOpen={isSidebarOpen}
-          activeTab={activeTab}
-          setActiveTab={handleTabChange}
-        />
+        <div
+          data-tour="sidebar-nav"
+          className={`fixed left-0 top-0 h-screen z-40 transition-all duration-300 pointer-events-none ${
+            isSidebarOpen
+              ? "w-[280px] md:w-[288px] lg:w-[304px]"
+              : "w-14 md:w-16 lg:w-20"
+          }`}
+        >
+          <div className="pointer-events-auto h-full flex">
+            <Sidebar
+              isOpen={isSidebarOpen}
+              activeTab={activeTab}
+              setActiveTab={handleTabChange}
+            />
 
-        <SidePanel
-          isOpen={isSidebarOpen}
-          activeTab={activeTab}
-          activeSubTab={activeSubTab}
-          onSubTabClick={handleSubTabChange}
-        />
+            <SidePanel
+              isOpen={isSidebarOpen}
+              activeTab={activeTab}
+              activeSubTab={activeSubTab}
+              onSubTabClick={handleSubTabChange}
+            />
+          </div>
+        </div>
 
         <div
           className={`flex-1 min-w-0 flex flex-col h-screen transition-all duration-300 ease-in-out ${isSidebarOpen
