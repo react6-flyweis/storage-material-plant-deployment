@@ -107,7 +107,7 @@ const ViewDrawingModal: React.FC<ViewDrawingModalProps> = ({
     Boolean(customerSuggestionText);
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="" width="max-w-5xl" height="max-h-[85vh]">
+    <Modal tourId="drawing-preview-modal" isOpen={isOpen} onClose={onClose} title="" width="max-w-5xl" height="max-h-[85vh]">
       <div className="flex flex-col gap-3">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between pb-3 border-b border-gray-100 gap-3 relative">

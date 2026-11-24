@@ -267,7 +267,7 @@ const ComparisonResultView: React.FC = () => {
           </div>
         </div>
         {data.status === "comparison_completed" && (
-          <div className="flex items-center gap-3 ml-auto">
+          <div data-tour="comparison-actions" className="flex items-center gap-3 ml-auto">
             <Button
               variant="grayFilled"
               size="sm"
@@ -313,7 +313,7 @@ const ComparisonResultView: React.FC = () => {
       </div>
 
       {/* ── Stats Cards ───────────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 lg:gap-4 mb-8">
+      <div data-tour="comparison-stats" className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 lg:gap-4 mb-8">
         {stats.map((stat) => {
           const isSelected = activeKpi === stat.id || (stat.id === "total" && activeKpi === null);
           return (

@@ -155,7 +155,7 @@ const CarrierForm: React.FC<CarrierFormProps> = ({
         )}
 
         <div className="flex flex-col">
-          <AccordionSection title="Carriers Information">
+          <AccordionSection title="Carriers Information" tourId="carrier-form-info">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <Controller
                 control={control}

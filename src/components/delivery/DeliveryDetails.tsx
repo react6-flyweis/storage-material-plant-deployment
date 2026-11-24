@@ -159,6 +159,7 @@ const DeliveryStatusActionButton = ({
   return (
     <button
       type="button"
+      data-tour="delivery-update-status"
       onClick={onClick}
       disabled={disabled || isDelivered}
       className="w-full flex items-center justify-between px-5 py-3 bg-white border-[0.7px] border-[#0000001A] rounded-[8px] transition-all group shadow-xs md:text-left disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50/80"
@@ -255,7 +256,7 @@ const DeliveryDetails: React.FC<DeliveryDetailsProps> = ({
 
   if (isLoading) {
     return (
-      <div className="xl:pr-5 px-2 pb-10 space-y-6 animate-pulse">
+      <div data-tour="delivery-details-page" className="xl:pr-5 px-2 pb-10 space-y-6 animate-pulse">
         {/* Header Skeleton */}
         <div className="flex flex-wrap md:items-center justify-between gap-4 mt-2">
           <div className="flex items-center gap-4">
@@ -358,7 +359,7 @@ const DeliveryDetails: React.FC<DeliveryDetailsProps> = ({
 
   if (!delivery) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 text-center p-8 bg-white border border-gray-100 rounded-[14px] shadow-sm my-12 font-inter">
+      <div data-tour="delivery-details-page" className="flex flex-col items-center justify-center py-16 text-center p-8 bg-white border border-gray-100 rounded-[14px] shadow-sm my-12 font-inter">
         <h3 className="text-lg font-semibold text-[#212B36] mb-2">
           No Delivery Available
         </h3>
@@ -403,7 +404,7 @@ const DeliveryDetails: React.FC<DeliveryDetailsProps> = ({
   };
 
   return (
-    <div className="xl:pr-5 px-2 pb-10 space-y-6 relative">
+    <div data-tour="delivery-details-page" className="xl:pr-5 px-2 pb-10 space-y-6 relative">
       {/* Toast Notification */}
       {toastMessage && (
         <div className={`fixed top-6 right-6 z-50 text-white font-semibold px-6 py-3.5 rounded-xl shadow-lg flex items-center gap-2 animate-bounce ${toastMessage.includes("Error:") ? "bg-red-500" : "bg-[#10B981]"
@@ -432,6 +433,7 @@ const DeliveryDetails: React.FC<DeliveryDetailsProps> = ({
                 variant="white"
                 size="md"
                 className="px-6 text-[#212B36] font-semibold"
+                data-tour="delivery-reschedule"
                 onClick={() => openModal("reschedule")}
               >
                 <RotateCcw size={16} className="mr-2" /> Reschedule
@@ -599,7 +601,7 @@ const DeliveryDetails: React.FC<DeliveryDetailsProps> = ({
               currentStatus === "dispatched_to_site" ||
               currentStatus === "cancelled";
             return (
-              <div className="bg-white border border-[#0000001A] rounded-[14px] p-5 shadow-sm space-y-4">
+              <div data-tour="delivery-quick-actions" className="bg-white border border-[#0000001A] rounded-[14px] p-5 shadow-sm space-y-4">
                 <h2 className="text-base font-semibold text-[#212B36]">Quick Actions</h2>
                 <div className="space-y-3">
                   <DeliveryStatusActionButton

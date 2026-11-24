@@ -135,7 +135,7 @@ const ShipperFilesView: React.FC = () => {
 
   if (error) {
     return (
-      <div className="xl:pr-5 px-2 pb-10 space-y-6">
+      <div data-tour="project-shipper-files-page" className="xl:pr-5 px-2 pb-10 space-y-6">
         <div className="flex items-center gap-4 mt-2">
           <Button
             variant="blueFilled"
@@ -161,7 +161,7 @@ const ShipperFilesView: React.FC = () => {
 
   if (allFiles.length === 0) {
     return (
-      <div className="xl:pr-5 px-2 pb-10 space-y-6">
+      <div data-tour="project-shipper-files-page" className="xl:pr-5 px-2 pb-10 space-y-6">
         {/* ── Header ────────────────────────────────────────────────────── */}
         <div className="flex items-center gap-4 mt-2">
           <Button
@@ -206,7 +206,7 @@ const ShipperFilesView: React.FC = () => {
   };
 
   return (
-    <div className="xl:pr-5 px-2 pb-10 space-y-6">
+    <div data-tour="project-shipper-files-page" className="xl:pr-5 px-2 pb-10 space-y-6">
       {/* ── Header ────────────────────────────────────────────────────── */}
       <div className="flex items-center gap-4 mt-2">
         <Button

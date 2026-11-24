@@ -103,7 +103,7 @@ const Step1ItemAnalysis: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm space-y-5">
+      <div data-tour="wizard-item-analysis" className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm space-y-5">
         {/* Project Details Header */}
         <div className="bg-[#F8F9FB] rounded-xl p-4 border border-gray-100">
           <CommonInfoList

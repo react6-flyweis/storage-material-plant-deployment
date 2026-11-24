@@ -63,7 +63,7 @@ const PackingListView: React.FC = () => {
   };
 
   return (
-    <div className="xl:pr-2 md:px-4 px-2 pb-10 space-y-6">
+    <div data-tour="packing-list-page" className="xl:pr-2 md:px-4 px-2 pb-10 space-y-6">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mt-2">
         <TitleSubtitle
@@ -169,6 +169,7 @@ const PackingListView: React.FC = () => {
                     </td>
                     <td className="p-3 md:p-4 text-center">
                       <button
+                        data-tour="packing-list-row-view"
                         onClick={() => navigate(`/load_planning/packing-list/${item.projectId}`)}
                         className="p-1.5 text-gray-400 hover:text-[#1E51A4] rounded-lg hover:bg-gray-50 transition-all"
                         title="View Project Packing Lists"

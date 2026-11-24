@@ -59,7 +59,7 @@ const ProductionManagementView = () => {
   );
 
   return (
-    <PageWrapper>
+    <PageWrapper data-tour="projects-tab">
       <TitleSubtitle
         title={productionManagementText.header.title}
         subtitle={productionManagementText.header.subtitle}

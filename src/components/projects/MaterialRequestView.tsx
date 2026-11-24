@@ -468,7 +468,7 @@ const MaterialRequestView: React.FC = () => {
   };
 
   return (
-    <div className="xl:pr-5 md:px-4 px-2 pb-10 space-y-5">
+    <div data-tour="project-material-orders-page" className="xl:pr-5 md:px-4 px-2 pb-10 space-y-5">
       {/* ── Top Header ────────────────────────────────────────────────── */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mt-2">
         <div className="flex items-center gap-4">
@@ -495,8 +495,9 @@ const MaterialRequestView: React.FC = () => {
       </div>
 
       {/* ── Tab Switcher ──────────────────────────────────────────────── */}
-      <div className="flex items-center gap-3 pt-1">
+      <div data-tour="project-material-orders-tabs" className="flex items-center gap-3 pt-1">
         <button
+          data-tour="material-request-tab"
           onClick={() => setActiveTab("material-request")}
           className={`px-6 py-2.5 rounded-[10px] text-sm font-semibold transition-all ${
             activeTab === "material-request"
@@ -507,6 +508,7 @@ const MaterialRequestView: React.FC = () => {
           Additional Material Request
         </button>
         <button
+          data-tour="mismatch-orders-tab"
           onClick={() => setActiveTab("mismatch-orders")}
           className={`px-6 py-2.5 rounded-[10px] text-sm font-semibold transition-all ${
             activeTab === "mismatch-orders"
@@ -714,6 +716,7 @@ const MaterialRequestView: React.FC = () => {
                         </td>
                         <td className="py-4 px-6 text-center">
                           <button
+                            data-tour="material-request-row-view"
                             onClick={() => setSelectedOrder(order)}
                             className="text-[#637381] hover:text-[#212B36] p-1.5 rounded-md hover:bg-gray-100 transition-colors"
                             title="View order details"
@@ -765,7 +768,7 @@ const MaterialRequestView: React.FC = () => {
 
       {/* ── Tab 2: Mismatch Orders ───────────────────────────────────── */}
       {activeTab === "mismatch-orders" && (
-        <div className="bg-white rounded-[14px] shadow-sm border border-[#EAEFF4] overflow-hidden">
+        <div data-tour="mismatch-orders-panel" className="bg-white rounded-[14px] shadow-sm border border-[#EAEFF4] overflow-hidden">
           {/* Card Top Header */}
           <div className="p-6 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
@@ -933,6 +936,7 @@ const MaterialRequestView: React.FC = () => {
                         </td>
                         <td className="py-4 px-6 text-center">
                           <button
+                            data-tour="mismatch-row-view"
                             onClick={() => setSelectedMismatch(order)}
                             className="text-[#637381] hover:text-[#212B36] p-1.5 rounded-md hover:bg-gray-100 transition-colors"
                             title="View mismatch details"

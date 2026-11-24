@@ -329,7 +329,7 @@ const CarrierDetailsView: React.FC = () => {
           {/* Main Content (Left 2/3) */}
           <div className="lg:col-span-2 space-y-6">
             {/* Profile Card */}
-            <div className="bg-[#F7F8F9] rounded-[14px] p-3 md:p-6 shadow-sm relative">
+            <div data-tour="carrier-details-profile" className="bg-[#F7F8F9] rounded-[14px] p-3 md:p-6 shadow-sm relative">
               <div className="flex justify-between items-start mb-6 ">
                 <div className="space-y-1">
                   <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-3 gap-y-1 text-sm">

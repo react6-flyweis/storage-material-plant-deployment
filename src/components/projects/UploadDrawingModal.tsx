@@ -83,7 +83,7 @@ const UploadDrawingModal: React.FC<UploadDrawingModalProps> = ({
 
   return (
     <>
-      <Modal isOpen={isOpen} onClose={onClose} width="max-w-2xl" hideHeader>
+      <Modal tourId="upload-drawing-modal" isOpen={isOpen} onClose={onClose} width="max-w-2xl" hideHeader>
         <div className="p-1 space-y-6">
           {/* Header */}
           <div className="flex items-center justify-between">
@@ -173,6 +173,7 @@ const UploadDrawingModal: React.FC<UploadDrawingModalProps> = ({
                       </div>
                       <div className="shrink-0 flex items-center">
                         <Button
+                          data-tour="drawing-upload-file"
                           variant={b.hasDrawing ? "secondary" : "primary"}
                           size="sm"
                           disabled={isApproved}

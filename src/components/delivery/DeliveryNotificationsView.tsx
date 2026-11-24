@@ -200,7 +200,7 @@ const DeliveryNotificationsView: React.FC = () => {
   };
 
   return (
-    <PageWrapper>
+    <PageWrapper data-tour="delivery-notifications-page">
       {/* Toast message */}
       {toastMessage && (
         <div
@@ -393,6 +393,7 @@ const DeliveryNotificationsView: React.FC = () => {
 
                       <td className="p-2 md:p-4 text-center">
                         <Button
+                          data-tour="delivery-notification-resend"
                           variant="gradient"
                           size="sm"
                           onClick={(e) => handleResend(e, n)}

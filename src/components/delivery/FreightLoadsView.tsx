@@ -183,7 +183,7 @@ const FreightLoadsView: React.FC = () => {
   };
 
   return (
-    <PageWrapper>
+    <PageWrapper data-tour="freight-loads-page">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
         <TitleSubtitle
@@ -291,6 +291,7 @@ const FreightLoadsView: React.FC = () => {
                     </td>
                     <td className="p-2 md:p-4 border border-gray-200 text-center">
                       <Button
+                        data-tour="freight-load-row-view"
                         variant="white"
                         size="sm"
                         onClick={() => navigate(`/delivery/freight-request/${item?.requestId}/`)}

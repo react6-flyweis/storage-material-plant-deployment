@@ -31,7 +31,7 @@ export const RequestRevisionModal: React.FC<RequestRevisionModalProps> = ({
   const currentAmountStr = carrier?.bidAmount !== undefined ? `$${carrier.bidAmount.toLocaleString()}` : (carrier?.amount || "$2,850");
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} hideHeader width="max-w-[620px]">
+    <Modal tourId="request-revision-modal" isOpen={isOpen} onClose={onClose} hideHeader width="max-w-[620px]">
       <div className="p-2 md:p-3 space-y-8 font-inter">
         {/* Header */}
         <div className="flex items-center gap-4">

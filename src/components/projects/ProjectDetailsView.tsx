@@ -132,7 +132,10 @@ const ProjectDetailsView = () => {
   return (
     <PageWrapper>
       {/* Header Section */}
-      <div className="flex flex-wrap md:items-center justify-between gap-4 mt-2">
+      <div
+        data-tour="project-details-header"
+        className="flex flex-wrap md:items-center justify-between gap-4 mt-2"
+      >
         <div className="flex items-center gap-4">
           <Button
             variant="blueFilled"
@@ -150,10 +153,14 @@ const ProjectDetailsView = () => {
           </h1>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3 ml-auto">
+        <div
+          data-tour="project-upload-actions"
+          className="flex flex-wrap items-center gap-3 ml-auto"
+        >
           <Button
             variant="white"
             size="sm"
+            data-tour="project-upload-bom"
             onClick={handleBOMOpen}
             className="flex items-center gap-2 px-2 py-2 md:px-4 md:py-2.5 bg-white border border-[#1E51A4] text-[#212B36] rounded-lg hover:bg-gray-50 transition-colors font-inter font-bold text-xs md:text-sm shadow-sm"
           >
@@ -163,6 +170,7 @@ const ProjectDetailsView = () => {
           <Button
             variant="white"
             size="sm"
+            data-tour="project-upload-drawing"
             onClick={() => setIsDrawingUploadOpen(true)}
             className="flex items-center gap-2 px-2 py-2 md:px-4 md:py-2.5 bg-white border border-[#1E51A4] text-[#212B36] rounded-lg hover:bg-gray-50 transition-colors font-inter font-bold text-xs md:text-sm shadow-sm"
           >

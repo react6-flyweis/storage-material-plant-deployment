@@ -307,7 +307,7 @@ const FreightRequestDetailsView: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="grid gap-4">
+                <div data-tour="freight-request-bids" className="grid gap-4">
                   {(bidsResponse?.bids ?? []).map((bid, idx) => (
                     <BidCard
                       key={bid.bidId}

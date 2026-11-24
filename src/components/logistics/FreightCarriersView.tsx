@@ -150,7 +150,7 @@ const FreightCarriersView: React.FC = () => {
   const loadingRows = Array.from({ length: 5 });
 
   return (
-    <PageWrapper>
+    <PageWrapper data-tour="carriers-page">
       <div className="flex flex-col gap-1 pt-1">
         <TitleSubtitle
           title="Carrier Master"
@@ -178,7 +178,7 @@ const FreightCarriersView: React.FC = () => {
           >
             <Filter size={18} /> Filter
           </Button> */}
-          <Button variant="gradient" size="sm" onClick={handleAddCarrier}>
+          <Button variant="gradient" size="sm" data-tour="carrier-add" onClick={handleAddCarrier}>
             <Plus size={18} /> Add Carrier
           </Button>
         </div>
@@ -309,6 +309,8 @@ const FreightCarriersView: React.FC = () => {
                     <td className="p-2 md:p-4">
                       <div className="flex items-center gap-3">
                         <button
+                          data-tour="carrier-row-view"
+                          title="View carrier"
                           className="p-1 rounded text-gray-600 transition-colors"
                           onClick={() =>
                             navigate(`/logistics/carrier/${carrier.id}`)
@@ -317,6 +319,7 @@ const FreightCarriersView: React.FC = () => {
                           <Eye size={18} />
                         </button>
                         <button
+                          title="Edit carrier"
                           className="p-1 rounded text-blue-600 transition-colors"
                           onClick={() => handleEditCarrier(carrier)}
                         >

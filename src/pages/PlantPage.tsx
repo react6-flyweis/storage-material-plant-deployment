@@ -89,6 +89,7 @@ const PlantPage = () => {
           subtitle={dashboardText.header.subtitle}
         />
         <button
+          data-tour="dashboard-refresh"
           onClick={() => refetch()}
           disabled={isFetching}
           className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-600 hover:text-[#155DFC] bg-white border border-gray-200 rounded-lg hover:border-[#155DFC]/40 transition-colors shadow-xs"
@@ -103,10 +104,12 @@ const PlantPage = () => {
       </div>
 
       {/* Stats Cards Section */}
-      <PlantStatsCards
-        stats={dashboardData?.stats}
-        isLoading={isLoading}
-      />
+      <div data-tour="dashboard-stats">
+        <PlantStatsCards
+          stats={dashboardData?.stats}
+          isLoading={isLoading}
+        />
+      </div>
 
       {/* Production Overview */}
       <ProductionOverview
@@ -125,7 +128,7 @@ const PlantPage = () => {
       />
 
       {/* Recent Shipper Files Table */}
-      <div className="space-y-4">
+      <div className="space-y-4" data-tour="dashboard-shipper-files-table">
         <SubHeading text="Recent Shipper Files" />
         <RecentShipperFilesTable
           data={dashboardData?.recentShipperFiles ?? []}
@@ -134,7 +137,7 @@ const PlantPage = () => {
       </div>
 
       {/* Drawing Approval Status Table */}
-      <div className="space-y-4">
+      <div className="space-y-4" data-tour="dashboard-drawing-approvals">
         <SubHeading text="Drawing Approval Status" />
         <DrawingApprovalStatusTable
           data={dashboardData?.drawingApprovalStatus ?? []}

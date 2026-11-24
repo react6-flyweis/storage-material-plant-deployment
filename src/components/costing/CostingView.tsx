@@ -205,7 +205,7 @@ const CostingView: React.FC = () => {
   };
 
   return (
-    <PageWrapper>
+    <PageWrapper data-tour="costing-tab">
       {/* Toast Notification */}
       {toastMessage && (
         <div className={`fixed top-6 right-6 z-50 text-white font-semibold px-6 py-3.5 rounded-xl shadow-lg flex items-center gap-2 animate-bounce ${toastMessage.includes("Error:") ? "bg-red-500" : "bg-[#10B981]"
@@ -231,7 +231,7 @@ const CostingView: React.FC = () => {
           {/* <Button variant="grayFilled" size="sm" onClick={() => setIsModalOpen(true)}>
             <CirclePlus size={16} /> Check BOM Costing
           </Button> */}
-          <Button variant="gradient" size="sm" onClick={handleAdd}>
+          <Button variant="gradient" size="sm" data-tour="costing-add-part" onClick={handleAdd}>
             <CirclePlus size={16} /> Add New Item/Part Cost
           </Button>
         </div>
